@@ -1,0 +1,79 @@
+{
+  "rules": {
+    ".read": "auth != null",
+    "parties": {
+      ".read": true,
+      "$partyId": {
+        ".write": "auth != null",
+        ".validate": "newData.hasChildren(['nest', 'maxMember', 'leader'])",
+        "members": {
+          ".write": "auth != null && (!data.exists() || !data.child(newData.child('userId').val()).exists())",
+          "$memberId": {
+            ".validate": "newData.hasChildren(['userId', 'joinedAt']) && newData.child('userId').val() === auth.uid && newData.child('joinedAt').isString()",
+            "userId": {
+              ".validate": "newData.val() === auth.uid"
+            },
+            "joinedAt": {
+              ".validate": "newData.isString() && newData.val().matches(/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.*Z$/)"
+            }
+          }
+        },
+        "goals": {
+          ".write": "auth != null && root.child('parties').child($partyId).child('leader').val() === auth.uid",
+          ".validate": "newData.hasChildren(['atk', 'hp', 'cri', 'def'])",
+          "atk": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+          "hp": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+          "cri": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+          "def": { ".validate": "newData.isNumber() && newData.val() >= 0" }
+        },
+        "leader": {
+          ".validate": "auth != null && (!data.exists() || data.val() === auth.uid)"
+        },
+        "maxMember": {
+          ".validate": "newData.isNumber() && newData.val() > 0 && newData.val() <= 8"
+        },
+        "nest": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        }
+      }
+    },
+    "users": {
+      "$uid": {
+        ".read": "auth != null",
+        ".write": "auth != null && auth.uid === $uid",
+        "characters": {
+          ".write": "auth != null && auth.uid === $uid",
+          "$characterId": {
+            ".validate": "newData.hasChildren(['name', 'class', 'mainClass', 'stats'])",
+            "name": { ".validate": "newData.isString() && newData.val().length > 0" },
+            "class": { ".validate": "newData.isString()" },
+            "mainClass": { ".validate": "newData.isString()" },
+            "level": { ".validate": "newData.isNumber() && newData.val() >= 1" },
+            "stats": {
+              "atk": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+              "hp": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+              "pdef": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+              "mdef": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+              "cri": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+              "ele": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+              "fd": { ".validate": "newData.isNumber() && newData.val() >= 0" }
+            },
+            "checklist": {
+              "daily": {
+                "dailyQuest": { ".validate": "newData.isBoolean()" },
+                "ftg": { ".validate": "newData.isBoolean()" }
+              },
+              "weekly": {
+                "$task": { ".validate": "newData.isNumber() && newData.val() >= 0" }
+              }
+            }
+          }
+        },
+        "meta": {
+          ".write": "auth != null && auth.uid === $uid",
+          "discord": { ".validate": "newData.isString()" }
+        }
+      }
+    }
+  }
+} 
