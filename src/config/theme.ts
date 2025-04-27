@@ -2,7 +2,7 @@ import type { CharacterClass } from '../types/character';
 import { Role } from '@/types/character';
 
 // สีหลักสำหรับพื้นหลังและ Progress bar
-export const CLASS_COLORS: Record<Role, { bg: string; text: string; border: string }> = {
+export const CLASS_COLORS: Record<Role, { bg: string; text: string; border: string; icon?: string }> = {
   Warrior: {
     bg: 'bg-red-50',
     text: 'text-red-700',
@@ -71,7 +71,7 @@ export const CLASS_TO_ROLE: Record<CharacterClass, Role> = {
   'Alchemist': 'Academic'
 };
 
-export const getClassColors = (role: Role) => {
+export const getClassColors = (role: Role): { text: string; bg: string; border: string; icon?: string } => {
   switch (role) {
     case 'Warrior':
       return {
@@ -122,7 +122,7 @@ export function formatNumber(value: number): string {
   return value.toString();
 }
 
-export const ROLE_COLORS: Record<Role, { bg: string; text: string; border: string; }> = {
+export const ROLE_COLORS: Record<Role, { bg: string; text: string; border: string; icon?: string }> = {
   Warrior: {
     bg: 'bg-red-100',
     text: 'text-red-800',
