@@ -63,7 +63,7 @@ export function WeeklyChecklist({ character }: WeeklyChecklistProps) {
           />
           <StatDisplay
             label="DEF"
-            value={character.stats.def || 0}
+            value={character.stats.pdef || 0}
             icon="🛡️"
             className="bg-blue-500/10"
           />
