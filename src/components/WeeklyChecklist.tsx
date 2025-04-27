@@ -110,3 +110,4 @@ export function WeeklyChecklist({ character }: WeeklyChecklistProps) {
     </Card>
   );
 } 
+
