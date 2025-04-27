@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { CLASS_TO_MAIN_CLASS } from '@/config/theme'
+import { CLASS_TO_ROLE } from '@/config/theme'
 import { useRouter } from 'next/navigation'
 import { checkAndResetChecklist } from '@/lib/checklist'
 import { DiscordDropdown } from '@/components/DiscordDropdown'
@@ -25,24 +25,24 @@ import { WEEKLY_MAX_VALUES } from '@/constants/checklist';
 import { motion } from 'framer-motion';
 
 const CHARACTER_CLASSES: CharacterClass[] = [
-  'Swordsman',
+  'Sword Master',
   'Mercenary',
   'Bowmaster',
   'Acrobat',
   'Force User',
   'Elemental Lord',
   'Paladin',
-  'Saint',
+  'Priest',
   'Engineer',
-  'Alchemist',
+  'Alchemist'
 ];
 
 const CHARACTER_MAIN_CLASSES: CharacterMainClass[] = [
   'Warrior',
   'Archer',
-  'Sorceress',
+  'Sorcerer',
   'Cleric',
-  'Academic',
+  'Tinkerer'
 ];
 
 const defaultWeeklyChecklist = {
@@ -100,18 +100,56 @@ const defaultEditableStats: EditableStats = {
 const defaultCharacter: Character = {
   id: '',
   name: '',
-  class: 'Swordsman',
-  mainClass: 'Warrior',
   level: 1,
-  userId: '',
-  stats: defaultStats,
-  checklist: DEFAULT_CHECKLIST
+  class: 'Sword Master',
+  mainClass: 'Warrior',
+  stats: {
+    str: 0,
+    agi: 0,
+    int: 0,
+    vit: 0,
+    spr: 0,
+    points: 0,
+    atk: 0,
+    hp: 0,
+    fd: 0,
+    cri: 0,
+    ele: 0,
+    pdef: 0,
+    mdef: 0
+  },
+  checklist: {
+    daily: {
+      dailyQuest: false,
+      ftg: false
+    },
+    weekly: {
+      minotaur: 0,
+      cerberus: 0,
+      cerberusHell: 0,
+      cerberusChallenge: 0,
+      manticore: 0,
+      manticoreHell: 0,
+      apocalypse: 0,
+      apocalypseHell: 0,
+      seaDragon: 0,
+      seaDragonHell: 0,
+      seaDragonChallenge: 0,
+      themePark: 0,
+      themeHell: 0,
+      chaosRiftKamala: 0,
+      chaosRiftBairra: 0,
+      banquetHall: 0,
+      jealousAlbeuteur: 0
+    }
+  },
+  userId: ''
 };
 
 const defaultEditableCharacter: EditableCharacter = {
   id: '',
   name: '',
-  class: 'Swordsman',
+  class: 'Sword Master',
   mainClass: 'Warrior',
   level: 1,
   userId: '',
@@ -176,17 +214,17 @@ const migrateCharacterChecklist = async (userId: string, characterId: string, ch
   }
 };
 
-const CLASS_ICONS: Record<string, JSX.Element> = {
-  Swordsman: <span role="img" aria-label="Swordsman">⚔️</span>,
-  Mercenary: <span role="img" aria-label="Mercenary">🪓</span>,
-  Bowmaster: <span role="img" aria-label="Bowmaster">🏹</span>,
-  Acrobat: <span role="img" aria-label="Acrobat">🤸‍♂️</span>,
+const classIcons = {
+  'Sword Master': <span role="img" aria-label="Sword Master">⚔️</span>,
+  'Mercenary': <span role="img" aria-label="Mercenary">⚔️</span>,
+  'Bowmaster': <span role="img" aria-label="Bowmaster">🏹</span>,
+  'Acrobat': <span role="img" aria-label="Acrobat">🏹</span>,
   'Force User': <span role="img" aria-label="Force User">🔮</span>,
-  'Elemental Lord': <span role="img" aria-label="Elemental Lord">🌪️</span>,
-  Paladin: <span role="img" aria-label="Paladin">🛡️</span>,
-  Saint: <span role="img" aria-label="Saint">✨</span>,
-  Engineer: <span role="img" aria-label="Engineer">🔧</span>,
-  Alchemist: <span role="img" aria-label="Alchemist">⚗️</span>,
+  'Elemental Lord': <span role="img" aria-label="Elemental Lord">🔮</span>,
+  'Paladin': <span role="img" aria-label="Paladin">🛡️</span>,
+  'Priest': <span role="img" aria-label="Priest">✨</span>,
+  'Engineer': <span role="img" aria-label="Engineer">🔧</span>,
+  'Alchemist': <span role="img" aria-label="Alchemist">🔧</span>
 };
 
 export default function MyPage() {
@@ -194,7 +232,7 @@ export default function MyPage() {
   const router = useRouter()
   const [characters, setCharacters] = useState<Character[]>([])
   const [newCharacterName, setNewCharacterName] = useState('')
-  const [newCharacterClass, setNewCharacterClass] = useState<CharacterClass>('Swordsman')
+  const [newCharacterClass, setNewCharacterClass] = useState<CharacterClass>('Sword Master')
   const [newCharacterMainClass, setNewCharacterMainClass] = useState<CharacterMainClass>('Warrior')
   const [isAddingCharacter, setIsAddingCharacter] = useState(false)
   const [isEditingCharacter, setIsEditingCharacter] = useState(false)
@@ -231,7 +269,7 @@ export default function MyPage() {
   const [newCharacter, setNewCharacter] = useState<EditableCharacter>({
     id: '',
     name: '',
-    class: 'Swordsman',
+    class: 'Sword Master',
     mainClass: 'Warrior',
     level: 1,
     userId: '',
@@ -301,7 +339,7 @@ export default function MyPage() {
   useEffect(() => {
     if (!isAddingCharacter && !isEditingCharacter) {
       setNewCharacterName('')
-      setNewCharacterClass('Swordsman')
+      setNewCharacterClass('Sword Master')
       setNewCharacterMainClass('Warrior')
       setStats({
         str: '',
@@ -327,39 +365,15 @@ export default function MyPage() {
     checkAndResetChecklist(user.uid);
   }, [user]);
 
-  const handleAddCharacter = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleAddCharacter = async (character: Character) => {
     if (!user) {
-      toast.error('กรุณาเข้าสู่ระบบก่อนเพิ่มตัวละคร');
+      router.push('/login');
       return;
     }
 
     try {
-      const characterToAdd: Character = {
-        id: nanoid(),
-        name: newCharacter.name,
-        class: newCharacter.class,
-        mainClass: newCharacter.mainClass,
-        level: newCharacter.level,
-        userId: user.uid,
-        stats: convertToCharacterStats(newCharacter.stats),
-        checklist: DEFAULT_CHECKLIST
-      };
-
-      const characterRef = ref(database, `users/${user.uid}/characters/${characterToAdd.id}`);
-      await set(characterRef, characterToAdd);
-
-      setNewCharacter({
-        id: '',
-        name: '',
-        class: 'Swordsman',
-        mainClass: 'Warrior',
-        level: 1,
-        userId: '',
-        stats: defaultEditableStats,
-        checklist: DEFAULT_CHECKLIST
-      });
-      setIsAddModalOpen(false);
+      const characterRef = ref(database, `users/${user.uid}/characters/${character.id}`);
+      await set(characterRef, character);
       toast.success('เพิ่มตัวละครสำเร็จ');
     } catch (error) {
       console.error('Error adding character:', error);
@@ -419,20 +433,41 @@ export default function MyPage() {
     }
   };
 
-  const handleEditCharacter = (character: Character) => {
-    setEditingCharacterId(character.id);
-    const editableChar: EditableCharacter = {
-      id: character.id,
-      name: character.name,
-      class: character.class,
-      mainClass: character.mainClass,
-      level: character.level,
-      userId: character.userId,
-      stats: convertToEditableStats(character.stats),
-      checklist: character.checklist
+  const handleEditCharacter = async () => {
+    if (!editingCharacter || !editingCharacter.name.trim() || !user) return;
+
+    const updatedCharacter: Character = {
+      ...editingCharacter,
+      name: editingCharacter.name,
+      class: editingCharacter.class,
+      mainClass: CLASS_TO_ROLE[editingCharacter.class],
+      stats: {
+        str: Number(editingCharacter.stats.str) || 0,
+        agi: Number(editingCharacter.stats.agi) || 0,
+        int: Number(editingCharacter.stats.int) || 0,
+        vit: Number(editingCharacter.stats.vit) || 0,
+        spr: Number(editingCharacter.stats.spr) || 0,
+        points: Number(editingCharacter.stats.points) || 0,
+        atk: Number(editingCharacter.stats.atk) || 0,
+        hp: Number(editingCharacter.stats.hp) || 0,
+        fd: Number(editingCharacter.stats.fd) || 0,
+        cri: Number(editingCharacter.stats.cri) || 0,
+        ele: Number(editingCharacter.stats.ele) || 0,
+        pdef: Number(editingCharacter.stats.pdef) || 0,
+        mdef: Number(editingCharacter.stats.mdef) || 0
+      }
     };
-    setEditingCharacter(editableChar);
-    setIsEditModalOpen(true);
+
+    try {
+      const characterRef = ref(database, `users/${user.uid}/characters/${editingCharacter.id}`);
+      await update(characterRef, updatedCharacter);
+      setIsEditModalOpen(false);
+      setEditingCharacter(null);
+      toast.success('อัพเดทตัวละครสำเร็จ');
+    } catch (error) {
+      console.error('Error updating character:', error);
+      toast.error('เกิดข้อผิดพลาดในการอัพเดทตัวละคร');
+    }
   };
 
   const handleChecklistChange = async (characterId: string, newChecklist: CharacterChecklist) => {
@@ -520,8 +555,7 @@ export default function MyPage() {
     if (!user || !editingCharacter) return;
 
     try {
-      await handleUpdateCharacter(editingCharacter.id, editingCharacter);
-      setIsEditModalOpen(false);
+      await handleEditCharacter();
     } catch (error) {
       console.error('Error updating character:', error);
       toast.error('เกิดข้อผิดพลาดในการอัพเดทข้อมูล');
@@ -567,20 +601,39 @@ export default function MyPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
+    if (!user) {
+      router.push('/login');
+      return;
+    }
 
-    const newCharacterData: EditableCharacter = {
-      id: '',
-      name: newCharacterName,
-      class: 'Swordsman',
-      mainClass: 'Warrior',
+    const newCharacterData: Character = {
+      id: crypto.randomUUID(),
+      name: newCharacter.name,
+      class: newCharacter.class,
+      mainClass: newCharacter.mainClass,
       level: 1,
       userId: user.uid,
-      stats: defaultEditableStats,
+      stats: {
+        str: Number(newCharacter.stats.str),
+        agi: Number(newCharacter.stats.agi),
+        int: Number(newCharacter.stats.int),
+        vit: Number(newCharacter.stats.vit),
+        spr: Number(newCharacter.stats.spr),
+        points: Number(newCharacter.stats.points),
+        atk: Number(newCharacter.stats.atk),
+        hp: Number(newCharacter.stats.hp),
+        fd: Number(newCharacter.stats.fd),
+        cri: Number(newCharacter.stats.cri),
+        ele: Number(newCharacter.stats.ele),
+        pdef: Number(newCharacter.stats.pdef),
+        mdef: Number(newCharacter.stats.mdef)
+      },
       checklist: DEFAULT_CHECKLIST
     };
 
-    handleAddCharacter(e);
+    await handleAddCharacter(newCharacterData);
+    setIsAddModalOpen(false);
+    setNewCharacter(defaultEditableCharacter);
   };
 
   const handleUpdateCharacter = async (characterId: string, updates: Partial<EditableCharacter>) => {
@@ -653,7 +706,7 @@ export default function MyPage() {
             <Select
               value={newCharacter.class}
               onValueChange={(value: CharacterClass) => {
-                const mainClass = CLASS_TO_MAIN_CLASS[value];
+                const mainClass = CLASS_TO_ROLE[value];
                 setNewCharacter({ 
                   ...newCharacter, 
                   class: value,
@@ -667,7 +720,7 @@ export default function MyPage() {
               <SelectContent>
                 {CHARACTER_CLASSES.map((characterClass) => (
                   <SelectItem key={characterClass} value={characterClass} className="flex items-center gap-2">
-                    <span className="mr-2">{CLASS_ICONS[characterClass]}</span>
+                    <span className="mr-2">{classIcons[characterClass]}</span>
                     {characterClass}
                   </SelectItem>
                 ))}
@@ -702,18 +755,9 @@ export default function MyPage() {
           </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={async (e) => {
+        <form onSubmit={(e) => {
           e.preventDefault();
-          if (!editingCharacter) return;
-          
-          try {
-            await handleUpdateCharacter(editingCharacter.id, editingCharacter);
-            setIsEditModalOpen(false);
-            setEditingCharacter(null);
-          } catch (error) {
-            console.error('Error updating character:', error);
-            toast.error('เกิดข้อผิดพลาดในการอัพเดทข้อมูล');
-          }
+          handleSave();
         }} className="space-y-4">
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
@@ -734,7 +778,7 @@ export default function MyPage() {
               <Select
                 value={editingCharacter?.class || 'Swordsman'}
                 onValueChange={(value: CharacterClass) => {
-                  const mainClass = CLASS_TO_MAIN_CLASS[value];
+                  const mainClass = CLASS_TO_ROLE[value];
                   setEditingCharacter(prev => prev ? { ...prev, class: value, mainClass } : null);
                 }}
               >
@@ -921,11 +965,13 @@ export default function MyPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {characters.map((character) => (
+            {[...characters]
+              .sort((a, b) => a.name.localeCompare(b.name, 'th', {sensitivity: 'base'}))
+              .map((character) => (
               <div key={`character-${character.id}`} className="transform transition-all duration-200 hover:scale-[1.02]">
                 <CharacterCard
                   character={character}
-                  onEdit={handleEditCharacter}
+                  onEdit={handleCharacterSelect}
                   onDelete={handleDeleteCharacter}
                   onChecklistChange={handleChecklistChange}
                 />

@@ -387,7 +387,7 @@ function getClassColor(characterClass: string) {
   const mainClass = characterClass.split(' ')[0].toLowerCase();
   switch (mainClass) {
     case 'warrior':
-    case 'swordsman':
+    case 'sword-master':
     case 'mercenary':
       return {
         bg: 'from-red-50 to-red-100/50',
@@ -405,9 +405,9 @@ function getClassColor(characterClass: string) {
         icon: '🏹'
       };
     case 'sorceress':
-    case 'force':
+    case 'force-user':
     case 'elemental':
-    case 'elemental lord':
+    case 'elemental-lord':
       return {
         bg: 'from-purple-50 to-purple-100/50',
         text: 'text-purple-700',
@@ -416,7 +416,7 @@ function getClassColor(characterClass: string) {
       };
     case 'cleric':
     case 'paladin':
-    case 'saint':
+    case 'priest':
       return {
         bg: 'from-blue-50 to-blue-100/50',
         text: 'text-blue-700',

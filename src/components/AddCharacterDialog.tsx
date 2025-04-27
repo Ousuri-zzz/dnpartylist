@@ -20,7 +20,7 @@ export function AddCharacterDialog({ onAdd }: AddCharacterDialogProps) {
   const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [name, setName] = useState('');
-  const [characterClass, setCharacterClass] = useState<CharacterClass>('Swordsman');
+  const [characterClass, setCharacterClass] = useState<CharacterClass>('Sword Master');
   const [mainClass, setMainClass] = useState<CharacterMainClass>('Warrior');
   const [stats, setStats] = useState<CharacterStats>({
     str: 0,
@@ -92,7 +92,7 @@ export function AddCharacterDialog({ onAdd }: AddCharacterDialogProps) {
     await onAdd(newCharacter);
     setIsOpen(false);
     setName('');
-    setCharacterClass('Swordsman');
+    setCharacterClass('Sword Master');
     setMainClass('Warrior');
     setStats({
       str: 0,
@@ -114,15 +114,25 @@ export function AddCharacterDialog({ onAdd }: AddCharacterDialogProps) {
   // ฟังก์ชันสำหรับเลือก Icon ตามอาชีพ
   const getClassIcon = (subClass: string) => {
     switch (subClass) {
-      case 'Warrior':
+      case 'Sword Master':
         return <Sword className="h-5 w-5 text-red-500" />;
-      case 'Archer':
+      case 'Mercenary':
+        return <Sword className="h-5 w-5 text-red-500" />;
+      case 'Bowmaster':
         return <Zap className="h-5 w-5 text-emerald-500" />;
-      case 'Sorceress':
+      case 'Acrobat':
+        return <Zap className="h-5 w-5 text-emerald-500" />;
+      case 'Force User':
         return <Sparkles className="h-5 w-5 text-purple-500" />;
-      case 'Cleric':
+      case 'Elemental Lord':
+        return <Sparkles className="h-5 w-5 text-purple-500" />;
+      case 'Paladin':
         return <Shield className="h-5 w-5 text-sky-500" />;
-      case 'Academic':
+      case 'Priest':
+        return <Shield className="h-5 w-5 text-sky-500" />;
+      case 'Engineer':
+        return <Star className="h-5 w-5 text-amber-500" />;
+      case 'Alchemist':
         return <Star className="h-5 w-5 text-amber-500" />;
       default:
         return <Crown className="h-5 w-5 text-gray-500" />;

@@ -8,6 +8,8 @@ import { motion } from 'framer-motion';
 import { useMemo } from 'react';
 import { Users, Clock } from 'lucide-react';
 import styles from './PartyCard.module.css';
+import { CLASS_TO_ROLE, getClassColors } from '@/config/theme';
+import { CharacterClass, Role } from '@/types/character';
 
 interface PartyCardProps {
   party: Party;
@@ -62,72 +64,25 @@ export function PartyCard({ party }: PartyCardProps) {
   }, [party.members, party.maxMember, users]);
 
   const getClassStyle = (characterClass: string) => {
-    switch (characterClass.toLowerCase()) {
-      case 'warrior':
-      case 'swordsman':
-      case 'mercenary':
-        return {
-          bg: 'from-red-100/80 to-red-200/50',
-          text: 'from-red-600 to-red-700',
-          border: 'border-red-300/50'
-        };
-      case 'archer':
-      case 'bowmaster':
-      case 'acrobat':
-        return {
-          bg: 'from-emerald-100/80 to-emerald-200/50',
-          text: 'from-emerald-600 to-emerald-700',
-          border: 'border-emerald-300/50'
-        };
-      case 'sorceress':
-      case 'force user':
-      case 'elemental lord':
-        return {
-          bg: 'from-violet-100/80 to-violet-200/50',
-          text: 'from-violet-600 to-violet-700',
-          border: 'border-violet-300/50'
-        };
-      case 'cleric':
-      case 'paladin':
-      case 'saint':
-        return {
-          bg: 'from-sky-100/80 to-sky-200/50',
-          text: 'from-sky-600 to-sky-700',
-          border: 'border-sky-300/50'
-        };
-      case 'academic':
-      case 'engineer':
-      case 'alchemist':
-        return {
-          bg: 'from-amber-100/80 to-amber-200/50',
-          text: 'from-amber-600 to-amber-700',
-          border: 'border-amber-300/50'
-        };
-      case 'kali':
-        return {
-          bg: 'from-rose-100/80 to-rose-200/50',
-          text: 'from-rose-600 to-rose-700',
-          border: 'border-rose-300/50'
-        };
-      case 'assassin':
-        return {
-          bg: 'from-indigo-100/80 to-indigo-200/50',
-          text: 'from-indigo-600 to-indigo-700',
-          border: 'border-indigo-300/50'
-        };
-      case 'machina':
-        return {
-          bg: 'from-cyan-100/80 to-cyan-200/50',
-          text: 'from-cyan-600 to-cyan-700',
-          border: 'border-cyan-300/50'
-        };
-      default:
-        return {
-          bg: 'from-gray-100/80 to-gray-200/50',
-          text: 'from-gray-600 to-gray-700',
-          border: 'border-gray-300/50'
-        };
+    // Convert to CharacterClass type if possible
+    const classKey = characterClass as CharacterClass;
+    if (classKey in CLASS_TO_ROLE) {
+      const role = CLASS_TO_ROLE[classKey];
+      const colors = getClassColors(role);
+      
+      return {
+        bg: `from-${colors.bg.replace('bg-', '')}/80 to-${colors.bg.replace('bg-', '')}/50`,
+        text: `from-${colors.text.replace('text-', '')} to-${colors.text.replace('text-', '')}`,
+        border: colors.border.replace('border-', 'border-') + '/50'
+      };
     }
+    
+    // Fallback for unknown classes
+    return {
+      bg: 'from-gray-100/80 to-gray-200/50',
+      text: 'from-gray-600 to-gray-700',
+      border: 'border-gray-300/50'
+    };
   };
 
   return (

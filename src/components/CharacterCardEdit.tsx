@@ -146,19 +146,24 @@ export function CharacterCardEdit({ character, onSave, onCancel }: CharacterCard
   // ฟังก์ชันสำหรับเลือก Icon ตามอาชีพ
   const getClassIcon = (subClass: string) => {
     switch (subClass) {
-      case 'Swordsman':
+      case 'Sword Master':
+        return <Sword className="h-5 w-5 text-red-500" />;
       case 'Mercenary':
         return <Sword className="h-5 w-5 text-red-500" />;
       case 'Bowmaster':
+        return <Zap className="h-5 w-5 text-emerald-500" />;
       case 'Acrobat':
         return <Zap className="h-5 w-5 text-emerald-500" />;
       case 'Force User':
+        return <Sparkles className="h-5 w-5 text-purple-500" />;
       case 'Elemental Lord':
         return <Sparkles className="h-5 w-5 text-purple-500" />;
       case 'Paladin':
-      case 'Saint':
+        return <Shield className="h-5 w-5 text-sky-500" />;
+      case 'Priest':
         return <Shield className="h-5 w-5 text-sky-500" />;
       case 'Engineer':
+        return <Star className="h-5 w-5 text-amber-500" />;
       case 'Alchemist':
         return <Star className="h-5 w-5 text-amber-500" />;
       default:

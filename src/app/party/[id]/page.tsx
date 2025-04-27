@@ -23,6 +23,8 @@ import { cn } from '../../../lib/utils';
 import { CharacterChecklist } from '../../../components/CharacterChecklist';
 import type { CharacterChecklist as CharacterChecklistType } from '../../../types/character';
 import { Pencil, LogOut, UserMinus, Sparkles, UserPlus } from 'lucide-react';
+import { CLASS_TO_ROLE, getClassColors } from '@/config/theme';
+import { CharacterClass, Role } from '@/types/character';
 
 interface PartyMember {
   character: Character;
@@ -256,124 +258,36 @@ export default function PartyPage({ params }: { params: { id: string } }) {
     setIsJoining(false);
   };
 
-  const getClassColor = (characterClass: string) => {
-    const mainClass = characterClass.split(' ')[0].toLowerCase();
-    switch (mainClass) {
-      case 'warrior':
-        return {
-          bg: 'from-red-50 to-red-100/50',
-          text: 'from-red-500 to-red-600',
-          border: 'border-red-200',
-          icon: '⚔️'
-        };
-      case 'swordsman':
-        return {
-          bg: 'from-orange-50 to-orange-100/50',
-          text: 'from-orange-500 to-orange-600',
-          border: 'border-orange-200',
-          icon: '⚔️'
-        };
-      case 'mercenary':
-        return {
-          bg: 'from-rose-50 to-rose-100/50',
-          text: 'from-rose-500 to-rose-600',
-          border: 'border-rose-200',
-          icon: '⚔️'
-        };
-      case 'archer':
-        return {
-          bg: 'from-green-50 to-green-100/50',
-          text: 'from-green-500 to-green-600',
-          border: 'border-green-200',
-          icon: '🏹'
-        };
-      case 'bowmaster':
-        return {
-          bg: 'from-emerald-50 to-emerald-100/50',
-          text: 'from-emerald-500 to-emerald-600',
-          border: 'border-emerald-200',
-          icon: '🏹'
-        };
-      case 'acrobat':
-        return {
-          bg: 'from-lime-50 to-lime-100/50',
-          text: 'from-lime-500 to-lime-600',
-          border: 'border-lime-200',
-          icon: '🏹'
-        };
-      case 'sorceress':
-        return {
-          bg: 'from-purple-50 to-purple-100/50',
-          text: 'from-purple-500 to-purple-600',
-          border: 'border-purple-200',
-          icon: '🔮'
-        };
-      case 'force':
-      case 'force user':
-        return {
-          bg: 'from-fuchsia-50 to-fuchsia-100/50',
-          text: 'from-fuchsia-500 to-fuchsia-600',
-          border: 'border-fuchsia-200',
-          icon: '🔮'
-        };
-      case 'elemental':
-      case 'elemental lord':
-        return {
-          bg: 'from-violet-50 to-violet-100/50',
-          text: 'from-violet-500 to-violet-600',
-          border: 'border-violet-200',
-          icon: '🔮'
-        };
-      case 'cleric':
-        return {
-          bg: 'from-blue-50 to-blue-100/50',
-          text: 'from-blue-500 to-blue-600',
-          border: 'border-blue-200',
-          icon: '✨'
-        };
-      case 'paladin':
-        return {
-          bg: 'from-sky-50 to-sky-100/50',
-          text: 'from-sky-500 to-sky-600',
-          border: 'border-sky-200',
-          icon: '✨'
-        };
-      case 'saint':
-        return {
-          bg: 'from-cyan-50 to-cyan-100/50',
-          text: 'from-cyan-500 to-cyan-600',
-          border: 'border-cyan-200',
-          icon: '✨'
-        };
-      case 'academic':
-        return {
-          bg: 'from-yellow-50 to-yellow-100/50',
-          text: 'from-yellow-500 to-yellow-600',
-          border: 'border-yellow-200',
-          icon: '🔧'
-        };
-      case 'engineer':
-        return {
-          bg: 'from-amber-50 to-amber-100/50',
-          text: 'from-amber-500 to-amber-600',
-          border: 'border-amber-200',
-          icon: '🔧'
-        };
-      case 'alchemist':
-        return {
-          bg: 'from-yellow-50 to-yellow-100/50',
-          text: 'from-yellow-500 to-yellow-600',
-          border: 'border-yellow-200',
-          icon: '🔧'
-        };
-      default:
-        return {
-          bg: 'from-gray-50 to-gray-100/50',
-          text: 'from-gray-500 to-gray-600',
-          border: 'border-gray-200',
-          icon: '👤'
-        };
+  const getClassColor = (characterClass: CharacterClass) => {
+    const role = CLASS_TO_ROLE[characterClass];
+    const colors = getClassColors(role);
+    
+    // Get icon based on role
+    let icon = '👤';
+    switch (role) {
+      case 'Warrior':
+        icon = '⚔️';
+        break;
+      case 'Archer':
+        icon = '🏹';
+        break;
+      case 'Sorcerer':
+        icon = '🔮';
+        break;
+      case 'Cleric':
+        icon = '✨';
+        break;
+      case 'Tinkerer':
+        icon = '🔧';
+        break;
     }
+    
+    return {
+      bg: `from-${colors.bg.replace('bg-', '')} to-${colors.bg.replace('bg-', '')}/50`,
+      text: `from-${colors.text.replace('text-', '')} to-${colors.text.replace('text-', '')}`,
+      border: colors.border,
+      icon
+    };
   };
 
   const handleMemberClick = (member: PartyMember) => {

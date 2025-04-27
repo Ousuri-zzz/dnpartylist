@@ -10,16 +10,16 @@ import { cn } from '@/lib/utils';
 
 // Map sub-classes to main classes
 const CLASS_TO_MAIN_CLASS: Record<CharacterClass, CharacterMainClass> = {
-  'Swordsman': 'Warrior',
+  'Sword Master': 'Warrior',
   'Mercenary': 'Warrior',
   'Bowmaster': 'Archer',
   'Acrobat': 'Archer',
-  'Force User': 'Sorceress',
-  'Elemental Lord': 'Sorceress',
+  'Force User': 'Sorcerer',
+  'Elemental Lord': 'Sorcerer',
   'Paladin': 'Cleric',
-  'Saint': 'Cleric',
-  'Engineer': 'Academic',
-  'Alchemist': 'Academic'
+  'Priest': 'Cleric',
+  'Engineer': 'Tinkerer',
+  'Alchemist': 'Tinkerer'
 };
 
 // สีตามอาชีพหลัก
@@ -36,7 +36,7 @@ const classColors: Record<CharacterMainClass, {text: string, bg: string, border:
     border: 'border-emerald-300',
     accent: 'text-emerald-500'
   },
-  'Sorceress': {
+  'Sorcerer': {
     text: 'text-purple-600',
     bg: 'bg-gradient-to-br from-purple-100 to-violet-200/70',
     border: 'border-purple-300',
@@ -48,7 +48,7 @@ const classColors: Record<CharacterMainClass, {text: string, bg: string, border:
     border: 'border-sky-300',
     accent: 'text-sky-500'
   },
-  'Academic': {
+  'Tinkerer': {
     text: 'text-amber-600',
     bg: 'bg-gradient-to-br from-amber-100 to-yellow-200/70',
     border: 'border-amber-300',
@@ -104,11 +104,11 @@ export function CharacterCard({ character, onEdit, onDelete, onChecklistChange }
         return <Sword className="h-5 w-5 text-red-500" />;
       case 'Archer':
         return <Zap className="h-5 w-5 text-emerald-500" />;
-      case 'Sorceress':
+      case 'Sorcerer':
         return <Sparkles className="h-5 w-5 text-purple-500" />;
       case 'Cleric':
         return <Shield className="h-5 w-5 text-sky-500" />;
-      case 'Academic':
+      case 'Tinkerer':
         return <Star className="h-5 w-5 text-amber-500" />;
       default:
         return <Crown className="h-5 w-5 text-gray-500" />;
@@ -153,7 +153,11 @@ export function CharacterCard({ character, onEdit, onDelete, onChecklistChange }
               variant="ghost"
               size="icon"
               className={cn("hover:bg-black/5 transition-all duration-300", colors.accent)}
-              onClick={() => onEdit(character)}
+              onClick={() => {
+                if (onEdit && character) {
+                  onEdit(character);
+                }
+              }}
             >
               <Pencil className="h-4 w-4" />
             </Button>

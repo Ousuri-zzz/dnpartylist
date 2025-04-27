@@ -1,14 +1,16 @@
-export type CharacterMainClass = 'Warrior' | 'Archer' | 'Sorceress' | 'Cleric' | 'Academic';
+export type Role = 'Warrior' | 'Archer' | 'Sorcerer' | 'Cleric' | 'Tinkerer';
+
+export type CharacterMainClass = Role;
 
 export type CharacterClass = 
-  | 'Swordsman' 
+  | 'Sword Master' 
   | 'Mercenary' 
   | 'Bowmaster' 
   | 'Acrobat' 
   | 'Force User' 
   | 'Elemental Lord' 
   | 'Paladin' 
-  | 'Saint'
+  | 'Priest'
   | 'Engineer'
   | 'Alchemist';
 

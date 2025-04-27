@@ -37,11 +37,11 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+export const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 
 // Initialize Realtime Database
-const db = getDatabase(app);
-const auth = getAuth(app);
+const database = getDatabase(app);
+const authentication = getAuth(app);
 
 // Log configuration for debugging (hiding sensitive data)
 console.log('Firebase initialized with config:', {
@@ -64,4 +64,4 @@ console.log('Database URL check:');
 console.log('Expected URL format: https://[project-id]-default-rtdb.[region].firebasedatabase.app');
 console.log('Actual URL:', process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL);
 
-export { db, auth }; 
+export { database as db, authentication as auth }; 

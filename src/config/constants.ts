@@ -1,17 +1,17 @@
-import { CharacterClass, CharacterMainClass } from '@/types/character';
+import { CharacterClass, CharacterMainClass, Role } from '@/types/character';
 
-export const CHARACTER_CLASSES: CharacterClass[] = [
-  'Swordsman',
+export const CHARACTER_CLASSES = [
+  'Sword Master',
   'Mercenary',
   'Bowmaster',
   'Acrobat',
   'Force User',
   'Elemental Lord',
   'Paladin',
-  'Saint',
+  'Priest',
   'Engineer',
-  'Alchemist',
-];
+  'Alchemist'
+] as const;
 
 export const CHARACTER_MAIN_CLASSES: CharacterMainClass[] = [
   'Warrior',
@@ -21,15 +21,15 @@ export const CHARACTER_MAIN_CLASSES: CharacterMainClass[] = [
   'Academic',
 ];
 
-export const CLASS_TO_MAIN_CLASS: Record<CharacterClass, CharacterMainClass> = {
-  'Swordsman': 'Warrior',
+export const CLASS_TO_ROLE: Record<CharacterClass, Role> = {
+  'Sword Master': 'Warrior',
   'Mercenary': 'Warrior',
   'Bowmaster': 'Archer',
   'Acrobat': 'Archer',
-  'Force User': 'Sorceress',
-  'Elemental Lord': 'Sorceress',
+  'Force User': 'Sorcerer',
+  'Elemental Lord': 'Sorcerer',
   'Paladin': 'Cleric',
-  'Saint': 'Cleric',
-  'Engineer': 'Academic',
-  'Alchemist': 'Academic'
+  'Priest': 'Cleric',
+  'Engineer': 'Tinkerer',
+  'Alchemist': 'Tinkerer'
 }; 

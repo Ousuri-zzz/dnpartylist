@@ -1,7 +1,8 @@
-import type { CharacterClass, CharacterMainClass } from '../types/character';
+import type { CharacterClass } from '../types/character';
+import { Role } from '@/types/character';
 
 // สีหลักสำหรับพื้นหลังและ Progress bar
-export const CLASS_COLORS: Record<CharacterMainClass, { bg: string; text: string; border: string }> = {
+export const CLASS_COLORS: Record<Role, { bg: string; text: string; border: string }> = {
   Warrior: {
     bg: 'bg-red-50',
     text: 'text-red-700',
@@ -12,7 +13,7 @@ export const CLASS_COLORS: Record<CharacterMainClass, { bg: string; text: string
     text: 'text-green-700',
     border: 'border-green-200'
   },
-  Sorceress: {
+  Sorcerer: {
     bg: 'bg-purple-50',
     text: 'text-purple-700',
     border: 'border-purple-200'
@@ -22,7 +23,7 @@ export const CLASS_COLORS: Record<CharacterMainClass, { bg: string; text: string
     text: 'text-blue-700',
     border: 'border-blue-200'
   },
-  Academic: {
+  Tinkerer: {
     bg: 'bg-yellow-50',
     text: 'text-yellow-700',
     border: 'border-yellow-200'
@@ -30,47 +31,47 @@ export const CLASS_COLORS: Record<CharacterMainClass, { bg: string; text: string
 };
 
 // สีสำหรับข้อความ
-export const CLASS_TEXT_COLORS: Record<CharacterMainClass, string> = {
+export const CLASS_TEXT_COLORS: Record<Role, string> = {
   'Warrior': 'text-rose-700',
   'Archer': 'text-emerald-700',
-  'Sorceress': 'text-violet-700',
+  'Sorcerer': 'text-violet-700',
   'Cleric': 'text-sky-700',
-  'Academic': 'text-yellow-700'
+  'Tinkerer': 'text-yellow-700'
 };
 
 // สีสำหรับ border
-export const CLASS_BORDER_COLORS: Record<CharacterMainClass, string> = {
+export const CLASS_BORDER_COLORS: Record<Role, string> = {
   'Warrior': 'border-rose-300',
   'Archer': 'border-emerald-300',
-  'Sorceress': 'border-violet-300',
+  'Sorcerer': 'border-violet-300',
   'Cleric': 'border-sky-300',
-  'Academic': 'border-yellow-300'
+  'Tinkerer': 'border-yellow-300'
 };
 
 // สีพื้นหลังอ่อนๆ สำหรับ card
-export const CLASS_BG_COLORS: Record<CharacterMainClass, string> = {
+export const CLASS_BG_COLORS: Record<Role, string> = {
   'Warrior': 'bg-rose-50',
   'Archer': 'bg-emerald-50',
-  'Sorceress': 'bg-violet-50',
+  'Sorcerer': 'bg-violet-50',
   'Cleric': 'bg-sky-50',
-  'Academic': 'bg-yellow-50'
+  'Tinkerer': 'bg-yellow-50'
 };
 
-export const CLASS_TO_MAIN_CLASS: Record<CharacterClass, CharacterMainClass> = {
-  'Swordsman': 'Warrior',
+export const CLASS_TO_ROLE: Record<CharacterClass, Role> = {
+  'Sword Master': 'Warrior',
   'Mercenary': 'Warrior',
   'Bowmaster': 'Archer',
   'Acrobat': 'Archer',
-  'Force User': 'Sorceress',
-  'Elemental Lord': 'Sorceress',
+  'Force User': 'Sorcerer',
+  'Elemental Lord': 'Sorcerer',
   'Paladin': 'Cleric',
-  'Saint': 'Cleric',
-  'Engineer': 'Academic',
-  'Alchemist': 'Academic'
+  'Priest': 'Cleric',
+  'Engineer': 'Tinkerer',
+  'Alchemist': 'Tinkerer'
 };
 
-export const getClassColors = (mainClass: CharacterMainClass) => {
-  switch (mainClass) {
+export const getClassColors = (role: Role) => {
+  switch (role) {
     case 'Warrior':
       return {
         text: 'text-red-600',
@@ -83,7 +84,7 @@ export const getClassColors = (mainClass: CharacterMainClass) => {
         bg: 'bg-emerald-50',
         border: 'border-emerald-200'
       };
-    case 'Sorceress':
+    case 'Sorcerer':
       return {
         text: 'text-purple-600',
         bg: 'bg-purple-50',
@@ -95,7 +96,7 @@ export const getClassColors = (mainClass: CharacterMainClass) => {
         bg: 'bg-sky-50',
         border: 'border-sky-200'
       };
-    case 'Academic':
+    case 'Tinkerer':
       return {
         text: 'text-amber-600',
         bg: 'bg-amber-50',
@@ -118,4 +119,56 @@ export function formatNumber(value: number): string {
     return `${(value / 1_000).toFixed(1)}K`;
   }
   return value.toString();
-} 
+}
+
+export const ROLE_COLORS: Record<Role, { bg: string; text: string; border: string; }> = {
+  Warrior: {
+    bg: 'bg-red-100',
+    text: 'text-red-800',
+    border: 'border-red-200'
+  },
+  Archer: {
+    bg: 'bg-green-100',
+    text: 'text-green-800',
+    border: 'border-green-200'
+  },
+  Sorcerer: {
+    bg: 'bg-purple-100',
+    text: 'text-purple-800',
+    border: 'border-purple-200'
+  },
+  Cleric: {
+    bg: 'bg-blue-100',
+    text: 'text-blue-800',
+    border: 'border-blue-200'
+  },
+  Tinkerer: {
+    bg: 'bg-yellow-100',
+    text: 'text-yellow-800',
+    border: 'border-yellow-200'
+  }
+};
+
+export const ROLE_NAMES: Record<Role, string> = {
+  Warrior: 'Warrior',
+  Archer: 'Archer',
+  Sorcerer: 'Sorcerer',
+  Cleric: 'Cleric',
+  Tinkerer: 'Tinkerer'
+};
+
+export const ROLE_ICONS: Record<Role, string> = {
+  Warrior: '⚔️',
+  Archer: '🏹',
+  Sorcerer: '🔮',
+  Cleric: '✨',
+  Tinkerer: '🔧'
+};
+
+export const ROLE_DESCRIPTIONS: Record<Role, string> = {
+  Warrior: 'Physical damage dealers',
+  Archer: 'Ranged damage dealers',
+  Sorcerer: 'Magic damage dealers',
+  Cleric: 'Support and healing',
+  Tinkerer: 'Technical specialists'
+}; 

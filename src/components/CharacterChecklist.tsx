@@ -207,10 +207,14 @@ export function CharacterChecklist({ checklist, onChange, accentColor = "text-bl
             const value = checklist.weekly[key as keyof CharacterChecklistType['weekly']];
             const maxValue = WEEKLY_MAX_VALUES[key as keyof typeof WEEKLY_MAX_VALUES] || 0;
             const displayName = displayNames[key] || key;
+            const isCompleted = value >= maxValue;
 
             return (
               <div key={key} className="flex items-center gap-2 bg-muted/5 rounded-lg p-1.5">
-                <span className="text-sm flex-1">{displayName}</span>
+                <span className={`text-sm flex-1 ${isCompleted ? 'opacity-50 line-through' : ''}`}>
+                  {displayName}
+                  {isCompleted && <span className="ml-1 text-xs text-green-500">✓</span>}
+                </span>
                 <div className="flex items-center gap-1">
                   {Array.from({ length: maxValue }, (_, i) => (
                     <Button
@@ -224,7 +228,7 @@ export function CharacterChecklist({ checklist, onChange, accentColor = "text-bl
                       onClick={() => handleWeeklyToggle(key as keyof CharacterChecklistType['weekly'], i)}
                     >
                       {i < value ? (
-                        <CheckCircle2 className={`h-3 w-3 ${accentColor}`} />
+                        <CheckCircle2 className={`h-3 w-3 ${isCompleted ? 'text-green-500' : accentColor}`} />
                       ) : (
                         <Circle className="h-3 w-3" />
                       )}
