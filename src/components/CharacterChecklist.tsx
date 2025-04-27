@@ -166,7 +166,7 @@ export function CharacterChecklist({ checklist, onChange, accentColor = "text-bl
             {checklist.daily.dailyQuest ? (
               <CheckCircle2 className={`h-4 w-4 ${accentColor}`} />
             ) : (
-              <Circle className="h-4 w-4" />
+              <Circle className="h-4 w-4 text-gray-400" />
             )}
             <span className="text-sm">Daily Quest</span>
           </Button>
@@ -183,7 +183,7 @@ export function CharacterChecklist({ checklist, onChange, accentColor = "text-bl
             {checklist.daily.ftg ? (
               <CheckCircle2 className={`h-4 w-4 ${accentColor}`} />
             ) : (
-              <Circle className="h-4 w-4" />
+              <Circle className="h-4 w-4 text-gray-400" />
             )}
             <span className="text-sm">FTG 700</span>
           </Button>
@@ -228,9 +228,9 @@ export function CharacterChecklist({ checklist, onChange, accentColor = "text-bl
                       onClick={() => handleWeeklyToggle(key as keyof CharacterChecklistType['weekly'], i)}
                     >
                       {i < value ? (
-                        <CheckCircle2 className={`h-3 w-3 ${isCompleted ? 'text-green-500' : accentColor}`} />
+                        <CheckCircle2 className={`h-3 w-3 ${accentColor}`} />
                       ) : (
-                        <Circle className="h-3 w-3" />
+                        <Circle className="h-3 w-3 text-gray-400" />
                       )}
                     </Button>
                   ))}

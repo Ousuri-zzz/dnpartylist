@@ -217,7 +217,7 @@ export function CharacterCard({ character, onEdit, onDelete, onChecklistChange }
             <CharacterChecklist
               checklist={character.checklist}
               onChange={(newChecklist) => onChecklistChange(character.id, newChecklist)}
-              accentColor={colors.text}
+              accentColor={colors.accent}
             />
           </div>
         </div>
