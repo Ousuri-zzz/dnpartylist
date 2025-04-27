@@ -23,7 +23,7 @@ const CLASS_TO_MAIN_CLASS: Record<CharacterClass, CharacterMainClass> = {
 };
 
 // สีตามอาชีพหลัก
-const classColors: Record<CharacterMainClass, {text: string, bg: string, border: string, accent: string}> = {
+const classColors: Record<CharacterMainClass, {text: string, bg: string, border: string, accent: string, icon?: string}> = {
   'Warrior': {
     text: 'text-red-600',
     bg: 'bg-gradient-to-br from-red-100 to-rose-200/70',
@@ -52,6 +52,7 @@ const classColors: Record<CharacterMainClass, {text: string, bg: string, border:
     bg: 'from-amber-100 to-yellow-200/70',
     text: 'text-amber-600',
     border: 'border-amber-300',
+    accent: 'text-amber-500',
     icon: '🔧'
   }
 };

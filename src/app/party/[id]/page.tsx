@@ -261,35 +261,11 @@ export default function PartyPage({ params }: { params: { id: string } }) {
   const getClassColor = (characterClass: CharacterClass) => {
     const role = CLASS_TO_ROLE[characterClass];
     const colors = getClassColors(role);
-    
-    // Get icon based on role
-    let icon = '👤';
-    switch (role) {
-      case 'Warrior':
-        icon = '⚔️';
-        break;
-      case 'Archer':
-        icon = '🏹';
-        break;
-      case 'Sorceress':
-        icon = '🔮';
-        break;
-      case 'Cleric':
-        icon = '✨';
-        break;
-      case 'Academic':
-        icon = '🔧';
-        break;
-      default:
-        icon = '👤';
-    }
-    
-    // ใช้ค่าสีที่ถูกต้องตามที่กำหนดไว้ใน theme.ts
     return {
       bg: colors.bg,
       text: colors.text,
       border: colors.border,
-      icon: icon
+      icon: colors.icon
     };
   };
 

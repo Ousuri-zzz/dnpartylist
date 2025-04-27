@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { CLASS_TO_ROLE } from '@/config/theme'
+import { CLASS_TO_ROLE, getClassColors } from '@/config/theme'
 import { useRouter } from 'next/navigation'
 import { checkAndResetChecklist } from '@/lib/checklist'
 import { DiscordDropdown } from '@/components/DiscordDropdown'
@@ -215,16 +215,16 @@ const migrateCharacterChecklist = async (userId: string, characterId: string, ch
 };
 
 const classIcons = {
-  'Sword Master': <span role="img" aria-label="Sword Master">⚔️</span>,
-  'Mercenary': <span role="img" aria-label="Mercenary">⚔️</span>,
-  'Bowmaster': <span role="img" aria-label="Bowmaster">🏹</span>,
-  'Acrobat': <span role="img" aria-label="Acrobat">🏹</span>,
-  'Force User': <span role="img" aria-label="Force User">🔮</span>,
-  'Elemental Lord': <span role="img" aria-label="Elemental Lord">🔮</span>,
-  'Paladin': <span role="img" aria-label="Paladin">🛡️</span>,
-  'Priest': <span role="img" aria-label="Priest">✨</span>,
-  'Engineer': <span role="img" aria-label="Engineer">🔧</span>,
-  'Alchemist': <span role="img" aria-label="Alchemist">🔧</span>
+  'Sword Master': getClassColors('Warrior').icon || '⚔️',
+  'Mercenary': getClassColors('Warrior').icon || '⚔️',
+  'Bowmaster': getClassColors('Archer').icon || '🏹',
+  'Acrobat': getClassColors('Archer').icon || '🏹',
+  'Force User': getClassColors('Sorceress').icon || '🔮',
+  'Elemental Lord': getClassColors('Sorceress').icon || '🔮',
+  'Paladin': getClassColors('Cleric').icon || '🛡️',
+  'Priest': getClassColors('Cleric').icon || '✨',
+  'Engineer': getClassColors('Academic').icon || '🔧',
+  'Alchemist': getClassColors('Academic').icon || '🔧'
 };
 
 export default function MyPage() {
@@ -720,7 +720,9 @@ export default function MyPage() {
               <SelectContent>
                 {CHARACTER_CLASSES.map((characterClass) => (
                   <SelectItem key={characterClass} value={characterClass} className="flex items-center gap-2">
-                    <span className="mr-2">{classIcons[characterClass]}</span>
+                    <span className="mr-2" role="img" aria-label={characterClass}>
+                      {classIcons[characterClass]}
+                    </span>
                     {characterClass}
                   </SelectItem>
                 ))}
@@ -788,6 +790,9 @@ export default function MyPage() {
                 <SelectContent>
                   {CHARACTER_CLASSES.map((characterClass) => (
                     <SelectItem key={characterClass} value={characterClass}>
+                      <span className="mr-2" role="img" aria-label={characterClass}>
+                        {classIcons[characterClass]}
+                      </span>
                       {characterClass}
                     </SelectItem>
                   ))}

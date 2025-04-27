@@ -73,7 +73,8 @@ export function PartyCard({ party }: PartyCardProps) {
       return {
         bg: `from-${colors.bg.replace('bg-', '')}/80 to-${colors.bg.replace('bg-', '')}/50`,
         text: `from-${colors.text.replace('text-', '')} to-${colors.text.replace('text-', '')}`,
-        border: colors.border.replace('border-', 'border-') + '/50'
+        border: colors.border.replace('border-', 'border-') + '/50',
+        icon: colors.icon
       };
     }
     
@@ -81,7 +82,8 @@ export function PartyCard({ party }: PartyCardProps) {
     return {
       bg: 'from-gray-100/80 to-gray-200/50',
       text: 'from-gray-600 to-gray-700',
-      border: 'border-gray-300/50'
+      border: 'border-gray-300/50',
+      icon: '👤'
     };
   };
 
@@ -106,19 +108,19 @@ export function PartyCard({ party }: PartyCardProps) {
     switch (className) {
       case 'Sword Master':
       case 'Mercenary':
-        return '⚔️';
+        return getClassColors('Warrior').icon || '⚔️';
       case 'Bowmaster':
       case 'Acrobat':
-        return '🏹';
+        return getClassColors('Archer').icon || '🏹';
       case 'Force User':
       case 'Elemental Lord':
-        return '🔮';
+        return getClassColors('Sorceress').icon || '🔮';
       case 'Paladin':
       case 'Priest':
-        return '✨';
+        return getClassColors('Cleric').icon || '✨';
       case 'Engineer':
       case 'Alchemist':
-        return '🔧';
+        return getClassColors('Academic').icon || '🔧';
       default:
         return '👤';
     }
@@ -199,7 +201,7 @@ export function PartyCard({ party }: PartyCardProps) {
                     <div className="flex items-center gap-2">
                       <div className={`w-8 h-8 flex items-center justify-center rounded-lg ${classStyle.bg} ${classStyle.border}`}>
                         <span className="text-xl">
-                          {getClassIcon(info.class)}
+                          {classStyle.icon}
                         </span>
                       </div>
                       <div>

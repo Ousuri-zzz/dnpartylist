@@ -77,37 +77,43 @@ export const getClassColors = (role: Role): { text: string; bg: string; border: 
       return {
         text: 'text-red-600',
         bg: 'bg-red-50',
-        border: 'border-red-200'
+        border: 'border-red-200',
+        icon: ROLE_ICONS.Warrior
       };
     case 'Archer':
       return {
         text: 'text-emerald-600',
         bg: 'bg-emerald-50',
-        border: 'border-emerald-200'
+        border: 'border-emerald-200',
+        icon: ROLE_ICONS.Archer
       };
     case 'Sorceress':
       return {
         text: 'text-purple-600',
         bg: 'bg-purple-50',
-        border: 'border-purple-200'
+        border: 'border-purple-200',
+        icon: ROLE_ICONS.Sorceress
       };
     case 'Cleric':
       return {
         text: 'text-sky-600',
         bg: 'bg-sky-50',
-        border: 'border-sky-200'
+        border: 'border-sky-200',
+        icon: ROLE_ICONS.Cleric
       };
     case 'Academic':
       return {
         text: 'text-amber-600',
         bg: 'from-amber-100 to-yellow-200/70',
-        border: 'border-amber-300'
+        border: 'border-amber-300',
+        icon: ROLE_ICONS.Academic
       };
     default:
       return {
         text: 'text-gray-600',
         bg: 'bg-gray-50',
-        border: 'border-gray-200'
+        border: 'border-gray-200',
+        icon: '👤'
       };
   }
 };
@@ -161,7 +167,7 @@ export const ROLE_NAMES: Record<Role, string> = {
 export const ROLE_ICONS: Record<Role, string> = {
   Warrior: '⚔️',
   Archer: '🏹',
-  Sorceress: '��',
+  Sorceress: '🔮',
   Cleric: '✨',
   Academic: '🔧'
 };

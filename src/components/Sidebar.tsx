@@ -250,7 +250,7 @@ function SimpleCharacterCard({ character }: { character: Character }) {
   );
 }
 
-const CLASS_GRADIENTS = {
+const CLASS_GRADIENTS: Record<string, { bg: string; text: string; border: string; icon?: string }> = {
   Warrior:   { bg: 'from-red-100 to-rose-200/70', text: 'text-red-600', border: 'border-red-300', icon: '⚔️' },
   Archer:    { bg: 'from-emerald-100 to-green-200/70', text: 'text-emerald-600', border: 'border-emerald-300', icon: '🏹' },
   Sorceress: { bg: 'from-purple-100 to-violet-200/70', text: 'text-purple-600', border: 'border-purple-300', icon: '🔮' },

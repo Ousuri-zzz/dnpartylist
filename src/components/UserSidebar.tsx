@@ -6,6 +6,8 @@ import { CharacterMainClass } from '../types/character';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
 import { CharacterCard } from './CharacterCard';
 import { ChevronDown, ChevronRight } from 'lucide-react';
+import { CLASS_TO_ROLE, getClassColors } from '@/config/theme';
+import type { CharacterClass, Role } from '@/types/character';
 
 interface UserSidebarProps {
   users: UserWithCharacters[];
@@ -17,21 +19,15 @@ export function UserSidebar({ users }: UserSidebarProps) {
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   
   // Get class color
-  const getClassColor = (mainClass: CharacterMainClass) => {
-    switch (mainClass) {
-      case 'Warrior':
-        return 'bg-red-100 text-red-800';
-      case 'Archer':
-        return 'bg-green-100 text-green-800';
-      case 'Sorceress':
-        return 'bg-purple-100 text-purple-800';
-      case 'Cleric':
-        return 'bg-blue-100 text-blue-800';
-      case 'Academic':
-        return 'bg-yellow-100 text-yellow-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
+  const getClassColor = (mainClass: string) => {
+    const role = CLASS_TO_ROLE[mainClass as CharacterClass] || 'Warrior';
+    const colors = getClassColors(role);
+    return {
+      bg: colors.bg,
+      text: colors.text,
+      border: colors.border,
+      icon: colors.icon
+    };
   };
   
   const handleUserClick = (user: UserWithCharacters) => {
@@ -65,7 +61,7 @@ export function UserSidebar({ users }: UserSidebarProps) {
                   {Object.values(user.characters).map((char) => (
                     <div
                       key={char.id}
-                      className={`px-2 py-1 rounded-md text-sm cursor-pointer ${getClassColor(char.mainClass as CharacterMainClass)} hover:bg-gray-100`}
+                      className={`px-2 py-1 rounded-md text-sm cursor-pointer ${getClassColor(char.mainClass as CharacterMainClass).bg} ${getClassColor(char.mainClass as CharacterMainClass).text} hover:bg-gray-100`}
                       onClick={() => handleUserClick(user)}
                     >
                       {char.name} ({char.class})
