@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { cn } from '../lib/utils';
 import { WEEKLY_MAX_VALUES } from '@/constants/checklist';
 import { ChevronDown, ChevronRight } from 'lucide-react';
+import { CLASS_TO_ROLE, getClassColors } from '@/config/theme';
 
 interface SidebarProps {
   users: { [key: string]: User };
@@ -249,6 +250,20 @@ function SimpleCharacterCard({ character }: { character: Character }) {
   );
 }
 
+const CLASS_GRADIENTS = {
+  Warrior:   { bg: 'from-red-100 to-rose-200/70', text: 'text-red-600', border: 'border-red-300', icon: '⚔️' },
+  Archer:    { bg: 'from-emerald-100 to-green-200/70', text: 'text-emerald-600', border: 'border-emerald-300', icon: '🏹' },
+  Sorceress: { bg: 'from-purple-100 to-violet-200/70', text: 'text-purple-600', border: 'border-purple-300', icon: '🔮' },
+  Cleric:    { bg: 'from-sky-100 to-blue-200/70', text: 'text-sky-600', border: 'border-sky-300', icon: '✨' },
+  Tinkerer:  { bg: 'from-amber-100 to-yellow-200/70', text: 'text-amber-600', border: 'border-amber-300', icon: '🔧' },
+  Default:   { bg: 'from-gray-50 to-gray-100/50', text: 'text-gray-700', border: 'border-gray-200', icon: '👤' }
+};
+
+function getClassColor(characterClass: string) {
+  const role = CLASS_TO_ROLE[characterClass as keyof typeof CLASS_TO_ROLE];
+  return CLASS_GRADIENTS[role] || CLASS_GRADIENTS.Default;
+}
+
 export function Sidebar({ users }: SidebarProps) {
   const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -381,63 +396,4 @@ export function Sidebar({ users }: SidebarProps) {
       </Dialog>
     </>
   );
-}
-
-function getClassColor(characterClass: string) {
-  const mainClass = characterClass.split(' ')[0].toLowerCase();
-  switch (mainClass) {
-    case 'warrior':
-    case 'sword-master':
-    case 'mercenary':
-      return {
-        bg: 'from-red-50 to-red-100/50',
-        text: 'text-red-700',
-        border: 'border-red-200',
-        icon: '⚔️'
-      };
-    case 'archer':
-    case 'bowmaster':
-    case 'acrobat':
-      return {
-        bg: 'from-green-50 to-green-100/50',
-        text: 'text-green-700',
-        border: 'border-green-200',
-        icon: '🏹'
-      };
-    case 'sorceress':
-    case 'force-user':
-    case 'elemental':
-    case 'elemental-lord':
-      return {
-        bg: 'from-purple-50 to-purple-100/50',
-        text: 'text-purple-700',
-        border: 'border-purple-200',
-        icon: '🔮'
-      };
-    case 'cleric':
-    case 'paladin':
-    case 'priest':
-      return {
-        bg: 'from-blue-50 to-blue-100/50',
-        text: 'text-blue-700',
-        border: 'border-blue-200',
-        icon: '✨'
-      };
-    case 'academic':
-    case 'engineer':
-    case 'alchemist':
-      return {
-        bg: 'from-yellow-50 to-yellow-100/50',
-        text: 'text-yellow-700',
-        border: 'border-yellow-200',
-        icon: '🔧'
-      };
-    default:
-      return {
-        bg: 'from-gray-50 to-gray-100/50',
-        text: 'text-gray-700',
-        border: 'border-gray-200',
-        icon: '👤'
-      };
-  }
 } 

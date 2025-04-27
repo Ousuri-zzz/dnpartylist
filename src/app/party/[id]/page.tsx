@@ -22,7 +22,7 @@ import { PartyStats } from '../../../components/PartyStats';
 import { cn } from '../../../lib/utils';
 import { CharacterChecklist } from '../../../components/CharacterChecklist';
 import type { CharacterChecklist as CharacterChecklistType } from '../../../types/character';
-import { Pencil, LogOut, UserMinus, Sparkles, UserPlus } from 'lucide-react';
+import { Pencil, LogOut, UserMinus, Sparkles, UserPlus, Sword, Target, Heart, Zap } from 'lucide-react';
 import { CLASS_TO_ROLE, getClassColors } from '@/config/theme';
 import { CharacterClass, Role } from '@/types/character';
 
@@ -271,7 +271,7 @@ export default function PartyPage({ params }: { params: { id: string } }) {
       case 'Archer':
         icon = '🏹';
         break;
-      case 'Sorcerer':
+      case 'Sorceress':
         icon = '🔮';
         break;
       case 'Cleric':
@@ -280,13 +280,16 @@ export default function PartyPage({ params }: { params: { id: string } }) {
       case 'Tinkerer':
         icon = '🔧';
         break;
+      default:
+        icon = '👤';
     }
     
+    // ใช้ค่าสีที่ถูกต้องตามที่กำหนดไว้ใน theme.ts
     return {
-      bg: `from-${colors.bg.replace('bg-', '')} to-${colors.bg.replace('bg-', '')}/50`,
-      text: `from-${colors.text.replace('text-', '')} to-${colors.text.replace('text-', '')}`,
+      bg: colors.bg,
+      text: colors.text,
       border: colors.border,
-      icon
+      icon: icon
     };
   };
 
@@ -590,7 +593,7 @@ export default function PartyPage({ params }: { params: { id: string } }) {
                     <motion.button
                       key={member.character.id}
                       onClick={() => handleMemberClick(member)}
-                      className={`p-5 rounded-xl shadow transition-all duration-300 bg-gradient-to-br ${colors.bg} border ${colors.border} hover:shadow-lg hover:scale-[1.02] transform text-left relative`}
+                      className={`p-5 rounded-xl shadow transition-all duration-300 ${colors.bg} border ${colors.border} hover:shadow-lg hover:scale-[1.02] transform text-left relative`}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                     >
@@ -689,13 +692,24 @@ export default function PartyPage({ params }: { params: { id: string } }) {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 py-6 max-h-[60vh] overflow-y-auto px-1">
               {availableCharacters.map((char) => {
                 const colors = getClassColor(char.class);
+                // Mapping สีพื้นหลังเข้มขึ้น
+                let strongBg = '';
+                switch (colors.bg) {
+                  case 'bg-red-50': strongBg = 'bg-red-100'; break;
+                  case 'bg-emerald-50': strongBg = 'bg-emerald-100'; break;
+                  case 'bg-purple-50': strongBg = 'bg-purple-100'; break;
+                  case 'bg-sky-50': strongBg = 'bg-sky-100'; break;
+                  case 'bg-yellow-50': strongBg = 'bg-yellow-100'; break;
+                  case 'bg-amber-50': strongBg = 'bg-yellow-100'; break;
+                  default: strongBg = 'bg-gray-100'; break;
+                }
                 return (
                   <motion.button
                     key={char.id}
                     onClick={() => setSelectedCharacter(char)}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className={`p-4 rounded-xl bg-gradient-to-br ${colors.bg} border ${
+                    className={`p-4 rounded-xl ${strongBg} border ${
                       selectedCharacter === char 
                         ? `${colors.border} shadow-lg` 
                         : 'border-transparent'
@@ -707,13 +721,11 @@ export default function PartyPage({ params }: { params: { id: string } }) {
 
                     <div className="relative z-10">
                       <div className="flex items-center space-x-3">
-                        <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${colors.bg} border ${colors.border} flex items-center justify-center shadow-inner`}>
+                        <div className={`w-12 h-12 rounded-xl ${strongBg} border ${colors.border} flex items-center justify-center shadow-inner`}>
                           <span className="text-2xl">{colors.icon}</span>
                         </div>
                         <div>
-                          <h3 className={`text-lg font-bold bg-gradient-to-r ${colors.text} bg-clip-text text-transparent`}>
-                            {char.name}
-                          </h3>
+                          <h3 className={`text-lg font-bold ${colors.text.replace('bg-clip-text text-transparent','').replace('bg-gradient-to-r','').replace('from-','text-').replace('to-','')}`}>{char.name}</h3>
                           <p className="text-sm text-gray-600">{char.class}</p>
                         </div>
                       </div>
@@ -851,7 +863,7 @@ export default function PartyPage({ params }: { params: { id: string } }) {
                         <CharacterChecklist
                           checklist={selectedMember.character.checklist}
                           onChange={handleChecklistChange}
-                          accentColor={getClassColor(selectedMember.character.class).text.split(' ')[0].replace('from-', 'text-')}
+                          accentColor={getClassColor(selectedMember.character.class).text}
                         />
                       </div>
                     </div>

@@ -14,8 +14,8 @@ const CLASS_TO_MAIN_CLASS: Record<CharacterClass, CharacterMainClass> = {
   'Mercenary': 'Warrior',
   'Bowmaster': 'Archer',
   'Acrobat': 'Archer',
-  'Force User': 'Sorcerer',
-  'Elemental Lord': 'Sorcerer',
+  'Force User': 'Sorceress',
+  'Elemental Lord': 'Sorceress',
   'Paladin': 'Cleric',
   'Priest': 'Cleric',
   'Engineer': 'Tinkerer',
@@ -36,7 +36,7 @@ const classColors: Record<CharacterMainClass, {text: string, bg: string, border:
     border: 'border-emerald-300',
     accent: 'text-emerald-500'
   },
-  'Sorcerer': {
+  'Sorceress': {
     text: 'text-purple-600',
     bg: 'bg-gradient-to-br from-purple-100 to-violet-200/70',
     border: 'border-purple-300',
@@ -104,7 +104,7 @@ export function CharacterCard({ character, onEdit, onDelete, onChecklistChange }
         return <Sword className="h-5 w-5 text-red-500" />;
       case 'Archer':
         return <Zap className="h-5 w-5 text-emerald-500" />;
-      case 'Sorcerer':
+      case 'Sorceress':
         return <Sparkles className="h-5 w-5 text-purple-500" />;
       case 'Cleric':
         return <Shield className="h-5 w-5 text-sky-500" />;

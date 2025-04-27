@@ -40,7 +40,7 @@ const CHARACTER_CLASSES: CharacterClass[] = [
 const CHARACTER_MAIN_CLASSES: CharacterMainClass[] = [
   'Warrior',
   'Archer',
-  'Sorcerer',
+  'Sorceress',
   'Cleric',
   'Tinkerer'
 ];
