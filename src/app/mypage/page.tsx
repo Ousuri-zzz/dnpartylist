@@ -42,7 +42,7 @@ const CHARACTER_MAIN_CLASSES: CharacterMainClass[] = [
   'Archer',
   'Sorceress',
   'Cleric',
-  'Tinkerer'
+  'Academic'
 ];
 
 const defaultWeeklyChecklist = {

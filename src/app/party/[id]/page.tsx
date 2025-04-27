@@ -277,7 +277,7 @@ export default function PartyPage({ params }: { params: { id: string } }) {
       case 'Cleric':
         icon = '✨';
         break;
-      case 'Tinkerer':
+      case 'Academic':
         icon = '🔧';
         break;
       default:

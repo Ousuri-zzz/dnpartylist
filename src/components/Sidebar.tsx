@@ -255,7 +255,7 @@ const CLASS_GRADIENTS = {
   Archer:    { bg: 'from-emerald-100 to-green-200/70', text: 'text-emerald-600', border: 'border-emerald-300', icon: '🏹' },
   Sorceress: { bg: 'from-purple-100 to-violet-200/70', text: 'text-purple-600', border: 'border-purple-300', icon: '🔮' },
   Cleric:    { bg: 'from-sky-100 to-blue-200/70', text: 'text-sky-600', border: 'border-sky-300', icon: '✨' },
-  Tinkerer:  { bg: 'from-amber-100 to-yellow-200/70', text: 'text-amber-600', border: 'border-amber-300', icon: '🔧' },
+  Academic:  { bg: 'from-amber-100 to-yellow-200/70', text: 'text-amber-600', border: 'border-amber-300', icon: '🔧' },
   Default:   { bg: 'from-gray-50 to-gray-100/50', text: 'text-gray-700', border: 'border-gray-200', icon: '👤' }
 };
 

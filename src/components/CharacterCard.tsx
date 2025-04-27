@@ -18,8 +18,8 @@ const CLASS_TO_MAIN_CLASS: Record<CharacterClass, CharacterMainClass> = {
   'Elemental Lord': 'Sorceress',
   'Paladin': 'Cleric',
   'Priest': 'Cleric',
-  'Engineer': 'Tinkerer',
-  'Alchemist': 'Tinkerer'
+  'Engineer': 'Academic',
+  'Alchemist': 'Academic'
 };
 
 // สีตามอาชีพหลัก
@@ -48,11 +48,11 @@ const classColors: Record<CharacterMainClass, {text: string, bg: string, border:
     border: 'border-sky-300',
     accent: 'text-sky-500'
   },
-  'Tinkerer': {
+  'Academic': {
+    bg: 'from-amber-100 to-yellow-200/70',
     text: 'text-amber-600',
-    bg: 'bg-gradient-to-br from-amber-100 to-yellow-200/70',
     border: 'border-amber-300',
-    accent: 'text-amber-500'
+    icon: '🔧'
   }
 };
 
@@ -108,7 +108,7 @@ export function CharacterCard({ character, onEdit, onDelete, onChecklistChange }
         return <Sparkles className="h-5 w-5 text-purple-500" />;
       case 'Cleric':
         return <Shield className="h-5 w-5 text-sky-500" />;
-      case 'Tinkerer':
+      case 'Academic':
         return <Star className="h-5 w-5 text-amber-500" />;
       default:
         return <Crown className="h-5 w-5 text-gray-500" />;

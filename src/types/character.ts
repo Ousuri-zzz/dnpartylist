@@ -1,4 +1,4 @@
-export type Role = 'Warrior' | 'Archer' | 'Sorceress' | 'Cleric' | 'Tinkerer';
+export type Role = 'Warrior' | 'Archer' | 'Sorceress' | 'Cleric' | 'Academic';
 
 export type CharacterMainClass = Role;
 

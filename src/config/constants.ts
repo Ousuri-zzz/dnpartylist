@@ -30,6 +30,6 @@ export const CLASS_TO_ROLE: Record<CharacterClass, Role> = {
   'Elemental Lord': 'Sorceress',
   'Paladin': 'Cleric',
   'Priest': 'Cleric',
-  'Engineer': 'Tinkerer',
-  'Alchemist': 'Tinkerer'
+  'Engineer': 'Academic',
+  'Alchemist': 'Academic'
 }; 

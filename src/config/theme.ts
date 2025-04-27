@@ -23,10 +23,11 @@ export const CLASS_COLORS: Record<Role, { bg: string; text: string; border: stri
     text: 'text-blue-700',
     border: 'border-blue-200'
   },
-  Tinkerer: {
-    bg: 'bg-yellow-50',
-    text: 'text-yellow-700',
-    border: 'border-yellow-200'
+  Academic: {
+    bg: 'from-amber-100 to-yellow-200/70',
+    text: 'text-amber-600',
+    border: 'border-amber-300',
+    icon: '🔧'
   }
 };
 
@@ -36,7 +37,7 @@ export const CLASS_TEXT_COLORS: Record<Role, string> = {
   'Archer': 'text-emerald-700',
   'Sorceress': 'text-violet-700',
   'Cleric': 'text-sky-700',
-  'Tinkerer': 'text-yellow-700'
+  'Academic': 'text-yellow-700'
 };
 
 // สีสำหรับ border
@@ -45,7 +46,7 @@ export const CLASS_BORDER_COLORS: Record<Role, string> = {
   'Archer': 'border-emerald-300',
   'Sorceress': 'border-violet-300',
   'Cleric': 'border-sky-300',
-  'Tinkerer': 'border-yellow-300'
+  'Academic': 'border-yellow-300'
 };
 
 // สีพื้นหลังอ่อนๆ สำหรับ card
@@ -54,7 +55,7 @@ export const CLASS_BG_COLORS: Record<Role, string> = {
   'Archer': 'bg-emerald-50',
   'Sorceress': 'bg-violet-50',
   'Cleric': 'bg-sky-50',
-  'Tinkerer': 'bg-yellow-50'
+  'Academic': 'bg-yellow-50'
 };
 
 export const CLASS_TO_ROLE: Record<CharacterClass, Role> = {
@@ -66,8 +67,8 @@ export const CLASS_TO_ROLE: Record<CharacterClass, Role> = {
   'Elemental Lord': 'Sorceress',
   'Paladin': 'Cleric',
   'Priest': 'Cleric',
-  'Engineer': 'Tinkerer',
-  'Alchemist': 'Tinkerer'
+  'Engineer': 'Academic',
+  'Alchemist': 'Academic'
 };
 
 export const getClassColors = (role: Role) => {
@@ -96,11 +97,11 @@ export const getClassColors = (role: Role) => {
         bg: 'bg-sky-50',
         border: 'border-sky-200'
       };
-    case 'Tinkerer':
+    case 'Academic':
       return {
         text: 'text-amber-600',
-        bg: 'bg-amber-50',
-        border: 'border-amber-200'
+        bg: 'from-amber-100 to-yellow-200/70',
+        border: 'border-amber-300'
       };
     default:
       return {
@@ -142,7 +143,7 @@ export const ROLE_COLORS: Record<Role, { bg: string; text: string; border: strin
     text: 'text-blue-800',
     border: 'border-blue-200'
   },
-  Tinkerer: {
+  Academic: {
     bg: 'bg-yellow-100',
     text: 'text-yellow-800',
     border: 'border-yellow-200'
@@ -154,15 +155,15 @@ export const ROLE_NAMES: Record<Role, string> = {
   Archer: 'Archer',
   Sorceress: 'Sorceress',
   Cleric: 'Cleric',
-  Tinkerer: 'Tinkerer'
+  Academic: 'Academic'
 };
 
 export const ROLE_ICONS: Record<Role, string> = {
   Warrior: '⚔️',
   Archer: '🏹',
-  Sorceress: '🔮',
+  Sorceress: '��',
   Cleric: '✨',
-  Tinkerer: '🔧'
+  Academic: '🔧'
 };
 
 export const ROLE_DESCRIPTIONS: Record<Role, string> = {
@@ -170,5 +171,5 @@ export const ROLE_DESCRIPTIONS: Record<Role, string> = {
   Archer: 'Ranged damage dealers',
   Sorceress: 'Magic damage dealers',
   Cleric: 'Support and healing',
-  Tinkerer: 'Technical specialists'
+  Academic: 'Technical specialists'
 }; 
