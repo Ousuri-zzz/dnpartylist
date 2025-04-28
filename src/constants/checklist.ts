@@ -8,8 +8,6 @@ export const WEEKLY_MAX_VALUES = {
   apocalypse: 3,         // อะพอคคาลิปส์ - ทำได้ 3 ครั้งต่อสัปดาห์
   apocalypseHell: 1,     // อะพอคคาลิปส์ (นรก) - ทำได้ 1 ครั้งต่อสัปดาห์
   seaDragon: 2,          // มังกรทะเล - ทำได้ 2 ครั้งต่อสัปดาห์
-  seaDragonHell: 1,      // มังกรทะเล (นรก) - ทำได้ 1 ครั้งต่อสัปดาห์
-  seaDragonChallenge: 1, // มังกรทะเล (ท้าทาย) - ทำได้ 1 ครั้งต่อสัปดาห์
   chaosRiftKamala: 3,    // คาออสริฟท์: คามาลา - ทำได้ 3 ครั้งต่อสัปดาห์
   chaosRiftBairra: 3,    // คาออสริฟท์: ไบร์รา - ทำได้ 3 ครั้งต่อสัปดาห์
   banquetHall: 1,        // งานเลี้ยง - ทำได้ 1 ครั้งต่อสัปดาห์
@@ -28,8 +26,6 @@ export const DEFAULT_WEEKLY_CHECKLIST: { [K in keyof typeof WEEKLY_MAX_VALUES]: 
   apocalypse: 0,
   apocalypseHell: 0,
   seaDragon: 0,
-  seaDragonHell: 0,
-  seaDragonChallenge: 0,
   chaosRiftKamala: 0,
   chaosRiftBairra: 0,
   banquetHall: 0,

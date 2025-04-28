@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { CheckCircle2, Circle } from 'lucide-react';
 import type { CharacterChecklist as CharacterChecklistType } from '@/types/character';
@@ -22,8 +22,6 @@ export const DEFAULT_CHECKLIST: CharacterChecklistType = {
     apocalypse: 0,
     apocalypseHell: 0,
     seaDragon: 0,
-    seaDragonHell: 0,
-    seaDragonChallenge: 0,
     themePark: 0,
     themeHell: 0,
     chaosRiftKamala: 0,
@@ -35,11 +33,34 @@ export const DEFAULT_CHECKLIST: CharacterChecklistType = {
 
 interface CharacterChecklistProps {
   checklist: CharacterChecklistType;
-  onChange: (newChecklist: CharacterChecklistType) => void;
+  onChange: (checklist: CharacterChecklistType) => void;
   accentColor?: string;
 }
 
+// กำหนดกลุ่มรายการสำหรับแต่ละแท็บ
+const TAB1_ITEMS = [
+  'minotaur',
+  'cerberus',
+  'cerberusChallenge',
+  'chaosRiftBairra',
+  'banquetHall',
+  'jealousAlbeuteur',
+  'themePark'
+];
+
+const TAB2_ITEMS = [
+  'cerberusHell',
+  'manticore',
+  'manticoreHell',
+  'apocalypse',
+  'apocalypseHell',
+  'seaDragon',
+  'chaosRiftKamala'
+];
+
 export function CharacterChecklist({ checklist, onChange, accentColor = "text-blue-500" }: CharacterChecklistProps) {
+  const [activeTab, setActiveTab] = useState<number>(2);
+
   const handleDailyToggle = (key: keyof CharacterChecklistType['daily']) => {
     const newChecklist = {
       ...checklist,
@@ -76,8 +97,6 @@ export function CharacterChecklist({ checklist, onChange, accentColor = "text-bl
     apocalypse: 'Apocalypse',
     apocalypseHell: 'Apocalypse (Hell)',
     seaDragon: 'Sea Dragon',
-    seaDragonHell: 'Sea Dragon (Hell)',
-    seaDragonChallenge: 'Sea Dragon (Challenge)',
     themePark: 'Theme Park',
     themeHell: 'Theme Park (Hell)',
     chaosRiftKamala: 'Chaos Rift: Kamala',
@@ -85,24 +104,6 @@ export function CharacterChecklist({ checklist, onChange, accentColor = "text-bl
     banquetHall: 'Banquet Hall',
     jealousAlbeuteur: 'Jealous Albeuteur'
   };
-
-  // กำหนดลำดับการแสดงผลตาม PLAN.md
-  const weeklyOrder = [
-    'minotaur',
-    'cerberus',
-    'cerberusHell',
-    'cerberusChallenge',
-    'manticore',
-    'manticoreHell',
-    'apocalypse',
-    'apocalypseHell',
-    'seaDragon',
-    'chaosRiftKamala',
-    'chaosRiftBairra',
-    'banquetHall',
-    'jealousAlbeuteur',
-    'themePark'
-  ];
 
   // คำนวณเปอร์เซ็นต์การทำ checklist รายวัน
   const calculateDailyProgress = () => {
@@ -134,10 +135,32 @@ export function CharacterChecklist({ checklist, onChange, accentColor = "text-bl
     return 'bg-green-500';
   };
 
+  // แปลง accentColor เป็นสีพื้นหลัง
+  const getAccentBackgroundColor = () => {
+    if (accentColor.includes('red')) return 'bg-red-50';
+    if (accentColor.includes('emerald')) return 'bg-emerald-50';
+    if (accentColor.includes('purple')) return 'bg-purple-50';
+    if (accentColor.includes('sky')) return 'bg-sky-50';
+    if (accentColor.includes('amber')) return 'bg-amber-50';
+    return 'bg-gray-50';
+  };
+
+  // แปลง accentColor เป็นสีข้อความ
+  const getAccentTextColor = () => {
+    if (accentColor.includes('red')) return 'text-red-700';
+    if (accentColor.includes('emerald')) return 'text-emerald-700';
+    if (accentColor.includes('purple')) return 'text-purple-700';
+    if (accentColor.includes('sky')) return 'text-sky-700';
+    if (accentColor.includes('amber')) return 'text-amber-700';
+    return 'text-gray-700';
+  };
+
   const dailyProgress = calculateDailyProgress();
   const weeklyProgress = calculateWeeklyProgress();
   const dailyProgressColor = getProgressColor(dailyProgress);
   const weeklyProgressColor = getProgressColor(weeklyProgress);
+  const accentBgColor = getAccentBackgroundColor();
+  const accentTextColor = getAccentTextColor();
 
   return (
     <div className="w-full space-y-4">
@@ -202,15 +225,43 @@ export function CharacterChecklist({ checklist, onChange, accentColor = "text-bl
             style={{ transform: `translateX(-${100 - weeklyProgress}%)` }} 
           />
         </Progress.Root>
+        
+        {/* Tabs */}
+        <div className={cn("flex mb-3 rounded-lg overflow-hidden p-1", accentBgColor)}>
+          <button
+            className={cn(
+              "flex-1 py-1.5 px-3 text-sm font-medium rounded-md transition-all duration-200",
+              activeTab === 1 
+                ? `bg-white shadow-sm ${accentTextColor}` 
+                : "text-gray-500 hover:text-gray-700 hover:bg-white/50"
+            )}
+            onClick={() => setActiveTab(1)}
+          >
+            Tab 1
+          </button>
+          <button
+            className={cn(
+              "flex-1 py-1.5 px-3 text-sm font-medium rounded-md transition-all duration-200",
+              activeTab === 2 
+                ? `bg-white shadow-sm ${accentTextColor}` 
+                : "text-gray-500 hover:text-gray-700 hover:bg-white/50"
+            )}
+            onClick={() => setActiveTab(2)}
+          >
+            Tab 2
+          </button>
+        </div>
+        
+        {/* Tab Content */}
         <div className="grid grid-cols-1 gap-1.5">
-          {weeklyOrder.map((key) => {
+          {(activeTab === 1 ? TAB1_ITEMS : TAB2_ITEMS).map((key) => {
             const value = checklist.weekly[key as keyof CharacterChecklistType['weekly']];
             const maxValue = WEEKLY_MAX_VALUES[key as keyof typeof WEEKLY_MAX_VALUES] || 0;
             const displayName = displayNames[key] || key;
             const isCompleted = value >= maxValue;
 
             return (
-              <div key={key} className="flex items-center gap-2 bg-muted/5 rounded-lg p-1.5">
+              <div key={key} className="flex items-center gap-2 bg-muted/5 rounded-lg p-1.5 hover:bg-muted/10 transition-colors">
                 <span className={`text-sm flex-1 ${isCompleted ? 'opacity-50 line-through' : ''}`}>
                   {displayName}
                   {isCompleted && <span className="ml-1 text-xs text-green-500">✓</span>}
@@ -222,7 +273,7 @@ export function CharacterChecklist({ checklist, onChange, accentColor = "text-bl
                       variant="ghost"
                       size="sm"
                       className={cn(
-                        "h-6 w-6 p-0 hover:bg-muted/20",
+                        "h-6 w-6 p-0 rounded-full hover:bg-muted/20 transition-all duration-200",
                         i < value && "bg-muted/10"
                       )}
                       onClick={() => handleWeeklyToggle(key as keyof CharacterChecklistType['weekly'], i)}

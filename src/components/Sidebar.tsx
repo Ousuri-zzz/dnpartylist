@@ -10,6 +10,7 @@ import { cn } from '../lib/utils';
 import { WEEKLY_MAX_VALUES } from '@/constants/checklist';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { CLASS_TO_ROLE, getClassColors } from '@/config/theme';
+import { CharacterChecklist } from './CharacterChecklist';
 
 interface SidebarProps {
   users: { [key: string]: User };
@@ -274,6 +275,60 @@ export function Sidebar({ users }: SidebarProps) {
     setIsDialogOpen(true);
   };
 
+  // ฟังก์ชันสำหรับเรียงลำดับตัวละคร
+  const sortCharacters = (characters: [string, any][]) => {
+    return [...characters].sort((a, b) => {
+      const nameA = a[1].name;
+      const nameB = b[1].name;
+      
+      // แยกพยัญชนะและตัวเลข
+      const lettersA = nameA.replace(/[0-9]/g, '');
+      const lettersB = nameB.replace(/[0-9]/g, '');
+      const numbersA = nameA.replace(/[^0-9]/g, '');
+      const numbersB = nameB.replace(/[^0-9]/g, '');
+      
+      // เรียงตามพยัญชนะก่อน
+      if (lettersA !== lettersB) {
+        return lettersA.localeCompare(lettersB, 'th', {sensitivity: 'base'});
+      }
+      
+      // ถ้าพยัญชนะเท่ากัน ให้เรียงตามตัวเลข
+      if (numbersA && numbersB) {
+        return parseInt(numbersA) - parseInt(numbersB);
+      }
+      
+      // ถ้าไม่มีตัวเลข ให้เรียงตามชื่อเต็ม
+      return nameA.localeCompare(nameB, 'th', {sensitivity: 'base'});
+    });
+  };
+
+  // ฟังก์ชันสำหรับเรียงลำดับผู้ใช้ Discord
+  const sortUsers = (users: [string, any][]) => {
+    return [...users].sort((a, b) => {
+      const nameA = a[1].meta?.discord || 'ไม่ทราบชื่อ';
+      const nameB = b[1].meta?.discord || 'ไม่ทราบชื่อ';
+      
+      // แยกพยัญชนะและตัวเลข
+      const lettersA = nameA.replace(/[0-9]/g, '');
+      const lettersB = nameB.replace(/[0-9]/g, '');
+      const numbersA = nameA.replace(/[^0-9]/g, '');
+      const numbersB = nameB.replace(/[^0-9]/g, '');
+      
+      // เรียงตามพยัญชนะก่อน
+      if (lettersA !== lettersB) {
+        return lettersA.localeCompare(lettersB, 'th', {sensitivity: 'base'});
+      }
+      
+      // ถ้าพยัญชนะเท่ากัน ให้เรียงตามตัวเลข
+      if (numbersA && numbersB) {
+        return parseInt(numbersA) - parseInt(numbersB);
+      }
+      
+      // ถ้าไม่มีตัวเลข ให้เรียงตามชื่อเต็ม
+      return nameA.localeCompare(nameB, 'th', {sensitivity: 'base'});
+    });
+  };
+
   return (
     <>
       <ScrollArea className="h-[calc(100vh-8rem)] pr-4 -mr-4">
@@ -282,7 +337,7 @@ export function Sidebar({ users }: SidebarProps) {
             ผู้เล่นทั้งหมด
           </h2>
           <div className="space-y-2">
-            {Object.entries(users).map(([userId, user]: [string, any], index) => {
+            {sortUsers(Object.entries(users)).map(([userId, user]: [string, any], index) => {
               if (!user.characters || Object.keys(user.characters).length === 0) return null;
               const isExpanded = !!expanded[userId];
               return (
@@ -315,7 +370,7 @@ export function Sidebar({ users }: SidebarProps) {
                     </div>
                   </div>
 
-                  <AnimatePresence initial={false}>
+                  <AnimatePresence>
                     {isExpanded && (
                       <motion.div
                         key={userId}
@@ -325,7 +380,7 @@ export function Sidebar({ users }: SidebarProps) {
                         transition={{ duration: 0.25, ease: 'easeInOut' }}
                         className="space-y-0.5"
                       >
-                        {Object.entries(user.characters).map(([charId, char]: [string, any]) => {
+                        {sortCharacters(Object.entries(user.characters)).map(([charId, char]: [string, any]) => {
                           const classColors = getClassColor(char.class);
                           return (
                             <motion.button
@@ -336,19 +391,17 @@ export function Sidebar({ users }: SidebarProps) {
                               whileTap={{ scale: 0.98 }}
                               layout
                             >
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                  <div className={`w-8 h-8 rounded-md bg-white/50 border ${classColors.border} flex items-center justify-center shadow-inner`}>
-                                    <span className="text-base">{classColors.icon}</span>
-                                  </div>
-                                  <div>
-                                    <h4 className={`text-sm font-medium ${classColors.text}`}>
-                                      {char.name}
-                                    </h4>
-                                    <p className="text-xs text-gray-500">
-                                      {char.class}
-                                    </p>
-                                  </div>
+                              <div className="flex items-center gap-2">
+                                <div className={`w-8 h-8 rounded-md bg-white/50 border ${classColors.border} flex items-center justify-center shadow-inner`}>
+                                  <span className="text-base">{classColors.icon}</span>
+                                </div>
+                                <div>
+                                  <h4 className={`text-sm font-medium ${classColors.text}`}>
+                                    {char.name}
+                                  </h4>
+                                  <p className="text-xs text-gray-500">
+                                    {char.class}
+                                  </p>
                                 </div>
                               </div>
                             </motion.button>
@@ -387,7 +440,49 @@ export function Sidebar({ users }: SidebarProps) {
                   transition={{ duration: 0.3 }}
                 />
                 <div className="relative">
-                  <SimpleCharacterCard character={selectedCharacter} />
+                  <div className={cn(
+                    "relative overflow-hidden rounded-xl border-2 transition-all duration-300",
+                    "bg-gradient-to-br from-pink-100/80 to-purple-100/80",
+                    "shadow-[0_8px_32px_0_rgba(31,38,135,0.1)]",
+                    getClassColor(selectedCharacter.class).border,
+                    "hover:shadow-lg"
+                  )}>
+                    {/* Decorative corner elements */}
+                    <div className={cn("absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 rounded-tl-lg", getClassColor(selectedCharacter.class).border)}></div>
+                    <div className={cn("absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 rounded-tr-lg", getClassColor(selectedCharacter.class).border)}></div>
+                    <div className={cn("absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 rounded-bl-lg", getClassColor(selectedCharacter.class).border)}></div>
+                    <div className={cn("absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 rounded-br-lg", getClassColor(selectedCharacter.class).border)}></div>
+
+                    <div className="p-6">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className={cn(
+                          "w-12 h-12 rounded-lg flex items-center justify-center",
+                          "bg-gradient-to-br from-pink-200 to-purple-200 border shadow-inner",
+                          getClassColor(selectedCharacter.class).border
+                        )}>
+                          <span className="text-2xl">{getClassColor(selectedCharacter.class).icon}</span>
+                        </div>
+                        <div>
+                          <h3 className={cn("text-xl font-bold", getClassColor(selectedCharacter.class).text)}>
+                            {selectedCharacter.name}
+                          </h3>
+                          <p className={cn("text-sm font-medium", getClassColor(selectedCharacter.class).text)}>
+                            {selectedCharacter.class}
+                          </p>
+                          {/* Find and show discordName of the character's owner */}
+                          <p className="text-sm text-gray-600 mt-1">
+                            {Object.values(users).find(u => u.characters && Object.values(u.characters).some(c => c.id === selectedCharacter.id))?.meta?.discord || 'ไม่ทราบ'}
+                          </p>
+                        </div>
+                      </div>
+
+                      <CharacterChecklist
+                        checklist={selectedCharacter.checklist}
+                        onChange={() => {}}
+                        accentColor={getClassColor(selectedCharacter.class).text}
+                      />
+                    </div>
+                  </div>
                 </div>
               </motion.div>
             )}

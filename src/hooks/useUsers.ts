@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ref, onValue } from 'firebase/database';
+import { ref, onValue, update } from 'firebase/database';
 import { db } from '../lib/firebase';
 import { Character } from '../types/character';
 import { User } from '../types/user';
@@ -74,8 +74,6 @@ export function useUsers() {
                     apocalypse: charData.checklist?.weekly?.apocalypse || 0,
                     apocalypseHell: charData.checklist?.weekly?.apocalypseHell || 0,
                     seaDragon: charData.checklist?.weekly?.seaDragon || 0,
-                    seaDragonHell: charData.checklist?.weekly?.seaDragonHell || 0,
-                    seaDragonChallenge: charData.checklist?.weekly?.seaDragonChallenge || 0,
                     themePark: charData.checklist?.weekly?.themePark || 0,
                     themeHell: charData.checklist?.weekly?.themeHell || 0,
                     chaosRiftKamala: charData.checklist?.weekly?.chaosRiftKamala || 0,
@@ -98,6 +96,21 @@ export function useUsers() {
             },
             characters
           };
+
+          // --- เพิ่ม logic ตรวจสอบ lastResetDaily/lastResetWeekly ---
+          if (userData?.meta) {
+            const updates: Record<string, number> = {};
+            if (userData.meta.lastResetDaily === undefined || userData.meta.lastResetDaily === null) {
+              updates['lastResetDaily'] = Date.now();
+            }
+            if (userData.meta.lastResetWeekly === undefined || userData.meta.lastResetWeekly === null) {
+              updates['lastResetWeekly'] = Date.now();
+            }
+            if (Object.keys(updates).length > 0) {
+              // เขียนค่าเริ่มต้นโดยไม่รีเซ็ต checklist ใด ๆ
+              update(ref(db, `users/${uid}/meta`), updates);
+            }
+          }
         });
         
         console.log('useUsers: Processed users:', processedUsers);

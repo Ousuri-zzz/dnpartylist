@@ -123,8 +123,6 @@ export async function resetChecklist(userId: string, type: 'daily' | 'weekly'): 
           apocalypse: 0,
           apocalypseHell: 0,
           seaDragon: 0,
-          seaDragonHell: 0,
-          seaDragonChallenge: 0,
           themePark: 0,
           themeHell: 0,
           chaosRiftKamala: 0,

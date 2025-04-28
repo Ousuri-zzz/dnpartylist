@@ -44,7 +44,11 @@
         "characters": {
           ".write": "auth != null && auth.uid === $uid",
           "$characterId": {
-            ".validate": "newData.hasChildren(['name', 'class', 'mainClass', 'stats'])",
+            ".validate": "
+              newData.hasChildren(['name', 'class', 'mainClass', 'stats']) &&
+              (newData.child('lastResetDay').isNumber() || !newData.child('lastResetDay').exists()) &&
+              (newData.child('lastResetWeek').isNumber() || !newData.child('lastResetWeek').exists())
+            ",
             "name": { ".validate": "newData.isString() && newData.val().length > 0" },
             "class": { ".validate": "newData.isString()" },
             "mainClass": { ".validate": "newData.isString()" },
@@ -76,4 +80,4 @@
       }
     }
   }
-} 
+}

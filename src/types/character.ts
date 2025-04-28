@@ -66,8 +66,6 @@ export interface CharacterChecklist {
     apocalypse: number;
     apocalypseHell: number;
     seaDragon: number;
-    seaDragonHell: number;
-    seaDragonChallenge: number;
     themePark: number;
     themeHell: number;
     chaosRiftKamala: number;
