@@ -78,7 +78,10 @@ export default function PartyPage() {
       filtered = filtered.filter(party => {
         const partyName = party.name?.toLowerCase() || '';
         const leaderName = party.leader?.toLowerCase() || '';
-        return partyName.includes(query) || leaderName.includes(query);
+        const nestName = party.nest?.toLowerCase() || '';
+        return partyName.includes(query) || 
+               leaderName.includes(query) || 
+               nestName.includes(query);
       });
     }
 
