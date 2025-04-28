@@ -26,6 +26,7 @@ export default function PartyPage() {
   const [selectedDiscord, setSelectedDiscord] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedTab, setSelectedTab] = useState<'all' | 'my'>('all');
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Group characters by Discord name
   const charactersByDiscord = useMemo(() => {
@@ -61,12 +62,28 @@ export default function PartyPage() {
 
   // กรองปาร์ตี้ตาม tab
   const filteredParties = useMemo(() => {
-    if (selectedTab === 'all') return parties;
-    if (!user) return [];
-    return parties.filter(party =>
-      party.members && Object.values(party.members).some(member => member.userId === user.uid)
-    );
-  }, [selectedTab, parties, user]);
+    let filtered = parties;
+    
+    // Filter by tab
+    if (selectedTab === 'my') {
+      if (!user) return [];
+      filtered = parties.filter(party =>
+        party.members && Object.values(party.members).some(member => member.userId === user.uid)
+      );
+    }
+
+    // Filter by search query
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      filtered = filtered.filter(party => {
+        const partyName = party.name?.toLowerCase() || '';
+        const leaderName = party.leader?.toLowerCase() || '';
+        return partyName.includes(query) || leaderName.includes(query);
+      });
+    }
+
+    return filtered;
+  }, [selectedTab, parties, user, searchQuery]);
 
   useEffect(() => {
     if (!partiesLoading && !charactersLoading && !usersLoading) {
@@ -98,6 +115,15 @@ export default function PartyPage() {
               <p className="text-gray-500">เลือกปาร์ตี้ที่คุณต้องการเข้าร่วมหรือสร้างปาร์ตี้ใหม่</p>
             </div>
             <div className="flex items-center gap-4">
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="ค้นหาปาร์ตี้หรือชื่อเนส..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-64 px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                />
+              </div>
               <CreatePartyDialog />
             </div>
           </div>
