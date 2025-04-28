@@ -12,6 +12,16 @@ import { ChevronDown, ChevronRight } from 'lucide-react';
 import { CLASS_TO_ROLE, getClassColors } from '@/config/theme';
 import { CharacterChecklist } from './CharacterChecklist';
 
+// ฟังก์ชันสำหรับแปลงตัวเลขเป็นรูปแบบย่อ (K, M)
+function formatNumber(num: number): string {
+  if (num >= 1000000) {
+    return (num / 1000000).toFixed(1) + 'M';
+  } else if (num >= 1000) {
+    return (num / 1000).toFixed(1) + 'K';
+  }
+  return num.toString();
+}
+
 interface SidebarProps {
   users: { [key: string]: User };
 }
@@ -34,7 +44,7 @@ function SimpleCharacterCard({ character }: { character: Character }) {
       <div className={cn("absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 rounded-bl-lg", colors.border)}></div>
       <div className={cn("absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 rounded-br-lg", colors.border)}></div>
 
-      <div className="relative p-4">
+      <div className="p-4">
         <div className="flex items-center gap-3 mb-4">
           <div className={cn(
             "w-12 h-12 rounded-lg flex items-center justify-center",
@@ -53,9 +63,10 @@ function SimpleCharacterCard({ character }: { character: Character }) {
           </div>
         </div>
 
-        <div className="flex gap-2 mb-4">
-          {/* Left Column - ATK, HP, DEF */}
-          <div className="flex-1 space-y-2">
+        {/* Stats Display */}
+        <div className="grid grid-cols-2 gap-4 mb-4">
+          {/* Left Column - ATK, HP, DEF P M */}
+          <div className="space-y-2">
             <div className={cn(
               "p-2 rounded-lg border",
               "bg-gradient-to-br from-pink-200/80 to-pink-100/80",
@@ -65,7 +76,7 @@ function SimpleCharacterCard({ character }: { character: Character }) {
                 <span className="text-pink-500">⚔️</span>
                 <span className="text-gray-600">ATK:</span>
                 <span className={cn("font-medium", colors.text)}>
-                  {character.stats?.atk || 0}
+                  {formatNumber(character.stats?.atk || 0)}
                 </span>
               </div>
             </div>
@@ -78,7 +89,7 @@ function SimpleCharacterCard({ character }: { character: Character }) {
                 <span className="text-red-500">❤️</span>
                 <span className="text-gray-600">HP:</span>
                 <span className={cn("font-medium", colors.text)}>
-                  {character.stats?.hp || 0}
+                  {formatNumber(character.stats?.hp || 0)}
                 </span>
               </div>
             </div>
@@ -105,7 +116,7 @@ function SimpleCharacterCard({ character }: { character: Character }) {
           </div>
 
           {/* Right Column - CRI, ELE, FD */}
-          <div className="flex-1 space-y-2">
+          <div className="space-y-2">
             <div className={cn(
               "p-2 rounded-lg border",
               "bg-gradient-to-br from-yellow-200/80 to-yellow-100/80",
@@ -148,104 +159,11 @@ function SimpleCharacterCard({ character }: { character: Character }) {
           </div>
         </div>
 
-        {character.checklist && (
-          <div className="space-y-3">
-            {/* Daily Checklist */}
-            <div>
-              <h4 className={cn("text-sm font-medium mb-2", colors.text)}>รายการรายวัน</h4>
-              <div className="grid grid-cols-2 gap-2">
-                <div className={cn(
-                  "p-2 rounded-lg border",
-                  "bg-gradient-to-br from-green-200/80 to-green-100/80",
-                  colors.border
-                )}>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600">Daily Quest</span>
-                    <span className={cn(
-                      "font-medium",
-                      character.checklist.daily.dailyQuest ? "text-green-600" : "text-gray-400"
-                    )}>
-                      {character.checklist.daily.dailyQuest ? "✓" : "○"}
-                    </span>
-                  </div>
-                </div>
-                <div className={cn(
-                  "p-2 rounded-lg border",
-                  "bg-gradient-to-br from-teal-200/80 to-teal-100/80",
-                  colors.border
-                )}>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600">FTG 700</span>
-                    <span className={cn(
-                      "font-medium",
-                      character.checklist.daily.ftg ? "text-green-600" : "text-gray-400"
-                    )}>
-                      {character.checklist.daily.ftg ? "✓" : "○"}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Weekly Checklist */}
-            <div>
-              <h4 className={cn("text-sm font-medium mb-2", colors.text)}>รายการสัปดาห์</h4>
-              <div className="grid grid-cols-2 gap-2">
-                {([
-                  'minotaur',
-                  'cerberus',
-                  'cerberusHell',
-                  'cerberusChallenge',
-                  'manticore',
-                  'manticoreHell',
-                  'apocalypse',
-                  'apocalypseHell',
-                  'seaDragon',
-                  'chaosRiftKamala',
-                  'chaosRiftBairra',
-                  'banquetHall',
-                  'jealousAlbeuteur',
-                  'themePark'
-                ] as const).map((key) => {
-                  const value = character.checklist.weekly[key] || 0;
-                  const maxRounds = WEEKLY_MAX_VALUES[key] || 1;
-
-                  const displayNames = {
-                    'minotaur': 'Minotaur',
-                    'cerberus': 'Cerberus',
-                    'cerberusHell': 'Cerberus (Hell)',
-                    'cerberusChallenge': 'Cerberus (Challenge)',
-                    'manticore': 'Manticore',
-                    'manticoreHell': 'Manticore (Hell)',
-                    'apocalypse': 'Apocalypse',
-                    'apocalypseHell': 'Apocalypse (Hell)',
-                    'seaDragon': 'Sea Dragon',
-                    'chaosRiftKamala': 'Chaos Rift: Kamala',
-                    'chaosRiftBairra': 'Chaos Rift: Bairra',
-                    'banquetHall': 'Banquet Hall',
-                    'jealousAlbeuteur': 'Jealous Albeuteur',
-                    'themePark': 'Theme Park'
-                  } as const;
-
-                  return (
-                    <div key={key} className={cn(
-                      "p-2 rounded-lg border",
-                      "bg-gradient-to-br from-indigo-200/80 to-indigo-100/80",
-                      colors.border
-                    )}>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600">{displayNames[key]}</span>
-                        <span className={cn("font-medium", colors.text)}>
-                          {value}/{maxRounds} รอบ
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        )}
+        <CharacterChecklist
+          checklist={character.checklist}
+          onChange={() => {}}
+          accentColor={colors.text}
+        />
       </div>
     </div>
   );
@@ -473,6 +391,102 @@ export function Sidebar({ users }: SidebarProps) {
                           <p className="text-sm text-gray-600 mt-1">
                             {Object.values(users).find(u => u.characters && Object.values(u.characters).some(c => c.id === selectedCharacter.id))?.meta?.discord || 'ไม่ทราบ'}
                           </p>
+                        </div>
+                      </div>
+
+                      {/* Stats Display */}
+                      <div className="grid grid-cols-2 gap-4 mb-4">
+                        {/* Left Column - ATK, HP, DEF P M */}
+                        <div className="space-y-2">
+                          <div className={cn(
+                            "p-2 rounded-lg border",
+                            "bg-gradient-to-br from-pink-200/80 to-pink-100/80",
+                            getClassColor(selectedCharacter.class).border
+                          )}>
+                            <div className="flex items-center gap-1 text-sm">
+                              <span className="text-pink-500">⚔️</span>
+                              <span className="text-gray-600">ATK:</span>
+                              <span className={cn("font-medium", getClassColor(selectedCharacter.class).text)}>
+                                {formatNumber(selectedCharacter.stats?.atk || 0)}
+                              </span>
+                            </div>
+                          </div>
+                          <div className={cn(
+                            "p-2 rounded-lg border",
+                            "bg-gradient-to-br from-red-200/80 to-red-100/80",
+                            getClassColor(selectedCharacter.class).border
+                          )}>
+                            <div className="flex items-center gap-1 text-sm">
+                              <span className="text-red-500">❤️</span>
+                              <span className="text-gray-600">HP:</span>
+                              <span className={cn("font-medium", getClassColor(selectedCharacter.class).text)}>
+                                {formatNumber(selectedCharacter.stats?.hp || 0)}
+                              </span>
+                            </div>
+                          </div>
+                          <div className={cn(
+                            "p-2 rounded-lg border",
+                            "bg-gradient-to-br from-blue-200/80 to-blue-100/80",
+                            getClassColor(selectedCharacter.class).border
+                          )}>
+                            <div className="flex items-center gap-1 text-sm">
+                              <span className="text-blue-500">🛡️</span>
+                              <span className="text-gray-600">DEF:</span>
+                              <div className="flex items-center gap-1">
+                                <span className="text-blue-600">P</span>
+                                <span className={cn("font-medium", getClassColor(selectedCharacter.class).text)}>
+                                  {selectedCharacter.stats?.pdef || 0}%
+                                </span>
+                                <span className="text-purple-600">M</span>
+                                <span className={cn("font-medium", getClassColor(selectedCharacter.class).text)}>
+                                  {selectedCharacter.stats?.mdef || 0}%
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Right Column - CRI, ELE, FD */}
+                        <div className="space-y-2">
+                          <div className={cn(
+                            "p-2 rounded-lg border",
+                            "bg-gradient-to-br from-yellow-200/80 to-yellow-100/80",
+                            getClassColor(selectedCharacter.class).border
+                          )}>
+                            <div className="flex items-center gap-1 text-sm">
+                              <span className="text-yellow-500">🎯</span>
+                              <span className="text-gray-600">CRI:</span>
+                              <span className={cn("font-medium", getClassColor(selectedCharacter.class).text)}>
+                                {selectedCharacter.stats?.cri || 0}%
+                              </span>
+                            </div>
+                          </div>
+                          <div className={cn(
+                            "p-2 rounded-lg border",
+                            "bg-gradient-to-br from-purple-200/80 to-purple-100/80",
+                            getClassColor(selectedCharacter.class).border
+                          )}>
+                            <div className="flex items-center gap-1 text-sm">
+                              <span className="text-purple-500">⚡</span>
+                              <span className="text-gray-600">ELE:</span>
+                              <span className={cn("font-medium", getClassColor(selectedCharacter.class).text)}>
+                                {selectedCharacter.stats?.ele || 0}%
+                              </span>
+                            </div>
+                          </div>
+                          <div className={cn(
+                            "p-2 rounded-lg border",
+                            "bg-gradient-to-br from-orange-200/80 to-orange-100/80",
+                            getClassColor(selectedCharacter.class).border
+                          )}>
+                            <div className="flex items-center gap-1 text-sm">
+                              <span className="text-orange-500">💥</span>
+                              <span className="text-gray-600">FD:</span>
+                              <span className={cn("font-medium", getClassColor(selectedCharacter.class).text)}>
+                                {selectedCharacter.stats?.fd || 0}%
+                              </span>
+                            </div>
+                          </div>
                         </div>
                       </div>
 
