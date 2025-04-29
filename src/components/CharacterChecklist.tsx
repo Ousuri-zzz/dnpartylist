@@ -35,6 +35,7 @@ interface CharacterChecklistProps {
   checklist: CharacterChecklistType;
   onChange: (checklist: CharacterChecklistType) => void;
   accentColor?: string;
+  readOnly?: boolean;
 }
 
 // กำหนดกลุ่มรายการสำหรับแต่ละแท็บ
@@ -58,10 +59,12 @@ const TAB2_ITEMS = [
   'chaosRiftKamala'
 ];
 
-export function CharacterChecklist({ checklist, onChange, accentColor = "text-blue-500" }: CharacterChecklistProps) {
+export function CharacterChecklist({ checklist, onChange, accentColor = "text-blue-500", readOnly = false }: CharacterChecklistProps) {
   const [activeTab, setActiveTab] = useState<number>(2);
 
   const handleDailyToggle = (key: keyof CharacterChecklistType['daily']) => {
+    if (readOnly) return;
+    
     const newChecklist = {
       ...checklist,
       daily: {
@@ -73,6 +76,8 @@ export function CharacterChecklist({ checklist, onChange, accentColor = "text-bl
   };
 
   const handleWeeklyToggle = (key: keyof CharacterChecklistType['weekly'], clickedIndex: number) => {
+    if (readOnly) return;
+    
     const currentValue = checklist.weekly[key];
     const newValue = clickedIndex + 1 === currentValue ? 0 : clickedIndex + 1;
     
@@ -182,9 +187,11 @@ export function CharacterChecklist({ checklist, onChange, accentColor = "text-bl
             size="sm"
             className={cn(
               "h-9 justify-start gap-2 rounded-lg hover:bg-muted/20",
-              checklist.daily.dailyQuest && "bg-muted/10"
+              checklist.daily.dailyQuest && "bg-muted/10",
+              readOnly && "cursor-default hover:bg-transparent"
             )}
             onClick={() => handleDailyToggle('dailyQuest')}
+            disabled={readOnly}
           >
             {checklist.daily.dailyQuest ? (
               <CheckCircle2 className={`h-4 w-4 ${accentColor}`} />
@@ -199,9 +206,11 @@ export function CharacterChecklist({ checklist, onChange, accentColor = "text-bl
             size="sm"
             className={cn(
               "h-9 justify-start gap-2 rounded-lg hover:bg-muted/20",
-              checklist.daily.ftg && "bg-muted/10"
+              checklist.daily.ftg && "bg-muted/10",
+              readOnly && "cursor-default hover:bg-transparent"
             )}
             onClick={() => handleDailyToggle('ftg')}
+            disabled={readOnly}
           >
             {checklist.daily.ftg ? (
               <CheckCircle2 className={`h-4 w-4 ${accentColor}`} />
@@ -264,7 +273,6 @@ export function CharacterChecklist({ checklist, onChange, accentColor = "text-bl
               <div key={key} className="flex items-center gap-2 bg-muted/5 rounded-lg p-1.5 hover:bg-muted/10 transition-colors">
                 <span className={`text-sm flex-1 ${isCompleted ? 'opacity-50 line-through' : ''}`}>
                   {displayName}
-                  {isCompleted && <span className="ml-1 text-xs text-green-500">✓</span>}
                 </span>
                 <div className="flex items-center gap-1">
                   {Array.from({ length: maxValue }, (_, i) => (
@@ -274,9 +282,11 @@ export function CharacterChecklist({ checklist, onChange, accentColor = "text-bl
                       size="sm"
                       className={cn(
                         "h-6 w-6 p-0 rounded-full hover:bg-muted/20 transition-all duration-200",
-                        i < value && "bg-muted/10"
+                        i < value && "bg-muted/10",
+                        readOnly && "cursor-default hover:bg-transparent"
                       )}
                       onClick={() => handleWeeklyToggle(key as keyof CharacterChecklistType['weekly'], i)}
+                      disabled={readOnly}
                     >
                       {i < value ? (
                         <CheckCircle2 className={`h-3 w-3 ${accentColor}`} />
@@ -293,4 +303,4 @@ export function CharacterChecklist({ checklist, onChange, accentColor = "text-bl
       </div>
     </div>
   );
-} 
+}

@@ -104,9 +104,7 @@ export default function PartyPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 flex items-center justify-center">
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+        <div
           className="w-8 h-8 border-3 border-pink-500 border-t-transparent rounded-full"
         />
       </div>
@@ -115,92 +113,135 @@ export default function PartyPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50">
-      <div className="container mx-auto px-4 py-8">
-        <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg p-6 mb-8 relative">
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
+        className="container mx-auto px-4 py-8"
+      >
+        {/* Header Section */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
+          className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg p-6 mb-8 relative"
+        >
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div className="space-y-1">
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.2, delay: 0.1, ease: "easeOut" }}
+              className="space-y-1"
+            >
               <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-pink-600 to-blue-600 bg-clip-text text-transparent">
                 {selectedTab === 'all' ? 'ปาร์ตี้ทั้งหมด' : 'ปาร์ตี้ของฉัน'}
               </h1>
               <p className="text-gray-500">เลือกปาร์ตี้ที่คุณต้องการเข้าร่วมหรือสร้างปาร์ตี้ใหม่</p>
-            </div>
-            <div className="flex items-center gap-4">
+            </motion.div>
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.2, delay: 0.2, ease: "easeOut" }}
+              className="flex items-center gap-4"
+            >
               <div className="relative">
                 <input
                   type="text"
                   placeholder="ค้นหาปาร์ตี้หรือชื่อเนส..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-64 px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                  className="w-64 px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200"
                 />
               </div>
               <CreatePartyDialog />
-            </div>
+            </motion.div>
           </div>
           {/* Tab ปาร์ตี้ */}
-          <div className="flex space-x-4 mt-6">
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.2, delay: 0.3, ease: "easeOut" }}
+            className="flex gap-2 mt-6"
+          >
             <button
               onClick={() => setSelectedTab('all')}
-              className={`px-4 py-2 rounded font-semibold transition border-b-2 ${selectedTab === 'all' ? 'border-violet-500 text-violet-700 bg-violet-100' : 'border-transparent text-gray-600 hover:bg-gray-100'}`}
+              className={`px-4 py-2 rounded font-semibold transition-all duration-200 border-b-2 ${selectedTab === 'all' ? 'border-violet-500 text-violet-700 bg-violet-100' : 'border-transparent text-gray-600 hover:bg-gray-100'}`}
             >
               ปาร์ตี้ทั้งหมด
             </button>
             <button
               onClick={() => setSelectedTab('my')}
-              className={`px-4 py-2 rounded font-semibold transition border-b-2 ${selectedTab === 'my' ? 'border-violet-500 text-violet-700 bg-violet-100' : 'border-transparent text-gray-600 hover:bg-gray-100'}`}
+              className={`px-4 py-2 rounded font-semibold transition-all duration-200 border-b-2 ${selectedTab === 'my' ? 'border-violet-500 text-violet-700 bg-violet-100' : 'border-transparent text-gray-600 hover:bg-gray-100'}`}
             >
               ปาร์ตี้ของฉัน
             </button>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
-        <motion.div
+        <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.25, delay: 0.1 }}
+          transition={{ duration: 0.3, delay: 0.2, ease: "easeOut" }}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
-          <AnimatePresence>
-            {filteredParties.map((party, index) => (
+          <AnimatePresence mode="wait">
+            {filteredParties.length === 0 ? (
               <motion.div
-                key={party.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.15, delay: index * 0.05 }}
-                className="group"
+                transition={{ duration: 0.3, ease: "easeOut" }}
+                className="col-span-full flex flex-col items-center justify-center p-12 text-center bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg"
               >
-                <div className="relative">
-                  {/* Hover effect background */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-pink-100/50 via-purple-100/50 to-blue-100/50 rounded-2xl opacity-0 group-hover:opacity-100 transform group-hover:scale-105 transition-all duration-300 -z-10" />
-                  {/* Card */}
-                  <PartyCard party={party} />
-                </div>
+                <motion.div 
+                  initial={{ scale: 0.8 }}
+                  animate={{ scale: 1 }}
+                  transition={{ duration: 0.3, delay: 0.2, ease: "easeOut" }}
+                  className="w-16 h-16 mb-4 rounded-full bg-gradient-to-r from-pink-100 via-purple-100 to-blue-100 flex items-center justify-center"
+                >
+                  <PlusCircle className="w-8 h-8 text-purple-600" />
+                </motion.div>
+                <motion.h3 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.2, delay: 0.3, ease: "easeOut" }}
+                  className="text-xl font-semibold text-gray-800 mb-2"
+                >
+                  {selectedTab === 'all' ? 'ยังไม่มีปาร์ตี้' : 'ยังไม่ได้เข้าร่วมปาร์ตี้ใด ๆ'}
+                </motion.h3>
+                <motion.p 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.2, delay: 0.4, ease: "easeOut" }}
+                  className="text-gray-600 mb-4"
+                >
+                  {selectedTab === 'all' ? 'เริ่มต้นสร้างปาร์ตี้แรกของคุณ' : 'คุณยังไม่ได้เข้าร่วมปาร์ตี้ใด ๆ ด้วยตัวละครของคุณ'}
+                </motion.p>
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.2, delay: 0.5, ease: "easeOut" }}
+                >
+                  <CreatePartyDialog />
+                </motion.div>
               </motion.div>
-            ))}
+            ) : (
+              filteredParties.map((party, index) => (
+                <motion.div
+                  key={party.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: index * 0.1, ease: "easeOut" }}
+                  whileHover={{ scale: 1.02 }}
+                  className="transform transition-all duration-200"
+                >
+                  <PartyCard party={party} />
+                </motion.div>
+              ))
+            )}
           </AnimatePresence>
-
-          {filteredParties.length === 0 && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.25, delay: 0.15 }}
-              className="col-span-full flex flex-col items-center justify-center p-12 text-center"
-            >
-              <div className="w-16 h-16 mb-4 rounded-full bg-gradient-to-r from-pink-100 via-purple-100 to-blue-100 flex items-center justify-center">
-                <PlusCircle className="w-8 h-8 text-purple-600" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-800 mb-2">
-                {selectedTab === 'all' ? 'ยังไม่มีปาร์ตี้' : 'ยังไม่ได้เข้าร่วมปาร์ตี้ใด ๆ'}
-              </h3>
-              <p className="text-gray-600 mb-4">
-                {selectedTab === 'all' ? 'เริ่มต้นสร้างปาร์ตี้แรกของคุณ' : 'คุณยังไม่ได้เข้าร่วมปาร์ตี้ใด ๆ ด้วยตัวละครของคุณ'}
-              </p>
-              <CreatePartyDialog />
-            </motion.div>
-          )}
         </motion.div>
-      </div>
+      </motion.div>
     </div>
   );
 } 

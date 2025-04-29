@@ -911,17 +911,37 @@ export default function MyPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-violet-50 via-pink-50 to-sky-50">
-      <div className="container mx-auto py-8 px-4">
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
+        className="container mx-auto py-8 px-4"
+      >
         {/* Header Section */}
-        <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg p-6 mb-8">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
+          className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg p-6 mb-8"
+        >
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div className="space-y-1">
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.2, delay: 0.1, ease: "easeOut" }}
+              className="space-y-1"
+            >
               <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-violet-600 to-blue-600 bg-clip-text text-transparent">
                 ตัวละครของฉัน
               </h1>
               <p className="text-gray-500">จัดการตัวละครและติดตามความคืบหน้าของคุณ</p>
-            </div>
-            <div className="flex items-center gap-4">
+            </motion.div>
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.2, delay: 0.2, ease: "easeOut" }}
+              className="flex items-center gap-4"
+            >
               <Button 
                 onClick={() => setIsAddModalOpen(true)}
                 className="bg-gradient-to-r from-violet-500 to-blue-500 text-white hover:from-violet-600 hover:to-blue-600 transition-all duration-200 shadow-md hover:shadow-lg flex items-center gap-2 rounded-xl px-6"
@@ -932,13 +952,18 @@ export default function MyPage() {
                 </svg>
                 เพิ่มตัวละคร
               </Button>
-            </div>
+            </motion.div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Character Grid */}
         {characters.length === 0 ? (
-          <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg p-8 text-center">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.2, ease: "easeOut" }}
+            className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg p-8 text-center"
+          >
             <div className="w-20 h-20 mx-auto mb-4 bg-violet-100 text-violet-500 rounded-full flex items-center justify-center">
               <svg xmlns="http://www.w3.org/2000/svg" className="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
@@ -959,24 +984,36 @@ export default function MyPage() {
               </svg>
               เพิ่มตัวละครใหม่
             </Button>
-          </div>
+          </motion.div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3, delay: 0.2, ease: "easeOut" }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          >
             {[...characters]
               .sort((a, b) => a.name.localeCompare(b.name, 'th', {sensitivity: 'base'}))
-              .map((character) => (
-              <div key={`character-${character.id}`} className="transform transition-all duration-200 hover:scale-[1.02]">
+              .map((character, index) => (
+              <motion.div
+                key={`character-${character.id}`}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: index * 0.1, ease: "easeOut" }}
+                whileHover={{ scale: 1.02 }}
+                className="transform transition-all duration-200"
+              >
                 <CharacterCard
                   character={character}
                   onEdit={handleCharacterSelect}
                   onDelete={handleDeleteCharacter}
                   onChecklistChange={handleChecklistChange}
                 />
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         )}
-      </div>
+      </motion.div>
 
       {/* Add Character Modal */}
       <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>

@@ -9,6 +9,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { resetChecklist } from '@/lib/checklist';
 import { LogOut, Pencil, RefreshCw, ChevronDown } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 
 export function DiscordDropdown() {
   const { user, discordName, signOut, updateDiscordName } = useAuth();
@@ -30,9 +31,18 @@ export function DiscordDropdown() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    const handleOpenDiscordModal = () => {
+      setIsSettingDiscordName(true);
+    };
+
+    window.addEventListener('openDiscordModal', handleOpenDiscordModal);
+    return () => window.removeEventListener('openDiscordModal', handleOpenDiscordModal);
+  }, []);
+
   const handleUpdateDiscord = async () => {
     if (!user || !newDiscordName.trim()) {
-      alert('กรุณากรอกชื่อ Discord');
+      toast.error('กรุณากรอกชื่อ Discord');
       return;
     }
     
@@ -46,10 +56,34 @@ export function DiscordDropdown() {
       
       setNewDiscordName('');
       setIsSettingDiscordName(false);
-      alert('อัปเดตชื่อ Discord เรียบร้อยแล้ว!');
+      toast.success('อัปเดตชื่อ Discord เรียบร้อยแล้ว!', {
+        duration: 3000,
+        position: 'top-center',
+        style: {
+          background: '#5865F2',
+          color: 'white',
+          borderRadius: '8px',
+          padding: '12px 16px',
+          fontSize: '14px',
+          fontWeight: 500,
+          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+        },
+      });
     } catch (error) {
       console.error('Error updating Discord name:', error);
-      alert('ไม่สามารถอัปเดตชื่อ Discord ได้ กรุณาลองใหม่อีกครั้ง');
+      toast.error('ไม่สามารถอัปเดตชื่อ Discord ได้ กรุณาลองใหม่อีกครั้ง', {
+        duration: 3000,
+        position: 'top-center',
+        style: {
+          background: '#ED4245',
+          color: 'white',
+          borderRadius: '8px',
+          padding: '12px 16px',
+          fontSize: '14px',
+          fontWeight: 500,
+          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+        },
+      });
     }
   };
 

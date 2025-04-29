@@ -163,6 +163,7 @@ function SimpleCharacterCard({ character }: { character: Character }) {
           checklist={character.checklist}
           onChange={() => {}}
           accentColor={colors.text}
+          readOnly={true}
         />
       </div>
     </div>
@@ -170,12 +171,12 @@ function SimpleCharacterCard({ character }: { character: Character }) {
 }
 
 const CLASS_GRADIENTS: Record<string, { bg: string; text: string; border: string; icon?: string }> = {
-  Warrior:   { bg: 'from-red-100 to-rose-200/70', text: 'text-red-600', border: 'border-red-300', icon: '⚔️' },
-  Archer:    { bg: 'from-emerald-100 to-green-200/70', text: 'text-emerald-600', border: 'border-emerald-300', icon: '🏹' },
-  Sorceress: { bg: 'from-purple-100 to-violet-200/70', text: 'text-purple-600', border: 'border-purple-300', icon: '🔮' },
-  Cleric:    { bg: 'from-sky-100 to-blue-200/70', text: 'text-sky-600', border: 'border-sky-300', icon: '✨' },
-  Academic:  { bg: 'from-amber-100 to-yellow-200/70', text: 'text-amber-600', border: 'border-amber-300', icon: '🔧' },
-  Default:   { bg: 'from-gray-50 to-gray-100/50', text: 'text-gray-700', border: 'border-gray-200', icon: '👤' }
+  Warrior:   { bg: 'from-red-100/80 to-rose-100/50', text: 'text-red-600', border: 'border-red-300', icon: '⚔️' },
+  Archer:    { bg: 'from-emerald-100/80 to-green-100/50', text: 'text-emerald-600', border: 'border-emerald-300', icon: '🏹' },
+  Sorceress: { bg: 'from-purple-100/80 to-violet-100/50', text: 'text-purple-600', border: 'border-purple-300', icon: '🔮' },
+  Cleric:    { bg: 'from-sky-100/80 to-blue-100/50', text: 'text-sky-600', border: 'border-sky-300', icon: '✨' },
+  Academic:  { bg: 'from-amber-100/80 to-yellow-100/50', text: 'text-amber-600', border: 'border-amber-300', icon: '🔧' },
+  Default:   { bg: 'from-gray-100/80 to-gray-100/50', text: 'text-gray-700', border: 'border-gray-200', icon: '👤' }
 };
 
 function getClassColor(characterClass: string) {
@@ -360,7 +361,7 @@ export function Sidebar({ users }: SidebarProps) {
                 <div className="relative">
                   <div className={cn(
                     "relative overflow-hidden rounded-xl border-2 transition-all duration-300",
-                    "bg-gradient-to-br from-pink-100/80 to-purple-100/80",
+                    "bg-gradient-to-br from-white/90 to-white/70",
                     "shadow-[0_8px_32px_0_rgba(31,38,135,0.1)]",
                     getClassColor(selectedCharacter.class).border,
                     "hover:shadow-lg"
@@ -400,7 +401,7 @@ export function Sidebar({ users }: SidebarProps) {
                         <div className="space-y-2">
                           <div className={cn(
                             "p-2 rounded-lg border",
-                            "bg-gradient-to-br from-pink-200/80 to-pink-100/80",
+                            "bg-gradient-to-br from-red-50/90 to-red-100/50",
                             getClassColor(selectedCharacter.class).border
                           )}>
                             <div className="flex items-center gap-1 text-sm">
@@ -413,7 +414,7 @@ export function Sidebar({ users }: SidebarProps) {
                           </div>
                           <div className={cn(
                             "p-2 rounded-lg border",
-                            "bg-gradient-to-br from-red-200/80 to-red-100/80",
+                            "bg-gradient-to-br from-green-50/90 to-green-100/50",
                             getClassColor(selectedCharacter.class).border
                           )}>
                             <div className="flex items-center gap-1 text-sm">
@@ -426,7 +427,7 @@ export function Sidebar({ users }: SidebarProps) {
                           </div>
                           <div className={cn(
                             "p-2 rounded-lg border",
-                            "bg-gradient-to-br from-blue-200/80 to-blue-100/80",
+                            "bg-gradient-to-br from-blue-50/90 to-blue-100/50",
                             getClassColor(selectedCharacter.class).border
                           )}>
                             <div className="flex items-center gap-1 text-sm">
@@ -450,7 +451,7 @@ export function Sidebar({ users }: SidebarProps) {
                         <div className="space-y-2">
                           <div className={cn(
                             "p-2 rounded-lg border",
-                            "bg-gradient-to-br from-yellow-200/80 to-yellow-100/80",
+                            "bg-gradient-to-br from-yellow-50/90 to-yellow-100/50",
                             getClassColor(selectedCharacter.class).border
                           )}>
                             <div className="flex items-center gap-1 text-sm">
@@ -463,7 +464,7 @@ export function Sidebar({ users }: SidebarProps) {
                           </div>
                           <div className={cn(
                             "p-2 rounded-lg border",
-                            "bg-gradient-to-br from-purple-200/80 to-purple-100/80",
+                            "bg-gradient-to-br from-purple-50/90 to-purple-100/50",
                             getClassColor(selectedCharacter.class).border
                           )}>
                             <div className="flex items-center gap-1 text-sm">
@@ -476,7 +477,7 @@ export function Sidebar({ users }: SidebarProps) {
                           </div>
                           <div className={cn(
                             "p-2 rounded-lg border",
-                            "bg-gradient-to-br from-orange-200/80 to-orange-100/80",
+                            "bg-gradient-to-br from-orange-50/90 to-orange-100/50",
                             getClassColor(selectedCharacter.class).border
                           )}>
                             <div className="flex items-center gap-1 text-sm">
@@ -490,11 +491,14 @@ export function Sidebar({ users }: SidebarProps) {
                         </div>
                       </div>
 
-                      <CharacterChecklist
-                        checklist={selectedCharacter.checklist}
-                        onChange={() => {}}
-                        accentColor={getClassColor(selectedCharacter.class).text}
-                      />
+                      <div className="mt-4 border-t border-gray-200/50 pt-4">
+                        <CharacterChecklist
+                          checklist={selectedCharacter.checklist}
+                          onChange={() => {}}
+                          accentColor={getClassColor(selectedCharacter.class).text}
+                          readOnly={true}
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>

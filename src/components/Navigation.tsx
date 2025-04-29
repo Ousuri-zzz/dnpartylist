@@ -40,7 +40,7 @@ export function Navigation() {
                       "text-sm font-medium",
                       pathname === "/mypage" ? "text-white" : "text-gray-700"
                     )}>
-                      My Page
+                      My Character
                     </span>
                   </motion.div>
                   {pathname === "/mypage" && (

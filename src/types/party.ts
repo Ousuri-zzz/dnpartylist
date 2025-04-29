@@ -34,6 +34,7 @@ export interface Party {
   members: { [characterId: string]: PartyMember };
   goals?: PartyGoals;
   nest?: NestType;
+  message?: string;
 }
 
 export interface PartyWithMembers extends Party {

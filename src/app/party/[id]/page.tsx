@@ -43,6 +43,15 @@ interface PartyStats {
   fd: number;
 }
 
+const CLASS_GRADIENTS: Record<string, { bg: string; text: string; border: string; icon?: string }> = {
+  Warrior:   { bg: 'from-red-100/80 to-rose-100/50', text: 'text-red-600', border: 'border-red-300', icon: '⚔️' },
+  Archer:    { bg: 'from-emerald-100/80 to-green-100/50', text: 'text-emerald-600', border: 'border-emerald-300', icon: '🏹' },
+  Sorceress: { bg: 'from-purple-100/80 to-violet-100/50', text: 'text-purple-600', border: 'border-purple-300', icon: '🔮' },
+  Cleric:    { bg: 'from-sky-100/80 to-blue-100/50', text: 'text-sky-600', border: 'border-sky-300', icon: '✨' },
+  Academic:  { bg: 'from-amber-100/80 to-yellow-100/50', text: 'text-amber-600', border: 'border-amber-300', icon: '🔧' },
+  Default:   { bg: 'from-gray-100/80 to-gray-100/50', text: 'text-gray-700', border: 'border-gray-200', icon: '👤' }
+};
+
 export default function PartyPage({ params }: { params: { id: string } }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -70,6 +79,8 @@ export default function PartyPage({ params }: { params: { id: string } }) {
   const [inviteMsg, setInviteMsg] = useState('');
   const [isCopying, setIsCopying] = useState(false);
   const [isCapturing, setIsCapturing] = useState(false);
+  const [partyMessage, setPartyMessage] = useState('');
+  const [isSavingMessage, setIsSavingMessage] = useState(false);
 
   useEffect(() => {
     if (!partiesLoading && !charactersLoading && !usersLoading) {
@@ -118,6 +129,11 @@ export default function PartyPage({ params }: { params: { id: string } }) {
         
         if (foundParty.goals) {
           setGoals(foundParty.goals);
+        }
+        
+        // Set party message if it exists
+        if (foundParty.message) {
+          setPartyMessage(foundParty.message);
         }
       } else {
         toast.error('ไม่พบปาร์ตี้');
@@ -389,6 +405,34 @@ export default function PartyPage({ params }: { params: { id: string } }) {
     }
   };
 
+  const handleSaveMessage = async () => {
+    if (!party || !user) return;
+    
+    // Check if user is a member of the party
+    const isMember = Object.entries(party.members || {}).some(([charId, memberData]) => {
+      const userId = typeof memberData === 'boolean' 
+        ? Object.entries(users).find(([, userData]) => userData.characters?.[charId])?.[0]
+        : (memberData as { userId: string }).userId;
+      return userId === user.uid;
+    });
+    
+    if (!isMember) {
+      toast.error('คุณต้องเป็นสมาชิกของปาร์ตี้นี้จึงจะสามารถแก้ไขข้อความได้');
+      return;
+    }
+    
+    setIsSavingMessage(true);
+    try {
+      await set(ref(db, `parties/${party.id}/message`), partyMessage);
+      toast.success('บันทึกข้อความสำเร็จ');
+    } catch (error) {
+      console.error('Error saving party message:', error);
+      toast.error('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง');
+    } finally {
+      setIsSavingMessage(false);
+    }
+  };
+
   if (authLoading || loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-pink-50 to-indigo-50 p-6 flex items-center justify-center">
@@ -411,23 +455,43 @@ export default function PartyPage({ params }: { params: { id: string } }) {
     <div className="min-h-screen bg-gradient-to-br from-pink-50 to-indigo-50 py-8">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between mb-6">
-          <Button variant="outline" onClick={() => router.push('/party')}>
+          <Button 
+            variant="outline" 
+            onClick={() => router.push('/party')}
+            className="px-6 py-2 rounded-xl font-medium bg-white hover:bg-white/90 text-gray-700 border border-gray-200/50 shadow-sm transition-all duration-300 hover:shadow flex items-center gap-2"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="mr-1"
+            >
+              <path d="m15 18-6-6 6-6"/>
+            </svg>
             กลับไปหน้าปาร์ตี้
           </Button>
 
           <div className="flex gap-3">
             <Button 
               className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
-                !canJoinParty
+                !canJoinParty && !hasUserInParty
                   ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                  : hasUserInParty
+                  ? "bg-white text-red-500 border border-red-200 hover:bg-red-50"
                   : "bg-gradient-to-r from-pink-500 to-purple-500 text-white hover:shadow-lg hover:from-pink-600 hover:to-purple-600"
               }`}
               onClick={hasUserInParty ? () => setConfirmLeaveOpen(true) : () => setShowCharacterSelect(true)}
               disabled={!canJoinParty && !hasUserInParty}
             >
-              {isFull ? "ปาร์ตี้เต็มแล้ว" :
+              {isFull && !hasUserInParty ? "ปาร์ตี้เต็มแล้ว" :
                hasUserInParty ? (
-                 <span className="flex items-center gap-2 text-red-500 font-semibold"><LogOut className="w-4 h-4" /> ออกจากปาร์ตี้</span>
+                 <span className="flex items-center gap-2"><LogOut className="w-4 h-4" /> ออกจากปาร์ตี้</span>
                ) :
                !user ? "กรุณาเข้าสู่ระบบ" :
                availableCharacters.length === 0 ? "ไม่มีตัวละครที่สามารถเข้าร่วมได้" :
@@ -850,7 +914,7 @@ export default function PartyPage({ params }: { params: { id: string } }) {
                   <div className="relative">
                     <div className={cn(
                       "relative overflow-hidden rounded-xl border-2 transition-all duration-300",
-                      "bg-gradient-to-br from-pink-100/80 to-purple-100/80",
+                      "bg-gradient-to-br from-white/90 to-white/70",
                       "shadow-[0_8px_32px_0_rgba(31,38,135,0.1)]",
                       getClassColor(selectedMember.character.class).border,
                       "hover:shadow-lg"
@@ -861,7 +925,7 @@ export default function PartyPage({ params }: { params: { id: string } }) {
                       <div className={cn("absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 rounded-bl-lg", getClassColor(selectedMember.character.class).border)}></div>
                       <div className={cn("absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 rounded-br-lg", getClassColor(selectedMember.character.class).border)}></div>
 
-                      <div className="p-6">
+                      <div className="p-4">
                         <div className="flex items-center gap-3 mb-4">
                           <div className={cn(
                             "w-12 h-12 rounded-lg flex items-center justify-center",
@@ -887,6 +951,7 @@ export default function PartyPage({ params }: { params: { id: string } }) {
                           checklist={selectedMember.character.checklist}
                           onChange={handleChecklistChange}
                           accentColor={getClassColor(selectedMember.character.class).text}
+                          readOnly={true}
                         />
                       </div>
                     </div>
@@ -898,8 +963,8 @@ export default function PartyPage({ params }: { params: { id: string } }) {
         </Dialog>
 
         <Dialog open={isEditNameOpen} onOpenChange={setIsEditNameOpen}>
-          <DialogContent>
-            <DialogHeader>
+          <DialogContent className="max-w-md p-4">
+            <DialogHeader className="mb-4">
               <DialogTitle>แก้ไขชื่อปาร์ตี้</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
@@ -922,8 +987,8 @@ export default function PartyPage({ params }: { params: { id: string } }) {
         </Dialog>
 
         <Dialog open={confirmLeaveOpen} onOpenChange={setConfirmLeaveOpen}>
-          <DialogContent>
-            <DialogHeader>
+          <DialogContent className="max-w-md p-4">
+            <DialogHeader className="mb-4">
               <DialogTitle>ยืนยันการออกจากปาร์ตี้</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
@@ -941,8 +1006,8 @@ export default function PartyPage({ params }: { params: { id: string } }) {
         </Dialog>
 
         <Dialog open={!!kickTarget} onOpenChange={open => { if (!open) setKickTarget(null); }}>
-          <DialogContent>
-            <DialogHeader>
+          <DialogContent className="max-w-md p-4">
+            <DialogHeader className="mb-4">
               <DialogTitle>ยืนยันการเตะสมาชิก</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
@@ -960,8 +1025,8 @@ export default function PartyPage({ params }: { params: { id: string } }) {
         </Dialog>
 
         <Dialog open={confirmJoinKickOpen} onOpenChange={setConfirmJoinKickOpen}>
-          <DialogContent>
-            <DialogHeader>
+          <DialogContent className="max-w-md p-4">
+            <DialogHeader className="mb-4">
               <DialogTitle>ยืนยันการลบตัวละครออกจากปาร์ตี้เดิม</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
@@ -1064,6 +1129,72 @@ ${typeof window !== 'undefined' ? window.location.href : ''}`;
             </div>
           </DialogContent>
         </Dialog>
+      </div>
+      
+      {/* Party Message Box */}
+      <div className="mt-8">
+        <Card className="bg-white/70 backdrop-blur-sm border border-pink-100/30 shadow-lg">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base md:text-lg font-bold text-gray-800 tracking-wide flex items-center gap-2">
+              <div className="flex items-center gap-2">
+                <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 text-white">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+                    <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
+                    <line x1="6" y1="1" x2="6" y2="4"></line>
+                    <line x1="10" y1="1" x2="10" y2="4"></line>
+                    <line x1="14" y1="1" x2="14" y2="4"></line>
+                  </svg>
+                </div>
+                <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent font-bold">
+                  Link Discord / Party in game / Description
+                </span>
+              </div>
+              {hasUserInParty && (
+                <span className="text-xs text-gray-500 font-normal ml-2">
+                  (สมาชิกทุกคนสามารถแก้ไขได้)
+                </span>
+              )}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <textarea
+                className="w-full min-h-[100px] rounded-lg border border-gray-200 bg-white/50 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                placeholder="เพิ่ม Link Discord, Party in game หรือ Description..."
+                value={partyMessage}
+                onChange={(e) => setPartyMessage(e.target.value)}
+                maxLength={300}
+                disabled={!hasUserInParty}
+              />
+              <div className="flex justify-between items-center">
+                <span className="text-xs text-gray-500">
+                  {partyMessage.length}/300 อักษร
+                </span>
+                {hasUserInParty && (
+                  <Button
+                    onClick={handleSaveMessage}
+                    disabled={isSavingMessage}
+                    className="bg-gradient-to-r from-pink-500 to-purple-500 text-white hover:from-pink-600 hover:to-purple-600"
+                  >
+                    {isSavingMessage ? (
+                      <div className="flex items-center">
+                        <motion.div
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                          className="w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"
+                        />
+                        กำลังบันทึก...
+                      </div>
+                    ) : (
+                      "บันทึกข้อความ"
+                    )}
+                  </Button>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
