@@ -135,6 +135,7 @@ export function CreatePartyDialog() {
                 <SelectValue placeholder="เลือกเนสต์" />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="DQ+FTG700">DQ+FTG700</SelectItem>
                 <SelectItem value="Minotaur">Minotaur</SelectItem>
                 <SelectItem value="Cerberus">Cerberus</SelectItem>
                 <SelectItem value="Cerberus Hell">Cerberus Hell</SelectItem>

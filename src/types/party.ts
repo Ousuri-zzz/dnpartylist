@@ -1,14 +1,19 @@
 export type NestType = 
+  | 'Minotaur'
+  | 'Cerberus'
   | 'Cerberus Hell'
   | 'Cerberus Challenge'
+  | 'Manticore'
   | 'Manticore Hell'
+  | 'Apocalypse'
   | 'Apocalypse Hell'
   | 'Sea Dragon'
-  | 'Chaos Rift Kamala'
-  | 'Chaos Rift Bairra'
+  | 'Chaos Rift: Kamala'
+  | 'Chaos Rift: Bairra'
   | 'Banquet Hall'
   | 'Jealous Albeuteur'
-  | 'Theme Park';
+  | 'Theme Park'
+  | 'DQ+FTG700';
 
 export interface PartyMember {
   userId: string;
