@@ -85,6 +85,13 @@ export default function PartyPage() {
       });
     }
 
+    // Sort by createdAt timestamp (newest first)
+    filtered.sort((a, b) => {
+      const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return bTime - aTime;
+    });
+
     return filtered;
   }, [selectedTab, parties, user, searchQuery]);
 

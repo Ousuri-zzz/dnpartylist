@@ -22,9 +22,10 @@ import { PartyStats } from '../../../components/PartyStats';
 import { cn } from '../../../lib/utils';
 import { CharacterChecklist } from '../../../components/CharacterChecklist';
 import type { CharacterChecklist as CharacterChecklistType } from '../../../types/character';
-import { Pencil, LogOut, UserMinus, Sparkles, UserPlus, Sword, Target, Heart, Zap } from 'lucide-react';
+import { Pencil, LogOut, UserMinus, Sparkles, UserPlus, Sword, Target, Heart, Zap, Camera } from 'lucide-react';
 import { CLASS_TO_ROLE, getClassColors } from '@/config/theme';
 import { CharacterClass, Role } from '@/types/character';
+import { toBlob } from 'html-to-image';
 
 interface PartyMember {
   character: Character;
@@ -68,6 +69,7 @@ export default function PartyPage({ params }: { params: { id: string } }) {
   const [isInviteOpen, setIsInviteOpen] = useState(false);
   const [inviteMsg, setInviteMsg] = useState('');
   const [isCopying, setIsCopying] = useState(false);
+  const [isCapturing, setIsCapturing] = useState(false);
 
   useEffect(() => {
     if (!partiesLoading && !charactersLoading && !usersLoading) {
@@ -354,6 +356,39 @@ export default function PartyPage({ params }: { params: { id: string } }) {
     }
   };
 
+  const handleCapturePartyImage = async () => {
+    try {
+      setIsCapturing(true);
+      const element = document.getElementById('party-snapshot-area');
+      if (!element) {
+        toast.error('ไม่พบข้อมูลปาร์ตี้');
+        return;
+      }
+
+      const blob = await toBlob(element, {
+        backgroundColor: '#fdf2f8', // Light pink background to match the theme
+        quality: 1.0,
+        pixelRatio: 2, // Higher quality for retina displays
+      });
+
+      if (!blob) {
+        toast.error('ไม่สามารถสร้างภาพได้');
+        return;
+      }
+
+      await navigator.clipboard.write([
+        new ClipboardItem({ 'image/png': blob })
+      ]);
+
+      toast.success('คัดลอกรูปภาพปาร์ตี้สำเร็จ');
+    } catch (error) {
+      console.error('Error capturing party image:', error);
+      toast.error('เกิดข้อผิดพลาดในการคัดลอกรูปภาพ');
+    } finally {
+      setIsCapturing(false);
+    }
+  };
+
   if (authLoading || loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-pink-50 to-indigo-50 p-6 flex items-center justify-center">
@@ -380,25 +415,6 @@ export default function PartyPage({ params }: { params: { id: string } }) {
             กลับไปหน้าปาร์ตี้
           </Button>
 
-          {party?.nest && (
-            <motion.div 
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex-1 text-center mx-8"
-            >
-              <div className="relative inline-flex items-center justify-center">
-                <div className="absolute inset-0 bg-gradient-to-r from-pink-400/5 via-purple-400/5 to-blue-400/5 blur-2xl transform scale-150" />
-                <div className="relative flex items-center gap-3">
-                  <div className="hidden md:block h-[1px] w-12 bg-gradient-to-r from-pink-200 to-transparent" />
-                  <h1 className="text-xl md:text-2xl font-bold text-blue-700 py-2">
-                    {party.nest}
-                  </h1>
-                  <div className="hidden md:block h-[1px] w-12 bg-gradient-to-l from-blue-200 to-transparent" />
-                </div>
-              </div>
-            </motion.div>
-          )}
-
           <div className="flex gap-3">
             <Button 
               className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
@@ -420,241 +436,272 @@ export default function PartyPage({ params }: { params: { id: string } }) {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card>
-            <CardHeader className="flex flex-row items-center space-y-0 pb-2">
-              <div className="flex items-center gap-3">
-                <CardTitle className="text-xl font-bold text-violet-700 flex items-center gap-2">
-                  {party.name}
-                  {user?.uid === party.leader && (
-                    <button
-                      className="ml-2 p-1 rounded hover:bg-gray-100 transition"
-                      onClick={() => {
-                        setIsEditNameOpen(true);
-                        setNewPartyName(party.name);
-                      }}
-                      title="แก้ไขชื่อปาร์ตี้"
-                    >
-                      <Pencil className="w-4 h-4 text-gray-500" />
-                    </button>
-                  )}
-                </CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="p-4 rounded-lg bg-gradient-to-r from-pink-50 to-purple-50 border border-pink-100/30">
-                  <div className="grid gap-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="text-lg">👑</span>
-                        <span className="font-medium">หัวหน้าปาร์ตี้:</span>
-                      </div>
-                      <span className="text-lg font-semibold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
-                        {users[party.leader]?.meta?.discord || 'ไม่ทราบ'}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="text-lg">👥</span>
-                        <span className="font-medium">จำนวนสมาชิก:</span>
-                      </div>
-                      <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-pink-100 to-purple-100 border border-pink-200/50">
-                        <span className="text-lg font-semibold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
-                          {Object.keys(party.members || {}).length}
-                        </span>
-                        <span className="text-sm text-gray-500">/</span>
-                        <span className="text-lg font-semibold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
-                          {party.maxMember || 4}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
+        <div id="party-snapshot-area">
+          {party?.nest && (
+            <motion.div 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex-1 text-center mb-4"
+            >
+              <div className="relative w-full">
+                <div className="absolute inset-0 bg-gradient-to-r from-pink-400/5 via-purple-400/5 to-blue-400/5 blur-2xl transform scale-150" />
+                <div className="relative flex items-center justify-center gap-3 px-6 py-3 rounded-xl bg-gradient-to-r from-pink-50/80 to-purple-50/80 border border-pink-100/30 shadow-sm">
+                  <div className="h-[1px] w-8 bg-gradient-to-r from-pink-200 to-transparent" />
+                  <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-sky-600 to-blue-600 bg-clip-text text-transparent">
+                    {party.nest}
+                  </h1>
+                  <div className="h-[1px] w-8 bg-gradient-to-l from-purple-200 to-transparent" />
                 </div>
-                
-                <div className="p-4 rounded-lg bg-gradient-to-r from-pink-50 to-purple-50 border border-pink-100/30">
-                  <div className="flex items-center mb-3 gap-2">
-                    <h4 className="font-semibold text-base md:text-lg text-gray-800 tracking-wide">Status แนะนำ</h4>
+              </div>
+            </motion.div>
+          )}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader className="flex flex-row items-center space-y-0 pb-2">
+                <div className="flex items-center gap-3">
+                  <CardTitle className="text-xl font-bold text-violet-700 flex items-center gap-2">
+                    {party.name}
                     {user?.uid === party.leader && (
-                      <Dialog open={isGoalDialogOpen} onOpenChange={setIsGoalDialogOpen}>
-                        <DialogTrigger asChild>
-                          <button className="p-1 rounded-full hover:bg-violet-100 transition" title="แก้ไข Status แนะนำ">
-                            <Sparkles className="w-5 h-5 text-violet-500" />
-                          </button>
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogHeader>
-                            <DialogTitle>Status แนะนำ</DialogTitle>
-                          </DialogHeader>
-                          <div className="grid gap-4 py-4">
-                            <div className="grid grid-cols-2 gap-4">
-                              <div className="space-y-2">
-                                <Label htmlFor="atk">⚔️ ATK</Label>
-                                <Input
-                                  id="atk"
-                                  type="number"
-                                  value={goals.atk || ''}
-                                  onChange={(e) => setGoals({ ...goals, atk: Number(e.target.value) })}
-                                />
-                              </div>
-                              <div className="space-y-2">
-                                <Label htmlFor="hp">❤️ HP</Label>
-                                <Input
-                                  id="hp"
-                                  type="number"
-                                  value={goals.hp || ''}
-                                  onChange={(e) => setGoals({ ...goals, hp: Number(e.target.value) })}
-                                />
-                              </div>
-                            </div>
-                            <Button onClick={handleSetGoals}>บันทึก</Button>
-                          </div>
-                        </DialogContent>
-                      </Dialog>
+                      <button
+                        className="ml-2 p-1 rounded hover:bg-gray-100 transition"
+                        onClick={() => {
+                          setIsEditNameOpen(true);
+                          setNewPartyName(party.name);
+                        }}
+                        title="แก้ไขชื่อปาร์ตี้"
+                      >
+                        <Pencil className="w-4 h-4 text-gray-500" />
+                      </button>
                     )}
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="flex items-center justify-between p-2 rounded-lg bg-white/50">
-                      <div className="flex items-center gap-2">
-                        <span className="text-pink-600 text-lg">⚔️</span>
-                        <span className="font-medium">ATK:</span>
+                  </CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="p-4 rounded-lg bg-gradient-to-r from-pink-50 to-purple-50 border border-pink-100/30">
+                    <div className="grid gap-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg">👑</span>
+                          <span className="font-medium">หัวหน้าปาร์ตี้:</span>
+                        </div>
+                        <span className="text-lg font-semibold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+                          {users[party.leader]?.meta?.discord || 'ไม่ทราบ'}
+                        </span>
                       </div>
-                      <span className="font-semibold text-pink-600">
-                        {party.goals?.atk ? formatStat(party.goals.atk) : "-"}
-                      </span>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg">👥</span>
+                          <span className="font-medium">จำนวนสมาชิก:</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-pink-100 to-purple-100 border border-pink-200/50">
+                          <span className="text-lg font-semibold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+                            {Object.keys(party.members || {}).length}
+                          </span>
+                          <span className="text-sm text-gray-500">/</span>
+                          <span className="text-lg font-semibold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+                            {party.maxMember || 4}
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex items-center justify-between p-2 rounded-lg bg-white/50">
-                      <div className="flex items-center gap-2">
-                        <span className="text-red-600 text-lg">❤️</span>
-                        <span className="font-medium">HP:</span>
+                  </div>
+                  
+                  <div className="p-4 rounded-lg bg-gradient-to-r from-pink-50 to-purple-50 border border-pink-100/30">
+                    <div className="flex items-center mb-3 gap-2">
+                      <h4 className="font-semibold text-base md:text-lg text-gray-800 tracking-wide">Status แนะนำ</h4>
+                      {user?.uid === party.leader && (
+                        <Dialog open={isGoalDialogOpen} onOpenChange={setIsGoalDialogOpen}>
+                          <DialogTrigger asChild>
+                            <button className="p-1 rounded-full hover:bg-violet-100 transition" title="แก้ไข Status แนะนำ">
+                              <Sparkles className="w-5 h-5 text-violet-500" />
+                            </button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Status แนะนำ</DialogTitle>
+                            </DialogHeader>
+                            <div className="grid gap-4 py-4">
+                              <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                  <Label htmlFor="atk">⚔️ ATK</Label>
+                                  <Input
+                                    id="atk"
+                                    type="number"
+                                    value={goals.atk || ''}
+                                    onChange={(e) => setGoals({ ...goals, atk: Number(e.target.value) })}
+                                  />
+                                </div>
+                                <div className="space-y-2">
+                                  <Label htmlFor="hp">❤️ HP</Label>
+                                  <Input
+                                    id="hp"
+                                    type="number"
+                                    value={goals.hp || ''}
+                                    onChange={(e) => setGoals({ ...goals, hp: Number(e.target.value) })}
+                                  />
+                                </div>
+                              </div>
+                              <Button onClick={handleSetGoals}>บันทึก</Button>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="flex items-center justify-between p-2 rounded-lg bg-white/50">
+                        <div className="flex items-center gap-2">
+                          <span className="text-pink-600 text-lg">⚔️</span>
+                          <span className="font-medium">ATK:</span>
+                        </div>
+                        <span className="font-semibold text-pink-600">
+                          {party.goals?.atk ? formatStat(party.goals.atk) : "-"}
+                        </span>
                       </div>
-                      <span className="font-semibold text-red-600">
-                        {party.goals?.hp ? formatStat(party.goals.hp) : "-"}
-                      </span>
+                      <div className="flex items-center justify-between p-2 rounded-lg bg-white/50">
+                        <div className="flex items-center gap-2">
+                          <span className="text-red-600 text-lg">❤️</span>
+                          <span className="font-medium">HP:</span>
+                        </div>
+                        <span className="font-semibold text-red-600">
+                          {party.goals?.hp ? formatStat(party.goals.hp) : "-"}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center space-y-0 pb-2">
-              <div className="flex items-center gap-3">
-                <CardTitle className="text-base md:text-lg font-bold text-gray-800 tracking-wide">ค่าเฉลี่ย</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <PartyStats members={members.map(m => m.character)} />
-            </CardContent>
-          </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center space-y-0 pb-2">
+                <div className="flex items-center gap-3">
+                  <CardTitle className="text-base md:text-lg font-bold text-gray-800 tracking-wide">ค่าเฉลี่ย</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <PartyStats members={members.map(m => m.character)} />
+              </CardContent>
+            </Card>
 
-          <Card className="md:col-span-2">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-base md:text-lg font-bold text-gray-800 tracking-wide">สมาชิก</CardTitle>
-              <Button
-                variant="outline"
-                className="bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600"
-                onClick={() => setIsInviteOpen(true)}
-              >
-                <UserPlus className="w-4 h-4 mr-2" />
-                เชิญเพื่อน
-              </Button>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {members.map((member) => {
-                  const colors = getClassColor(member.character.class);
-                  return (
-                    <motion.button
-                      key={member.character.id}
-                      onClick={() => handleMemberClick(member)}
-                      className={`p-5 rounded-xl shadow transition-all duration-300 ${colors.bg} border ${colors.border} hover:shadow-lg hover:scale-[1.02] transform text-left relative`}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      {user?.uid === party.leader && member.character.userId !== user.uid && (
-                        <button
-                          className="absolute top-2 right-2 p-1 rounded-full bg-white border border-red-200 hover:bg-red-100 transition z-10"
-                          title="เตะสมาชิกออกจากปาร์ตี้"
-                          onClick={e => { e.stopPropagation(); setKickTarget(member.character.id); }}
-                        >
-                          <UserMinus className="w-5 h-5 text-red-600" />
-                        </button>
-                      )}
-                      <div className="flex flex-col gap-4">
-                        <div className="flex flex-col gap-2">
-                          <h3 className="text-xl font-extrabold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent drop-shadow-sm">
-                            {member.discordName}
-                          </h3>
-                          <div className="flex items-center gap-2">
-                            <span className="font-semibold text-gray-800 text-base">
-                              {member.character.name}
-                            </span>
-                            <div className={`px-3 py-1 rounded-lg bg-white/80 border ${colors.border} flex items-center justify-center shadow-sm`}>
-                              <span className="text-lg mr-2">{colors.icon}</span>
-                              <span className="text-sm font-semibold text-gray-700">
-                                {member.character.class}
+            <Card className="md:col-span-2">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-base md:text-lg font-bold text-gray-800 tracking-wide">สมาชิก</CardTitle>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    className="bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600"
+                    onClick={() => setIsInviteOpen(true)}
+                  >
+                    <UserPlus className="w-4 h-4 mr-2" />
+                    เชิญเพื่อน
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="bg-gradient-to-r from-green-500 to-teal-500 text-white hover:from-green-600 hover:to-teal-600"
+                    onClick={handleCapturePartyImage}
+                    disabled={isCapturing}
+                  >
+                    <Camera className="w-4 h-4 mr-2" />
+                    📸 คัดลอกรูปภาพปาร์ตี้
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {members.map((member) => {
+                    const colors = getClassColor(member.character.class);
+                    return (
+                      <motion.button
+                        key={member.character.id}
+                        onClick={() => handleMemberClick(member)}
+                        className={`p-5 rounded-xl shadow transition-all duration-300 ${colors.bg} border ${colors.border} hover:shadow-lg hover:scale-[1.02] transform text-left relative`}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        {user?.uid === party.leader && member.character.userId !== user.uid && (
+                          <button
+                            className="absolute top-2 right-2 p-1 rounded-full bg-white border border-red-200 hover:bg-red-100 transition z-10"
+                            title="เตะสมาชิกออกจากปาร์ตี้"
+                            onClick={e => { e.stopPropagation(); setKickTarget(member.character.id); }}
+                          >
+                            <UserMinus className="w-5 h-5 text-red-600" />
+                          </button>
+                        )}
+                        <div className="flex flex-col gap-4">
+                          <div className="flex flex-col gap-2">
+                            <h3 className="text-xl font-extrabold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent drop-shadow-sm">
+                              {member.discordName}
+                            </h3>
+                            <div className="flex items-center gap-2">
+                              <span className="font-semibold text-gray-800 text-base">
+                                {member.character.name}
                               </span>
+                              <div className={`px-3 py-1 rounded-lg bg-white/80 border ${colors.border} flex items-center justify-center shadow-sm`}>
+                                <span className="text-lg mr-2">{colors.icon}</span>
+                                <span className="text-sm font-semibold text-gray-700">
+                                  {member.character.class}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-2 gap-3 mt-2">
+                            <div className="flex flex-col gap-2">
+                              <div className="flex items-center space-x-2 p-2 rounded-lg bg-white/80">
+                                <span className="text-pink-600 text-lg">⚔️</span>
+                                <span className="text-sm font-semibold text-gray-800">
+                                  ATK:
+                                </span>
+                                <span className="text-base font-bold text-pink-700">
+                                  {formatStat(member.character.stats?.atk)}
+                                </span>
+                              </div>
+                              <div className="flex items-center space-x-2 p-2 rounded-lg bg-white/80">
+                                <span className="text-red-600 text-lg">❤️</span>
+                                <span className="text-sm font-semibold text-gray-800">
+                                  HP:
+                                </span>
+                                <span className="text-base font-bold text-red-700">
+                                  {formatStat(member.character.stats?.hp)}
+                                </span>
+                              </div>
+                              <div className="flex items-center space-x-2 p-2 rounded-lg bg-white/80">
+                                <span className="text-blue-600 text-lg">🛡️</span>
+                                <span className="text-sm font-semibold text-gray-800">DEF:</span>
+                                <span className="text-sm font-bold text-blue-700">P.{formatStat(member.character.stats?.pdef ?? 0, 'percentage')}</span>
+                                <span className="text-sm font-bold text-purple-700">M.{formatStat(member.character.stats?.mdef ?? 0, 'percentage')}</span>
+                              </div>
+                            </div>
+                            <div className="flex flex-col gap-2">
+                              <div className="flex items-center space-x-2 p-2 rounded-lg bg-white/80">
+                                <span className="text-purple-600 text-lg">🎯</span>
+                                <span className="text-sm font-semibold text-gray-800">CRI:</span>
+                                <span className="text-base font-bold text-purple-700">{formatStat(member.character.stats?.cri, 'percentage')}</span>
+                              </div>
+                              {member.character.stats?.ele !== undefined && (
+                                <div className="flex items-center space-x-2 p-2 rounded-lg bg-white/80">
+                                  <span className="text-yellow-600 text-lg">⚡</span>
+                                  <span className="text-sm font-semibold text-gray-800">ELE:</span>
+                                  <span className="text-base font-bold text-yellow-700">{formatStat(member.character.stats?.ele, 'percentage')}</span>
+                                </div>
+                              )}
+                              {member.character.stats?.fd !== undefined && (
+                                <div className="flex items-center space-x-2 p-2 rounded-lg bg-white/80">
+                                  <span className="text-green-600 text-lg">💥</span>
+                                  <span className="text-sm font-semibold text-gray-800">FD:</span>
+                                  <span className="text-base font-bold text-green-700">{formatStat(member.character.stats?.fd, 'percentage')}</span>
+                                </div>
+                              )}
                             </div>
                           </div>
                         </div>
-                        <div className="grid grid-cols-2 gap-3 mt-2">
-                          <div className="flex flex-col gap-2">
-                            <div className="flex items-center space-x-2 p-2 rounded-lg bg-white/80">
-                              <span className="text-pink-600 text-lg">⚔️</span>
-                              <span className="text-sm font-semibold text-gray-800">
-                                ATK:
-                              </span>
-                              <span className="text-base font-bold text-pink-700">
-                                {formatStat(member.character.stats?.atk)}
-                              </span>
-                            </div>
-                            <div className="flex items-center space-x-2 p-2 rounded-lg bg-white/80">
-                              <span className="text-red-600 text-lg">❤️</span>
-                              <span className="text-sm font-semibold text-gray-800">
-                                HP:
-                              </span>
-                              <span className="text-base font-bold text-red-700">
-                                {formatStat(member.character.stats?.hp)}
-                              </span>
-                            </div>
-                            <div className="flex items-center space-x-2 p-2 rounded-lg bg-white/80">
-                              <span className="text-blue-600 text-lg">🛡️</span>
-                              <span className="text-sm font-semibold text-gray-800">DEF:</span>
-                              <span className="text-sm font-bold text-blue-700">P.{formatStat(member.character.stats?.pdef ?? 0, 'percentage')}</span>
-                              <span className="text-sm font-bold text-purple-700">M.{formatStat(member.character.stats?.mdef ?? 0, 'percentage')}</span>
-                            </div>
-                          </div>
-                          <div className="flex flex-col gap-2">
-                            <div className="flex items-center space-x-2 p-2 rounded-lg bg-white/80">
-                              <span className="text-purple-600 text-lg">🎯</span>
-                              <span className="text-sm font-semibold text-gray-800">CRI:</span>
-                              <span className="text-base font-bold text-purple-700">{formatStat(member.character.stats?.cri, 'percentage')}</span>
-                            </div>
-                            {member.character.stats?.ele !== undefined && (
-                              <div className="flex items-center space-x-2 p-2 rounded-lg bg-white/80">
-                                <span className="text-yellow-600 text-lg">⚡</span>
-                                <span className="text-sm font-semibold text-gray-800">ELE:</span>
-                                <span className="text-base font-bold text-yellow-700">{formatStat(member.character.stats?.ele, 'percentage')}</span>
-                              </div>
-                            )}
-                            {member.character.stats?.fd !== undefined && (
-                              <div className="flex items-center space-x-2 p-2 rounded-lg bg-white/80">
-                                <span className="text-green-600 text-lg">💥</span>
-                                <span className="text-sm font-semibold text-gray-800">FD:</span>
-                                <span className="text-base font-bold text-green-700">{formatStat(member.character.stats?.fd, 'percentage')}</span>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </motion.button>
-                  );
-                })}
-              </div>
-            </CardContent>
-          </Card>
+                      </motion.button>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
 
         <Dialog open={showCharacterSelect} onOpenChange={setShowCharacterSelect}>
