@@ -59,7 +59,7 @@ export default function PartyPage({ params }: { params: { id: string } }) {
   const { user, loading: authLoading } = useAuth();
   const { parties, loading: partiesLoading, joinPartyWithKickIfNeeded } = useParties();
   const { characters: userCharacters, loading: charactersLoading } = useCharacters();
-  const { users, loading: usersLoading } = useUsers();
+  const { users, isLoading: usersLoading } = useUsers();
   const [party, setParty] = useState<Party | null>(null);
   const [members, setMembers] = useState<PartyMember[]>([]);
   const [loading, setLoading] = useState(true);
@@ -239,6 +239,14 @@ export default function PartyPage({ params }: { params: { id: string } }) {
       return `${safeValue}%`;
     }
     return safeValue.toLocaleString();
+  };
+
+  // Add this function near other utility functions
+  const formatCompactNumber = (value: number | undefined | null): string => {
+    if (value === undefined || value === null) return '-';
+    if (value < 1000) return value.toString();
+    if (value < 1000000) return `${(value / 1000).toFixed(1)}K`;
+    return `${(value / 1000000).toFixed(1)}M`;
   };
 
   // Debug log เฉพาะตอน dev
@@ -554,8 +562,8 @@ export default function PartyPage({ params }: { params: { id: string } }) {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 to-indigo-50 py-8">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between mb-6">
+      <div className="container mx-auto px-4 space-y-6">
+        <div className="flex items-center justify-between">
           <Button 
             variant="outline" 
             onClick={() => router.push('/party')}
@@ -578,9 +586,9 @@ export default function PartyPage({ params }: { params: { id: string } }) {
             กลับไปหน้าปาร์ตี้
           </Button>
 
-          <div className="flex gap-3">
+          <div className="flex gap-2">
             <Button 
-              className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
+              className={`px-6 py-2 rounded-xl font-medium transition-all duration-300 ${
                 !canJoinParty && !hasUserInParty
                   ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                   : hasUserInParty
@@ -601,158 +609,320 @@ export default function PartyPage({ params }: { params: { id: string } }) {
           </div>
         </div>
 
-        <div id="party-snapshot-area">
-          {party?.nest && (
-            <motion.div 
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex-1 text-center mb-4"
-            >
-              <div className="relative w-full">
-                <div className="absolute inset-0 bg-gradient-to-r from-pink-400/5 via-purple-400/5 to-blue-400/5 blur-2xl transform scale-150" />
-                <div className="relative flex items-center justify-center gap-3 px-6 py-3 rounded-xl bg-gradient-to-r from-pink-50/80 to-purple-50/80 border border-pink-100/30 shadow-sm">
-                  <div className="h-[1px] w-8 bg-gradient-to-r from-pink-200 to-transparent" />
-                  <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-sky-600 to-blue-600 bg-clip-text text-transparent">
-                    {party.nest}
-                  </h1>
-                  <div className="h-[1px] w-8 bg-gradient-to-l from-purple-200 to-transparent" />
+        <div id="party-snapshot-area" className="relative space-y-2 p-2 pt-1 bg-gradient-to-br from-pink-50/95 to-indigo-50/95 rounded-2xl border border-pink-100/20 shadow-xl">
+          {/* Background decoration */}
+          <div className="absolute inset-0 bg-gradient-to-br from-pink-200/5 via-purple-200/5 to-blue-200/5 rounded-2xl" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-pink-100/10 via-transparent to-transparent rounded-2xl" />
+          
+          {/* Content with relative positioning */}
+          <div className="relative">
+            {party?.nest && (
+              <motion.div 
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex-1 text-center mb-1"
+              >
+                <div className="relative w-full">
+                  <div className="absolute inset-0 bg-gradient-to-r from-pink-400/5 via-purple-400/5 to-blue-400/5 blur-2xl transform scale-150" />
+                  <div className="relative flex items-center justify-center gap-2 px-3 py-1 rounded-xl bg-gradient-to-r from-pink-50/90 to-purple-50/90 border border-pink-100/30 shadow-sm">
+                    <div className="h-[1px] w-8 bg-gradient-to-r from-pink-200 to-transparent" />
+                    <h1 className="text-lg md:text-xl font-bold bg-gradient-to-r from-sky-600 to-blue-600 bg-clip-text text-transparent">
+                      {party.nest}
+                    </h1>
+                    <div className="h-[1px] w-8 bg-gradient-to-l from-purple-200 to-transparent" />
+                  </div>
                 </div>
-              </div>
-            </motion.div>
-          )}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader className="flex flex-row items-center space-y-0 pb-2">
-                <div className="flex items-center gap-3">
-                  <CardTitle className="text-xl font-bold text-violet-700 flex items-center gap-2">
-                    {party.name}
-                    {user?.uid === party.leader && (
-                      <button
-                        className="ml-2 p-1 rounded hover:bg-gray-100 transition"
-                        onClick={() => {
-                          setIsEditNameOpen(true);
-                          setNewPartyName(party.name);
-                        }}
-                        title="แก้ไขชื่อปาร์ตี้"
-                      >
-                        <Pencil className="w-4 h-4 text-gray-500" />
-                      </button>
-                    )}
-                  </CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="p-4 rounded-lg bg-gradient-to-r from-pink-50 to-purple-50 border border-pink-100/30">
-                    <div className="grid gap-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span className="text-lg">👑</span>
-                          <span className="font-medium">หัวหน้าปาร์ตี้:</span>
-                        </div>
-                        <span className="text-lg font-semibold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
-                          {users[party.leader]?.meta?.discord || 'ไม่ทราบ'}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span className="text-lg">👥</span>
-                          <span className="font-medium">จำนวนสมาชิก:</span>
-                        </div>
-                        <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-pink-100 to-purple-100 border border-pink-200/50">
+              </motion.div>
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
+              <Card className="bg-white/90 backdrop-blur-sm">
+                <CardHeader className="flex flex-row items-center space-y-0 pb-3">
+                  <div className="flex items-center gap-3">
+                    <CardTitle className="text-lg font-bold text-violet-700 flex items-center gap-2">
+                      {party.name}
+                      {user?.uid === party.leader && (
+                        <button
+                          className="ml-2 p-1 rounded hover:bg-gray-100 transition"
+                          onClick={() => {
+                            setIsEditNameOpen(true);
+                            setNewPartyName(party.name);
+                          }}
+                          title="แก้ไขชื่อปาร์ตี้"
+                        >
+                          <Pencil className="w-4 h-4 text-gray-500" />
+                        </button>
+                      )}
+                    </CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="p-4 rounded-lg bg-gradient-to-r from-pink-50 to-purple-50 border border-pink-100/30">
+                      <div className="grid gap-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg">👑</span>
+                            <span className="font-medium">หัวหน้าปาร์ตี้:</span>
+                          </div>
                           <span className="text-lg font-semibold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
-                            {Object.keys(party.members || {}).length}
+                            {users[party.leader]?.meta?.discord || 'ไม่ทราบ'}
                           </span>
-                          <span className="text-sm text-gray-500">/</span>
-                          <span className="text-lg font-semibold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
-                            {party.maxMember || 4}
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg">👥</span>
+                            <span className="font-medium">จำนวนสมาชิก:</span>
+                          </div>
+                          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-pink-100 to-purple-100 border border-pink-200/50">
+                            <span className="text-lg font-semibold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+                              {Object.keys(party.members || {}).length}
+                            </span>
+                            <span className="text-sm text-gray-500">/</span>
+                            <span className="text-lg font-semibold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+                              {party.maxMember || 4}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="p-3 rounded-lg bg-gradient-to-r from-pink-50 to-purple-50 border border-pink-100/30">
+                      <div className="flex items-center mb-2 gap-2">
+                        <h4 className="font-semibold text-sm md:text-base text-gray-800 tracking-wide">Status แนะนำ</h4>
+                        {user?.uid === party.leader && (
+                          <Dialog open={isGoalDialogOpen} onOpenChange={setIsGoalDialogOpen}>
+                            <DialogTrigger asChild>
+                              <button className="p-1 rounded-full hover:bg-violet-100 transition" title="แก้ไข Status แนะนำ">
+                                <Sparkles className="w-4 h-4 text-violet-500" />
+                              </button>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle>Status แนะนำ</DialogTitle>
+                              </DialogHeader>
+                              <div className="grid gap-4 py-4">
+                                <div className="grid grid-cols-2 gap-4">
+                                  <div className="space-y-2">
+                                    <Label htmlFor="atk">⚔️ ATK</Label>
+                                    <Input
+                                      id="atk"
+                                      type="number"
+                                      value={goals.atk || ''}
+                                      onChange={(e) => setGoals({ ...goals, atk: Number(e.target.value) })}
+                                    />
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label htmlFor="hp">❤️ HP</Label>
+                                    <Input
+                                      id="hp"
+                                      type="number"
+                                      value={goals.hp || ''}
+                                      onChange={(e) => setGoals({ ...goals, hp: Number(e.target.value) })}
+                                    />
+                                  </div>
+                                </div>
+                                <Button onClick={handleSetGoals}>บันทึก</Button>
+                              </div>
+                            </DialogContent>
+                          </Dialog>
+                        )}
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="flex items-center justify-between p-1.5 rounded-lg bg-white/50">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-pink-600 text-base">⚔️</span>
+                            <span className="font-medium text-sm">ATK:</span>
+                          </div>
+                          <span className="font-semibold text-pink-600 text-sm">
+                            {party.goals?.atk ? formatStat(party.goals.atk) : "-"}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between p-1.5 rounded-lg bg-white/50">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-red-600 text-base">❤️</span>
+                            <span className="font-medium text-sm">HP:</span>
+                          </div>
+                          <span className="font-semibold text-red-600 text-sm">
+                            {party.goals?.hp ? formatStat(party.goals.hp) : "-"}
                           </span>
                         </div>
                       </div>
                     </div>
                   </div>
-                  
-                  <div className="p-4 rounded-lg bg-gradient-to-r from-pink-50 to-purple-50 border border-pink-100/30">
-                    <div className="flex items-center mb-3 gap-2">
-                      <h4 className="font-semibold text-base md:text-lg text-gray-800 tracking-wide">Status แนะนำ</h4>
-                      {user?.uid === party.leader && (
-                        <Dialog open={isGoalDialogOpen} onOpenChange={setIsGoalDialogOpen}>
-                          <DialogTrigger asChild>
-                            <button className="p-1 rounded-full hover:bg-violet-100 transition" title="แก้ไข Status แนะนำ">
-                              <Sparkles className="w-5 h-5 text-violet-500" />
-                            </button>
-                          </DialogTrigger>
-                          <DialogContent>
-                            <DialogHeader>
-                              <DialogTitle>Status แนะนำ</DialogTitle>
-                            </DialogHeader>
-                            <div className="grid gap-4 py-4">
-                              <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                  <Label htmlFor="atk">⚔️ ATK</Label>
-                                  <Input
-                                    id="atk"
-                                    type="number"
-                                    value={goals.atk || ''}
-                                    onChange={(e) => setGoals({ ...goals, atk: Number(e.target.value) })}
-                                  />
-                                </div>
-                                <div className="space-y-2">
-                                  <Label htmlFor="hp">❤️ HP</Label>
-                                  <Input
-                                    id="hp"
-                                    type="number"
-                                    value={goals.hp || ''}
-                                    onChange={(e) => setGoals({ ...goals, hp: Number(e.target.value) })}
-                                  />
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white/90 backdrop-blur-sm">
+                <CardHeader className="flex flex-row items-center space-y-0 pb-3">
+                  <div className="flex items-center gap-3">
+                    <CardTitle className="text-base font-bold text-gray-800 tracking-wide">ค่าเฉลี่ย</CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <PartyStats members={members.map(m => m.character)} />
+                </CardContent>
+              </Card>
+            </div>
+
+            <Card className="bg-white/90 backdrop-blur-sm mb-2">
+              <CardContent className="pt-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                  {members.map((member) => {
+                    const colors = getClassColor(member.character.class);
+                    return (
+                      <motion.button
+                        key={member.character.id}
+                        onClick={() => handleMemberClick(member)}
+                        className={`p-3 rounded-xl shadow transition-all duration-300 ${colors.bg} border ${colors.border} hover:shadow-lg hover:scale-[1.02] transform text-left relative`}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        {user?.uid === party.leader && member.character.userId !== user.uid && (
+                          <button
+                            className="absolute top-1 right-1 p-1 rounded-full bg-white/80 border border-red-200 hover:bg-red-100 transition z-10"
+                            title="เตะสมาชิกออกจากปาร์ตี้"
+                            onClick={e => { e.stopPropagation(); setKickTarget(member.character.id); }}
+                          >
+                            <UserMinus className="w-3 h-3 text-red-600" />
+                          </button>
+                        )}
+                        <div className="flex flex-col gap-2">
+                          <div className="flex flex-col gap-1">
+                            <h3 className="text-sm font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent drop-shadow-sm truncate">
+                              {member.discordName}
+                            </h3>
+                            <div className="flex items-center gap-1.5">
+                              <span className="font-medium text-gray-800 text-xs truncate max-w-[100px]">
+                                {member.character.name}
+                              </span>
+                              <div className={`px-1.5 py-0.5 rounded-md bg-white/80 border ${colors.border} flex items-center justify-center shadow-sm`}>
+                                <span className="text-sm mr-0.5">{colors.icon}</span>
+                                <span className="text-[10px] font-medium text-gray-700">
+                                  {member.character.class}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-5 gap-1.5">
+                            <div className="flex flex-col gap-1 col-span-3">
+                              <div className="flex items-center space-x-1 p-1 rounded-md bg-white/80">
+                                <span className="text-pink-600 text-xs">⚔️</span>
+                                <span className="text-[10px] font-medium text-gray-800">ATK:</span>
+                                <span className="text-[10px] font-bold text-pink-700">
+                                  {formatCompactNumber(member.character.stats?.atk)}
+                                </span>
+                              </div>
+                              <div className="flex items-center space-x-1 p-1 rounded-md bg-white/80">
+                                <span className="text-red-600 text-xs">❤️</span>
+                                <span className="text-[10px] font-medium text-gray-800">HP:</span>
+                                <span className="text-[10px] font-bold text-red-700">
+                                  {formatCompactNumber(member.character.stats?.hp)}
+                                </span>
+                              </div>
+                              <div className="flex items-center space-x-1 p-1 rounded-md bg-white/80">
+                                <span className="text-blue-600 text-xs">🛡️</span>
+                                <span className="text-[10px] font-medium text-gray-800">DEF:</span>
+                                <div className="flex items-center gap-1">
+                                  <span className="text-[9px] font-bold text-blue-700">
+                                    P{formatStat(member.character.stats?.pdef ?? 0, 'percentage')}
+                                  </span>
+                                  <span className="text-[9px] font-bold text-purple-700">
+                                    M{formatStat(member.character.stats?.mdef ?? 0, 'percentage')}
+                                  </span>
                                 </div>
                               </div>
-                              <Button onClick={handleSetGoals}>บันทึก</Button>
                             </div>
-                          </DialogContent>
-                        </Dialog>
-                      )}
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="flex items-center justify-between p-2 rounded-lg bg-white/50">
-                        <div className="flex items-center gap-2">
-                          <span className="text-pink-600 text-lg">⚔️</span>
-                          <span className="font-medium">ATK:</span>
+                            <div className="flex flex-col gap-1 col-span-2">
+                              <div className="flex items-center space-x-1 p-1 rounded-md bg-white/80">
+                                <span className="text-purple-600 text-[10px]">🎯</span>
+                                <span className="text-[9px] font-medium text-gray-800">CRI:</span>
+                                <span className="text-[10px] font-bold text-purple-700">
+                                  {formatStat(member.character.stats?.cri, 'percentage')}
+                                </span>
+                              </div>
+                              {member.character.stats?.ele !== undefined && (
+                                <div className="flex items-center space-x-1 p-1 rounded-md bg-white/80">
+                                  <span className="text-yellow-600 text-[10px]">⚡</span>
+                                  <span className="text-[9px] font-medium text-gray-800">ELE:</span>
+                                  <span className="text-[10px] font-bold text-yellow-700">
+                                    {formatStat(member.character.stats?.ele, 'percentage')}
+                                  </span>
+                                </div>
+                              )}
+                              {member.character.stats?.fd !== undefined && (
+                                <div className="flex items-center space-x-1 p-1 rounded-md bg-white/80">
+                                  <span className="text-green-600 text-[10px]">💥</span>
+                                  <span className="text-[9px] font-medium text-gray-800">FD:</span>
+                                  <span className="text-[10px] font-bold text-green-700">
+                                    {formatStat(member.character.stats?.fd, 'percentage')}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
                         </div>
-                        <span className="font-semibold text-pink-600">
-                          {party.goals?.atk ? formatStat(party.goals.atk) : "-"}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between p-2 rounded-lg bg-white/50">
-                        <div className="flex items-center gap-2">
-                          <span className="text-red-600 text-lg">❤️</span>
-                          <span className="font-medium">HP:</span>
-                        </div>
-                        <span className="font-semibold text-red-600">
-                          {party.goals?.hp ? formatStat(party.goals.hp) : "-"}
-                        </span>
-                      </div>
-                    </div>
+                      </motion.button>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Decorative corners */}
+            <div className="absolute top-0 left-0 w-16 h-16 border-t-2 border-l-2 border-pink-200/50 rounded-tl-2xl" />
+            <div className="absolute top-0 right-0 w-16 h-16 border-t-2 border-r-2 border-pink-200/50 rounded-tr-2xl" />
+            <div className="absolute bottom-0 left-0 w-16 h-16 border-b-2 border-l-2 border-pink-200/50 rounded-bl-2xl" />
+            <div className="absolute bottom-0 right-0 w-16 h-16 border-b-2 border-r-2 border-pink-200/50 rounded-br-2xl" />
+
+            {/* Decorative dots */}
+            <div className="absolute top-4 right-4 w-2 h-2 rounded-full bg-pink-200/30" />
+            <div className="absolute top-4 left-4 w-2 h-2 rounded-full bg-purple-200/30" />
+            <div className="absolute bottom-4 right-4 w-2 h-2 rounded-full bg-blue-200/30" />
+            <div className="absolute bottom-4 left-4 w-2 h-2 rounded-full bg-indigo-200/30" />
+          </div>
+        </div>
+        
+        {/* Party Message Box */}
+        <div className="mt-6">
+          <Card className="bg-white/70 backdrop-blur-sm border border-pink-100/30 shadow-lg">
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+                      <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
+                      <line x1="6" y1="1" x2="6" y2="4"></line>
+                      <line x1="10" y1="1" x2="10" y2="4"></line>
+                      <line x1="14" y1="1" x2="14" y2="4"></line>
+                    </svg>
+                  </div>
+                  <div>
+                    <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent font-bold">
+                      Description
+                    </span>
+                    {hasUserInParty && (
+                      <span className="text-xs text-gray-500 font-normal ml-2">
+                        (สมาชิกทุกคนสามารถแก้ไขได้)
+                      </span>
+                    )}
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center space-y-0 pb-2">
-                <div className="flex items-center gap-3">
-                  <CardTitle className="text-base md:text-lg font-bold text-gray-800 tracking-wide">ค่าเฉลี่ย</CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <PartyStats members={members.map(m => m.character)} />
-              </CardContent>
-            </Card>
-
-            <Card className="md:col-span-2">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-base md:text-lg font-bold text-gray-800 tracking-wide">สมาชิก</CardTitle>
                 <div className="flex gap-2">
+                  {hasUserInParty && (
+                    <Button
+                      onClick={() => setIsDiscordModalOpen(true)}
+                      variant="outline"
+                      className="bg-gradient-to-r from-indigo-500 to-violet-500 text-white hover:from-indigo-600 hover:to-violet-600"
+                      title="แก้ไข Discord Link"
+                    >
+                      <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515a.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25a.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03a.078.078 0 0 0 .084-.028a14.09 14.09 0 0 0 1.226-1.994a.076.076 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128a10.2 10.2 0 0 0 .372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127a12.299 12.299 0 0 1-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.03a.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/>
+                      </svg>
+                      Discord Link
+                    </Button>
+                  )}
                   <Button
                     variant="outline"
                     className="bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600"
@@ -771,103 +941,101 @@ export default function PartyPage({ params }: { params: { id: string } }) {
                     📸 คัดลอกรูปภาพปาร์ตี้
                   </Button>
                 </div>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {members.map((member) => {
-                    const colors = getClassColor(member.character.class);
-                    return (
-                      <motion.button
-                        key={member.character.id}
-                        onClick={() => handleMemberClick(member)}
-                        className={`p-5 rounded-xl shadow transition-all duration-300 ${colors.bg} border ${colors.border} hover:shadow-lg hover:scale-[1.02] transform text-left relative`}
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                      >
-                        {user?.uid === party.leader && member.character.userId !== user.uid && (
-                          <button
-                            className="absolute top-2 right-2 p-1 rounded-full bg-white border border-red-200 hover:bg-red-100 transition z-10"
-                            title="เตะสมาชิกออกจากปาร์ตี้"
-                            onClick={e => { e.stopPropagation(); setKickTarget(member.character.id); }}
-                          >
-                            <UserMinus className="w-5 h-5 text-red-600" />
-                          </button>
-                        )}
-                        <div className="flex flex-col gap-4">
-                          <div className="flex flex-col gap-2">
-                            <h3 className="text-xl font-extrabold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent drop-shadow-sm">
-                              {member.discordName}
-                            </h3>
-                            <div className="flex items-center gap-2">
-                              <span className="font-semibold text-gray-800 text-base">
-                                {member.character.name}
-                              </span>
-                              <div className={`px-3 py-1 rounded-lg bg-white/80 border ${colors.border} flex items-center justify-center shadow-sm`}>
-                                <span className="text-lg mr-2">{colors.icon}</span>
-                                <span className="text-sm font-semibold text-gray-700">
-                                  {member.character.class}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="grid grid-cols-2 gap-3 mt-2">
-                            <div className="flex flex-col gap-2">
-                              <div className="flex items-center space-x-2 p-2 rounded-lg bg-white/80">
-                                <span className="text-pink-600 text-lg">⚔️</span>
-                                <span className="text-sm font-semibold text-gray-800">
-                                  ATK:
-                                </span>
-                                <span className="text-base font-bold text-pink-700">
-                                  {formatStat(member.character.stats?.atk)}
-                                </span>
-                              </div>
-                              <div className="flex items-center space-x-2 p-2 rounded-lg bg-white/80">
-                                <span className="text-red-600 text-lg">❤️</span>
-                                <span className="text-sm font-semibold text-gray-800">
-                                  HP:
-                                </span>
-                                <span className="text-base font-bold text-red-700">
-                                  {formatStat(member.character.stats?.hp)}
-                                </span>
-                              </div>
-                              <div className="flex items-center space-x-2 p-2 rounded-lg bg-white/80">
-                                <span className="text-blue-600 text-lg">🛡️</span>
-                                <span className="text-sm font-semibold text-gray-800">DEF:</span>
-                                <span className="text-sm font-bold text-blue-700">P.{formatStat(member.character.stats?.pdef ?? 0, 'percentage')}</span>
-                                <span className="text-sm font-bold text-purple-700">M.{formatStat(member.character.stats?.mdef ?? 0, 'percentage')}</span>
-                              </div>
-                            </div>
-                            <div className="flex flex-col gap-2">
-                              <div className="flex items-center space-x-2 p-2 rounded-lg bg-white/80">
-                                <span className="text-purple-600 text-lg">🎯</span>
-                                <span className="text-sm font-semibold text-gray-800">CRI:</span>
-                                <span className="text-base font-bold text-purple-700">{formatStat(member.character.stats?.cri, 'percentage')}</span>
-                              </div>
-                              {member.character.stats?.ele !== undefined && (
-                                <div className="flex items-center space-x-2 p-2 rounded-lg bg-white/80">
-                                  <span className="text-yellow-600 text-lg">⚡</span>
-                                  <span className="text-sm font-semibold text-gray-800">ELE:</span>
-                                  <span className="text-base font-bold text-yellow-700">{formatStat(member.character.stats?.ele, 'percentage')}</span>
-                                </div>
-                              )}
-                              {member.character.stats?.fd !== undefined && (
-                                <div className="flex items-center space-x-2 p-2 rounded-lg bg-white/80">
-                                  <span className="text-green-600 text-lg">💥</span>
-                                  <span className="text-sm font-semibold text-gray-800">FD:</span>
-                                  <span className="text-base font-bold text-green-700">{formatStat(member.character.stats?.fd, 'percentage')}</span>
-                                </div>
-                              )}
-                            </div>
-                          </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="relative">
+                  <textarea
+                    className="w-full min-h-[100px] rounded-lg border border-gray-200 bg-white/50 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    placeholder="รายละเอียด, เวลานัด, ชื่อปาร์ตี้ในเกม..."
+                    value={partyMessage}
+                    onChange={(e) => setPartyMessage(e.target.value)}
+                    maxLength={300}
+                    disabled={!hasUserInParty}
+                  />
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-gray-500">
+                    {partyMessage.length}/300 อักษร
+                  </span>
+                  {hasUserInParty && (
+                    <Button
+                      onClick={handleSaveMessage}
+                      disabled={isSavingMessage}
+                      className="bg-gradient-to-r from-pink-500 to-purple-500 text-white hover:from-pink-600 hover:to-purple-600"
+                    >
+                      {isSavingMessage ? (
+                        <div className="flex items-center">
+                          <motion.div
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                            className="w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"
+                          />
+                          กำลังบันทึก...
                         </div>
-                      </motion.button>
-                    );
-                  })}
+                      ) : (
+                        "บันทึกข้อความ"
+                      )}
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Discord Link Section */}
+        {partyDiscordLink && (
+          <div className="mt-4">
+            <Card className="bg-[#36393f] border-none shadow-lg">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-[#5865f2] flex items-center justify-center">
+                      <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515a.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25a.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03a.078.078 0 0 0 .084-.028a14.09 14.09 0 0 0 1.226-1.994a.076.076 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128a10.2 10.2 0 0 0 .372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127a12.299 12.299 0 0 1-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.03a.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.956-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.955-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.946 2.418-2.157 2.418z"/>
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 className="text-white font-semibold">Discord Server</h3>
+                      <p className="text-gray-400 text-sm">เข้าร่วมเซิร์ฟเวอร์ Discord ของปาร์ตี้</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {hasUserInParty && (
+                      <Button
+                        variant="outline"
+                        onClick={handleDeleteDiscordLink}
+                        disabled={isSavingDiscordLink}
+                        className="bg-red-500/10 border-red-500/20 text-red-500 hover:bg-red-500/20"
+                      >
+                        {isSavingDiscordLink ? (
+                          <div className="flex items-center">
+                            <motion.div
+                              animate={{ rotate: 360 }}
+                              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                              className="w-4 h-4 border-2 border-red-500 border-t-transparent rounded-full mr-2"
+                            />
+                            กำลังลบ...
+                          </div>
+                        ) : (
+                          "ลบลิงก์"
+                        )}
+                      </Button>
+                    )}
+                    <Button
+                      onClick={() => window.open(partyDiscordLink, '_blank')}
+                      className="bg-[#5865f2] hover:bg-[#4752c4] text-white font-medium px-6"
+                    >
+                      เข้าร่วม
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
           </div>
-        </div>
+        )}
 
         <Dialog open={showCharacterSelect} onOpenChange={setShowCharacterSelect}>
           <DialogContent className="sm:max-w-[600px] bg-gradient-to-br from-pink-50/80 to-purple-50/80 backdrop-blur-xl border border-pink-100/30">
@@ -880,7 +1048,6 @@ export default function PartyPage({ params }: { params: { id: string } }) {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 py-6 max-h-[60vh] overflow-y-auto px-1">
               {availableCharacters.map((char) => {
                 const colors = getClassColor(char.class);
-                // Mapping สีพื้นหลังเข้มขึ้น
                 let strongBg = '';
                 switch (colors.bg) {
                   case 'bg-red-50': strongBg = 'bg-red-100'; break;
@@ -913,34 +1080,34 @@ export default function PartyPage({ params }: { params: { id: string } }) {
                           <span className="text-2xl">{colors.icon}</span>
                         </div>
                         <div>
-                          <h3 className={`text-lg font-bold ${colors.text.replace('bg-clip-text text-transparent','').replace('bg-gradient-to-r','').replace('from-','text-').replace('to-','')}`}>{char.name}</h3>
-                          <p className="text-sm text-gray-600">{char.class}</p>
+                          <h3 className={cn(
+                            "text-lg font-bold",
+                            getClassColor(char.class).text
+                          )}>
+                            {char.name}
+                          </h3>
+                          <p className={cn(
+                            "text-sm font-medium",
+                            getClassColor(char.class).text
+                          )}>
+                            {char.class}
+                          </p>
                         </div>
                       </div>
 
                       <div className="mt-4 grid grid-cols-2 gap-2">
                         <div className="flex items-center space-x-2">
-                          <span className="text-pink-600">⚔️</span>
-                          <span className="text-sm text-gray-600">
-                            ATK: {formatStat(char.stats?.atk)}
+                          <span className="text-pink-600 text-xs">⚔️</span>
+                          <span className="text-[10px] font-medium text-gray-800">ATK:</span>
+                          <span className="text-xs font-bold text-pink-700">
+                            {formatCompactNumber(char.stats?.atk)}
                           </span>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <span className="text-red-600">❤️</span>
-                          <span className="text-sm text-gray-600">
-                            HP: {formatStat(char.stats?.hp)}
-                          </span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <span className="text-blue-600">🛡️</span>
-                          <span className="text-sm text-gray-600">
-                            DEF: {formatStat(char.stats?.pdef, 'percentage')}
-                          </span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <span className="text-purple-600">🎯</span>
-                          <span className="text-sm text-gray-600">
-                            CRI: {formatStat(char.stats?.cri, 'percentage')}
+                          <span className="text-red-600 text-xs">❤️</span>
+                          <span className="text-[10px] font-medium text-gray-800">HP:</span>
+                          <span className="text-xs font-bold text-red-700">
+                            {formatCompactNumber(char.stats?.hp)}
                           </span>
                         </div>
                       </div>
@@ -1021,10 +1188,22 @@ export default function PartyPage({ params }: { params: { id: string } }) {
                       "hover:shadow-lg"
                     )}>
                       {/* Decorative corner elements */}
-                      <div className={cn("absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 rounded-tl-lg", getClassColor(selectedMember.character.class).border)}></div>
-                      <div className={cn("absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 rounded-tr-lg", getClassColor(selectedMember.character.class).border)}></div>
-                      <div className={cn("absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 rounded-bl-lg", getClassColor(selectedMember.character.class).border)}></div>
-                      <div className={cn("absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 rounded-br-lg", getClassColor(selectedMember.character.class).border)}></div>
+                      <div className={cn(
+                        "absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 rounded-tl-lg",
+                        getClassColor(selectedMember.character.class).border
+                      )} />
+                      <div className={cn(
+                        "absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 rounded-tr-lg",
+                        getClassColor(selectedMember.character.class).border
+                      )} />
+                      <div className={cn(
+                        "absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 rounded-bl-lg",
+                        getClassColor(selectedMember.character.class).border
+                      )} />
+                      <div className={cn(
+                        "absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 rounded-br-lg",
+                        getClassColor(selectedMember.character.class).border
+                      )} />
 
                       <div className="p-4">
                         <div className="flex items-center gap-3 mb-4">
@@ -1033,13 +1212,21 @@ export default function PartyPage({ params }: { params: { id: string } }) {
                             "bg-gradient-to-br from-pink-200 to-purple-200 border shadow-inner",
                             getClassColor(selectedMember.character.class).border
                           )}>
-                            <span className="text-2xl">{getClassColor(selectedMember.character.class).icon}</span>
+                            <span className="text-2xl">
+                              {getClassColor(selectedMember.character.class).icon}
+                            </span>
                           </div>
                           <div>
-                            <h3 className={cn("text-xl font-bold", getClassColor(selectedMember.character.class).text)}>
+                            <h3 className={cn(
+                              "text-xl font-bold",
+                              getClassColor(selectedMember.character.class).text
+                            )}>
                               {selectedMember.character.name}
                             </h3>
-                            <p className={cn("text-sm font-medium", getClassColor(selectedMember.character.class).text)}>
+                            <p className={cn(
+                              "text-sm font-medium",
+                              getClassColor(selectedMember.character.class).text
+                            )}>
                               {selectedMember.character.class}
                             </p>
                             <p className="text-sm text-gray-600 mt-1">
@@ -1106,7 +1293,7 @@ export default function PartyPage({ params }: { params: { id: string } }) {
           </DialogContent>
         </Dialog>
 
-        <Dialog open={!!kickTarget} onOpenChange={open => { if (!open) setKickTarget(null); }}>
+        <Dialog open={!!kickTarget} onOpenChange={(open) => { if (!open) setKickTarget(null); }}>
           <DialogContent className="max-w-md p-4">
             <DialogHeader className="mb-4">
               <DialogTitle>ยืนยันการเตะสมาชิก</DialogTitle>
@@ -1230,201 +1417,38 @@ ${typeof window !== 'undefined' ? window.location.href : ''}`;
             </div>
           </DialogContent>
         </Dialog>
-      </div>
-      
-      {/* Party Message Box */}
-      <div className="mt-8">
-        <Card className="bg-white/70 backdrop-blur-sm border border-pink-100/30 shadow-lg">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base md:text-lg font-bold text-gray-800 tracking-wide flex items-center gap-2">
-              <div className="flex items-center gap-2">
-                <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 text-white">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
-                    <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
-                    <line x1="6" y1="1" x2="6" y2="4"></line>
-                    <line x1="10" y1="1" x2="10" y2="4"></line>
-                    <line x1="14" y1="1" x2="14" y2="4"></line>
-                  </svg>
-                </div>
-                <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent font-bold">
-                  Description
-                </span>
-              </div>
-              {hasUserInParty && (
-                <span className="text-xs text-gray-500 font-normal ml-2">
-                  (สมาชิกทุกคนสามารถแก้ไขได้)
-                </span>
-              )}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="relative">
-                <textarea
-                  className="w-full min-h-[100px] rounded-lg border border-gray-200 bg-white/50 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  placeholder="รายละเอียด.. ชื่อปาร์ตี้ในเกม.. เวลานัด...."
-                  value={partyMessage}
-                  onChange={(e) => setPartyMessage(e.target.value)}
-                  maxLength={300}
-                  disabled={!hasUserInParty}
+
+        {/* เพิ่ม Dialog สำหรับแก้ไข Discord Link */}
+        <Dialog open={isDiscordModalOpen} onOpenChange={setIsDiscordModalOpen}>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>แก้ไข Discord Link</DialogTitle>
+              <DialogDescription>
+                ใส่ลิงก์ Discord Server ของปาร์ตี้
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="discord-link">Discord Link</Label>
+                <Input
+                  id="discord-link"
+                  placeholder="https://discord.gg/your-server"
+                  value={discordLink}
+                  onChange={(e) => setDiscordLink(e.target.value)}
                 />
-                {hasUserInParty && (
-                  <Button
-                    onClick={() => setIsDiscordModalOpen(true)}
-                    variant="outline"
-                    className="absolute right-2 top-2 bg-white/50 border-gray-200 hover:bg-white hover:border-violet-500"
-                    title="แก้ไข Discord Link"
-                  >
-                    <Pencil className="w-4 h-4 text-indigo-500" />
-                  </Button>
-                )}
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-xs text-gray-500">
-                  {partyMessage.length}/300 อักษร
-                </span>
-                {hasUserInParty && (
-                  <Button
-                    onClick={handleSaveMessage}
-                    disabled={isSavingMessage}
-                    className="bg-gradient-to-r from-pink-500 to-purple-500 text-white hover:from-pink-600 hover:to-purple-600"
-                  >
-                    {isSavingMessage ? (
-                      <div className="flex items-center">
-                        <motion.div
-                          animate={{ rotate: 360 }}
-                          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                          className="w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"
-                        />
-                        กำลังบันทึก...
-                      </div>
-                    ) : (
-                      "บันทึกข้อความ"
-                    )}
-                  </Button>
-                )}
               </div>
             </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Discord Link Section */}
-      {partyDiscordLink && (
-        <div className="mt-4">
-          <Card className="bg-[#36393f] border-none shadow-lg">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-[#5865f2] flex items-center justify-center">
-                    <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515a.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25a.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03a.078.078 0 0 0 .084-.028a14.09 14.09 0 0 0 1.226-1.994a.076.076 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128a10.2 10.2 0 0 0 .372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127a12.299 12.299 0 0 1-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.03a.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.956-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.955-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.946 2.418-2.157 2.418z"/>
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="text-white font-semibold">Discord Server</h3>
-                    <p className="text-gray-400 text-sm">เข้าร่วมเซิร์ฟเวอร์ Discord ของปาร์ตี้</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  {hasUserInParty && (
-                    <Button
-                      variant="outline"
-                      onClick={handleDeleteDiscordLink}
-                      disabled={isSavingDiscordLink}
-                      className="bg-red-500/10 border-red-500/20 text-red-500 hover:bg-red-500/20"
-                    >
-                      {isSavingDiscordLink ? (
-                        <div className="flex items-center">
-                          <motion.div
-                            animate={{ rotate: 360 }}
-                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                            className="w-4 h-4 border-2 border-red-500 border-t-transparent rounded-full mr-2"
-                          />
-                          กำลังลบ...
-                        </div>
-                      ) : (
-                        "ลบลิงก์"
-                      )}
-                    </Button>
-                  )}
-                  <Button
-                    onClick={() => window.open(partyDiscordLink, '_blank')}
-                    className="bg-[#5865f2] hover:bg-[#4752c4] text-white font-medium px-6"
-                  >
-                    เข้าร่วม
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
-      {/* Discord Link Modal */}
-      <Dialog open={isDiscordModalOpen} onOpenChange={setIsDiscordModalOpen}>
-        <DialogContent className="sm:max-w-[425px] bg-[#36393f] border-none">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-bold text-white">
-              Discord Link
-            </DialogTitle>
-            <DialogDescription className="text-gray-400">
-              เพิ่ม Discord invite link สำหรับปาร์ตี้นี้ (เฉพาะสมาชิกในปาร์ตี้เท่านั้นที่สามารถแก้ไขได้)
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="discord-link" className="text-gray-300">Discord Invite Code</Label>
-              <Input
-                id="discord-link"
-                value={discordLink}
-                onChange={(e) => setDiscordLink(e.target.value)}
-                placeholder="กรอก Discord invite code"
-                className="flex-1 bg-[#40444b] border-[#202225] text-white placeholder:text-gray-400 focus:border-[#5865f2]"
-              />
-              <p className="text-xs text-gray-400">ตัวอย่าง: xxxxxxxx, https://discord.gg/xxxxxxxx</p>
-            </div>
-          </div>
-          <DialogFooter className="flex gap-2">
-            {partyDiscordLink && (
-              <Button 
-                variant="outline" 
-                onClick={handleDeleteDiscordLink}
-                disabled={isSavingDiscordLink}
-                className="bg-red-500/10 border-red-500/20 text-red-500 hover:bg-red-500/20"
-              >
-                ลบลิงก์
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsDiscordModalOpen(false)}>
+                ยกเลิก
               </Button>
-            )}
-            <Button 
-              variant="outline" 
-              onClick={() => setIsDiscordModalOpen(false)}
-              className="bg-[#40444b] border-[#202225] text-white hover:bg-[#4f545c]"
-            >
-              ยกเลิก
-            </Button>
-            <Button 
-              onClick={handleSaveDiscordLink}
-              disabled={isSavingDiscordLink || !discordLink.trim()}
-              className="bg-[#5865f2] hover:bg-[#4752c4] text-white"
-            >
-              {isSavingDiscordLink ? (
-                <div className="flex items-center">
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                    className="w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"
-                  />
-                  กำลังบันทึก...
-                </div>
-              ) : (
-                "บันทึก"
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+              <Button onClick={handleSaveDiscordLink} disabled={isSavingDiscordLink}>
+                {isSavingDiscordLink ? 'กำลังบันทึก...' : 'บันทึก'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
     </div>
   );
 } 

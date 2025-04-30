@@ -1,8 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ref, onValue, update } from 'firebase/database';
-import { db } from '../lib/firebase';
+import { getDatabase, ref, onValue, off, update } from 'firebase/database';
 import { Character } from '../types/character';
 import { User } from '../types/user';
 
@@ -10,29 +9,24 @@ interface Users {
   [key: string]: User;
 }
 
-export type UserWithCharacters = User & {
-  characters?: { [key: string]: Character };
-};
-
 export function useUsers() {
   const [users, setUsers] = useState<Users>({});
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    console.log('useUsers: Initializing...');
-    const usersRef = ref(db, 'users');
+    const database = getDatabase();
+    const usersRef = ref(database, 'users');
+    setIsLoading(true);
     
-    const unsubscribe = onValue(usersRef, (snapshot) => {
-      console.log('useUsers: Snapshot received:', snapshot.exists());
-      if (snapshot.exists()) {
+    const unsubscribe = onValue(usersRef, 
+      (snapshot) => {
+        try {
         const data = snapshot.val();
-        console.log('useUsers: Raw data:', data);
-        
+          if (data) {
         const processedUsers: Users = {};
         
         Object.entries(data).forEach(([uid, userData]: [string, any]) => {
-          console.log('useUsers: Processing user:', uid, userData);
           // Process characters into an object
           const characters: { [key: string]: Character } = {};
           if (userData.characters) {
@@ -92,42 +86,50 @@ export function useUsers() {
             displayName: userData.displayName,
             photoURL: userData.photoURL,
             meta: {
-              discord: userData.meta?.discord || 'ไม่ทราบ'
+                  discord: userData.meta?.discord || 'ไม่ทราบ',
+                  lastResetDaily: userData.meta?.lastResetDaily,
+                  lastResetWeekly: userData.meta?.lastResetWeekly
             },
             characters
           };
 
-          // --- เพิ่ม logic ตรวจสอบ lastResetDaily/lastResetWeekly ---
+              // Initialize lastReset values if not present
           if (userData?.meta) {
             const updates: Record<string, number> = {};
-            if (userData.meta.lastResetDaily === undefined || userData.meta.lastResetDaily === null) {
+                if (userData.meta.lastResetDaily === undefined) {
               updates['lastResetDaily'] = Date.now();
             }
-            if (userData.meta.lastResetWeekly === undefined || userData.meta.lastResetWeekly === null) {
+                if (userData.meta.lastResetWeekly === undefined) {
               updates['lastResetWeekly'] = Date.now();
             }
             if (Object.keys(updates).length > 0) {
-              // เขียนค่าเริ่มต้นโดยไม่รีเซ็ต checklist ใด ๆ
-              update(ref(db, `users/${uid}/meta`), updates);
+                  update(ref(database, `users/${uid}/meta`), updates);
             }
           }
         });
         
-        console.log('useUsers: Processed users:', processedUsers);
         setUsers(processedUsers);
       } else {
-        console.log('useUsers: No users found');
         setUsers({});
       }
-      setLoading(false);
-    }, (error) => {
-      console.error('useUsers: Error:', error);
-      setError(error.message);
-      setLoading(false);
-    });
+          setError(null);
+        } catch (err) {
+          setError(err instanceof Error ? err : new Error('Failed to fetch users'));
+        } finally {
+          setIsLoading(false);
+        }
+      },
+      (error) => {
+        setError(error);
+        setIsLoading(false);
+      }
+    );
 
-    return () => unsubscribe();
+    return () => {
+      off(usersRef);
+      unsubscribe();
+    };
   }, []);
 
-  return { users, loading, error };
+  return { users, isLoading, error };
 } 

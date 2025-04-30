@@ -2,15 +2,14 @@
 
 import { ScrollArea } from './ui/scroll-area';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User } from '../types/user';
-import { Character } from '../types/character';
 import { Dialog, DialogContent } from './ui/dialog';
 import { useState } from 'react';
 import { cn } from '../lib/utils';
-import { WEEKLY_MAX_VALUES } from '@/constants/checklist';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { CLASS_TO_ROLE, getClassColors } from '@/config/theme';
 import { CharacterChecklist } from './CharacterChecklist';
+import { useUsers } from '@/hooks/useUsers';
+import { Character } from '@/types/character';
 
 // ฟังก์ชันสำหรับแปลงตัวเลขเป็นรูปแบบย่อ (K, M)
 function formatNumber(num: number): string {
@@ -20,154 +19,6 @@ function formatNumber(num: number): string {
     return (num / 1000).toFixed(1) + 'K';
   }
   return num.toString();
-}
-
-interface SidebarProps {
-  users: { [key: string]: User };
-}
-
-// Simplified character card for popup
-function SimpleCharacterCard({ character }: { character: Character }) {
-  const colors = getClassColor(character.class);
-  
-  return (
-    <div className={cn(
-      "relative overflow-hidden rounded-xl border-2 transition-all duration-300",
-      "bg-gradient-to-br from-pink-100/80 to-purple-100/80",
-      "shadow-[0_8px_32px_0_rgba(31,38,135,0.1)]",
-      colors.border,
-      "hover:shadow-lg"
-    )}>
-      {/* Decorative corner elements */}
-      <div className={cn("absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 rounded-tl-lg", colors.border)}></div>
-      <div className={cn("absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 rounded-tr-lg", colors.border)}></div>
-      <div className={cn("absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 rounded-bl-lg", colors.border)}></div>
-      <div className={cn("absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 rounded-br-lg", colors.border)}></div>
-
-      <div className="p-4">
-        <div className="flex items-center gap-3 mb-4">
-          <div className={cn(
-            "w-12 h-12 rounded-lg flex items-center justify-center",
-            "bg-gradient-to-br from-pink-200 to-purple-200 border shadow-inner",
-            colors.border
-          )}>
-            <span className="text-2xl">{colors.icon}</span>
-          </div>
-          <div>
-            <h3 className={cn("text-xl font-bold", colors.text)}>
-              {character.name}
-            </h3>
-            <p className={cn("text-sm font-medium", colors.text)}>
-              {character.class}
-            </p>
-          </div>
-        </div>
-
-        {/* Stats Display */}
-        <div className="grid grid-cols-2 gap-4 mb-4">
-          {/* Left Column - ATK, HP, DEF P M */}
-          <div className="space-y-2">
-            <div className={cn(
-              "p-2 rounded-lg border",
-              "bg-gradient-to-br from-pink-200/80 to-pink-100/80",
-              colors.border
-            )}>
-              <div className="flex items-center gap-1 text-sm">
-                <span className="text-pink-500">⚔️</span>
-                <span className="text-gray-600">ATK:</span>
-                <span className={cn("font-medium", colors.text)}>
-                  {formatNumber(character.stats?.atk || 0)}
-                </span>
-              </div>
-            </div>
-            <div className={cn(
-              "p-2 rounded-lg border",
-              "bg-gradient-to-br from-red-200/80 to-red-100/80",
-              colors.border
-            )}>
-              <div className="flex items-center gap-1 text-sm">
-                <span className="text-red-500">❤️</span>
-                <span className="text-gray-600">HP:</span>
-                <span className={cn("font-medium", colors.text)}>
-                  {formatNumber(character.stats?.hp || 0)}
-                </span>
-              </div>
-            </div>
-            <div className={cn(
-              "p-2 rounded-lg border",
-              "bg-gradient-to-br from-blue-200/80 to-blue-100/80",
-              colors.border
-            )}>
-              <div className="flex items-center gap-1 text-sm">
-                <span className="text-blue-500">🛡️</span>
-                <span className="text-gray-600">DEF:</span>
-                <div className="flex items-center gap-1">
-                  <span className="text-blue-600">P</span>
-                  <span className={cn("font-medium", colors.text)}>
-                    {character.stats?.pdef || 0}%
-                  </span>
-                  <span className="text-purple-600">M</span>
-                  <span className={cn("font-medium", colors.text)}>
-                    {character.stats?.mdef || 0}%
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Column - CRI, ELE, FD */}
-          <div className="space-y-2">
-            <div className={cn(
-              "p-2 rounded-lg border",
-              "bg-gradient-to-br from-yellow-200/80 to-yellow-100/80",
-              colors.border
-            )}>
-              <div className="flex items-center gap-1 text-sm">
-                <span className="text-yellow-500">🎯</span>
-                <span className="text-gray-600">CRI:</span>
-                <span className={cn("font-medium", colors.text)}>
-                  {character.stats?.cri || 0}%
-                </span>
-              </div>
-            </div>
-            <div className={cn(
-              "p-2 rounded-lg border",
-              "bg-gradient-to-br from-purple-200/80 to-purple-100/80",
-              colors.border
-            )}>
-              <div className="flex items-center gap-1 text-sm">
-                <span className="text-purple-500">⚡</span>
-                <span className="text-gray-600">ELE:</span>
-                <span className={cn("font-medium", colors.text)}>
-                  {character.stats?.ele || 0}%
-                </span>
-              </div>
-            </div>
-            <div className={cn(
-              "p-2 rounded-lg border",
-              "bg-gradient-to-br from-orange-200/80 to-orange-100/80",
-              colors.border
-            )}>
-              <div className="flex items-center gap-1 text-sm">
-                <span className="text-orange-500">💥</span>
-                <span className="text-gray-600">FD:</span>
-                <span className={cn("font-medium", colors.text)}>
-                  {character.stats?.fd || 0}%
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <CharacterChecklist
-          checklist={character.checklist}
-          onChange={() => {}}
-          accentColor={colors.text}
-          readOnly={true}
-        />
-      </div>
-    </div>
-  );
 }
 
 const CLASS_GRADIENTS: Record<string, { bg: string; text: string; border: string; icon?: string }> = {
@@ -184,12 +35,13 @@ function getClassColor(characterClass: string) {
   return CLASS_GRADIENTS[role] || CLASS_GRADIENTS.Default;
 }
 
-export function Sidebar({ users }: SidebarProps) {
+export function Sidebar() {
+  const { users, isLoading } = useUsers();
   const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
-  const handleCharacterClick = (char: Character) => {
+  const handleCharacterClick = (char: any) => {
     setSelectedCharacter(char);
     setIsDialogOpen(true);
   };
@@ -247,6 +99,23 @@ export function Sidebar({ users }: SidebarProps) {
       return nameA.localeCompare(nameB, 'th', {sensitivity: 'base'});
     });
   };
+
+  if (isLoading) {
+    return (
+      <aside className="w-64 h-screen bg-white border-r border-gray-200">
+        <div className="p-4">
+          <div className="flex items-center gap-2 text-gray-500">
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+              className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full"
+            />
+            <p>กำลังโหลดข้อมูล...</p>
+          </div>
+        </div>
+      </aside>
+    );
+  }
 
   return (
     <>
@@ -366,12 +235,7 @@ export function Sidebar({ users }: SidebarProps) {
                     getClassColor(selectedCharacter.class).border,
                     "hover:shadow-lg"
                   )}>
-                    {/* Decorative corner elements */}
-                    <div className={cn("absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 rounded-tl-lg", getClassColor(selectedCharacter.class).border)}></div>
-                    <div className={cn("absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 rounded-tr-lg", getClassColor(selectedCharacter.class).border)}></div>
-                    <div className={cn("absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 rounded-bl-lg", getClassColor(selectedCharacter.class).border)}></div>
-                    <div className={cn("absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 rounded-br-lg", getClassColor(selectedCharacter.class).border)}></div>
-
+                    {/* Character details content */}
                     <div className="p-6">
                       <div className="flex items-center gap-3 mb-4">
                         <div className={cn(
@@ -388,16 +252,12 @@ export function Sidebar({ users }: SidebarProps) {
                           <p className={cn("text-sm font-medium", getClassColor(selectedCharacter.class).text)}>
                             {selectedCharacter.class}
                           </p>
-                          {/* Find and show discordName of the character's owner */}
-                          <p className="text-sm text-gray-600 mt-1">
-                            {Object.values(users).find(u => u.characters && Object.values(u.characters).some(c => c.id === selectedCharacter.id))?.meta?.discord || 'ไม่ทราบ'}
-                          </p>
                         </div>
                       </div>
 
                       {/* Stats Display */}
                       <div className="grid grid-cols-2 gap-4 mb-4">
-                        {/* Left Column - ATK, HP, DEF P M */}
+                        {/* Left Column */}
                         <div className="space-y-2">
                           <div className={cn(
                             "p-2 rounded-lg border",
@@ -447,7 +307,7 @@ export function Sidebar({ users }: SidebarProps) {
                           </div>
                         </div>
 
-                        {/* Right Column - CRI, ELE, FD */}
+                        {/* Right Column */}
                         <div className="space-y-2">
                           <div className={cn(
                             "p-2 rounded-lg border",

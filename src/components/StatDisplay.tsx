@@ -40,15 +40,22 @@ export function StatDisplay({ label, value = 0, icon, values, suffix = '', class
         </div>
         
         {values ? (
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-blue-600">P</span>
-            <span className="text-lg font-bold text-gray-700">{formatValue(values[0])}{suffix}</span>
-            <span className="text-xs text-purple-600">M</span>
-            <span className="text-lg font-bold text-gray-700">{formatValue(values[1])}{suffix}</span>
+          <div className="flex items-center gap-1">
+            <span className="text-xs font-medium text-blue-500">P</span>
+            <span className="text-base font-semibold text-blue-700">{formatValue(values[0])}{suffix}</span>
+            <span className="text-xs font-medium text-purple-500 ml-1">M</span>
+            <span className="text-base font-semibold text-purple-700">{formatValue(values[1])}{suffix}</span>
           </div>
         ) : (
           <div className="flex items-center gap-1">
-            <span className="text-xl font-bold text-gray-700">{formatValue(value)}{suffix}</span>
+            <span className={cn(
+              "text-base font-semibold",
+              label === "ATK" && "text-rose-600",
+              label === "HP" && "text-emerald-600",
+              label === "CRI" && "text-amber-600",
+              label === "ELE" && "text-violet-600",
+              label === "FD" && "text-orange-600"
+            )}>{formatValue(value)}{suffix}</span>
           </div>
         )}
       </div>
