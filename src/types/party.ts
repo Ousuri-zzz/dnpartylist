@@ -40,6 +40,7 @@ export interface Party {
   goals?: PartyGoals;
   nest?: NestType;
   message?: string;
+  discordLink?: string;
 }
 
 export interface PartyWithMembers extends Party {

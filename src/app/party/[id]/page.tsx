@@ -15,7 +15,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from '../../../components/ui/input';
 import { Label } from '../../../components/ui/label';
 import { toast } from 'sonner';
-import { ref, update, set } from 'firebase/database';
+import { ref, update, set, get } from 'firebase/database';
 import { db } from '../../../lib/firebase';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PartyStats } from '../../../components/PartyStats';
@@ -26,6 +26,7 @@ import { Pencil, LogOut, UserMinus, Sparkles, UserPlus, Sword, Target, Heart, Za
 import { CLASS_TO_ROLE, getClassColors } from '@/config/theme';
 import { CharacterClass, Role } from '@/types/character';
 import { toBlob } from 'html-to-image';
+import { DialogDescription, DialogFooter } from '@/components/ui/dialog';
 
 interface PartyMember {
   character: Character;
@@ -81,6 +82,14 @@ export default function PartyPage({ params }: { params: { id: string } }) {
   const [isCapturing, setIsCapturing] = useState(false);
   const [partyMessage, setPartyMessage] = useState('');
   const [isSavingMessage, setIsSavingMessage] = useState(false);
+  const [message, setMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [showDiscordLink, setShowDiscordLink] = useState(false);
+  const [isDiscordModalOpen, setIsDiscordModalOpen] = useState(false);
+  const [discordLink, setDiscordLink] = useState('');
+  const [isSavingDiscordLink, setIsSavingDiscordLink] = useState(false);
+  const [partyDiscordLink, setPartyDiscordLink] = useState('');
+  const { id } = params;
 
   useEffect(() => {
     if (!partiesLoading && !charactersLoading && !usersLoading) {
@@ -142,6 +151,40 @@ export default function PartyPage({ params }: { params: { id: string } }) {
       setLoading(false);
     }
   }, [partiesLoading, charactersLoading, usersLoading, parties, params.id, router, users]);
+
+  // Add new useEffect for user data check
+  useEffect(() => {
+    const checkUserData = async () => {
+      if (!user || authLoading) return;
+
+      try {
+        // Check Discord name
+        const discordRef = ref(db, `users/${user.uid}/meta/discord`);
+        const discordSnapshot = await get(discordRef);
+        const discordName = discordSnapshot.val();
+
+        // Check characters
+        const charactersRef = ref(db, `users/${user.uid}/characters`);
+        const charactersSnapshot = await get(charactersRef);
+        const characters = charactersSnapshot.val();
+
+        // Redirect if no Discord name or no characters
+        if (!discordName || !characters || Object.keys(characters).length === 0) {
+          router.push(`/mypage?redirect=/party/${id}`);
+        }
+      } catch (error) {
+        console.error('Error checking user data:', error);
+      }
+    };
+
+    checkUserData();
+  }, [user, authLoading, router, id]);
+
+  useEffect(() => {
+    if (party?.discordLink) {
+      setPartyDiscordLink(party.discordLink);
+    }
+  }, [party?.discordLink]);
 
   const calculatePartyStats = (): PartyStats => {
     if (members.length === 0) {
@@ -430,6 +473,64 @@ export default function PartyPage({ params }: { params: { id: string } }) {
       toast.error('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง');
     } finally {
       setIsSavingMessage(false);
+    }
+  };
+
+  const handleDiscordLink = () => {
+    setShowDiscordLink(true);
+    setMessage(prev => {
+      if (prev.includes('discord.gg/')) return prev;
+      return prev + ' discord.gg/';
+    });
+  };
+
+  const sanitizeDiscordLink = (input: string): string => {
+    if (!input) return '';
+    // ถ้าเป็นลิงก์เต็มที่มี https:// หรือ http:// อยู่แล้ว
+    if (input.startsWith('http://') || input.startsWith('https://')) {
+      return input;
+    }
+    // ถ้าเป็นแค่ code
+    return `https://discord.gg/${input}`;
+  };
+
+  const handleSaveDiscordLink = async () => {
+    if (!party || !user || !hasUserInParty) return;
+    
+    setIsSavingDiscordLink(true);
+    try {
+      const link = discordLink.trim();
+      if (!link) {
+        await set(ref(db, `parties/${party.id}/discordLink`), null);
+        toast.success('ลบ Discord link สำเร็จ');
+      } else {
+        const sanitizedLink = sanitizeDiscordLink(link);
+        await set(ref(db, `parties/${party.id}/discordLink`), sanitizedLink);
+        toast.success('บันทึก Discord link สำเร็จ');
+      }
+      setIsDiscordModalOpen(false);
+      setDiscordLink('');
+    } catch (error) {
+      console.error('Error saving Discord link:', error);
+      toast.error('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง');
+    } finally {
+      setIsSavingDiscordLink(false);
+    }
+  };
+
+  const handleDeleteDiscordLink = async () => {
+    if (!party || !user || !hasUserInParty) return;
+    
+    setIsSavingDiscordLink(true);
+    try {
+      await set(ref(db, `parties/${party.id}/discordLink`), null);
+      setPartyDiscordLink('');
+      toast.success('ลบ Discord link สำเร็จ');
+    } catch (error) {
+      console.error('Error deleting Discord link:', error);
+      toast.error('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง');
+    } finally {
+      setIsSavingDiscordLink(false);
     }
   };
 
@@ -1147,7 +1248,7 @@ ${typeof window !== 'undefined' ? window.location.href : ''}`;
                   </svg>
                 </div>
                 <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent font-bold">
-                  Link Discord / Party in game / Description
+                  Description
                 </span>
               </div>
               {hasUserInParty && (
@@ -1159,14 +1260,26 @@ ${typeof window !== 'undefined' ? window.location.href : ''}`;
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <textarea
-                className="w-full min-h-[100px] rounded-lg border border-gray-200 bg-white/50 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
-                placeholder="เพิ่ม Link Discord, Party in game หรือ Description..."
-                value={partyMessage}
-                onChange={(e) => setPartyMessage(e.target.value)}
-                maxLength={300}
-                disabled={!hasUserInParty}
-              />
+              <div className="relative">
+                <textarea
+                  className="w-full min-h-[100px] rounded-lg border border-gray-200 bg-white/50 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  placeholder="รายละเอียด.. ชื่อปาร์ตี้ในเกม.. เวลานัด...."
+                  value={partyMessage}
+                  onChange={(e) => setPartyMessage(e.target.value)}
+                  maxLength={300}
+                  disabled={!hasUserInParty}
+                />
+                {hasUserInParty && (
+                  <Button
+                    onClick={() => setIsDiscordModalOpen(true)}
+                    variant="outline"
+                    className="absolute right-2 top-2 bg-white/50 border-gray-200 hover:bg-white hover:border-violet-500"
+                    title="แก้ไข Discord Link"
+                  >
+                    <Pencil className="w-4 h-4 text-indigo-500" />
+                  </Button>
+                )}
+              </div>
               <div className="flex justify-between items-center">
                 <span className="text-xs text-gray-500">
                   {partyMessage.length}/300 อักษร
@@ -1196,6 +1309,122 @@ ${typeof window !== 'undefined' ? window.location.href : ''}`;
           </CardContent>
         </Card>
       </div>
+
+      {/* Discord Link Section */}
+      {partyDiscordLink && (
+        <div className="mt-4">
+          <Card className="bg-[#36393f] border-none shadow-lg">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full bg-[#5865f2] flex items-center justify-center">
+                    <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515a.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25a.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03a.078.078 0 0 0 .084-.028a14.09 14.09 0 0 0 1.226-1.994a.076.076 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128a10.2 10.2 0 0 0 .372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127a12.299 12.299 0 0 1-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.03a.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.956-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.955-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.946 2.418-2.157 2.418z"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-white font-semibold">Discord Server</h3>
+                    <p className="text-gray-400 text-sm">เข้าร่วมเซิร์ฟเวอร์ Discord ของปาร์ตี้</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  {hasUserInParty && (
+                    <Button
+                      variant="outline"
+                      onClick={handleDeleteDiscordLink}
+                      disabled={isSavingDiscordLink}
+                      className="bg-red-500/10 border-red-500/20 text-red-500 hover:bg-red-500/20"
+                    >
+                      {isSavingDiscordLink ? (
+                        <div className="flex items-center">
+                          <motion.div
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                            className="w-4 h-4 border-2 border-red-500 border-t-transparent rounded-full mr-2"
+                          />
+                          กำลังลบ...
+                        </div>
+                      ) : (
+                        "ลบลิงก์"
+                      )}
+                    </Button>
+                  )}
+                  <Button
+                    onClick={() => window.open(partyDiscordLink, '_blank')}
+                    className="bg-[#5865f2] hover:bg-[#4752c4] text-white font-medium px-6"
+                  >
+                    เข้าร่วม
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Discord Link Modal */}
+      <Dialog open={isDiscordModalOpen} onOpenChange={setIsDiscordModalOpen}>
+        <DialogContent className="sm:max-w-[425px] bg-[#36393f] border-none">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold text-white">
+              Discord Link
+            </DialogTitle>
+            <DialogDescription className="text-gray-400">
+              เพิ่ม Discord invite link สำหรับปาร์ตี้นี้ (เฉพาะสมาชิกในปาร์ตี้เท่านั้นที่สามารถแก้ไขได้)
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="discord-link" className="text-gray-300">Discord Invite Code</Label>
+              <Input
+                id="discord-link"
+                value={discordLink}
+                onChange={(e) => setDiscordLink(e.target.value)}
+                placeholder="กรอก Discord invite code"
+                className="flex-1 bg-[#40444b] border-[#202225] text-white placeholder:text-gray-400 focus:border-[#5865f2]"
+              />
+              <p className="text-xs text-gray-400">ตัวอย่าง: xxxxxxxx, https://discord.gg/xxxxxxxx</p>
+            </div>
+          </div>
+          <DialogFooter className="flex gap-2">
+            {partyDiscordLink && (
+              <Button 
+                variant="outline" 
+                onClick={handleDeleteDiscordLink}
+                disabled={isSavingDiscordLink}
+                className="bg-red-500/10 border-red-500/20 text-red-500 hover:bg-red-500/20"
+              >
+                ลบลิงก์
+              </Button>
+            )}
+            <Button 
+              variant="outline" 
+              onClick={() => setIsDiscordModalOpen(false)}
+              className="bg-[#40444b] border-[#202225] text-white hover:bg-[#4f545c]"
+            >
+              ยกเลิก
+            </Button>
+            <Button 
+              onClick={handleSaveDiscordLink}
+              disabled={isSavingDiscordLink || !discordLink.trim()}
+              className="bg-[#5865f2] hover:bg-[#4752c4] text-white"
+            >
+              {isSavingDiscordLink ? (
+                <div className="flex items-center">
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                    className="w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"
+                  />
+                  กำลังบันทึก...
+                </div>
+              ) : (
+                "บันทึก"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 } 

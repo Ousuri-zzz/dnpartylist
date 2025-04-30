@@ -13,7 +13,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { CLASS_TO_ROLE, getClassColors } from '@/config/theme'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { checkAndResetChecklist } from '@/lib/checklist'
 import { DiscordDropdown } from '@/components/DiscordDropdown'
 import { nanoid } from 'nanoid'
@@ -222,8 +222,10 @@ const classIcons = {
 };
 
 export default function MyPage() {
-  const { user, loading } = useAuth()
+  const { user, loading: authLoading, discordName } = useAuth()
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const redirect = searchParams.get('redirect')
   const [characters, setCharacters] = useState<Character[]>([])
   const [newCharacterName, setNewCharacterName] = useState('')
   const [newCharacterClass, setNewCharacterClass] = useState<CharacterClass>('Sword Master')
@@ -235,29 +237,8 @@ export default function MyPage() {
   const [editingCharacter, setEditingCharacter] = useState<EditableCharacter | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const defaultChecklist = {
-    daily: {
-      dailyQuest: false,
-      ftg: false
-    },
-    weekly: {
-      minotaur: 0,
-      cerberus: 0,
-      cerberusHell: 0,
-      cerberusChallenge: 0,
-      manticore: 0,
-      manticoreHell: 0,
-      apocalypse: 0,
-      apocalypseHell: 0,
-      seaDragon: 0,
-      themePark: 0,
-      themeHell: 0,
-      chaosRiftKamala: 0,
-      chaosRiftBairra: 0,
-      banquetHall: 0,
-      jealousAlbeuteur: 0
-    }
-  };
+  const [isDiscordModalOpen, setIsDiscordModalOpen] = useState(false);
+  const [hasCheckedUserData, setHasCheckedUserData] = useState(false);
   const [newCharacter, setNewCharacter] = useState<EditableCharacter>({
     id: '',
     name: '',
@@ -271,10 +252,10 @@ export default function MyPage() {
   const [newCharacterLevel, setNewCharacterLevel] = useState('');
 
   useEffect(() => {
-    if (!user && !loading) {
+    if (!user && !authLoading) {
       router.push('/login');
     }
-  }, [user, loading, router]);
+  }, [user, authLoading, router]);
 
   useEffect(() => {
     if (!user) return;
@@ -356,6 +337,60 @@ export default function MyPage() {
     if (!user) return;
     checkAndResetChecklist(user.uid);
   }, [user]);
+
+  // Add new useEffect to check user data after login
+  useEffect(() => {
+    if (!user || authLoading || hasCheckedUserData) return;
+
+    const checkUserData = async () => {
+      try {
+        // Check Discord name
+        const metaRef = ref(database, `users/${user.uid}/meta`);
+        const metaSnapshot = await get(metaRef);
+        const hasDiscord = metaSnapshot.exists() && metaSnapshot.val().discord;
+
+        // Check characters
+        const charactersRef = ref(database, `users/${user.uid}/characters`);
+        const charactersSnapshot = await get(charactersRef);
+        const hasCharacters = charactersSnapshot.exists() && Object.keys(charactersSnapshot.val()).length > 0;
+
+        // Open appropriate modals based on conditions
+        if (!hasDiscord) {
+          setIsDiscordModalOpen(true);
+        } else if (!hasCharacters) {
+          setIsAddModalOpen(true);
+        }
+
+        setHasCheckedUserData(true);
+      } catch (error) {
+        console.error('Error checking user data:', error);
+      }
+    };
+
+    checkUserData();
+  }, [user, authLoading, hasCheckedUserData]);
+
+  // Add effect to handle Discord modal close
+  useEffect(() => {
+    if (!isDiscordModalOpen && !hasCheckedUserData && user) {
+      // When Discord modal is closed, check if we need to open character modal
+      const checkCharacters = async () => {
+        try {
+          const charactersRef = ref(database, `users/${user.uid}/characters`);
+          const charactersSnapshot = await get(charactersRef);
+          const hasCharacters = charactersSnapshot.exists() && Object.keys(charactersSnapshot.val()).length > 0;
+
+          if (!hasCharacters) {
+            setIsAddModalOpen(true);
+          }
+        } catch (error) {
+          console.error('Error checking characters:', error);
+        }
+      };
+
+      checkCharacters();
+    }
+  }, [isDiscordModalOpen, hasCheckedUserData, user]);
 
   const handleAddCharacter = async (character: Character) => {
     if (!user) {
@@ -623,9 +658,19 @@ export default function MyPage() {
       checklist: DEFAULT_CHECKLIST
     };
 
-    await handleAddCharacter(newCharacterData);
-    setIsAddModalOpen(false);
-    setNewCharacter(defaultEditableCharacter);
+    try {
+      await handleAddCharacter(newCharacterData);
+      setIsAddModalOpen(false);
+      setNewCharacter(defaultEditableCharacter);
+
+      // Check for redirect after successful character addition
+      if (redirect) {
+        router.push(redirect);
+      }
+    } catch (error) {
+      console.error('Error adding character:', error);
+      toast.error('เกิดข้อผิดพลาดในการเพิ่มตัวละคร');
+    }
   };
 
   const handleUpdateCharacter = async (characterId: string, updates: Partial<EditableCharacter>) => {
@@ -905,7 +950,7 @@ export default function MyPage() {
     };
   };
 
-  if (loading || !user) {
+  if (authLoading || !user) {
     return <div>กำลังโหลด...</div>;
   }
 
