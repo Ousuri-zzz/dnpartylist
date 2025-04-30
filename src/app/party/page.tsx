@@ -21,7 +21,7 @@ export default function PartyPage() {
   const router = useRouter();
   const { parties, loading: partiesLoading } = useParties();
   const { characters: userCharacters, loading: charactersLoading } = useCharacters();
-  const { users, loading: usersLoading } = useUsers();
+  const { users, isLoading: usersLoading } = useUsers();
   const { user } = useAuth();
   const [selectedDiscord, setSelectedDiscord] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
