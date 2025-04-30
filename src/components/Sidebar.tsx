@@ -10,6 +10,7 @@ import { CLASS_TO_ROLE, getClassColors } from '@/config/theme';
 import { CharacterChecklist } from './CharacterChecklist';
 import { useUsers } from '@/hooks/useUsers';
 import { Character } from '@/types/character';
+import { Users } from '@/hooks/useUsers';
 
 // ฟังก์ชันสำหรับแปลงตัวเลขเป็นรูปแบบย่อ (K, M)
 function formatNumber(num: number): string {
@@ -35,8 +36,11 @@ function getClassColor(characterClass: string) {
   return CLASS_GRADIENTS[role] || CLASS_GRADIENTS.Default;
 }
 
-export function Sidebar() {
-  const { users, isLoading } = useUsers();
+interface SidebarProps {
+  users: Users;
+}
+
+export function Sidebar({ users }: SidebarProps) {
   const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
@@ -99,23 +103,6 @@ export function Sidebar() {
       return nameA.localeCompare(nameB, 'th', {sensitivity: 'base'});
     });
   };
-
-  if (isLoading) {
-    return (
-      <aside className="w-64 h-screen bg-white border-r border-gray-200">
-        <div className="p-4">
-          <div className="flex items-center gap-2 text-gray-500">
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-              className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full"
-            />
-            <p>กำลังโหลดข้อมูล...</p>
-          </div>
-        </div>
-      </aside>
-    );
-  }
 
   return (
     <>

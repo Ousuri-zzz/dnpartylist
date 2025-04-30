@@ -5,7 +5,7 @@ import { getDatabase, ref, onValue, off, update } from 'firebase/database';
 import { Character } from '../types/character';
 import { User } from '../types/user';
 
-interface Users {
+export interface Users {
   [key: string]: User;
 }
 
