@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { UserWithCharacters } from '../hooks/useUsers';
+import { UserWithCharacters } from '../types/user';
 import { CharacterMainClass } from '../types/character';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
 import { CharacterCard } from './CharacterCard';

@@ -10,4 +10,8 @@ export interface User {
     discord?: string;
   };
   discordName?: string;
+}
+
+export interface UserWithCharacters extends User {
+  characters: { [key: string]: Character };
 } 
