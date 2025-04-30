@@ -31,7 +31,8 @@ export function UsersList() {
     );
   }
 
-  if (!users.length) {
+  const usersArray = Object.values(users);
+  if (usersArray.length === 0) {
     return (
       <div className="p-4 text-gray-500">
         <p>ไม่พบข้อมูลผู้เล่น</p>
@@ -45,7 +46,7 @@ export function UsersList() {
       animate={{ opacity: 1 }}
       className="space-y-2 p-4"
     >
-      {users.map((user) => (
+      {usersArray.map((user) => (
         <motion.div
           key={user.uid}
           initial={{ opacity: 0, y: 20 }}
