@@ -8,6 +8,8 @@ export interface User {
   characters?: { [key: string]: Character };
   meta?: {
     discord?: string;
+    lastResetDaily?: number;
+    lastResetWeekly?: number;
   };
   discordName?: string;
 }
