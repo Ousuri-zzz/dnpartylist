@@ -136,6 +136,32 @@ export default function RankingPage() {
     // Filter by job
     if (selectedJob !== 'all') {
       filtered = filtered.filter(char => char.class === selectedJob);
+      
+      // ถ้าเลือกอาชีพเฉพาะ ให้เรียงลำดับใหม่เฉพาะอาชีพนั้น
+      const jobCharacters = filtered;
+      jobCharacters.sort((a, b) => {
+        let aValue: number;
+        let bValue: number;
+
+        if (selectedStat === 'score') {
+          aValue = a.score;
+          bValue = b.score;
+        } else if (selectedStat === 'def') {
+          aValue = (a.stats.pdef + a.stats.mdef) / 2;
+          bValue = (b.stats.pdef + b.stats.mdef) / 2;
+        } else {
+          aValue = a.stats[selectedStat];
+          bValue = b.stats[selectedStat];
+        }
+
+        return sortDirection === 'desc' ? bValue - aValue : aValue - bValue;
+      });
+
+      // กำหนดอันดับใหม่เฉพาะอาชีพนั้น
+      filtered = jobCharacters.map((char, index) => ({
+        ...char,
+        rank: index + 1
+      }));
     }
 
     // Filter by search query
