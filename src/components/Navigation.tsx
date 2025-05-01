@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { cn } from '../lib/utils';
 import { DiscordDropdown } from './DiscordDropdown';
 import { motion } from 'framer-motion';
-import { Home, Users } from 'lucide-react';
+import { Home, Users, BarChart2 } from 'lucide-react';
 
 export function Navigation() {
   const pathname = usePathname();
@@ -17,7 +17,7 @@ export function Navigation() {
         <div className="flex items-center h-14">
           {showNavLinks ? (
             <>
-              <div className="flex items-center gap-3 w-1/3">
+              <div className="flex items-center gap-0 w-1/3">
                 <Link
                   href="/mypage"
                   className={cn(
@@ -80,6 +80,39 @@ export function Navigation() {
                     <motion.div
                       layoutId="activeNav"
                       className="absolute inset-0 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg -z-10"
+                      transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                    />
+                  )}
+                </Link>
+                <Link
+                  href="/ranking"
+                  className={cn(
+                    "relative group px-3 py-1.5 rounded-lg transition-all duration-300",
+                    pathname === "/ranking" 
+                      ? "bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-md shadow-blue-500/20" 
+                      : "hover:bg-blue-50/50"
+                  )}
+                >
+                  <motion.div
+                    className="flex items-center gap-1.5"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <BarChart2 className={cn(
+                      "w-3.5 h-3.5",
+                      pathname === "/ranking" ? "text-white" : "text-blue-500"
+                    )} />
+                    <span className={cn(
+                      "text-sm font-medium",
+                      pathname === "/ranking" ? "text-white" : "text-gray-700"
+                    )}>
+                      Ranking
+                    </span>
+                  </motion.div>
+                  {pathname === "/ranking" && (
+                    <motion.div
+                      layoutId="activeNav"
+                      className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-lg -z-10"
                       transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                     />
                   )}

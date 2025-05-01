@@ -15,7 +15,7 @@ const NavigationWrapper = dynamic(() => import('./Navigation').then(mod => ({ de
 export function MainLayout({ children }: { children: React.ReactNode }) {
   const { users } = useUsers();
   const pathname = usePathname();
-  const showSidebar = pathname !== '/login';
+  const showSidebar = pathname !== '/login' && pathname !== '/ranking';
   useDiscordCheck();
 
   return (
@@ -25,7 +25,10 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
         <div className="container mx-auto px-4">
           <div className="flex gap-6 pt-4">
             {/* Main Content */}
-            <div className={cn("flex-1", !showSidebar && "max-w-3xl mx-auto")}>
+            <div className={cn(
+              "flex-1",
+              pathname === '/login' && "max-w-3xl mx-auto"
+            )}>
               {children}
             </div>
             
