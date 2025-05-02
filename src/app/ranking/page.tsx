@@ -12,6 +12,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/ca
 import { Input } from '../../components/ui/input';
 import { Sword, Heart, Shield, Target, Flame, Zap, TrendingUp } from 'lucide-react';
 import { CLASS_TO_ROLE, getClassColors } from '../../config/theme';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../../components/ui/dialog';
+import { CharacterStats } from '../../components/CharacterStats';
+import { CharacterChecklist } from '../../components/CharacterChecklist';
 
 const ALLOWED_JOBS = [
   "Sword Master",
@@ -64,6 +67,7 @@ export default function RankingPage() {
   const [selectedStat, setSelectedStat] = useState<StatType>('score');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+  const [openCharacterId, setOpenCharacterId] = useState<string | null>(null);
 
   const handleSort = (stat: StatType) => {
     if (selectedStat === stat) {
@@ -175,6 +179,8 @@ export default function RankingPage() {
 
     return filtered;
   }, [characters, selectedJob, selectedStat, searchQuery, users, sortDirection]);
+
+  const openCharacter = rankedCharacters.find(c => c.id === openCharacterId) || null;
 
   if (charactersLoading) {
     return (
@@ -372,7 +378,8 @@ export default function RankingPage() {
                         key={character.id}
                         className={cn(
                           "group transition-all duration-200",
-                          "hover:bg-gradient-to-r hover:from-pink-100/80 hover:to-pink-50/80 hover:shadow-sm",
+                          "hover:bg-gradient-to-r hover:from-pink-100/80 hover:to-pink-50/80 hover:shadow-md hover:scale-[1.01]",
+                          "hover:border-l-4 hover:border-pink-300/50",
                           user?.uid === character.userId && "bg-gradient-to-r from-blue-100/80 to-blue-50/80"
                         )}
                       >
@@ -380,8 +387,11 @@ export default function RankingPage() {
                         <td className="px-4 py-3 text-sm">
                           <span className="text-black font-medium group-hover:text-gray-800">{character.discordName}</span>
                         </td>
-                        <td className="px-4 py-3 text-sm">
-                          <span className="text-gray-600 font-medium group-hover:text-gray-800">{character.name}</span>
+                        <td 
+                          className="px-4 py-3 text-sm cursor-pointer"
+                          onClick={() => setOpenCharacterId(character.id)}
+                        >
+                          <span className="text-gray-600 font-medium group-hover:text-gray-800 underline underline-offset-2">{character.name}</span>
                         </td>
                         <td className="px-4 py-3 text-sm">
                           <span className={cn(
@@ -415,6 +425,52 @@ export default function RankingPage() {
           </Card>
         </motion.div>
       </div>
+      {/* Popup แสดง stat + checklist */}
+      <Dialog open={!!openCharacterId} onOpenChange={open => !open && setOpenCharacterId(null)}>
+        <DialogContent className="max-w-xl w-[85vw] max-h-[90vh] overflow-y-auto">
+          {openCharacter && (
+            <div className="p-3">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2 mb-1">
+                  <span className="text-xl font-bold bg-gradient-to-r from-pink-600 to-blue-600 bg-clip-text text-transparent">{openCharacter.name}</span>
+                  <span className={cn(
+                    "text-sm font-semibold px-2 py-0.5 rounded-full",
+                    getClassColors(CLASS_TO_ROLE[openCharacter.class]).text,
+                    getClassColors(CLASS_TO_ROLE[openCharacter.class]).bg
+                  )}>
+                    {openCharacter.class}
+                  </span>
+                </DialogTitle>
+                <DialogDescription className="text-xs">
+                  <span className="text-gray-600">Discord: </span>
+                  <span className="font-medium text-gray-800">{openCharacter.discordName}</span>
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-3 mt-3">
+                <div className="bg-white/50 backdrop-blur-sm rounded-lg p-3 shadow-sm">
+                  <h4 className="text-sm font-semibold mb-2 flex items-center gap-1.5 text-gray-700">
+                    <Sword className="w-3.5 h-3.5 text-pink-500" />
+                    สเตตัสตัวละคร
+                  </h4>
+                  <CharacterStats stats={openCharacter.stats} />
+                </div>
+                <div className="bg-white/50 backdrop-blur-sm rounded-lg p-3 shadow-sm">
+                  <h4 className="text-sm font-semibold mb-2 flex items-center gap-1.5 text-gray-700">
+                    <TrendingUp className="w-3.5 h-3.5 text-green-500" />
+                    เช็คลิสต์ประจำวัน/สัปดาห์
+                  </h4>
+                  <CharacterChecklist 
+                    checklist={openCharacter.checklist} 
+                    onChange={() => {}} 
+                    accentColor={getClassColors(CLASS_TO_ROLE[openCharacter.class]).text} 
+                    readOnly 
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 } 

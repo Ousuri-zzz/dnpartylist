@@ -1,6 +1,7 @@
 import { initializeApp, getApps } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getDatabase } from 'firebase/database';
+import { getFirestore } from 'firebase/firestore';
 
 declare global {
   namespace NodeJS {
@@ -42,6 +43,7 @@ export const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getA
 // Initialize Realtime Database
 const database = getDatabase(app);
 const authentication = getAuth(app);
+const firestore = getFirestore(app);
 
 // Log configuration for debugging (hiding sensitive data)
 console.log('Firebase initialized with config:', {
@@ -64,4 +66,4 @@ console.log('Database URL check:');
 console.log('Expected URL format: https://[project-id]-default-rtdb.[region].firebasedatabase.app');
 console.log('Actual URL:', process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL);
 
-export { database as db, authentication as auth }; 
+export { database as db, authentication as auth, firestore }; 

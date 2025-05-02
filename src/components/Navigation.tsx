@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { cn } from '../lib/utils';
 import { DiscordDropdown } from './DiscordDropdown';
 import { motion } from 'framer-motion';
-import { Home, Users, BarChart2 } from 'lucide-react';
+import { Home, Users, BarChart2, Calendar } from 'lucide-react';
 
 export function Navigation() {
   const pathname = usePathname();
@@ -80,6 +80,39 @@ export function Navigation() {
                     <motion.div
                       layoutId="activeNav"
                       className="absolute inset-0 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg -z-10"
+                      transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                    />
+                  )}
+                </Link>
+                <Link
+                  href="/events"
+                  className={cn(
+                    "relative group px-3 py-1.5 rounded-lg transition-all duration-300",
+                    pathname === "/events" 
+                      ? "bg-gradient-to-r from-indigo-500 to-violet-500 text-white shadow-md shadow-indigo-500/20" 
+                      : "hover:bg-indigo-50/50"
+                  )}
+                >
+                  <motion.div
+                    className="flex items-center gap-1.5"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <Calendar className={cn(
+                      "w-3.5 h-3.5",
+                      pathname === "/events" ? "text-white" : "text-indigo-500"
+                    )} />
+                    <span className={cn(
+                      "text-sm font-medium",
+                      pathname === "/events" ? "text-white" : "text-gray-700"
+                    )}>
+                      Event
+                    </span>
+                  </motion.div>
+                  {pathname === "/events" && (
+                    <motion.div
+                      layoutId="activeNav"
+                      className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-violet-500 rounded-lg -z-10"
                       transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                     />
                   )}

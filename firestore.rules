@@ -30,9 +30,29 @@ service cloud.firestore {
         request.resource.data.userId == request.auth.uid;
     }
     
-    // Deny access to all other documents
+    // Allow read access to all documents
     match /{document=**} {
-      allow read, write: if false;
+      allow read: if true;
+    }
+
+    // Allow create, update, delete access to events
+    match /events/{eventId} {
+      allow read: if true;
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth != null && request.auth.uid == resource.data.ownerUid;
+    }
+
+    // Allow read access to event participants
+    match /events/{eventId}/participants/{userId} {
+      allow read: if true;
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow delete: if request.auth != null && request.auth.uid == userId;
+      allow update: if request.auth != null && (
+        // Allow if event owner is updating participant
+        (request.auth.uid == get(/databases/$(database)/documents/events/$(eventId)).data.ownerUid) ||
+        // Allow if user is updating their own data
+        (request.auth.uid == userId)
+      );
     }
   }
 } 

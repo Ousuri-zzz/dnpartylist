@@ -22,8 +22,8 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
     <ErrorBoundary fallback={<div>Something went wrong</div>}>
       <div className="min-h-screen bg-gradient-to-br from-violet-100 via-pink-100 to-sky-100">
         <NavigationWrapper />
-        <div className="container mx-auto px-4">
-          <div className="flex gap-6 pt-4">
+        <div className="container mx-auto px-0 max-w-full">
+          <div className="flex gap-0 pt-4">
             {/* Main Content */}
             <div className={cn(
               "flex-1",
@@ -31,17 +31,6 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
             )}>
               {children}
             </div>
-            
-            {/* Sidebar */}
-            {showSidebar && (
-              <div className="w-72 hidden lg:block">
-                <div className="sticky top-16">
-                  <div className="bg-white/30 backdrop-blur-md border border-pink-200/50 shadow-lg p-4 rounded-xl">
-                    <Sidebar users={users} />
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
         </div>
         

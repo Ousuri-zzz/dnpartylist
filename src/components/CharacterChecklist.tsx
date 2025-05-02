@@ -172,8 +172,8 @@ export function CharacterChecklist({ checklist, onChange, accentColor = "text-bl
       {/* Daily Tasks Section */}
       <div>
         <div className="flex justify-between items-center mb-1">
-          <h3 className="text-base font-semibold">Daily</h3>
-          <span className="text-sm font-medium">{dailyProgress}%</span>
+          <h3 className="text-base font-semibold text-gray-700">Daily</h3>
+          <span className="text-sm font-medium text-gray-600">{dailyProgress}%</span>
         </div>
         <Progress.Root className="h-2 w-full overflow-hidden rounded-full bg-muted/20 mb-2">
           <Progress.Indicator 
@@ -198,7 +198,7 @@ export function CharacterChecklist({ checklist, onChange, accentColor = "text-bl
             ) : (
               <Circle className="h-4 w-4 text-gray-400" />
             )}
-            <span className="text-sm">Daily Quest</span>
+            <span className="text-sm text-gray-700">Daily Quest</span>
           </Button>
 
           <Button
@@ -217,7 +217,7 @@ export function CharacterChecklist({ checklist, onChange, accentColor = "text-bl
             ) : (
               <Circle className="h-4 w-4 text-gray-400" />
             )}
-            <span className="text-sm">FTG 700</span>
+            <span className="text-sm text-gray-700">FTG 700</span>
           </Button>
         </div>
       </div>
@@ -225,8 +225,8 @@ export function CharacterChecklist({ checklist, onChange, accentColor = "text-bl
       {/* Weekly Tasks Section */}
       <div>
         <div className="flex justify-between items-center mb-1">
-          <h3 className="text-base font-semibold">Weekly</h3>
-          <span className="text-sm font-medium">{weeklyProgress}%</span>
+          <h3 className="text-base font-semibold text-gray-700">Weekly</h3>
+          <span className="text-sm font-medium text-gray-600">{weeklyProgress}%</span>
         </div>
         <Progress.Root className="h-2 w-full overflow-hidden rounded-full bg-muted/20 mb-2">
           <Progress.Indicator 
@@ -236,7 +236,7 @@ export function CharacterChecklist({ checklist, onChange, accentColor = "text-bl
         </Progress.Root>
         
         {/* Tabs */}
-        <div className={cn("flex mb-3 rounded-lg overflow-hidden p-1", accentBgColor)}>
+        <div className="flex gap-2 mb-3">
           <button
             className={cn(
               "flex-1 py-1.5 px-3 text-sm font-medium rounded-md transition-all duration-200",
@@ -262,7 +262,7 @@ export function CharacterChecklist({ checklist, onChange, accentColor = "text-bl
         </div>
         
         {/* Tab Content */}
-        <div className="grid grid-cols-1 gap-1.5">
+        <div className="space-y-2">
           {(activeTab === 1 ? TAB1_ITEMS : TAB2_ITEMS).map((key) => {
             const value = checklist.weekly[key as keyof CharacterChecklistType['weekly']];
             const maxValue = WEEKLY_MAX_VALUES[key as keyof typeof WEEKLY_MAX_VALUES] || 0;
@@ -271,7 +271,10 @@ export function CharacterChecklist({ checklist, onChange, accentColor = "text-bl
 
             return (
               <div key={key} className="flex items-center gap-2 bg-muted/5 rounded-lg p-1.5 hover:bg-muted/10 transition-colors">
-                <span className={`text-sm flex-1 ${isCompleted ? 'opacity-50 line-through' : ''}`}>
+                <span className={cn(
+                  "text-sm flex-1",
+                  isCompleted ? "text-gray-400 line-through" : "text-gray-700"
+                )}>
                   {displayName}
                 </span>
                 <div className="flex items-center gap-1">
