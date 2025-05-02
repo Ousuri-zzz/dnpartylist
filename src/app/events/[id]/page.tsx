@@ -437,10 +437,9 @@ export default function EventDetailPage() {
                     {isOwner && !event.isEnded && !participantDoc?.rewardGiven && (
                       <button
                         onClick={() => {
-                          const reward = prompt('กรอกชื่อรางวัล (เช่น Top DPS, MVP):');
-                          if (reward) {
-                            handleGiveReward(u.uid, reward);
-                          }
+                          setSelectedParticipant(u.uid);
+                          setRewardName("");
+                          setRewardModal(true);
                         }}
                         className="ml-auto flex items-center gap-1 px-3 py-1 rounded-full border border-yellow-200 bg-yellow-50 text-yellow-700 text-sm font-medium shadow hover:bg-yellow-100 transition-colors duration-150"
                       >
@@ -452,10 +451,9 @@ export default function EventDetailPage() {
                       <span 
                         onClick={() => {
                           if (isOwner && !event.isEnded) {
-                            const newReward = prompt('แก้ไขชื่อรางวัล:', participantDoc.rewardNote);
-                            if (newReward && newReward !== participantDoc.rewardNote) {
-                              handleGiveReward(u.uid, newReward);
-                            }
+                            setSelectedParticipant(u.uid);
+                            setRewardName(participantDoc.rewardNote || "");
+                            setRewardModal(true);
                           }
                         }}
                         className={`ml-auto text-sm ${isOwner && !event.isEnded ? 'cursor-pointer hover:text-green-700' : 'text-green-600'}`}
@@ -523,23 +521,20 @@ export default function EventDetailPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">เลือกผู้ได้รับรางวัล</label>
-                  <div className="max-h-60 overflow-y-auto space-y-2">
-                    {participantUsers.map((u) => (
-                      <label key={u.uid} className="flex items-center gap-2 p-2 hover:bg-yellow-50 rounded-lg cursor-pointer">
-                        <input
-                          type="radio"
-                          name="participant"
-                          checked={selectedParticipant === u.uid}
-                          onChange={() => setSelectedParticipant(u.uid)}
-                          className="rounded-full border-yellow-300 text-yellow-600 focus:ring-yellow-500"
-                        />
-                        <span className="text-gray-800">{u.meta?.discord || 'ไม่ทราบชื่อ'}</span>
-                        {u.characters && Object.values(u.characters).length > 0 && (
-                          <span className="text-gray-500 text-sm">— ตัวละคร: {Object.values(u.characters).map((c: any) => c.name).join(', ')}</span>
-                        )}
-                      </label>
-                    ))}
+                  <label className="block text-sm font-medium text-gray-700 mb-2">ผู้ได้รับรางวัล</label>
+                  <div className="p-3 bg-yellow-50 rounded-lg flex items-center gap-2">
+                    <span className="text-gray-800 font-medium">
+                      {(() => {
+                        const u = participantUsers.find(u => u.uid === selectedParticipant);
+                        return u ? (u.meta?.discord || 'ไม่ทราบชื่อ') : '';
+                      })()}
+                    </span>
+                    {(() => {
+                      const u = participantUsers.find(u => u.uid === selectedParticipant);
+                      return u && u.characters && Object.values(u.characters).length > 0 ? (
+                        <span className="text-gray-500 text-sm">— ตัวละคร: {Object.values(u.characters).map((c: any) => c.name).join(', ')}</span>
+                      ) : null;
+                    })()}
                   </div>
                 </div>
               </div>
@@ -558,6 +553,9 @@ export default function EventDetailPage() {
                   onClick={() => {
                     if (selectedParticipant) {
                       handleGiveReward(selectedParticipant, rewardName);
+                      setRewardModal(false);
+                      setSelectedParticipant('');
+                      setRewardName('');
                     }
                   }}
                   disabled={!selectedParticipant || !rewardName}
