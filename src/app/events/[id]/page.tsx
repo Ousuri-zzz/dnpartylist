@@ -422,24 +422,26 @@ export default function EventDetailPage() {
           </Button>
         ) : (
           <>
-            <div className="flex-1">
-              <div className="flex items-center gap-2">
-                <input
-                  type="text"
-                  value={participantMessage}
-                  onChange={(e) => setParticipantMessage(e.target.value)}
-                  placeholder="พิมพ์ข้อความสั้นๆ (ไม่เกิน 30 ตัวอักษร)"
-                  maxLength={30}
-                  className="flex-1 rounded-lg border border-pink-200 p-2 text-sm focus:ring-2 focus:ring-pink-300"
-                />
-                <Button
-                  onClick={handleUpdateMessage}
-                  className="bg-pink-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-pink-600"
-                >
-                  บันทึก
-                </Button>
+            {!event.isEnded && (
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={participantMessage}
+                    onChange={(e) => setParticipantMessage(e.target.value)}
+                    placeholder="พิมพ์ข้อความสั้นๆ (ไม่เกิน 30 ตัวอักษร)"
+                    maxLength={30}
+                    className="flex-1 rounded-lg border border-pink-200 p-2 text-sm focus:ring-2 focus:ring-pink-300"
+                  />
+                  <Button
+                    onClick={handleUpdateMessage}
+                    className="bg-pink-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-pink-600"
+                  >
+                    บันทึก
+                  </Button>
+                </div>
               </div>
-            </div>
+            )}
             <Button
               variant="outline"
               className="flex items-center gap-2 border-red-400 text-red-600 hover:bg-red-50 ml-2 px-8 py-3 rounded-xl shadow text-lg"
