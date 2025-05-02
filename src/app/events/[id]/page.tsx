@@ -114,7 +114,7 @@ export default function EventDetailPage() {
   const [joined, setJoined] = useState(false);
   const [rewardGiven, setRewardGiven] = useState(false); // mock
   const [confirmModal, setConfirmModal] = useState<{ open: boolean; type: 'join' | 'leave' | null }>({ open: false, type: null });
-  const [participantUids, setParticipantUids] = useState<Array<{uid: string, rewardGiven?: boolean, rewardNote?: string}>>([]);
+  const [participantUids, setParticipantUids] = useState<Array<{uid: string, rewardGiven?: boolean, rewardNote?: string, message?: string, messageUpdatedAt?: Date}>>([]);
   const { users, isLoading: usersLoading } = useUsers();
   const [announceMsg, setAnnounceMsg] = useState('');
   const [announceSaved, setAnnounceSaved] = useState(false);
@@ -126,6 +126,7 @@ export default function EventDetailPage() {
   const [rewardModal, setRewardModal] = useState(false);
   const [selectedParticipant, setSelectedParticipant] = useState<string>('');
   const [rewardName, setRewardName] = useState('');
+  const [participantMessage, setParticipantMessage] = useState('');
 
   // ตรวจสอบสิทธิ์เจ้าของกิจกรรม (owner)
   const justCreated = searchParams.get('justCreated') === '1';
@@ -165,10 +166,17 @@ export default function EventDetailPage() {
       const list = snap.docs.map(doc => ({
         uid: doc.id,
         rewardGiven: doc.data().rewardGiven || false,
-        rewardNote: doc.data().rewardNote || ''
+        rewardNote: doc.data().rewardNote || '',
+        message: doc.data().message || '',
+        messageUpdatedAt: doc.data().messageUpdatedAt?.toDate() || null
       }));
       setParticipantUids(list);
       setJoined(!!list.find(p => p.uid === user.uid));
+      // ถ้าเป็นผู้เข้าร่วม ให้โหลดข้อความของตัวเอง
+      const currentParticipant = list.find(p => p.uid === user.uid);
+      if (currentParticipant) {
+        setParticipantMessage(currentParticipant.message || '');
+      }
     });
     return () => unsub();
   }, [params?.id, user?.uid]);
@@ -262,6 +270,17 @@ export default function EventDetailPage() {
       console.error(err);
       setToast({ show: true, message: 'เกิดข้อผิดพลาดในการมอบรางวัล' });
     }
+  };
+
+  // ฟังก์ชันอัปเดตข้อความของผู้เข้าร่วม
+  const handleUpdateMessage = async () => {
+    if (!params?.id || !user || !joined) return;
+    const partRef = doc(firestore, 'events', params.id as string, 'participants', user.uid);
+    await updateDoc(partRef, {
+      message: participantMessage.slice(0, 30), // จำกัดความยาวไม่เกิน 30 ตัวอักษร
+      messageUpdatedAt: serverTimestamp()
+    });
+    setToast({ show: true, message: 'บันทึกข้อความเรียบร้อย!' });
   };
 
   // ซ่อน toast อัตโนมัติ
@@ -402,14 +421,34 @@ export default function EventDetailPage() {
             🙋‍♂️ เข้าร่วมกิจกรรม
           </Button>
         ) : (
-          <Button
-            variant="outline"
-            className="flex items-center gap-2 border-red-400 text-red-600 hover:bg-red-50 ml-2 px-8 py-3 rounded-xl shadow text-lg"
-            onClick={handleLeave}
-            disabled={rewardGiven || event.isEnded}
-          >
-            🚪 ออกจากกิจกรรม
-          </Button>
+          <>
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={participantMessage}
+                  onChange={(e) => setParticipantMessage(e.target.value)}
+                  placeholder="พิมพ์ข้อความสั้นๆ (ไม่เกิน 30 ตัวอักษร)"
+                  maxLength={30}
+                  className="flex-1 rounded-lg border border-pink-200 p-2 text-sm focus:ring-2 focus:ring-pink-300"
+                />
+                <Button
+                  onClick={handleUpdateMessage}
+                  className="bg-pink-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-pink-600"
+                >
+                  บันทึก
+                </Button>
+              </div>
+            </div>
+            <Button
+              variant="outline"
+              className="flex items-center gap-2 border-red-400 text-red-600 hover:bg-red-50 ml-2 px-8 py-3 rounded-xl shadow text-lg"
+              onClick={handleLeave}
+              disabled={rewardGiven || event.isEnded}
+            >
+              🚪 ออกจากกิจกรรม
+            </Button>
+          </>
         )}
         </div>
         <ConfirmModal
@@ -428,39 +467,56 @@ export default function EventDetailPage() {
               {participantUsers.map((u) => {
                 const participantDoc = participantUids.find(p => p.uid === u.uid);
                 return (
-                  <li key={u.uid} className="py-3 flex items-center gap-3 hover:bg-pink-50 rounded-lg transition">
-                    <span className="text-2xl">👤</span>
+                  <li
+                    key={u.uid}
+                    className="flex items-center gap-3 p-3 bg-white/50 rounded-lg shadow-sm hover:shadow-md transition-all"
+                  >
                     <span className="font-medium text-gray-800">{u.meta?.discord || 'ไม่ทราบชื่อ'}</span>
-                    {u.characters && Object.values(u.characters).length > 0 && (
-                      <span className="text-gray-500 text-sm">— ตัวละคร: {Object.values(u.characters).map((c: any) => c.name).join(', ')}</span>
-                    )}
-                    {isOwner && !event.isEnded && !participantDoc?.rewardGiven && (
-                      <button
-                        onClick={() => {
-                          setSelectedParticipant(u.uid);
-                          setRewardName("");
-                          setRewardModal(true);
-                        }}
-                        className="ml-auto flex items-center gap-1 px-3 py-1 rounded-full border border-yellow-200 bg-yellow-50 text-yellow-700 text-sm font-medium shadow hover:bg-yellow-100 transition-colors duration-150"
-                      >
-                        <Gift className="w-3 h-3" />
-                        มอบรางวัล
-                      </button>
-                    )}
-                    {participantDoc?.rewardGiven && (
-                      <span 
-                        onClick={() => {
-                          if (isOwner && !event.isEnded) {
-                            setSelectedParticipant(u.uid);
-                            setRewardName(participantDoc.rewardNote || "");
-                            setRewardModal(true);
-                          }
-                        }}
-                        className={`ml-auto text-sm ${isOwner && !event.isEnded ? 'cursor-pointer hover:text-green-700' : 'text-green-600'}`}
-                      >
-                        ✓ {participantDoc.rewardNote}
+                    {participantDoc?.message && (
+                      <span className="text-xs text-gray-500">
+                        {participantDoc.messageUpdatedAt && (
+                          <span className="text-gray-400">
+                            [{participantDoc.messageUpdatedAt.toLocaleString('th-TH', { 
+                              year: '2-digit',
+                              month: '2-digit',
+                              day: '2-digit',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            }).replace(' ', ' ')}น.]
+                          </span>
+                        )}
+                        — {participantDoc.message}
                       </span>
                     )}
+                    <div className="ml-auto flex items-center gap-2">
+                      {isOwner && !event.isEnded && !participantDoc?.rewardGiven && (
+                        <button
+                          onClick={() => {
+                            setSelectedParticipant(u.uid);
+                            setRewardName("");
+                            setRewardModal(true);
+                          }}
+                          className="flex items-center gap-1 px-3 py-1 rounded-full border border-yellow-200 bg-yellow-50 text-yellow-700 text-sm font-medium shadow hover:bg-yellow-100 transition-colors duration-150"
+                        >
+                          <Gift className="w-3 h-3" />
+                          มอบรางวัล
+                        </button>
+                      )}
+                      {participantDoc?.rewardGiven && (
+                        <span 
+                          onClick={() => {
+                            if (isOwner && !event.isEnded) {
+                              setSelectedParticipant(u.uid);
+                              setRewardName(participantDoc.rewardNote || "");
+                              setRewardModal(true);
+                            }
+                          }}
+                          className={`text-sm ${isOwner && !event.isEnded ? 'cursor-pointer hover:text-green-700' : 'text-green-600'}`}
+                        >
+                          ✓ {participantDoc.rewardNote}
+                        </span>
+                      )}
+                    </div>
                   </li>
                 );
               })}
