@@ -228,9 +228,7 @@ export default function EventDetailPage() {
       rewardInfo,
     });
     setIsEditModalOpen(false);
-    // reload event
-    const docSnap = await getDoc(doc(firestore, 'events', event.id));
-    if (docSnap.exists()) setEvent({ id: docSnap.id, ...docSnap.data() });
+    router.push('/events');
   };
 
   // ฟังก์ชันลบกิจกรรม

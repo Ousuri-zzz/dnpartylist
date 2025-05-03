@@ -3,7 +3,7 @@ import { Button } from './ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
-import { ref, update } from 'firebase/database';
+import { ref, update, get } from 'firebase/database';
 import { db } from '@/lib/firebase';
 import { useAuth } from '@/hooks/useAuth';
 import { resetChecklist } from '@/lib/checklist';
@@ -54,6 +54,11 @@ export function DiscordDropdown() {
       
       await updateDiscordName(newDiscordName.trim());
       
+      // Check if user has any characters
+      const charactersRef = ref(db, `users/${user.uid}/characters`);
+      const charactersSnapshot = await get(charactersRef);
+      const hasCharacters = charactersSnapshot.exists() && Object.keys(charactersSnapshot.val()).length > 0;
+
       setNewDiscordName('');
       setIsSettingDiscordName(false);
       toast.success('อัปเดตชื่อ Discord เรียบร้อยแล้ว!', {
@@ -69,6 +74,12 @@ export function DiscordDropdown() {
           boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
         },
       });
+
+      // If no characters, trigger add character modal
+      if (!hasCharacters) {
+        const event = new CustomEvent('openAddCharacterModal');
+        window.dispatchEvent(event);
+      }
     } catch (error) {
       console.error('Error updating Discord name:', error);
       toast.error('ไม่สามารถอัปเดตชื่อ Discord ได้ กรุณาลองใหม่อีกครั้ง', {

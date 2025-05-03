@@ -263,49 +263,33 @@ export default function MyPage() {
     const charactersRef = ref(database, `users/${user.uid}/characters`);
     
     onValue(charactersRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
-        const characterList = Object.entries(data).map(([id, char]: [string, any]) => {
-          // Convert string stats to EditableStats first
-          const editableStats: EditableStats = {
-            str: String(char.stats?.str ?? '0'),
-            agi: String(char.stats?.agi ?? '0'),
-            int: String(char.stats?.int ?? '0'),
-            vit: String(char.stats?.vit ?? '0'),
-            spr: String(char.stats?.spr ?? '0'),
-            points: String(char.stats?.points ?? '0'),
-            atk: String(char.stats?.atk ?? '0'),
-            hp: String(char.stats?.hp ?? '0'),
-            fd: String(char.stats?.fd ?? '0'),
-            cri: String(char.stats?.cri ?? '0'),
-            ele: String(char.stats?.ele ?? '0'),
-            pdef: String(char.stats?.pdef ?? '0'),
-            mdef: String(char.stats?.mdef ?? '0')
-          };
-
-          // Then convert EditableStats to CharacterStats
-          const stats = convertToCharacterStats(editableStats);
-
-          return {
-            id,
-            name: char.name,
-            class: char.class,
-            mainClass: char.mainClass,
-            level: char.level,
-            userId: char.userId,
-            stats,
-            checklist: char.checklist || DEFAULT_CHECKLIST
-          };
+      if (snapshot.exists()) {
+        const characterList: Character[] = [];
+        snapshot.forEach((childSnapshot) => {
+          const characterData = childSnapshot.val();
+          characterList.push({
+            id: childSnapshot.key!,
+            ...characterData
+          });
         });
+
         setCharacters(characterList);
       } else {
         setCharacters([]);
       }
     });
 
-    // Cleanup subscription on unmount
+    // Add event listener for openAddCharacterModal
+    const handleOpenAddCharacterModal = () => {
+      setIsAddModalOpen(true);
+    };
+
+    window.addEventListener('openAddCharacterModal', handleOpenAddCharacterModal);
+
+    // Cleanup subscription and event listener on unmount
     return () => {
       off(charactersRef);
+      window.removeEventListener('openAddCharacterModal', handleOpenAddCharacterModal);
     };
   }, [user]);
 
@@ -369,28 +353,6 @@ export default function MyPage() {
 
     checkUserData();
   }, [user, authLoading, hasCheckedUserData]);
-
-  // Add effect to handle Discord modal close
-  useEffect(() => {
-    if (!isDiscordModalOpen && !hasCheckedUserData && user) {
-      // When Discord modal is closed, check if we need to open character modal
-      const checkCharacters = async () => {
-        try {
-          const charactersRef = ref(database, `users/${user.uid}/characters`);
-          const charactersSnapshot = await get(charactersRef);
-          const hasCharacters = charactersSnapshot.exists() && Object.keys(charactersSnapshot.val()).length > 0;
-
-          if (!hasCharacters) {
-            setIsAddModalOpen(true);
-          }
-        } catch (error) {
-          console.error('Error checking characters:', error);
-        }
-      };
-
-      checkCharacters();
-    }
-  }, [isDiscordModalOpen, hasCheckedUserData, user]);
 
   const handleAddCharacter = async (character: Character) => {
     if (!user) {

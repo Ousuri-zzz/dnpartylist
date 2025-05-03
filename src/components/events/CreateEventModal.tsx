@@ -115,7 +115,7 @@ export function CreateEventModal({ isOpen, onClose, onSubmit, defaultValues, isE
       });
 
       handleClose();
-      router.push(`/events/${eventRef.id}`);
+      router.push('/events');
     } catch (err: any) {
       setError('เกิดข้อผิดพลาดในการสร้างกิจกรรม');
       console.error(err);
