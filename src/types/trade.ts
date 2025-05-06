@@ -47,4 +47,12 @@ export interface GuildLoan {
   repaidAt?: string;
   confirmedBy?: string;
   confirmedAt?: string;
+}
+
+export interface Merchant {
+  uid: string;
+  discordId: string;
+  name: string;
+  goldAvailable: number;
+  createdAt: number;
 } 
