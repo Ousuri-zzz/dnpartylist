@@ -90,7 +90,8 @@ export function useUsers() {
                   lastResetDaily: userData.meta?.lastResetDaily,
                   lastResetWeekly: userData.meta?.lastResetWeekly
             },
-            characters
+            characters,
+            discordId: userData.meta?.discord || ''
           };
 
               // Initialize lastReset values if not present
