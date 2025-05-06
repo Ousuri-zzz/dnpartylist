@@ -8,9 +8,10 @@ import { usePathname } from 'next/navigation';
 import { cn } from '../lib/utils';
 import { useDiscordCheck } from '../hooks/useDiscordCheck';
 
-const NavigationWrapper = dynamic(() => import('./Navigation').then(mod => ({ default: mod.Navigation })), {
+const Navigation = dynamic(() => import('./Navigation'), {
   ssr: false,
-}) as unknown as typeof import('./Navigation').Navigation;
+  loading: () => <div className="h-14 bg-white/30 backdrop-blur-md border-b border-pink-200/50 shadow-sm" />
+});
 
 export function MainLayout({ children }: { children: React.ReactNode }) {
   const { users } = useUsers();
@@ -21,7 +22,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
   return (
     <ErrorBoundary fallback={<div>Something went wrong</div>}>
       <div className="min-h-screen bg-gradient-to-br from-violet-100 via-pink-100 to-sky-100">
-        <NavigationWrapper />
+        <Navigation />
         <div className="container mx-auto px-0 max-w-full">
           <div className="flex gap-0 pt-4">
             {/* Main Content */}

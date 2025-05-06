@@ -1,0 +1,823 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useAuth } from '@/hooks/useAuth';
+import { useRouter } from 'next/navigation';
+import { ref, get, remove, update, onValue, query, orderByChild, equalTo, set } from 'firebase/database';
+import { db } from '@/lib/firebase';
+import { toast } from 'sonner';
+import { Settings, UserPlus, KeyRound, X, Check, Ban, DollarSign, Clock, CheckCircle2, XCircle, Crown, ChevronDown, ChevronUp, Bell, Users, Store, Building2, Shield, AlertCircle, Search } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { GuildSettings, GuildLoan } from '@/types/trade';
+import { GuildService } from '@/lib/guildService';
+import React from 'react';
+
+interface Merchant {
+  uid: string;
+  discordName: string;
+  status: string;
+  bankAccountName: string;
+  discord: string;
+  bankName: string;
+  bankAccountNumber: string;
+}
+
+export default function GuildSettingsPage() {
+  const { user } = useAuth();
+  const router = useRouter();
+  const [guild, setGuild] = useState<GuildSettings | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [pendingMerchants, setPendingMerchants] = useState<Merchant[]>([]);
+  const [activeMerchants, setActiveMerchants] = useState<Merchant[]>([]);
+  const [pendingLoans, setPendingLoans] = useState<GuildLoan[]>([]);
+  const [repaidLoans, setRepaidLoans] = useState<GuildLoan[]>([]);
+  const [selectedMember, setSelectedMember] = useState('');
+  const [isAddingLeader, setIsAddingLeader] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [newLoanCount, setNewLoanCount] = useState(0);
+  const [lastLoanCount, setLastLoanCount] = useState(0);
+  const [isFirstLoad, setIsFirstLoad] = useState(true);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [selectedMerchant, setSelectedMerchant] = useState<Merchant | null>(null);
+  const [showMemberConfirmModal, setShowMemberConfirmModal] = useState(false);
+  const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
+  const [showLeaderConfirmModal, setShowLeaderConfirmModal] = useState(false);
+  const [selectedLeaderId, setSelectedLeaderId] = useState<string | null>(null);
+  const [merchantSearch, setMerchantSearch] = useState('');
+  const [memberSearch, setMemberSearch] = useState('');
+
+  useEffect(() => {
+    if (!user) return;
+
+    const guildRef = ref(db, 'guild');
+    const unsubscribe = onValue(guildRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const guildData = snapshot.val();
+        setGuild(guildData);
+      }
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, [user]);
+
+  useEffect(() => {
+    if (!guild?.members) return;
+
+    let timeoutId: NodeJS.Timeout;
+    const fetchDiscordNames = async () => {
+      const updatedMembers = { ...guild.members };
+      
+      for (const [uid, member] of Object.entries(guild.members)) {
+        try {
+          const snapshot = await get(ref(db, `users/${uid}/meta/discord`));
+          if (snapshot.exists()) {
+            updatedMembers[uid] = {
+              ...member,
+              discordName: snapshot.val() || member.discordName
+            };
+          }
+        } catch (error) {
+          console.error('Error fetching Discord name:', error);
+        }
+      }
+
+      setGuild(prev => prev ? { ...prev, members: updatedMembers } : null);
+    };
+
+    timeoutId = setTimeout(fetchDiscordNames, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [guild?.members]);
+
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    const merchantsRef = ref(db, 'tradeMerchants');
+    const unsubscribe = onValue(merchantsRef, (snapshot) => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        if (snapshot.exists()) {
+          const merchants = Object.entries(snapshot.val()).map(([uid, data]: [string, any]) => ({
+            uid,
+            ...data
+          }));
+          setPendingMerchants(merchants.filter(m => m.status === 'pending'));
+          setActiveMerchants(merchants.filter(m => m.status === 'active'));
+        } else {
+          setPendingMerchants([]);
+          setActiveMerchants([]);
+        }
+      }, 300);
+    });
+
+    return () => {
+      unsubscribe();
+      clearTimeout(timeoutId);
+    };
+  }, []);
+
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    const loansRef = query(ref(db, 'guildLoans'), orderByChild('type'), equalTo('guild'));
+    const unsubscribe = onValue(loansRef, (snapshot) => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        if (snapshot.exists()) {
+          const loans = Object.entries(snapshot.val()).map(([id, loan]: [string, any]) => ({
+            id,
+            ...loan
+          }));
+          const pendingLoansList = loans.filter(loan => loan.status === 'waitingApproval');
+          setPendingLoans(pendingLoansList);
+          setRepaidLoans(loans.filter(loan => loan.status === 'returned'));
+
+          if (!isFirstLoad && pendingLoansList.length > lastLoanCount) {
+            const newLoans = pendingLoansList.length - lastLoanCount;
+            setNewLoanCount(prev => prev + newLoans);
+            toast.success(`มีคำขอกู้ยืมใหม่ ${newLoans} รายการ`, {
+              duration: 5000,
+              icon: '🔔',
+            });
+          }
+          setLastLoanCount(pendingLoansList.length);
+          setIsFirstLoad(false);
+        } else {
+          setPendingLoans([]);
+          setRepaidLoans([]);
+          setLastLoanCount(0);
+          setIsFirstLoad(false);
+        }
+      }, 300);
+    });
+
+    return () => {
+      unsubscribe();
+      clearTimeout(timeoutId);
+    };
+  }, [lastLoanCount, isFirstLoad]);
+
+  const [debouncedMerchantSearch, setDebouncedMerchantSearch] = useState('');
+  const [debouncedMemberSearch, setDebouncedMemberSearch] = useState('');
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setDebouncedMerchantSearch(merchantSearch);
+    }, 300);
+    return () => clearTimeout(timeoutId);
+  }, [merchantSearch]);
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setDebouncedMemberSearch(memberSearch);
+    }, 300);
+    return () => clearTimeout(timeoutId);
+  }, [memberSearch]);
+
+  const filteredActiveMerchants = React.useMemo(() => {
+    return activeMerchants.filter(merchant => {
+      const searchTerm = debouncedMerchantSearch.toLowerCase();
+      return (
+        (merchant.discordName?.toLowerCase() || '').includes(searchTerm) ||
+        (merchant.discord?.toLowerCase() || '').includes(searchTerm) ||
+        (merchant.bankAccountName?.toLowerCase() || '').includes(searchTerm) ||
+        (merchant.bankAccountNumber || '').includes(debouncedMerchantSearch)
+      );
+    });
+  }, [activeMerchants, debouncedMerchantSearch]);
+
+  const filteredMembers = React.useMemo(() => {
+    return Object.entries(guild?.members || {}).filter(([uid, member]) => {
+      const searchTerm = debouncedMemberSearch.toLowerCase();
+      const name = member.discordName ? member.discordName.toLowerCase() : '';
+      if (searchTerm === 'ไม่ทราบ') {
+        return !member.discordName || member.discordName.trim() === '';
+      }
+      return (
+        name.includes(searchTerm) ||
+        (uid.toLowerCase() || '').includes(searchTerm)
+      );
+    });
+  }, [guild?.members, debouncedMemberSearch]);
+
+  const clearLoanNotifications = () => {
+    setNewLoanCount(0);
+  };
+
+  const isGuildLeader = user?.uid && guild?.leaders?.[user.uid] === true;
+
+  useEffect(() => {
+    if (!loading && !isGuildLeader) {
+      toast.error('คุณไม่มีสิทธิ์เข้าถึงหน้านี้');
+      router.push('/');
+    }
+  }, [loading, isGuildLeader, router]);
+
+  const handleRemoveMember = async (uid: string) => {
+    if (uid === user?.uid) {
+      toast.error('ไม่สามารถลบตัวเองได้');
+      return;
+    }
+
+    if (guild?.leaders?.[uid]) {
+      toast.error('ไม่สามารถลบหัวกิลด์ได้ กรุณาลบสิทธิ์หัวกิลด์ก่อน');
+      return;
+    }
+
+    setSelectedMemberId(uid);
+    setShowMemberConfirmModal(true);
+  };
+
+  const confirmRemoveMember = async () => {
+    if (!selectedMemberId) return;
+
+    try {
+      setShowMemberConfirmModal(false);
+      setSelectedMemberId(null);
+
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      await GuildService.removeMember(selectedMemberId);
+      toast.success('ลบสมาชิกสำเร็จ');
+    } catch (error) {
+      console.error('Error removing member:', error);
+      toast.error('ไม่สามารถลบสมาชิกได้');
+    }
+  };
+
+  const handleMerchantAction = async (uid: string, action: 'approve' | 'suspend') => {
+    try {
+      const merchantRef = ref(db, `tradeMerchants/${uid}`);
+      await update(merchantRef, { status: action === 'approve' ? 'active' : 'suspended' });
+      toast.success(action === 'approve' ? 'อนุมัติร้านค้าสำเร็จ' : 'ระงับร้านค้าสำเร็จ');
+    } catch (error) {
+      console.error('Error updating merchant status:', error);
+      toast.error('ไม่สามารถอัพเดทสถานะร้านค้าได้');
+    }
+  };
+
+  const handleLoanAction = async (loanId: string, action: 'approve' | 'reject' | 'confirm') => {
+    try {
+      const loanRef = ref(db, `guildLoans/${loanId}`);
+      if (action === 'reject') {
+        await remove(loanRef);
+        toast.success('ลบคำขอกู้ยืมสำเร็จ');
+        return;
+      }
+      const updates: Partial<GuildLoan> = {
+        status: action === 'approve' ? 'active' : action === 'confirm' ? 'completed' : undefined,
+        ...(action === 'confirm' && {
+          confirmedBy: user?.uid,
+          confirmedAt: new Date().toISOString()
+        })
+      };
+      await update(loanRef, updates);
+      toast.success(
+        action === 'approve' ? 'อนุมัติการกู้สำเร็จ' :
+        'ยืนยันการคืนเงินสำเร็จ'
+      );
+    } catch (error) {
+      console.error('Error updating loan status:', error);
+      toast.error('ไม่สามารถอัพเดทสถานะการกู้ได้');
+    }
+  };
+
+  const handleAddLeader = async () => {
+    if (!selectedMember) {
+      toast.error('กรุณาเลือกสมาชิก');
+      return;
+    }
+
+    if (guild?.leaders[selectedMember]) {
+      toast.error('สมาชิกนี้เป็นหัวกิลด์อยู่แล้ว');
+      return;
+    }
+
+    try {
+      await update(ref(db, `guild/leaders`), { [selectedMember]: true });
+      toast.success('เพิ่มหัวกิลด์สำเร็จ');
+      setSelectedMember('');
+      setIsAddingLeader(false);
+    } catch (error) {
+      console.error('Error adding leader:', error);
+      toast.error('ไม่สามารถเพิ่มหัวกิลด์ได้');
+    }
+  };
+
+  const handleRemoveLeader = async (uid: string) => {
+    setSelectedLeaderId(uid);
+    setShowLeaderConfirmModal(true);
+  };
+
+  const confirmRemoveLeader = async () => {
+    if (!selectedLeaderId) return;
+
+    if (selectedLeaderId === user?.uid) {
+      toast.error('ไม่สามารถลบตัวเองได้');
+      return;
+    }
+
+    try {
+      await remove(ref(db, `guild/leaders/${selectedLeaderId}`));
+      toast.success('ลบหัวกิลด์สำเร็จ');
+      setShowLeaderConfirmModal(false);
+      setSelectedLeaderId(null);
+    } catch (error) {
+      console.error('Error removing leader:', error);
+      toast.error('ไม่สามารถลบหัวกิลด์ได้');
+    }
+  };
+
+  const handleUnregisterMerchant = async (merchant: Merchant) => {
+    setSelectedMerchant(merchant);
+    setShowConfirmModal(true);
+  };
+
+  const confirmUnregisterMerchant = async () => {
+    if (!selectedMerchant) return;
+
+    try {
+      setShowConfirmModal(false);
+      setSelectedMerchant(null);
+
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      const merchantRef = ref(db, `tradeMerchants/${selectedMerchant.uid}`);
+      await remove(merchantRef);
+      toast.success('ยกเลิกการลงทะเบียนร้านค้าสำเร็จ');
+    } catch (error) {
+      console.error('Error unregistering merchant:', error);
+      toast.error('ไม่สามารถยกเลิกการลงทะเบียนร้านค้าได้');
+    }
+  };
+
+  const handleImportAllUsers = async () => {
+    try {
+      const usersSnap = await get(ref(db, 'users'));
+      const users = usersSnap.val();
+      if (!users) {
+        toast.error('ไม่พบข้อมูลผู้ใช้');
+        return;
+      }
+      let imported = 0;
+      for (const userId in users) {
+        if (!guild?.members?.[userId]) {
+          await set(ref(db, `guild/members/${userId}`), {
+            discordName: users[userId]?.meta?.discord || '',
+            joinedAt: Date.now()
+          });
+          imported++;
+        }
+      }
+      if (imported > 0) {
+        toast.success(`นำเข้า ${imported} สมาชิกใหม่เรียบร้อยแล้ว`);
+      } else {
+        toast('ไม่มีสมาชิกใหม่ให้เพิ่ม');
+      }
+    } catch (error) {
+      toast.error('เกิดข้อผิดพลาดในการนำเข้าสมาชิก');
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-pink-500"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-5xl mx-auto p-6">
+      <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-pink-200">
+        {/* Header Section */}
+        <div className="flex items-center gap-4 mb-8 pb-6 border-b border-pink-100">
+          <div className="p-3 bg-pink-100 rounded-xl">
+            <Settings className="w-8 h-8 text-pink-600" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-800">⚙️ ตั้งค่ากิลด์</h1>
+            <p className="text-sm text-gray-500 mt-1">จัดการการตั้งค่าและสมาชิกของกิลด์</p>
+          </div>
+          {newLoanCount > 0 && (
+            <div 
+              className="ml-auto flex items-center gap-2 bg-pink-100 text-pink-600 px-4 py-2 rounded-full cursor-pointer hover:bg-pink-200 transition-colors"
+              onClick={clearLoanNotifications}
+              title="คลิกเพื่อล้างการแจ้งเตือน"
+            >
+              <Bell className="w-4 h-4" />
+              <span className="text-sm font-medium">มีคำขอกู้ยืมใหม่ {newLoanCount} รายการ</span>
+            </div>
+          )}
+        </div>
+
+        {/* Leaders Section */}
+        <div className="mb-10">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-purple-100 rounded-lg">
+                <Crown className="w-5 h-5 text-purple-600" />
+              </div>
+              <h2 className="text-xl font-semibold text-gray-800">หัวกิลด์</h2>
+            </div>
+            <button
+              onClick={() => setIsAddingLeader(!isAddingLeader)}
+              className="flex items-center gap-2 px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-colors shadow-sm"
+            >
+              <UserPlus className="w-4 h-4" />
+              <span>เพิ่มหัวกิลด์</span>
+            </button>
+          </div>
+
+          {isAddingLeader && (
+            <div className="mb-6 p-6 bg-pink-50 rounded-xl border border-pink-100">
+              <div className="relative">
+                <button
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  className="w-full flex items-center justify-between px-4 py-3 bg-white rounded-lg border border-pink-200 focus:outline-none focus:ring-2 focus:ring-pink-500 shadow-sm"
+                >
+                  <span className={cn(
+                    "text-gray-500",
+                    selectedMember && "text-gray-700"
+                  )}>
+                    {selectedMember ? guild?.members[selectedMember]?.discordName : "เลือกสมาชิก"}
+                  </span>
+                  <ChevronDown className={cn(
+                    "w-4 h-4 text-gray-500 transition-transform",
+                    isDropdownOpen && "transform rotate-180"
+                  )} />
+                </button>
+                
+                {isDropdownOpen && (
+                  <div className="absolute z-10 w-full mt-2 bg-white rounded-lg shadow-lg border border-pink-200 max-h-60 overflow-y-auto">
+                    {Object.entries(guild?.members || {})
+                      .filter(([uid]) => !guild?.leaders[uid])
+                      .map(([uid, member]) => (
+                        <button
+                          key={uid}
+                          onClick={() => {
+                            setSelectedMember(uid);
+                            setIsDropdownOpen(false);
+                          }}
+                          className="w-full px-4 py-3 text-left hover:bg-pink-50 transition-colors"
+                        >
+                          <p className="font-medium text-gray-700">{member.discordName}</p>
+                          <p className="text-sm text-gray-500">UID: {uid}</p>
+                        </button>
+                      ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="mt-4 flex justify-end">
+                <button
+                  onClick={handleAddLeader}
+                  disabled={!selectedMember}
+                  className={cn(
+                    "px-6 py-2 text-white rounded-lg transition-colors shadow-sm",
+                    selectedMember
+                      ? "bg-green-500 hover:bg-green-600"
+                      : "bg-gray-400 cursor-not-allowed"
+                  )}
+                >
+                  เพิ่ม
+                </button>
+              </div>
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {Object.entries(guild?.leaders || {}).map(([uid, isLeader]) => (
+              <div
+                key={uid}
+                className="flex items-center justify-between p-4 bg-purple-50 rounded-xl border border-purple-100 hover:bg-purple-100/50 transition-colors"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="p-2 bg-purple-100 rounded-lg">
+                    <Crown className="w-5 h-5 text-purple-600" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-800">{guild?.members[uid]?.discordName ? guild?.members[uid]?.discordName : 'ไม่ทราบ'}</p>
+                    <p className="text-sm text-gray-500">UID: {uid}</p>
+                  </div>
+                </div>
+                {uid !== user?.uid && (
+                  <button
+                    onClick={() => handleRemoveLeader(uid)}
+                    className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                    title="ลบหัวกิลด์"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Pending Merchants Section */}
+        <div className="mb-10">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-yellow-100 rounded-lg">
+                <Store className="w-5 h-5 text-yellow-600" />
+              </div>
+              <h2 className="text-xl font-semibold text-gray-800">ร้านค้าที่รออนุมัติ</h2>
+            </div>
+            <div className="flex items-center gap-2 px-4 py-2 bg-yellow-50 rounded-full">
+              <span className="text-sm font-medium text-yellow-700">{pendingMerchants.length} ร้านค้า</span>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {pendingMerchants.map((merchant) => (
+              <div key={merchant.uid} className="bg-white rounded-xl p-6 border border-yellow-100 shadow-sm hover:shadow-md transition-shadow">
+                <div className="flex justify-between items-start">
+                  <div className="space-y-2">
+                    <div className="font-semibold text-yellow-600">{merchant.bankAccountName}</div>
+                    <div className="flex items-center gap-2 text-sm text-gray-500">
+                      <Users className="w-4 h-4" />
+                      <span>{merchant.discord}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-500">
+                      <Building2 className="w-4 h-4" />
+                      <span>{merchant.bankName}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-500">
+                      <Shield className="w-4 h-4" />
+                      <span>{merchant.bankAccountNumber}</span>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleMerchantAction(merchant.uid, 'approve')}
+                      className="p-2 rounded-lg bg-green-100 text-green-600 hover:bg-green-200 transition-colors"
+                      title="อนุมัติ"
+                    >
+                      <Check className="w-5 h-5" />
+                    </button>
+                    <button
+                      onClick={() => handleMerchantAction(merchant.uid, 'suspend')}
+                      className="p-2 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 transition-colors"
+                      title="ระงับ"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+            {pendingMerchants.length === 0 && (
+              <div className="col-span-2 flex items-center justify-center p-8 bg-yellow-50 rounded-xl border border-yellow-100">
+                <div className="text-center">
+                  <Store className="w-8 h-8 text-yellow-400 mx-auto mb-2" />
+                  <p className="text-sm text-gray-500">ไม่มีร้านค้าที่รออนุมัติ</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Active Merchants Section */}
+        <div className="mb-10">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-green-100 rounded-lg">
+                <Store className="w-5 h-5 text-green-600" />
+              </div>
+              <h2 className="text-xl font-semibold text-gray-800">ร้านค้าที่ลงทะเบียนแล้ว ({filteredActiveMerchants.length})</h2>
+            </div>
+            <div className="relative w-64">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Search className="w-4 h-4 text-gray-400" />
+              </div>
+              <input
+                type="text"
+                placeholder="ค้นหาร้านค้า..."
+                value={merchantSearch}
+                onChange={(e) => setMerchantSearch(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {filteredActiveMerchants.length === 0 ? (
+              <div className="col-span-2 flex items-center justify-center p-8 bg-green-50 rounded-xl border border-green-100">
+                <div className="text-center">
+                  <Store className="w-8 h-8 text-green-400 mx-auto mb-2" />
+                  <p className="text-sm text-gray-500">
+                    {merchantSearch ? 'ไม่พบร้านค้าที่ตรงกับการค้นหา' : 'ยังไม่มีร้านค้าที่ลงทะเบียน'}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              filteredActiveMerchants.map((merchant) => (
+                <div key={merchant.uid} className="bg-white rounded-xl p-6 border border-green-100 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="flex justify-between items-start">
+                    <div className="space-y-2">
+                      <h3 className="font-medium text-gray-900">{merchant.discordName}</h3>
+                      <div className="flex items-center gap-2 text-sm text-gray-500">
+                        <Users className="w-4 h-4" />
+                        <span>{merchant.discord}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-gray-500">
+                        <Building2 className="w-4 h-4" />
+                        <span>{merchant.bankName}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-gray-500">
+                        <Shield className="w-4 h-4" />
+                        <span>{merchant.bankAccountNumber}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-gray-500">
+                        <UserPlus className="w-4 h-4" />
+                        <span>{merchant.bankAccountName}</span>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => handleUnregisterMerchant(merchant)}
+                      className="flex items-center gap-1 px-3 py-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors text-sm font-medium"
+                    >
+                      <X className="w-4 h-4" />
+                      <span>ยกเลิก</span>
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* Members Section */}
+        <div>
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <Users className="w-5 h-5 text-blue-600" />
+              </div>
+              <h2 className="text-xl font-semibold text-gray-800">รายชื่อสมาชิก ({filteredMembers.length})</h2>
+              <button
+                onClick={handleImportAllUsers}
+                className="ml-3 px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors shadow-sm font-semibold flex items-center gap-2"
+                title="ดึงสมาชิกเก่าทั้งหมดเข้ากิลด์"
+              >
+                <UserPlus className="w-4 h-4" />
+                ดึงสมาชิกเก่าทั้งหมด
+              </button>
+            </div>
+            <div className="relative w-64">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Search className="w-4 h-4 text-gray-400" />
+              </div>
+              <input
+                type="text"
+                placeholder="ค้นหาสมาชิก..."
+                value={memberSearch}
+                onChange={(e) => setMemberSearch(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {filteredMembers.length === 0 ? (
+              <div className="col-span-2 flex items-center justify-center p-8 bg-blue-50 rounded-xl border border-blue-100">
+                <div className="text-center">
+                  <Users className="w-8 h-8 text-blue-400 mx-auto mb-2" />
+                  <p className="text-sm text-gray-500">
+                    {memberSearch ? 'ไม่พบสมาชิกที่ตรงกับการค้นหา' : 'ยังไม่มีสมาชิกในกิลด์'}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              filteredMembers.map(([uid, member]) => (
+                <div
+                  key={uid}
+                  className="flex items-center justify-between p-4 bg-blue-50 rounded-xl border border-blue-100 hover:bg-blue-100/50 transition-colors"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="p-2 bg-blue-100 rounded-lg">
+                      <UserPlus className="w-5 h-5 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-800">{member.discordName ? member.discordName : 'ไม่ทราบ'}</p>
+                      <p className="text-sm text-gray-500">UID: {uid}</p>
+                      <p className="text-xs text-gray-400 mt-1">เข้าร่วมเมื่อ {new Date(member.joinedAt).toLocaleDateString()}</p>
+                    </div>
+                  </div>
+                  {uid !== user?.uid && !guild?.leaders?.[uid] && (
+                    <button
+                      onClick={() => handleRemoveMember(uid)}
+                      className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                      title="ลบสมาชิก"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  )}
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* Confirmation Modal for Merchant */}
+        {showConfirmModal && selectedMerchant && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-red-100 rounded-lg">
+                  <AlertCircle className="w-6 h-6 text-red-600" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900">ยืนยันการยกเลิกการลงทะเบียนร้านค้า</h3>
+              </div>
+              <p className="text-gray-600 mb-6">
+                คุณต้องการยกเลิกการลงทะเบียนร้านค้า {selectedMerchant.discordName} ใช่หรือไม่?
+              </p>
+              <div className="flex justify-end gap-4">
+                <button
+                  onClick={() => {
+                    setShowConfirmModal(false);
+                    setSelectedMerchant(null);
+                  }}
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                >
+                  ยกเลิก
+                </button>
+                <button
+                  onClick={confirmUnregisterMerchant}
+                  className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 shadow-sm"
+                >
+                  ยืนยัน
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Confirmation Modal for Member */}
+        {showMemberConfirmModal && selectedMemberId && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-red-100 rounded-lg">
+                  <AlertCircle className="w-6 h-6 text-red-600" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900">ยืนยันการลบสมาชิก</h3>
+              </div>
+              <p className="text-gray-600 mb-6">
+                คุณต้องการลบสมาชิก {guild?.members[selectedMemberId]?.discordName} ออกจากกิลด์ใช่หรือไม่?
+              </p>
+              <div className="flex justify-end gap-4">
+                <button
+                  onClick={() => {
+                    setShowMemberConfirmModal(false);
+                    setSelectedMemberId(null);
+                  }}
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                >
+                  ยกเลิก
+                </button>
+                <button
+                  onClick={confirmRemoveMember}
+                  className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 shadow-sm"
+                >
+                  ยืนยัน
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Confirmation Modal for Leader */}
+        {showLeaderConfirmModal && selectedLeaderId && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-red-100 rounded-lg">
+                  <AlertCircle className="w-6 h-6 text-red-600" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900">ยืนยันการลบหัวกิลด์</h3>
+              </div>
+              <p className="text-gray-600 mb-6">
+                คุณต้องการลบสิทธิ์หัวกิลด์ของ {guild?.members[selectedLeaderId]?.discordName} ใช่หรือไม่?
+              </p>
+              <div className="flex justify-end gap-4">
+                <button
+                  onClick={() => {
+                    setShowLeaderConfirmModal(false);
+                    setSelectedLeaderId(null);
+                  }}
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                >
+                  ยกเลิก
+                </button>
+                <button
+                  onClick={confirmRemoveLeader}
+                  className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 shadow-sm"
+                >
+                  ยืนยัน
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+} 

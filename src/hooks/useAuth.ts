@@ -4,41 +4,82 @@ import { useEffect, useState } from 'react';
 import { getAuth, signInWithPopup, GoogleAuthProvider, User, onAuthStateChanged } from 'firebase/auth';
 import { ref, get, set, update } from 'firebase/database';
 import { db } from '../lib/firebase';
+import { GuildService } from '@/lib/guildService';
+
+let authListener: (() => void) | null = null;
+let authState: { user: User | null; discordName: string } = { user: null, discordName: '' };
+let authSubscribers: ((state: { user: User | null; discordName: string }) => void)[] = [];
+
+const notifySubscribers = () => {
+  // Always send a new object reference to force re-render
+  const clone = { ...authState };
+  authSubscribers.forEach(subscriber => subscriber(clone));
+};
+
+const setupAuthListener = () => {
+  if (authListener) return;
+
+  console.log('useAuth: Setting up auth listener');
+  const auth = getAuth();
+  authListener = onAuthStateChanged(auth, async (user) => {
+    console.log('useAuth: Auth state changed', user ? 'User logged in' : 'No user');
+    authState.user = user;
+    
+    if (user) {
+      // Get the ID token
+      const token = await user.getIdToken();
+      // Store the token in a cookie
+      document.cookie = `session=${token}; path=/; max-age=3600; SameSite=Lax`;
+
+      const userMetaRef = ref(db, `users/${user.uid}/meta`);
+      const snapshot = await get(userMetaRef);
+      if (snapshot.exists()) {
+        authState.discordName = snapshot.val().discord || '';
+      }
+
+      // เพิ่มสมาชิกเข้ากิลด์อัตโนมัติ
+      try {
+        const guildRef = ref(db, 'guild');
+        const snapshot = await get(guildRef);
+        
+        if (snapshot.exists()) {
+          const memberRef = ref(db, `guild/members/${user.uid}`);
+          const memberSnapshot = await get(memberRef);
+          
+          if (!memberSnapshot.exists()) {
+            await GuildService.addMember(user.uid, user.displayName || 'Unknown');
+          }
+        }
+      } catch (error) {
+        console.error('Error auto-joining guild:', error);
+      }
+    } else {
+      // Remove the session cookie when user is not authenticated
+      document.cookie = 'session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+      authState.discordName = '';
+    }
+    
+    notifySubscribers();
+  });
+};
 
 export function useAuth() {
-  const [user, setUser] = useState<User | null>(null);
+  const [state, setState] = useState<{ user: User | null; discordName: string }>(() => ({ ...authState }));
   const [loading, setLoading] = useState(true);
-  const [discordName, setDiscordName] = useState<string>('');
 
   useEffect(() => {
-    console.log('useAuth: Setting up auth listener');
-    const auth = getAuth();
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      console.log('useAuth: Auth state changed', user ? 'User logged in' : 'No user');
-      setUser(user);
-      
-      if (user) {
-        // Get the ID token
-        const token = await user.getIdToken();
-        // Store the token in a cookie
-        document.cookie = `session=${token}; path=/; max-age=3600; SameSite=Lax`;
-
-        const userMetaRef = ref(db, `users/${user.uid}/meta`);
-        const snapshot = await get(userMetaRef);
-        if (snapshot.exists()) {
-          setDiscordName(snapshot.val().discord || '');
-        }
-      } else {
-        // Remove the session cookie when user is not authenticated
-        document.cookie = 'session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-      }
-      
+    setupAuthListener();
+    
+    const subscriber = (newState: { user: User | null; discordName: string }) => {
+      setState(() => ({ ...newState }));
       setLoading(false);
-    });
+    };
+    
+    authSubscribers.push(subscriber);
+    setLoading(false);
 
     return () => {
-      console.log('useAuth: Cleaning up auth listener');
-      unsubscribe();
+      authSubscribers = authSubscribers.filter(s => s !== subscriber);
     };
   }, []);
 
@@ -57,7 +98,8 @@ export function useAuth() {
     try {
       const auth = getAuth();
       await auth.signOut();
-      setDiscordName('');
+      authState.discordName = '';
+      notifySubscribers();
     } catch (error) {
       console.error('Error signing out:', error);
       throw error;
@@ -65,20 +107,21 @@ export function useAuth() {
   };
 
   const updateDiscordName = async (newName: string) => {
-    if (!user) {
+    if (!authState.user) {
       console.error('No user logged in');
       throw new Error('No user logged in');
     }
     
     console.log('Updating discord name:', newName);
     try {
-      const userRef = ref(db, `users/${user.uid}/meta`);
+      const userRef = ref(db, `users/${authState.user.uid}/meta`);
       await update(userRef, {
         discord: newName
       });
       console.log('Discord name updated in Database');
       
-      setDiscordName(newName);
+      authState.discordName = newName;
+      notifySubscribers();
       console.log('Local discord name state updated');
     } catch (error) {
       console.error('Error updating discord name:', error);
@@ -87,9 +130,9 @@ export function useAuth() {
   };
 
   return {
-    user,
+    user: state.user,
     loading,
-    discordName,
+    discordName: state.discordName,
     updateDiscordName,
     signIn,
     signOut

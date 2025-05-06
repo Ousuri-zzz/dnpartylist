@@ -1,6 +1,7 @@
 {
   "rules": {
     ".read": "auth != null",
+    ".write": "auth != null",
     "parties": {
       ".read": true,
       "$partyId": {
@@ -40,15 +41,12 @@
     "users": {
       "$uid": {
         ".read": "auth != null",
-        ".write": "auth != null && auth.uid === $uid",
+        ".write": "auth.uid === $uid || root.child('guild/leaders/' + auth.uid).val() === true",
         "characters": {
-          ".write": "auth != null && auth.uid === $uid",
+          ".read": "auth != null",
+          ".write": "auth.uid === $uid || root.child('guild/leaders/' + auth.uid).val() === true",
           "$characterId": {
-            ".validate": "
-              newData.hasChildren(['name', 'class', 'mainClass', 'stats']) &&
-              (newData.child('lastResetDay').isNumber() || !newData.child('lastResetDay').exists()) &&
-              (newData.child('lastResetWeek').isNumber() || !newData.child('lastResetWeek').exists())
-            ",
+            ".validate": "newData.hasChildren(['name', 'class', 'mainClass', 'stats']) && (newData.child('lastResetDay').isNumber() || !newData.child('lastResetDay').exists()) && (newData.child('lastResetWeek').isNumber() || !newData.child('lastResetWeek').exists())",
             "name": { ".validate": "newData.isString() && newData.val().length > 0" },
             "class": { ".validate": "newData.isString()" },
             "mainClass": { ".validate": "newData.isString()" },
@@ -74,9 +72,60 @@
           }
         },
         "meta": {
-          ".write": "auth != null && auth.uid === $uid",
+          ".read": "auth != null",
+          ".write": "auth.uid === $uid || root.child('guild/leaders/' + auth.uid).val() === true",
           "discord": { ".validate": "newData.isString()" }
         }
+      }
+    },
+    "tradeMerchants": {
+      "$uid": {
+        ".read": "auth != null",
+        ".write": "auth.uid === $uid || root.child('guild/leaders/' + auth.uid).val() === true"
+      }
+    },
+    "trade": {
+      "$tradeId": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+      }
+    },
+    "tradeItems": {
+      "$itemId": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+      }
+    },
+    "guildLoans": {
+      "$loanId": {
+        ".read": "auth != null",
+        ".write": "auth != null && (data.child('borrower').child('uid').val() == auth.uid || root.child('guild/leaders/' + auth.uid).val() === true)"
+      }
+    },
+    "feed": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "guild": {
+      ".read": "auth != null",
+      ".write": "root.child('guild/leaders/' + auth.uid).val() === true",
+      "leaders": {
+        ".read": "auth != null",
+        ".write": "root.child('guild/leaders/' + auth.uid).val() === true"
+      },
+      "members": {
+        ".read": "auth != null",
+        "$memberId": {
+          ".write": "auth.uid === $memberId || root.child('guild/leaders/' + auth.uid).val() === true"
+        }
+      },
+      "announcements": {
+        ".read": "auth != null",
+        ".write": "root.child('guild/leaders/' + auth.uid).val() === true"
+      },
+      "events": {
+        ".read": "auth != null",
+        ".write": "root.child('guild/leaders/' + auth.uid).val() === true"
       }
     }
   }

@@ -12,6 +12,7 @@ export interface User {
     lastResetWeekly?: number;
   };
   discordName?: string;
+  discordId: string;
 }
 
 export interface UserWithCharacters extends User {

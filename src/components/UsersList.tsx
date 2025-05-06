@@ -68,10 +68,10 @@ export function UsersList() {
           )}
           <div className="flex flex-col">
             <span className="text-sm font-medium text-gray-700">
-              {user.displayName || 'ไม่ระบุชื่อ'}
+              {user.meta?.discord || user.discordName || 'ไม่ระบุชื่อ'}
             </span>
             <span className="text-xs text-gray-500">
-              {user.meta?.discord || 'ไม่ได้เชื่อมต่อ Discord'}
+              {user.meta?.discord || user.discordName || 'ไม่ได้เชื่อมต่อ Discord'}
             </span>
           </div>
         </motion.div>
