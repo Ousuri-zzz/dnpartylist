@@ -189,11 +189,11 @@ const TradeDashboardPage = () => {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8 bg-gradient-to-r from-yellow-50 via-pink-50 to-purple-100 rounded-2xl p-8 shadow-lg border-2 border-pink-200 flex flex-col md:flex-row items-center gap-6"
+          className="mb-8 bg-gradient-to-r from-yellow-50 via-pink-50 to-purple-100 rounded-2xl p-8 shadow-lg border-2 border-pink-200 grid grid-cols-1 lg:grid-cols-[1fr_480px] gap-8 items-center"
         >
-          <div className="flex-1">
+          <div className="min-w-0 flex-1">
             <h1
-              className="text-4xl md:text-5xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 via-yellow-500 to-orange-500 drop-shadow mb-2 flex items-center gap-3 leading-normal py-2"
+              className="text-4xl md:text-5xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 via-yellow-500 to-orange-500 drop-shadow mb-2 flex items-center gap-3 leading-normal py-2 whitespace-nowrap"
               style={{ fontFamily: `'Noto Sans Thai', 'Prompt', 'Sarabun', 'Kanit', 'sans-serif'`, lineHeight: 1.2 }}
             >
               <span>💎</span> ตลาดซื้อขายสินค้าและบริการ
@@ -201,58 +201,58 @@ const TradeDashboardPage = () => {
             <p className="text-lg md:text-xl text-gray-700 font-medium mb-2">
               ระบบกลางสำหรับ <span className="text-pink-600 font-bold">ซื้อขาย Gold</span>, <span className="text-yellow-600 font-bold">สินค้า</span>, <span className="text-purple-600 font-bold">บริการ</span> และ <span className="text-blue-600 font-bold">กู้ยืมเงิน</span> จาก <span className="font-bold text-gray-800">พ่อค้า</span> หรือ <span className="font-bold text-gray-800">กิลด์</span>
             </p>
-            <div className="flex gap-3 mt-3">
+            <div className="flex gap-3 mt-3 flex-wrap">
               <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 font-semibold text-sm"><Package className="w-4 h-4" /> สินค้า</span>
               <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-pink-100 text-pink-700 font-semibold text-sm"><ShoppingBag className="w-4 h-4" /> Gold</span>
               <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-purple-100 text-purple-700 font-semibold text-sm"><Users className="w-4 h-4" /> บริการ</span>
               <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-blue-100 text-blue-700 font-semibold text-sm"><PiggyBank className="w-4 h-4" /> กู้ยืม</span>
             </div>
           </div>
-          <div className="w-full md:w-auto flex-shrink-0 flex justify-end">
-            <div className="grid grid-cols-2 gap-4 w-full max-w-2xl">
+          <div className="w-full max-w-[700px] px-0 mx-auto">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 w-full">
               <Link
                 href="/trade/feed"
-                className="rounded-2xl p-6 shadow-sm border border-pink-100 bg-gradient-to-br from-pink-50 to-white flex flex-col items-center justify-center text-center gap-4 transition-all duration-200 hover:scale-105 hover:-translate-y-1 hover:shadow-2xl hover:ring-4 hover:ring-pink-200/40 focus-visible:ring-4 focus-visible:ring-pink-300/60"
+                className="rounded-2xl p-5 shadow-sm border border-pink-100 bg-gradient-to-br from-pink-50 to-white flex flex-row items-center gap-4 min-h-[120px] h-auto w-full transition-all duration-200 hover:scale-105 hover:-translate-y-1 hover:shadow-2xl hover:ring-4 hover:ring-pink-200/40 focus-visible:ring-4 focus-visible:ring-pink-300/60"
               >
-                <div className="flex items-center justify-center w-14 h-14 rounded-xl bg-pink-100 text-pink-500 text-3xl shadow">
+                <div className="flex items-center justify-center w-14 h-14 min-w-[56px] rounded-xl bg-pink-100 text-pink-500 text-2xl shadow flex-shrink-0">
                   <span>📝</span>
                 </div>
-                <div>
-                  <h3 className="font-extrabold text-lg text-gray-800" style={{ fontFamily: `'Noto Sans Thai', 'Prompt', 'Sarabun', 'Kanit', 'sans-serif'` }}>
+                <div className="text-left flex-1 overflow-hidden">
+                  <h3 className="font-extrabold text-sm md:text-base text-gray-800 whitespace-normal break-words leading-tight mb-1" style={{ fontFamily: `'Noto Sans Thai', 'Prompt', 'Sarabun', 'Kanit', 'sans-serif'` }}>
                     ประวัติทั้งหมด
                   </h3>
-                  <p className="text-sm text-gray-500">ดูประวัติธุรกรรมทั้งหมด</p>
+                  <p className="text-xs md:text-sm text-gray-500 whitespace-normal break-words leading-snug">ดูประวัติธุรกรรมทั้งหมด</p>
                 </div>
               </Link>
               <Link
                 href="/guildloan"
-                className="rounded-2xl p-6 shadow-sm border border-blue-100 bg-gradient-to-br from-blue-50 to-white flex flex-col items-center justify-center text-center gap-4 transition-all duration-200 hover:scale-105 hover:-translate-y-1 hover:shadow-2xl hover:ring-4 hover:ring-blue-200/40 focus-visible:ring-4 focus-visible:ring-blue-300/60"
+                className="rounded-2xl p-5 shadow-sm border border-blue-100 bg-gradient-to-br from-blue-50 to-white flex flex-row items-center gap-4 min-h-[120px] h-auto w-full transition-all duration-200 hover:scale-105 hover:-translate-y-1 hover:shadow-2xl hover:ring-4 hover:ring-blue-200/40 focus-visible:ring-4 focus-visible:ring-blue-300/60"
               >
-                <div className="flex items-center justify-center w-14 h-14 rounded-xl bg-blue-100 text-blue-500 text-3xl shadow">
+                <div className="flex items-center justify-center w-14 h-14 min-w-[56px] rounded-xl bg-blue-100 text-blue-500 text-2xl shadow flex-shrink-0">
                   <span>🤝</span>
                 </div>
-                <div>
-                  <h3 className="font-extrabold text-lg text-gray-800" style={{ fontFamily: `'Noto Sans Thai', 'Prompt', 'Sarabun', 'Kanit', 'sans-serif'` }}>
+                <div className="text-left flex-1 overflow-hidden">
+                  <h3 className="font-extrabold text-sm md:text-base text-gray-800 whitespace-normal break-words leading-tight mb-1" style={{ fontFamily: `'Noto Sans Thai', 'Prompt', 'Sarabun', 'Kanit', 'sans-serif'` }}>
                     กู้ยืมจากกิลด์
                   </h3>
-                  <p className="text-sm text-gray-500">ขอสินเชื่อจากกิลด์</p>
+                  <p className="text-xs md:text-sm text-gray-500 whitespace-normal break-words leading-snug">ขอสินเชื่อจากกิลด์</p>
                 </div>
               </Link>
               <Link
                 href="/mypage/transaction"
-                className="rounded-2xl p-6 shadow-sm border border-purple-100 bg-gradient-to-br from-purple-50 to-white flex flex-col items-center justify-center text-center gap-4 relative transition-all duration-200 hover:scale-105 hover:-translate-y-1 hover:shadow-2xl hover:ring-4 hover:ring-purple-200/40 focus-visible:ring-4 focus-visible:ring-purple-300/60"
+                className="rounded-2xl p-5 shadow-sm border border-purple-100 bg-gradient-to-br from-purple-50 to-white flex flex-row items-center gap-4 min-h-[120px] h-auto w-full relative transition-all duration-200 hover:scale-105 hover:-translate-y-1 hover:shadow-2xl hover:ring-4 hover:ring-purple-200/40 focus-visible:ring-4 focus-visible:ring-purple-300/60"
               >
-                <div className="flex items-center justify-center w-14 h-14 rounded-xl bg-purple-100 text-purple-500 text-3xl shadow">
+                <div className="flex items-center justify-center w-14 h-14 min-w-[56px] rounded-xl bg-purple-100 text-purple-500 text-2xl shadow flex-shrink-0">
                   <span>👤</span>
                 </div>
-                <div>
-                  <h3 className="font-extrabold text-lg text-gray-800" style={{ fontFamily: `'Noto Sans Thai', 'Prompt', 'Sarabun', 'Kanit', 'sans-serif'` }}>
+                <div className="text-left flex-1 overflow-hidden">
+                  <h3 className="font-extrabold text-sm md:text-base text-gray-800 whitespace-normal break-words leading-tight mb-1" style={{ fontFamily: `'Noto Sans Thai', 'Prompt', 'Sarabun', 'Kanit', 'sans-serif'` }}>
                     ธุรกรรมของฉัน
                   </h3>
-                  <p className="text-sm text-gray-500">ดูประวัติธุรกรรมส่วนตัว</p>
+                  <p className="text-xs md:text-sm text-gray-500 whitespace-normal break-words leading-snug">ดูประวัติธุรกรรมส่วนตัว</p>
                 </div>
                 {pendingReturnCount > 0 && (
-                  <span className="absolute top-3 right-3 bg-red-500 text-white text-xs font-bold rounded-full px-2 py-0.5 z-10">
+                  <span className="absolute top-3 right-4 bg-red-500 text-white text-xs font-bold rounded-full px-2 py-0.5 z-10">
                     {pendingReturnCount}
                   </span>
                 )}
@@ -262,31 +262,31 @@ const TradeDashboardPage = () => {
                   {isRegistered ? (
                     <Link
                       href="/trade/mystore"
-                      className="rounded-2xl p-6 shadow-sm border border-green-100 bg-gradient-to-br from-green-50 to-white flex flex-col items-center justify-center text-center gap-4 transition-all duration-200 hover:scale-105 hover:-translate-y-1 hover:shadow-2xl hover:ring-4 hover:ring-green-200/40 focus-visible:ring-4 focus-visible:ring-green-300/60"
+                      className="rounded-2xl p-5 shadow-sm border border-green-100 bg-gradient-to-br from-green-50 to-white flex flex-row items-center gap-4 min-h-[120px] h-auto w-full transition-all duration-200 hover:scale-105 hover:-translate-y-1 hover:shadow-2xl hover:ring-4 hover:ring-green-200/40 focus-visible:ring-4 focus-visible:ring-green-300/60"
                     >
-                      <div className="flex items-center justify-center w-14 h-14 rounded-xl bg-green-100 text-green-500 text-3xl shadow">
+                      <div className="flex items-center justify-center w-14 h-14 min-w-[56px] rounded-xl bg-green-100 text-green-500 text-2xl shadow flex-shrink-0">
                         <span>🏬</span>
                       </div>
-                      <div>
-                        <h3 className="font-extrabold text-lg text-gray-800" style={{ fontFamily: `'Noto Sans Thai', 'Prompt', 'Sarabun', 'Kanit', 'sans-serif'` }}>
+                      <div className="text-left flex-1 overflow-hidden">
+                        <h3 className="font-extrabold text-sm md:text-base text-gray-800 whitespace-normal break-words leading-tight mb-1" style={{ fontFamily: `'Noto Sans Thai', 'Prompt', 'Sarabun', 'Kanit', 'sans-serif'` }}>
                           ร้านค้าของฉัน
                         </h3>
-                        <p className="text-sm text-gray-500">จัดการร้านค้าของคุณ</p>
+                        <p className="text-xs md:text-sm text-gray-500 whitespace-normal break-words leading-snug">จัดการร้านค้าของคุณ</p>
                       </div>
                     </Link>
                   ) : (
                     <Link
                       href="/trade/register"
-                      className="rounded-2xl p-6 shadow-sm border border-green-100 bg-gradient-to-br from-green-50 to-white flex flex-col items-center justify-center text-center gap-4 transition-all duration-200 hover:scale-105 hover:-translate-y-1 hover:shadow-2xl hover:ring-4 hover:ring-green-200/40 focus-visible:ring-4 focus-visible:ring-green-300/60"
+                      className="rounded-2xl p-5 shadow-sm border border-green-100 bg-gradient-to-br from-green-50 to-white flex flex-row items-center gap-4 min-h-[120px] h-auto w-full transition-all duration-200 hover:scale-105 hover:-translate-y-1 hover:shadow-2xl hover:ring-4 hover:ring-green-200/40 focus-visible:ring-4 focus-visible:ring-green-300/60"
                     >
-                      <div className="flex items-center justify-center w-14 h-14 rounded-xl bg-green-100 text-green-500 text-3xl shadow">
+                      <div className="flex items-center justify-center w-14 h-14 min-w-[56px] rounded-xl bg-green-100 text-green-500 text-2xl shadow flex-shrink-0">
                         <span>📝</span>
                       </div>
-                      <div>
-                        <h3 className="font-extrabold text-lg text-gray-800" style={{ fontFamily: `'Noto Sans Thai', 'Prompt', 'Sarabun', 'Kanit', 'sans-serif'` }}>
+                      <div className="text-left flex-1 overflow-hidden">
+                        <h3 className="font-extrabold text-sm md:text-base text-gray-800 whitespace-normal break-words leading-tight mb-1" style={{ fontFamily: `'Noto Sans Thai', 'Prompt', 'Sarabun', 'Kanit', 'sans-serif'` }}>
                           สมัครเป็นพ่อค้า
                         </h3>
-                        <p className="text-sm text-gray-500">เริ่มต้นขายสินค้าและบริการ</p>
+                        <p className="text-xs md:text-sm text-gray-500 whitespace-normal break-words leading-snug">เริ่มต้นขายสินค้าและบริการ</p>
                       </div>
                     </Link>
                   )}
@@ -345,6 +345,12 @@ const TradeDashboardPage = () => {
                             <span className="ml-2 px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-xs font-bold">ร้านใหม่</span>
                           )}
                         </div>
+                        {merchantLatestTrade[merchant.id]?.advertisement && (
+                          <div className="mt-1 text-sm text-gray-600 italic flex items-center gap-2">
+                            <span className="inline-block">📝</span>
+                            {merchantLatestTrade[merchant.id].advertisement}
+                          </div>
+                        )}
                         <div className="flex flex-row items-center gap-2">
                           <Link
                             href={`/trade/${merchant.id}`}

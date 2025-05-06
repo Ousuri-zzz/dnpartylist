@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 import { GuildSettings, GuildLoan } from '@/types/trade';
 import { GuildService } from '@/lib/guildService';
 import React from 'react';
+import ConfirmModalPortal from '@/components/ConfirmModalPortal';
 
 interface Merchant {
   uid: string;
@@ -45,6 +46,10 @@ export default function GuildSettingsPage() {
   const [selectedLeaderId, setSelectedLeaderId] = useState<string | null>(null);
   const [merchantSearch, setMerchantSearch] = useState('');
   const [memberSearch, setMemberSearch] = useState('');
+  const [showApproveMerchantModal, setShowApproveMerchantModal] = useState(false);
+  const [selectedApproveMerchant, setSelectedApproveMerchant] = useState<Merchant | null>(null);
+  const [showRejectMerchantModal, setShowRejectMerchantModal] = useState(false);
+  const [selectedRejectMerchant, setSelectedRejectMerchant] = useState<Merchant | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -378,6 +383,35 @@ export default function GuildSettingsPage() {
     }
   };
 
+  const handleApproveMerchant = (merchant: Merchant) => {
+    setSelectedApproveMerchant(merchant);
+    setShowApproveMerchantModal(true);
+  };
+
+  const confirmApproveMerchant = async () => {
+    if (!selectedApproveMerchant) return;
+    await handleMerchantAction(selectedApproveMerchant.uid, 'approve');
+    setShowApproveMerchantModal(false);
+    setSelectedApproveMerchant(null);
+  };
+
+  const handleRejectMerchant = (merchant: Merchant) => {
+    setSelectedRejectMerchant(merchant);
+    setShowRejectMerchantModal(true);
+  };
+
+  const confirmRejectMerchant = async () => {
+    if (!selectedRejectMerchant) return;
+    try {
+      await remove(ref(db, `tradeMerchants/${selectedRejectMerchant.uid}`));
+      toast.success('ลบ/ระงับร้านค้าสำเร็จ');
+    } catch (error) {
+      toast.error('ไม่สามารถลบ/ระงับร้านค้าได้');
+    }
+    setShowRejectMerchantModal(false);
+    setSelectedRejectMerchant(null);
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -548,14 +582,14 @@ export default function GuildSettingsPage() {
                   </div>
                   <div className="flex gap-2">
                     <button
-                      onClick={() => handleMerchantAction(merchant.uid, 'approve')}
+                      onClick={() => handleApproveMerchant(merchant)}
                       className="p-2 rounded-lg bg-green-100 text-green-600 hover:bg-green-200 transition-colors"
                       title="อนุมัติ"
                     >
                       <Check className="w-5 h-5" />
                     </button>
                     <button
-                      onClick={() => handleMerchantAction(merchant.uid, 'suspend')}
+                      onClick={() => handleRejectMerchant(merchant)}
                       className="p-2 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 transition-colors"
                       title="ระงับ"
                     >
@@ -718,104 +752,182 @@ export default function GuildSettingsPage() {
 
         {/* Confirmation Modal for Merchant */}
         {showConfirmModal && selectedMerchant && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 bg-red-100 rounded-lg">
-                  <AlertCircle className="w-6 h-6 text-red-600" />
+          <ConfirmModalPortal>
+            <div className="!fixed !inset-0 !z-[9999] h-screen w-screen flex items-center justify-center bg-black bg-opacity-50">
+              <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl pointer-events-auto">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2 bg-red-100 rounded-lg">
+                    <AlertCircle className="w-6 h-6 text-red-600" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900">ยืนยันการยกเลิกการลงทะเบียนร้านค้า</h3>
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900">ยืนยันการยกเลิกการลงทะเบียนร้านค้า</h3>
-              </div>
-              <p className="text-gray-600 mb-6">
-                คุณต้องการยกเลิกการลงทะเบียนร้านค้า {selectedMerchant.discordName} ใช่หรือไม่?
-              </p>
-              <div className="flex justify-end gap-4">
-                <button
-                  onClick={() => {
-                    setShowConfirmModal(false);
-                    setSelectedMerchant(null);
-                  }}
-                  className="px-4 py-2 text-gray-600 hover:text-gray-800"
-                >
-                  ยกเลิก
-                </button>
-                <button
-                  onClick={confirmUnregisterMerchant}
-                  className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 shadow-sm"
-                >
-                  ยืนยัน
-                </button>
+                <p className="text-gray-600 mb-6">
+                  คุณต้องการยกเลิกการลงทะเบียนร้านค้า {selectedMerchant.discordName} ใช่หรือไม่?
+                </p>
+                <div className="flex justify-end gap-4">
+                  <button
+                    onClick={() => {
+                      setShowConfirmModal(false);
+                      setSelectedMerchant(null);
+                    }}
+                    className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                  >
+                    ยกเลิก
+                  </button>
+                  <button
+                    onClick={confirmUnregisterMerchant}
+                    className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 shadow-sm"
+                  >
+                    ยืนยัน
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
+          </ConfirmModalPortal>
         )}
 
         {/* Confirmation Modal for Member */}
         {showMemberConfirmModal && selectedMemberId && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 bg-red-100 rounded-lg">
-                  <AlertCircle className="w-6 h-6 text-red-600" />
+          <ConfirmModalPortal>
+            <div className="!fixed !inset-0 !z-[9999] h-screen w-screen flex items-center justify-center bg-black bg-opacity-50">
+              <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl pointer-events-auto">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2 bg-red-100 rounded-lg">
+                    <AlertCircle className="w-6 h-6 text-red-600" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900">ยืนยันการลบสมาชิก</h3>
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900">ยืนยันการลบสมาชิก</h3>
-              </div>
-              <p className="text-gray-600 mb-6">
-                คุณต้องการลบสมาชิก {guild?.members[selectedMemberId]?.discordName} ออกจากกิลด์ใช่หรือไม่?
-              </p>
-              <div className="flex justify-end gap-4">
-                <button
-                  onClick={() => {
-                    setShowMemberConfirmModal(false);
-                    setSelectedMemberId(null);
-                  }}
-                  className="px-4 py-2 text-gray-600 hover:text-gray-800"
-                >
-                  ยกเลิก
-                </button>
-                <button
-                  onClick={confirmRemoveMember}
-                  className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 shadow-sm"
-                >
-                  ยืนยัน
-                </button>
+                <p className="text-gray-600 mb-6">
+                  คุณต้องการลบสมาชิก {guild?.members[selectedMemberId]?.discordName} ออกจากกิลด์ใช่หรือไม่?
+                </p>
+                <div className="flex justify-end gap-4">
+                  <button
+                    onClick={() => {
+                      setShowMemberConfirmModal(false);
+                      setSelectedMemberId(null);
+                    }}
+                    className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                  >
+                    ยกเลิก
+                  </button>
+                  <button
+                    onClick={confirmRemoveMember}
+                    className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 shadow-sm"
+                  >
+                    ยืนยัน
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
+          </ConfirmModalPortal>
         )}
 
         {/* Confirmation Modal for Leader */}
         {showLeaderConfirmModal && selectedLeaderId && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 bg-red-100 rounded-lg">
-                  <AlertCircle className="w-6 h-6 text-red-600" />
+          <ConfirmModalPortal>
+            <div className="!fixed !inset-0 !z-[9999] h-screen w-screen flex items-center justify-center bg-black bg-opacity-50">
+              <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl pointer-events-auto">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2 bg-red-100 rounded-lg">
+                    <AlertCircle className="w-6 h-6 text-red-600" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900">ยืนยันการลบหัวกิลด์</h3>
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900">ยืนยันการลบหัวกิลด์</h3>
-              </div>
-              <p className="text-gray-600 mb-6">
-                คุณต้องการลบสิทธิ์หัวกิลด์ของ {guild?.members[selectedLeaderId]?.discordName} ใช่หรือไม่?
-              </p>
-              <div className="flex justify-end gap-4">
-                <button
-                  onClick={() => {
-                    setShowLeaderConfirmModal(false);
-                    setSelectedLeaderId(null);
-                  }}
-                  className="px-4 py-2 text-gray-600 hover:text-gray-800"
-                >
-                  ยกเลิก
-                </button>
-                <button
-                  onClick={confirmRemoveLeader}
-                  className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 shadow-sm"
-                >
-                  ยืนยัน
-                </button>
+                <p className="text-gray-600 mb-6">
+                  คุณต้องการลบสิทธิ์หัวกิลด์ของ {guild?.members[selectedLeaderId]?.discordName} ใช่หรือไม่?
+                </p>
+                <div className="flex justify-end gap-4">
+                  <button
+                    onClick={() => {
+                      setShowLeaderConfirmModal(false);
+                      setSelectedLeaderId(null);
+                    }}
+                    className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                  >
+                    ยกเลิก
+                  </button>
+                  <button
+                    onClick={confirmRemoveLeader}
+                    className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 shadow-sm"
+                  >
+                    ยืนยัน
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
+          </ConfirmModalPortal>
+        )}
+
+        {/* Confirmation Modal for Approve Merchant */}
+        {showApproveMerchantModal && selectedApproveMerchant && (
+          <ConfirmModalPortal>
+            <div className="!fixed !inset-0 !z-[9999] h-screen w-screen flex items-center justify-center bg-black bg-opacity-50">
+              <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl pointer-events-auto">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2 bg-green-100 rounded-lg">
+                    <Check className="w-6 h-6 text-green-600" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900">ยืนยันการอนุมัติร้านค้า</h3>
+                </div>
+                <p className="text-gray-600 mb-6">
+                  คุณต้องการอนุมัติร้านค้า {selectedApproveMerchant.discordName} ใช่หรือไม่?
+                </p>
+                <div className="flex justify-end gap-4">
+                  <button
+                    onClick={() => {
+                      setShowApproveMerchantModal(false);
+                      setSelectedApproveMerchant(null);
+                    }}
+                    className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                  >
+                    ยกเลิก
+                  </button>
+                  <button
+                    onClick={confirmApproveMerchant}
+                    className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 shadow-sm"
+                  >
+                    ยืนยัน
+                  </button>
+                </div>
+              </div>
+            </div>
+          </ConfirmModalPortal>
+        )}
+
+        {/* Confirmation Modal for Reject Merchant */}
+        {showRejectMerchantModal && selectedRejectMerchant && (
+          <ConfirmModalPortal>
+            <div className="!fixed !inset-0 !z-[9999] h-screen w-screen flex items-center justify-center bg-black bg-opacity-50">
+              <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl pointer-events-auto">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2 bg-red-100 rounded-lg">
+                    <X className="w-6 h-6 text-red-600" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900">ยืนยันการปฏิเสธร้านค้า</h3>
+                </div>
+                <p className="text-gray-600 mb-6">
+                  คุณต้องการปฏิเสธ/ระงับร้านค้า {selectedRejectMerchant.discordName} ใช่หรือไม่?
+                </p>
+                <div className="flex justify-end gap-4">
+                  <button
+                    onClick={() => {
+                      setShowRejectMerchantModal(false);
+                      setSelectedRejectMerchant(null);
+                    }}
+                    className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                  >
+                    ยกเลิก
+                  </button>
+                  <button
+                    onClick={confirmRejectMerchant}
+                    className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 shadow-sm"
+                  >
+                    ยืนยัน
+                  </button>
+                </div>
+              </div>
+            </div>
+          </ConfirmModalPortal>
         )}
       </div>
     </div>
