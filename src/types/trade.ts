@@ -55,4 +55,33 @@ export interface Merchant {
   name: string;
   goldAvailable: number;
   createdAt: number;
+}
+
+export interface GoldTrade {
+  tradeId: string;
+  merchantId: string;
+  amount: number;
+  amountLeft: number;
+  price: number;
+  status: 'active' | 'completed' | 'cancelled';
+  confirms?: {
+    [buyerUid: string]: {
+      amount: number;
+      status: 'waiting' | 'completed' | 'cancelled';
+      confirmedAt: number;
+    };
+  };
+  createdAt: number;
+  updatedAt?: number;
+}
+
+export interface TradeItem {
+  itemId: string;
+  sellerId: string;
+  name: string;
+  description: string;
+  price: number;
+  status: 'active' | 'sold' | 'cancelled';
+  createdAt: number;
+  updatedAt?: number;
 } 
