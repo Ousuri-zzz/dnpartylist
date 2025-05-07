@@ -7,6 +7,7 @@ import { CharacterChecklist } from './CharacterChecklist';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import type { Character, CharacterMainClass, CharacterClass, CharacterStats as CharacterStatsType, CharacterChecklist as CharacterChecklistType } from '@/types/character';
 import { cn } from '@/lib/utils';
+import { motion } from 'framer-motion';
 
 // Map sub-classes to main classes
 const CLASS_TO_MAIN_CLASS: Record<CharacterClass, CharacterMainClass> = {
@@ -121,97 +122,134 @@ export function CharacterCard({ character, onEdit, onDelete, onChecklistChange }
 
   return (
     <Card className={cn(
-      "relative overflow-hidden border-2 transition-all duration-300 group",
-      colors.bg,
-      colors.border,
-      "hover:shadow-lg hover:scale-[1.02]"
-    )}>
-      {/* Decorative corner elements */}
-      <div className={cn("absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 rounded-tl-lg", colors.border)}></div>
-      <div className={cn("absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 rounded-tr-lg", colors.border)}></div>
-      <div className={cn("absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 rounded-bl-lg", colors.border)}></div>
-      <div className={cn("absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 rounded-br-lg", colors.border)}></div>
-      
-      <div className="p-4">
-        <div className="flex justify-between items-start mb-4">
-          <div className="flex items-center gap-2">
-            <div className={cn("p-2 rounded-full bg-white/50 backdrop-blur-sm", colors.border)}>
-              {getClassIcon(character.class)}
-            </div>
-            <div>
-              <h3 className={cn("text-base font-semibold flex items-center gap-1", colors.accent)}>
-                <User className={cn("h-5 w-5", colors.accent)} />
-                {character.name}
-              </h3>
-              <p className={cn("text-lg font-semibold flex items-center gap-1", colors.text)}>
-                {getClassIcon(character.class)}
-                {character.class}
-              </p>
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              className={cn("hover:bg-black/5 transition-all duration-300", colors.accent)}
-              onClick={() => {
-                if (onEdit && character) {
-                  onEdit(character);
-                }
-              }}
-            >
-              <Pencil className="h-4 w-4" />
-            </Button>
-            <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-              <DialogTrigger asChild>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="hover:bg-red-100/20 transition-all duration-300"
-                >
-                  <Trash2 className="h-4 w-4 text-red-500 hover:text-red-600" />
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="bg-background/95 backdrop-blur-sm">
-                <DialogHeader>
-                  <DialogTitle className="flex items-center gap-2">
-                    <Trash2 className="h-5 w-5 text-red-500" />
-                    ลบตัวละคร
-                  </DialogTitle>
-                  <DialogDescription>
-                    คุณแน่ใจหรือไม่ที่จะลบ {character.name}? การกระทำนี้ไม่สามารถย้อนกลับได้
-                  </DialogDescription>
-                </DialogHeader>
-                <DialogFooter>
-                  <Button variant="outline" onClick={() => setShowDeleteDialog(false)}>
-                    ยกเลิก
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    onClick={handleDelete}
-                    className="flex items-center gap-1"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                    ลบ
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+      "relative overflow-hidden rounded-3xl shadow-xl bg-white/90 border border-white transition-all duration-500 group",
+      "hover:shadow-2xl hover:bg-gradient-to-br hover:from-white hover:to-violet-50/70",
+      "hover:border-opacity-60 hover:border-violet-100",
+      "hover:shadow-[0_8px_32px_0_rgba(31,38,135,0.15)]",
+      "hover:ring-1 hover:ring-violet-50/50"
+    )} style={{boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.10)'}}>
+      {/* Header bar with class color */}
+      <div className={cn(
+        "w-full h-10 rounded-t-3xl flex items-center justify-center relative",
+        "transition-all duration-500",
+        mainClass === 'Warrior' && 'bg-gradient-to-r from-red-500 to-rose-400',
+        mainClass === 'Archer' && 'bg-gradient-to-r from-emerald-500 to-green-400',
+        mainClass === 'Sorceress' && 'bg-gradient-to-r from-purple-500 to-violet-400',
+        mainClass === 'Cleric' && 'bg-gradient-to-r from-sky-500 to-blue-400',
+        mainClass === 'Academic' && 'bg-gradient-to-r from-amber-400 to-yellow-300',
+        "group-hover:brightness-110 group-hover:contrast-110",
+        "group-hover:shadow-inner group-hover:shadow-black/5"
+      )}>
+        {/* Floating class icon */}
+        <div className={cn(
+          "absolute left-1/2 -bottom-7 -translate-x-1/2 z-20 flex items-center justify-center",
+          "transition-transform duration-500 group-hover:scale-105",
+          "group-hover:drop-shadow-[0_0_6px_rgba(0,0,0,0.15)]"
+        )}>
+          <div className={cn(
+            "w-16 h-16 rounded-full flex items-center justify-center shadow-lg border-4 border-white",
+            "transition-all duration-500",
+            mainClass === 'Warrior' && 'bg-red-100',
+            mainClass === 'Archer' && 'bg-emerald-100',
+            mainClass === 'Sorceress' && 'bg-purple-100',
+            mainClass === 'Cleric' && 'bg-sky-100',
+            mainClass === 'Academic' && 'bg-amber-100',
+            "group-hover:shadow-lg group-hover:border-opacity-80",
+            "group-hover:bg-opacity-95 group-hover:backdrop-blur-[2px]"
+          )}>
+            {getClassIcon(character.class)}
           </div>
         </div>
-
-        <div className="space-y-4">
-          <div className="p-3 rounded-lg bg-white/30 backdrop-blur-sm border border-white/20">
-            <h4 className="text-sm font-medium mb-2 flex items-center gap-1">
-              <Target className={cn("h-4 w-4", colors.accent)} />
+        {/* Floating edit/delete buttons */}
+        <div className="absolute top-2 right-4 flex gap-2 z-30">
+          <Button
+            variant="ghost"
+            size="icon"
+            className={cn("hover:bg-black/10 transition-all duration-300 rounded-full")}
+            onClick={() => {
+              if (onEdit && character) {
+                onEdit(character);
+              }
+            }}
+          >
+            <Pencil className="h-5 w-5 text-gray-600" />
+          </Button>
+          <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+            <DialogTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="hover:bg-red-100/40 transition-all duration-300 rounded-full"
+              >
+                <Trash2 className="h-5 w-5 text-red-500 hover:text-red-600" />
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="bg-background/95 backdrop-blur-sm">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <Trash2 className="h-5 w-5 text-red-500" />
+                  ลบตัวละคร
+                </DialogTitle>
+                <DialogDescription>
+                  คุณแน่ใจหรือไม่ที่จะลบ {character.name}? การกระทำนี้ไม่สามารถย้อนกลับได้
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setShowDeleteDialog(false)}>
+                  ยกเลิก
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={handleDelete}
+                  className="flex items-center gap-1"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  ลบ
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
+      </div>
+      {/* Content below header */}
+      <div className="pt-8 pb-4 px-4 flex flex-col items-center">
+        <h3 className={cn("text-xl font-bold flex items-center gap-2 mt-2 mb-1 text-gray-800")}>{character.name}</h3>
+        <p className={cn("text-base font-semibold flex items-center gap-1 mb-4",
+          mainClass === 'Warrior' && 'text-red-500',
+          mainClass === 'Archer' && 'text-emerald-500',
+          mainClass === 'Sorceress' && 'text-purple-500',
+          mainClass === 'Cleric' && 'text-sky-500',
+          mainClass === 'Academic' && 'text-amber-500',
+        )}>
+          {character.class}
+        </p>
+        <div className="w-full flex flex-col gap-2">
+          <div className="p-3 rounded-xl bg-white/70 shadow-inner border border-gray-100">
+            <h4 className="text-sm font-semibold mb-2 flex items-center gap-1 text-gray-700">
+              <Target className={cn("h-4 w-4",
+                mainClass === 'Warrior' && 'text-red-400',
+                mainClass === 'Archer' && 'text-emerald-400',
+                mainClass === 'Sorceress' && 'text-purple-400',
+                mainClass === 'Cleric' && 'text-sky-400',
+                mainClass === 'Academic' && 'text-amber-400',
+                "transition-all duration-500 group-hover:scale-110",
+                "group-hover:drop-shadow-[0_0_3px_rgba(0,0,0,0.15)]"
+              )} />
               สถานะตัวละคร
             </h4>
             <CharacterStats stats={character.stats} />
           </div>
-          
-          <div className="p-3 rounded-lg bg-white/30 backdrop-blur-sm border border-white/20">
-            <h4 className="text-sm font-medium mb-2 flex items-center gap-1">
-              <CheckCircle2 className={cn("h-4 w-4", colors.accent)} />
+          <div className="p-3 rounded-xl bg-white/70 shadow-inner border border-gray-100">
+            <h4 className="text-sm font-semibold mb-2 flex items-center gap-1 text-gray-700">
+              <CheckCircle2 className={cn("h-4 w-4",
+                mainClass === 'Warrior' && 'text-red-400',
+                mainClass === 'Archer' && 'text-emerald-400',
+                mainClass === 'Sorceress' && 'text-purple-400',
+                mainClass === 'Cleric' && 'text-sky-400',
+                mainClass === 'Academic' && 'text-amber-400',
+                "transition-all duration-500 group-hover:scale-110",
+                "group-hover:drop-shadow-[0_0_3px_rgba(0,0,0,0.15)]"
+              )} />
               รายการเช็คลิสต์
             </h4>
             <CharacterChecklist

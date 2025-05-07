@@ -554,13 +554,13 @@ export default function MyStorePage() {
                     </label>
                     <textarea
                       value={newTrade.advertisement}
-                      maxLength={35}
-                      onChange={(e) => setNewTrade({ ...newTrade, advertisement: e.target.value.slice(0, 35) })}
+                      maxLength={50}
+                      onChange={(e) => setNewTrade({ ...newTrade, advertisement: e.target.value.slice(0, 50) })}
                       className="w-full px-4 py-2 rounded-lg border border-pink-200 focus:ring-2 focus:ring-pink-400 focus:border-transparent"
                       rows={3}
                     />
                   </div>
-                  <div className="text-xs text-gray-400 mt-1 text-right">{newTrade.advertisement.length}/35 ตัวอักษร</div>
+                  <div className="text-xs text-gray-400 mt-1 text-right">{newTrade.advertisement.length}/50 ตัวอักษร</div>
                   <div className="flex space-x-4">
                     <button
                       onClick={isEditing ? handleEditTrade : handleCreateTrade}

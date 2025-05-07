@@ -330,77 +330,79 @@ const TradeDashboardPage = () => {
                     return priceA - priceB;
                   })
                   .map((merchant, index) => (
-                    <motion.div
+                    <Link
                       key={merchant.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                      className="bg-white rounded-xl p-6 shadow-md border-2 border-pink-200 hover:border-pink-400 hover:shadow-xl transition-all"
+                      href={`/trade/${merchant.id}`}
+                      className="block"
                     >
-                      <div className="flex items-center justify-between mb-1">
-                        <div className="flex items-center gap-2">
-                          <Store className="w-5 h-5 text-blue-500" />
-                          <h3 className="text-xl font-bold text-blue-600">{merchant.discord || '-'}</h3>
-                          {merchant.createdAt && Date.now() - merchant.createdAt < 1000 * 60 * 60 * 24 * 7 && (
-                            <span className="ml-2 px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-xs font-bold">ร้านใหม่</span>
-                          )}
-                        </div>
-                        {merchantLatestTrade[merchant.id]?.advertisement && (
-                          <div className="mt-1 text-sm text-gray-600 italic flex items-center gap-2">
-                            <span className="inline-block">📝</span>
-                            {merchantLatestTrade[merchant.id].advertisement}
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                        className="bg-white rounded-xl p-6 shadow-md border-2 border-pink-200 hover:border-pink-400 hover:shadow-xl transition-all cursor-pointer"
+                      >
+                        <div className="flex items-center justify-between mb-1">
+                          <div className="flex items-center gap-2">
+                            <Store className="w-5 h-5 text-blue-500" />
+                            <h3 className="text-xl font-bold text-blue-600">{merchant.discord || '-'}</h3>
+                            {merchant.createdAt && Date.now() - merchant.createdAt < 1000 * 60 * 60 * 24 * 7 && (
+                              <span className="ml-2 px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-xs font-bold">ร้านใหม่</span>
+                            )}
                           </div>
-                        )}
-                        <div className="flex flex-row items-center gap-2">
-                          <Link
-                            href={`/trade/${merchant.id}`}
-                            className="px-6 py-2 rounded-full bg-gradient-to-r from-pink-400 to-purple-400 text-white font-bold shadow-md hover:from-pink-500 hover:to-purple-500 transition text-lg"
-                          >
-                            ดูร้านค้า
-                          </Link>
                           <a
                             href={`https://discord.com/users/${merchant.discordId}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="h-10 w-10 flex items-center justify-center rounded-lg hover:bg-sky-50 text-sky-500 hover:text-sky-700 transition-colors"
+                            className="flex items-center gap-1 h-9 px-3 rounded-md bg-sky-50 border border-sky-100 hover:bg-sky-100 text-sky-600 hover:text-sky-700 transition-colors font-medium text-sm shadow-sm"
+                            onClick={e => e.stopPropagation()}
+                            title="DM"
                           >
                             <MessageSquare className="w-5 h-5" />
+                            <span className="font-medium text-sm">DM</span>
                           </a>
                         </div>
-                      </div>
-                      <div className="flex items-center gap-2 mt-2">
-                        <PiggyBank className="w-5 h-5 text-yellow-500" />
-                        <span className="font-bold text-green-700 bg-green-100 px-2 py-1 rounded-lg shadow">
-                          Gold คงเหลือ: {merchantGoldLeft[merchant.id] !== undefined ? merchantGoldLeft[merchant.id] : 0}G
-                        </span>
-                        {merchantLatestTrade[merchant.id]?.pricePer100 && (
-                          <span className="font-bold text-yellow-600 bg-yellow-100 px-2 py-1 rounded-lg shadow">
-                            ราคา: {merchantLatestTrade[merchant.id].pricePer100} บาท/1G
-                          </span>
-                        )}
-                      </div>
-                      {merchantItems[merchant.id] && merchantItems[merchant.id].length > 0 && (
-                        <div className="mt-2">
-                          <div className="text-sm text-gray-500 font-semibold mb-1 flex items-center gap-1">
-                            <Package className="w-4 h-4 text-pink-400" /> สินค้าและบริการ:
+                        {merchantLatestTrade[merchant.id]?.advertisement && (
+                          <div className="mt-2 mb-3">
+                            <p className="text-sm text-gray-600 italic flex items-start gap-2 break-words whitespace-pre-line sm:text-sm text-xs">
+                              <span className="text-gray-400 mt-0.5">📝</span>
+                              <span className="flex-1 break-words whitespace-pre-line overflow-hidden text-ellipsis">{merchantLatestTrade[merchant.id].advertisement}</span>
+                            </p>
                           </div>
-                          <ul className="flex flex-wrap gap-2">
-                            {merchantItems[merchant.id].slice(0, 3).map((item, idx) => (
-                              <li key={idx} className="flex items-center gap-1 bg-pink-50 text-pink-700 px-2 py-1 rounded-full text-xs">
-                                <Package className="w-3 h-3" />
-                                {item.itemName}
-                                <span className="text-gray-400 ml-1">({item.price}G)</span>
-                              </li>
-                            ))}
-                            {merchantItems[merchant.id].length > 3 && (
-                              <li className="flex items-center gap-1 bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs">
-                                + อีก {merchantItems[merchant.id].length - 3} รายการ
-                              </li>
-                            )}
-                          </ul>
+                        )}
+                        <div className="flex items-center gap-2 mt-2">
+                          <PiggyBank className="w-5 h-5 text-yellow-500" />
+                          <span className="font-bold text-green-700 bg-green-100 px-2 py-1 rounded-lg shadow">
+                            Gold คงเหลือ: {merchantGoldLeft[merchant.id] !== undefined ? merchantGoldLeft[merchant.id] : 0}G
+                          </span>
+                          {merchantLatestTrade[merchant.id]?.pricePer100 && (
+                            <span className="font-bold text-yellow-600 bg-yellow-100 px-2 py-1 rounded-lg shadow">
+                              ราคา: {merchantLatestTrade[merchant.id].pricePer100} บาท/1G
+                            </span>
+                          )}
                         </div>
-                      )}
-                    </motion.div>
+                        {merchantItems[merchant.id] && merchantItems[merchant.id].length > 0 && (
+                          <div className="mt-2">
+                            <div className="text-sm text-gray-500 font-semibold mb-1 flex items-center gap-1">
+                              <Package className="w-4 h-4 text-pink-400" /> สินค้าและบริการ:
+                            </div>
+                            <ul className="flex flex-wrap gap-2">
+                              {merchantItems[merchant.id].slice(0, 3).map((item, idx) => (
+                                <li key={idx} className="flex items-center gap-1 bg-pink-50 text-pink-700 px-2 py-1 rounded-full text-xs">
+                                  <Package className="w-3 h-3" />
+                                  {item.itemName}
+                                  <span className="text-gray-400 ml-1">({item.price}G)</span>
+                                </li>
+                              ))}
+                              {merchantItems[merchant.id].length > 3 && (
+                                <li className="flex items-center gap-1 bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs">
+                                  + อีก {merchantItems[merchant.id].length - 3} รายการ
+                                </li>
+                              )}
+                            </ul>
+                          </div>
+                        )}
+                      </motion.div>
+                    </Link>
                   ))
               )}
             </div>
@@ -440,44 +442,46 @@ const TradeDashboardPage = () => {
                       return b.createdAt - a.createdAt;
                     })
                     .map((item, index) => (
-                      <motion.div
+                      <Link
                         key={item.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.05 }}
-                        className={`bg-white rounded-lg p-3 shadow-md border-2 ${item.status === 'sold' ? 'border-gray-200' : 'border-pink-200'} hover:shadow-lg transition-all h-full`}
+                        href={`/trade/${item.merchantId}`}
+                        className="block"
                       >
-                        <div className="flex items-center gap-1 mb-1">
-                          <ShoppingBag className="w-4 h-4 text-emerald-500" />
-                          <h3 className="text-sm font-bold text-emerald-600 flex-1 line-clamp-2 break-all">{item.itemName}</h3>
-                          <span className={`px-2 py-0.5 text-xs rounded-full ${item.status === 'sold' ? 'bg-gray-100 text-gray-600' : 'bg-pink-100 text-pink-600'} font-bold shadow`}>
-                            {item.price}G
-                          </span>
-                          {item.status === 'sold' && (
-                            <span className="px-2 py-0.5 text-xs rounded-full bg-gray-200 text-gray-800 font-bold shadow">ติดจอง</span>
-                          )}
-                          {item.createdAt && Date.now() - item.createdAt < 1000 * 60 * 60 * 24 * 3 && (
-                            <span className="ml-2 px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700 text-xs font-bold">ใหม่</span>
-                          )}
-                        </div>
-                        <p className="text-gray-600 mb-1 text-xs line-clamp-2 break-all">{item.description}</p>
-                        <div className="flex justify-end">
-                          <Link
-                            href={`/trade/${item.merchantId}`}
-                            className="h-8 px-3 py-0 rounded-lg bg-pink-100 text-pink-600 hover:bg-pink-200 transition-colors flex items-center justify-center text-xs font-semibold mr-2"
-                          >
-                            ดูร้านค้า
-                          </Link>
-                          <a
-                            href={`https://discord.com/users/${item.merchantId}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-sky-50 text-sky-500 hover:text-sky-700 transition-colors"
-                          >
-                            <MessageSquare className="w-4 h-4" />
-                          </a>
-                        </div>
-                      </motion.div>
+                        <motion.div
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.05 }}
+                          className={`bg-white rounded-lg p-3 shadow-md border-2 ${item.status === 'sold' ? 'border-gray-200' : 'border-pink-200'} hover:shadow-lg transition-all h-full cursor-pointer`}
+                        >
+                          <div className="flex items-center gap-1 mb-1">
+                            <ShoppingBag className="w-4 h-4 text-emerald-500" />
+                            <h3 className="text-sm font-bold text-emerald-600 flex-1 line-clamp-2 break-all">{item.itemName}</h3>
+                            <span className={`px-2 py-0.5 text-xs rounded-full ${item.status === 'sold' ? 'bg-gray-100 text-gray-600' : 'bg-pink-100 text-pink-600'} font-bold shadow`}>
+                              {item.price}G
+                            </span>
+                            {item.status === 'sold' && (
+                              <span className="px-2 py-0.5 text-xs rounded-full bg-gray-200 text-gray-800 font-bold shadow">ติดจอง</span>
+                            )}
+                            {item.createdAt && Date.now() - item.createdAt < 1000 * 60 * 60 * 3 && (
+                              <span className="ml-2 px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700 text-xs font-bold">ใหม่</span>
+                            )}
+                          </div>
+                          <p className="text-gray-600 mb-1 text-xs line-clamp-2 break-all">{item.description}</p>
+                          <div className="flex justify-end">
+                            <a
+                              href={`https://discord.com/users/${item.merchantId}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-1 h-8 px-2 rounded-md bg-sky-50 border border-sky-100 hover:bg-sky-100 text-sky-600 hover:text-sky-700 transition-colors font-medium text-xs shadow-sm"
+                              onClick={e => e.stopPropagation()}
+                              title="DM"
+                            >
+                              <MessageSquare className="w-4 h-4" />
+                              <span className="font-medium text-xs">DM</span>
+                            </a>
+                          </div>
+                        </motion.div>
+                      </Link>
                     ))}
                 </div>
               )}

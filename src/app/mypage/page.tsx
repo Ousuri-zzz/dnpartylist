@@ -1038,13 +1038,9 @@ export default function MyPage() {
             {[...characters]
               .sort((a, b) => a.name.localeCompare(b.name, 'th', {sensitivity: 'base'}))
               .map((character, index) => (
-              <motion.div
+              <div
                 key={`character-${character.id}`}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: index * 0.1, ease: "easeOut" }}
-                whileHover={{ scale: 1.02 }}
-                className="transform transition-all duration-200"
+                className="transition-all duration-200"
               >
                 <CharacterCard
                   character={character}
@@ -1052,7 +1048,7 @@ export default function MyPage() {
                   onDelete={handleDeleteCharacter}
                   onChecklistChange={handleChecklistChange}
                 />
-              </motion.div>
+              </div>
             ))}
           </motion.div>
         )}
