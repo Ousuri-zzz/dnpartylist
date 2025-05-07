@@ -145,9 +145,9 @@ export function CreatePartyDialog() {
                 <SelectItem value="Apocalypse">Apocalypse</SelectItem>
                 <SelectItem value="Apocalypse Hell">Apocalypse Hell</SelectItem>
                 <SelectItem value="Sea Dragon">Sea Dragon</SelectItem>
-                <SelectItem value="Chaos Rift: Kamala">Chaos Rift: Kamala</SelectItem>
                 <SelectItem value="Chaos Rift: Bairra">Chaos Rift: Bairra</SelectItem>
-                <SelectItem value="Banquet Hall">Banquet Hall</SelectItem>
+                <SelectItem value="Chaos Rift: Kamala">Chaos Rift: Kamala</SelectItem>
+                <SelectItem value="Dark Banquet Hall">Dark Banquet Hall</SelectItem>
                 <SelectItem value="Jealous Albeuteur">Jealous Albeuteur</SelectItem>
                 <SelectItem value="Theme Park">Theme Park</SelectItem>
               </SelectContent>

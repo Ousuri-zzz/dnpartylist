@@ -122,12 +122,12 @@ export function CharacterCard({ character, onEdit, onDelete, onChecklistChange }
 
   return (
     <Card className={cn(
-      "relative overflow-hidden rounded-3xl shadow-xl bg-white/90 border border-white transition-all duration-500 group",
-      "hover:shadow-2xl hover:bg-gradient-to-br hover:from-white hover:to-violet-50/70",
+      "relative overflow-hidden rounded-3xl shadow-xl bg-white/60 backdrop-blur-sm border border-white/80 transition-all duration-500 group",
+      "hover:shadow-2xl hover:bg-gradient-to-br hover:from-white/70 hover:to-violet-50/50",
       "hover:border-opacity-60 hover:border-violet-100",
       "hover:shadow-[0_8px_32px_0_rgba(31,38,135,0.15)]",
       "hover:ring-1 hover:ring-violet-50/50"
-    )} style={{boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.10)'}}>
+    )} style={{boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.07)'}}>
       {/* Header bar with class color */}
       <div className={cn(
         "w-full h-10 rounded-t-3xl flex items-center justify-center relative",
@@ -224,7 +224,7 @@ export function CharacterCard({ character, onEdit, onDelete, onChecklistChange }
           {character.class}
         </p>
         <div className="w-full flex flex-col gap-2">
-          <div className="p-3 rounded-xl bg-white/70 shadow-inner border border-gray-100">
+          <div className="p-3 rounded-xl bg-white/40 shadow-inner border border-gray-100/50">
             <h4 className="text-sm font-semibold mb-2 flex items-center gap-1 text-gray-700">
               <Target className={cn("h-4 w-4",
                 mainClass === 'Warrior' && 'text-red-400',
@@ -239,7 +239,7 @@ export function CharacterCard({ character, onEdit, onDelete, onChecklistChange }
             </h4>
             <CharacterStats stats={character.stats} />
           </div>
-          <div className="p-3 rounded-xl bg-white/70 shadow-inner border border-gray-100">
+          <div className="p-3 rounded-xl bg-white/40 shadow-inner border border-gray-100/50">
             <h4 className="text-sm font-semibold mb-2 flex items-center gap-1 text-gray-700">
               <CheckCircle2 className={cn("h-4 w-4",
                 mainClass === 'Warrior' && 'text-red-400',

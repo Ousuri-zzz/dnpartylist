@@ -8,9 +8,9 @@ export type NestType =
   | 'Apocalypse'
   | 'Apocalypse Hell'
   | 'Sea Dragon'
-  | 'Chaos Rift: Kamala'
   | 'Chaos Rift: Bairra'
-  | 'Banquet Hall'
+  | 'Chaos Rift: Kamala'
+  | 'Dark Banquet Hall'
   | 'Jealous Albeuteur'
   | 'Theme Park'
   | 'DQ+FTG700';
