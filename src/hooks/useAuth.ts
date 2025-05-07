@@ -7,8 +7,12 @@ import { db } from '../lib/firebase';
 import { GuildService } from '@/lib/guildService';
 
 let authListener: (() => void) | null = null;
-let authState: { user: User | null; discordName: string } = { user: null, discordName: '' };
-let authSubscribers: ((state: { user: User | null; discordName: string }) => void)[] = [];
+let authState: { user: User | null; discordName: string; showDiscordDialog: boolean } = { 
+  user: null, 
+  discordName: '', 
+  showDiscordDialog: false 
+};
+let authSubscribers: ((state: { user: User | null; discordName: string; showDiscordDialog: boolean }) => void)[] = [];
 
 const notifySubscribers = () => {
   // Always send a new object reference to force re-render
@@ -64,13 +68,13 @@ const setupAuthListener = () => {
 };
 
 export function useAuth() {
-  const [state, setState] = useState<{ user: User | null; discordName: string }>(() => ({ ...authState }));
+  const [state, setState] = useState<{ user: User | null; discordName: string; showDiscordDialog: boolean }>(() => ({ ...authState }));
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setupAuthListener();
     
-    const subscriber = (newState: { user: User | null; discordName: string }) => {
+    const subscriber = (newState: { user: User | null; discordName: string; showDiscordDialog: boolean }) => {
       setState(() => ({ ...newState }));
       setLoading(false);
     };
@@ -136,10 +140,17 @@ export function useAuth() {
     }
   };
 
+  const setShowDiscordDialog = (show: boolean) => {
+    authState.showDiscordDialog = show;
+    notifySubscribers();
+  };
+
   return {
     user: state.user,
     loading,
     discordName: state.discordName,
+    showDiscordDialog: state.showDiscordDialog,
+    setShowDiscordDialog,
     updateDiscordName,
     signIn,
     signOut

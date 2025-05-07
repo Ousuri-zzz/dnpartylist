@@ -1,6 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
+import { Input } from './ui/input';
+import { Button } from './ui/button';
+import { Label } from './ui/label';
+import { FaDiscord } from 'react-icons/fa';
+import { useAuth } from '@/hooks/useAuth';
 
 interface DiscordNameDialogProps {
   onSubmit: (discordName: string) => void;
@@ -8,45 +14,47 @@ interface DiscordNameDialogProps {
 
 export function DiscordNameDialog({ onSubmit }: DiscordNameDialogProps) {
   const [discordName, setDiscordName] = useState('');
+  const { showDiscordDialog, setShowDiscordDialog } = useAuth();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(discordName);
+    if (!discordName.trim()) return;
+    onSubmit(discordName.trim());
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md">
-        <h2 className="text-xl font-semibold mb-4">กรอกชื่อ Discord ของคุณ</h2>
-        <p className="text-sm text-gray-500 mb-4">
-          ชื่อ Discord นี้จะแสดงในตัวละครทั้งหมดของคุณ
-        </p>
-        <form onSubmit={handleSubmit}>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                ชื่อ Discord
-              </label>
-              <input
-                type="text"
-                value={discordName}
-                onChange={(e) => setDiscordName(e.target.value)}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-                placeholder="username#1234"
-                required
-              />
-            </div>
+    <Dialog open={showDiscordDialog} onOpenChange={setShowDiscordDialog}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2 text-xl font-bold">
+            <FaDiscord className="text-[#5865F2]" />
+            ตั้งชื่อ Discord
+          </DialogTitle>
+          <DialogDescription className="text-gray-500">
+            กรอกชื่อ Discord ของคุณเพื่อใช้งานระบบ
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="discordName">ชื่อ Discord</Label>
+            <Input
+              id="discordName"
+              value={discordName}
+              onChange={(e) => setDiscordName(e.target.value)}
+              placeholder="username#1234"
+              className="bg-[#383A40] border-0 text-white placeholder:text-gray-400 focus:ring-2 focus:ring-[#5865F2]"
+              required
+            />
           </div>
-          <div className="mt-6">
-            <button
-              type="submit"
-              className="w-full px-4 py-2 text-sm font-medium text-white bg-blue-500 hover:bg-blue-600 rounded-md"
-            >
-              บันทึก
-            </button>
-          </div>
+          <Button 
+            type="submit"
+            className="w-full bg-[#5865F2] hover:bg-[#4752C4] text-white transition-colors"
+            disabled={!discordName.trim()}
+          >
+            บันทึก
+          </Button>
         </form>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 } 
