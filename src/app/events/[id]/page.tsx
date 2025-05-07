@@ -11,6 +11,7 @@ import { useUsers } from '@/hooks/useUsers';
 import { useAuth } from '@/hooks/useAuth';
 import { Edit2, Trash2, ArrowLeft, Check, Gift } from 'lucide-react';
 import { CreateEventModal } from '@/components/events/CreateEventModal';
+import { createPortal } from 'react-dom';
 
 function CountdownTimer({ targetDate, className = "" }: { targetDate: Date | null, className?: string }) {
   const [timeLeft, setTimeLeft] = useState<number>(targetDate ? targetDate.getTime() - Date.now() : 0);
@@ -41,16 +42,17 @@ function CountdownTimer({ targetDate, className = "" }: { targetDate: Date | nul
 
 function ConfirmModal({ open, onConfirm, onCancel, message }: { open: boolean; onConfirm: () => void; onCancel: () => void; message: string }) {
   if (!open) return null;
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="bg-white rounded-xl shadow-lg p-6 min-w-[300px] max-w-xs">
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40">
+      <div className="bg-white rounded-xl shadow-lg p-6 min-w-[300px] max-w-xs relative">
         <div className="mb-4 text-gray-800 text-center">{message}</div>
         <div className="flex justify-center gap-4">
           <Button className="bg-pink-500 text-white" onClick={onConfirm}>ยืนยัน</Button>
           <Button variant="outline" onClick={onCancel}>ยกเลิก</Button>
         </div>
       </div>
-    </div>
+    </div>,
+    typeof window !== 'undefined' ? document.body : (null as any)
   );
 }
 

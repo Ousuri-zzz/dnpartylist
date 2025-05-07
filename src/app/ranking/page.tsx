@@ -37,18 +37,14 @@ interface RankedCharacter extends Character {
   rank: number;
 }
 
-const jobWeights = {
-  "Sword Master":     { atk: 1.0, hp: 0.2, def: 0.3, cri: 0.6, ele: 0.2, fd: 0.7 },
-  "Mercenary":        { atk: 0.6, hp: 1.0, def: 0.8, cri: 0.2, ele: 0.1, fd: 0.3 },
-  "Bowmaster":        { atk: 1.0, hp: 0.3, def: 0.2, cri: 0.8, ele: 0.6, fd: 0.4 },
-  "Acrobat":          { atk: 0.7, hp: 0.3, def: 0.3, cri: 1.0, ele: 0.8, fd: 0.3 },
-  "Force User":       { atk: 0.5, hp: 0.3, def: 0.2, cri: 0.6, ele: 1.0, fd: 0.8 },
-  "Elemental Lord":   { atk: 0.6, hp: 0.3, def: 0.3, cri: 0.5, ele: 1.0, fd: 1.0 },
-  "Paladin":          { atk: 0.2, hp: 1.0, def: 1.0, cri: 0.1, ele: 0.1, fd: 0.2 },
-  "Priest":           { atk: 0.3, hp: 1.0, def: 1.0, cri: 0.1, ele: 0.2, fd: 0.2 },
-  "Engineer":         { atk: 0.6, hp: 0.6, def: 0.4, cri: 0.7, ele: 0.5, fd: 1.0 },
-  "Alchemist":        { atk: 0.3, hp: 0.8, def: 0.7, cri: 0.3, ele: 0.4, fd: 1.0 },
-} as const;
+const weightConfig = {
+  atk: 1.0,       // ตรงกับดาเมจจริง
+  hp: 0.1,        // คงเดิมไม่ให้ล้น
+  def: 50,        // เพิ่มพอประมาณเพราะหาของง่าย
+  cri: 75,        // คริหาของยากขึ้น
+  ele: 100,       // ธาตุหาของยากมากขึ้น
+  fd: 150         // FD หายากสุดและส่งผลสูงมาก
+};
 
 const formatNumber = (num: number): string => {
   if (num >= 1000000) {
@@ -80,22 +76,16 @@ export default function RankingPage() {
     }
   };
 
-  // Calculate score based on job weights
   const calculateScore = (character: Character): number => {
-    const weights = jobWeights[character.class as keyof typeof jobWeights] || {
-      atk: 1.0, hp: 1.0, def: 1.0, cri: 1.0, ele: 1.0, fd: 1.0
-    };
-    
     const stats = character.stats;
-    const def = (stats.pdef + stats.mdef) / 2;
-    
+    const averageDef = ((stats.pdef || 0) + (stats.mdef || 0)) / 2;
     return (
-      (stats.atk * weights.atk) +
-      (stats.hp * weights.hp) +
-      (def * 10000 * weights.def) +
-      (stats.cri * 10000 * weights.cri) +
-      (stats.ele * 10000 * weights.ele) +
-      (stats.fd * 10000 * weights.fd)
+      (stats.atk || 0) * weightConfig.atk +
+      (stats.hp || 0) * weightConfig.hp +
+      (averageDef) * weightConfig.def +
+      (stats.cri || 0) * weightConfig.cri +
+      (stats.ele || 0) * weightConfig.ele +
+      (stats.fd || 0) * weightConfig.fd
     );
   };
 

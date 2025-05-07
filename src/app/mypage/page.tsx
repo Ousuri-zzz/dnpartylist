@@ -23,6 +23,7 @@ import { auth } from "@/lib/firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { WEEKLY_MAX_VALUES } from '@/constants/checklist';
 import { motion } from 'framer-motion';
+import { ClipboardCheck, ClipboardCopy } from 'lucide-react';
 
 const CHARACTER_CLASSES: CharacterClass[] = [
   'Sword Master',
@@ -250,6 +251,7 @@ export default function MyPage() {
     checklist: DEFAULT_CHECKLIST
   });
   const [newCharacterLevel, setNewCharacterLevel] = useState('');
+  const [copied, setCopied] = useState<'th' | 'en' | null>(null);
 
   useEffect(() => {
     if (!user && !authLoading) {
@@ -912,6 +914,21 @@ export default function MyPage() {
     };
   };
 
+  const handleCopy = (text: string, lang: 'th' | 'en') => {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(text);
+    } else {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+    }
+    setCopied(lang);
+    setTimeout(() => setCopied(null), 1200);
+  };
+
   if (authLoading || !user) {
     return <div>กำลังโหลด...</div>;
   }
@@ -942,6 +959,25 @@ export default function MyPage() {
                 ตัวละครของฉัน
               </h1>
               <p className="text-gray-500">จัดการตัวละครและติดตามความคืบหน้าของคุณ</p>
+              <div className="flex items-center gap-3 mt-2">
+                <span className="text-xs text-gray-400">ปุ่มคัดลอกข้อความรายวัน</span>
+                <button
+                  className={`flex items-center gap-1 px-3 py-1 rounded-lg border border-pink-200 bg-pink-50 text-pink-700 text-xs font-medium shadow hover:bg-pink-100 transition-all duration-200 ${copied === 'th' ? 'scale-105 bg-pink-200' : ''}`}
+                  onClick={() => handleCopy('ยินดีต้อนรับกลับ Nest', 'th')}
+                  type="button"
+                >
+                  {copied === 'th' ? <ClipboardCheck className="w-4 h-4 text-green-500 animate-bounce" /> : <ClipboardCopy className="w-4 h-4 text-pink-400" />}
+                  ยินดีต้อนรับกลับ Nest
+                </button>
+                <button
+                  className={`flex items-center gap-1 px-3 py-1 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 text-xs font-medium shadow hover:bg-blue-100 transition-all duration-200 ${copied === 'en' ? 'scale-105 bg-blue-200' : ''}`}
+                  onClick={() => handleCopy('Welcome back to DN', 'en')}
+                  type="button"
+                >
+                  {copied === 'en' ? <ClipboardCheck className="w-4 h-4 text-green-500 animate-bounce" /> : <ClipboardCopy className="w-4 h-4 text-blue-400" />}
+                  Welcome back to DN
+                </button>
+              </div>
             </motion.div>
             <motion.div 
               initial={{ opacity: 0, y: 10 }}
