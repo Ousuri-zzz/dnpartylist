@@ -213,32 +213,62 @@ export default function RegisterPage() {
           onClose={() => setShowGuide(false)}
           className="relative z-50"
         >
-          <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+          <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" aria-hidden="true" />
           <div className="fixed inset-0 flex items-center justify-center p-4">
-            <Dialog.Panel className="mx-auto max-w-md rounded-2xl bg-white p-6 shadow-xl">
-              <Dialog.Title className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <HelpCircle className="w-5 h-5 text-blue-600" />
-                วิธีหา Discord ID
+            <Dialog.Panel className="mx-auto max-w-md rounded-2xl bg-gradient-to-b from-white to-blue-50 p-6 shadow-2xl border border-blue-100">
+              <Dialog.Title className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+                <div className="bg-blue-100 p-2 rounded-xl">
+                  <HelpCircle className="w-6 h-6 text-blue-600" />
+                </div>
+                <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  วิธีหา Discord ID
+                </span>
               </Dialog.Title>
-              <div className="space-y-4">
-                <ol className="list-decimal list-inside space-y-2 text-gray-700">
-                  <li>เปิด Discord และไปที่ <span className="font-medium">ตั้งค่า</span></li>
-                  <li>เลื่อนลงไปที่ <span className="font-medium">ขั้นสูง</span></li>
-                  <li>เปิด <span className="font-medium">โหมดผู้พัฒนา</span></li>
-                  <li>กลับไปที่ <span className="font-medium">บัญชีของฉัน</span></li>
-                  <li>คลิกที่ <span className="font-medium">...</span> ตรงรูปโปรไฟล์</li>
-                  <li>เลือก <span className="font-medium">คัดลอก ID ผู้ใช้</span></li>
+              <div className="space-y-6">
+                <ol className="list-decimal list-inside space-y-4 text-gray-700">
+                  <li className="flex items-center gap-3 group hover:bg-blue-50/50 p-2 rounded-lg transition-all">
+                    <span className="font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg shadow-sm group-hover:shadow-md transition-all">1.</span>
+                    <span>เปิด Discord และไปที่</span>
+                    <span className="font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg shadow-sm group-hover:shadow-md transition-all">ตั้งค่า</span>
+                  </li>
+                  <li className="flex items-center gap-3 group hover:bg-blue-50/50 p-2 rounded-lg transition-all">
+                    <span className="font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg shadow-sm group-hover:shadow-md transition-all">2.</span>
+                    <span>เลื่อนลงไปที่</span>
+                    <span className="font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg shadow-sm group-hover:shadow-md transition-all">ขั้นสูง</span>
+                  </li>
+                  <li className="flex items-center gap-3 group hover:bg-blue-50/50 p-2 rounded-lg transition-all">
+                    <span className="font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg shadow-sm group-hover:shadow-md transition-all">3.</span>
+                    <span>เปิด</span>
+                    <span className="font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg shadow-sm group-hover:shadow-md transition-all">โหมดผู้พัฒนา</span>
+                  </li>
+                  <li className="flex items-center gap-3 group hover:bg-blue-50/50 p-2 rounded-lg transition-all">
+                    <span className="font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg shadow-sm group-hover:shadow-md transition-all">4.</span>
+                    <span>กลับไปที่</span>
+                    <span className="font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg shadow-sm group-hover:shadow-md transition-all">บัญชีของฉัน</span>
+                  </li>
+                  <li className="flex items-center gap-3 group hover:bg-blue-50/50 p-2 rounded-lg transition-all">
+                    <span className="font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg shadow-sm group-hover:shadow-md transition-all">5.</span>
+                    <span>คลิกที่</span>
+                    <span className="font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg shadow-sm group-hover:shadow-md transition-all">...</span>
+                    <span>ตรงรูปโปรไฟล์</span>
+                  </li>
+                  <li className="flex items-center gap-3 group hover:bg-blue-50/50 p-2 rounded-lg transition-all">
+                    <span className="font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg shadow-sm group-hover:shadow-md transition-all">6.</span>
+                    <span>เลือก</span>
+                    <span className="font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg shadow-sm group-hover:shadow-md transition-all">คัดลอก ID ผู้ใช้</span>
+                  </li>
                 </ol>
-                <div className="bg-blue-50 p-3 rounded-lg">
-                  <p className="text-sm text-blue-700">
-                    หมายเหตุ: ID จะเป็นตัวเลขยาว เช่น 823456789012345678
+                <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-xl border border-blue-100 shadow-sm">
+                  <p className="text-sm text-blue-700 flex items-center gap-2">
+                    <span className="font-bold bg-blue-100 px-2 py-1 rounded-lg">หมายเหตุ:</span>
+                    <span>ID จะเป็นตัวเลขยาว เช่น 823456789012345678</span>
                   </p>
                 </div>
               </div>
-              <div className="mt-6 flex justify-end">
+              <div className="mt-8 flex justify-end">
                 <button
                   onClick={() => setShowGuide(false)}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  className="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg font-medium"
                 >
                   เข้าใจแล้ว
                 </button>

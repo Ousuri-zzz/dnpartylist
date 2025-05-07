@@ -47,6 +47,13 @@ export function DiscordDropdown() {
     }
     
     try {
+      // Check if the name is the same as current
+      if (newDiscordName.trim() === discordName) {
+        setIsSettingDiscordName(false);
+        setNewDiscordName('');
+        return;
+      }
+
       const userMetaRef = ref(db, `users/${user.uid}/meta`);
       await update(userMetaRef, {
         discord: newDiscordName.trim()
@@ -148,7 +155,38 @@ export function DiscordDropdown() {
         <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </Button>
 
-      <Dialog open={isSettingDiscordName} onOpenChange={setIsSettingDiscordName}>
+      <Dialog 
+        open={isSettingDiscordName} 
+        onOpenChange={(open) => {
+          // If trying to close and no Discord name is set, prevent closing
+          if (!open && !discordName) {
+            toast.error('กรุณาตั้งชื่อ Discord ก่อน', {
+              duration: 3000,
+              position: 'top-center',
+              style: {
+                background: '#ED4245',
+                color: 'white',
+                borderRadius: '8px',
+                padding: '12px 16px',
+                fontSize: '14px',
+                fontWeight: 500,
+                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+              },
+            });
+            return;
+          }
+          
+          // If there's input in the field, show confirmation
+          if (!open && newDiscordName.trim()) {
+            if (window.confirm('คุณต้องการยกเลิกการตั้งชื่อ Discord หรือไม่?')) {
+              setIsSettingDiscordName(false);
+              setNewDiscordName('');
+            }
+          } else {
+            setIsSettingDiscordName(open);
+          }
+        }}
+      >
         <DialogContent className="bg-[#313338] border-0 text-white">
           <DialogHeader>
             <DialogTitle className="text-white">ตั้งชื่อ Discord</DialogTitle>

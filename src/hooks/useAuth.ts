@@ -112,6 +112,12 @@ export function useAuth() {
       throw new Error('No user logged in');
     }
     
+    // Prevent unnecessary updates if the name is the same
+    if (authState.discordName === newName) {
+      console.log('Discord name unchanged, skipping update');
+      return;
+    }
+    
     console.log('Updating discord name:', newName);
     try {
       const userRef = ref(db, `users/${authState.user.uid}/meta`);
@@ -120,6 +126,7 @@ export function useAuth() {
       });
       console.log('Discord name updated in Database');
       
+      // Update state and notify subscribers
       authState.discordName = newName;
       notifySubscribers();
       console.log('Local discord name state updated');
