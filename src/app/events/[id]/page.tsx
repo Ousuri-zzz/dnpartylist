@@ -560,11 +560,11 @@ export default function EventDetailPage() {
           />
         )}
         {/* Modal มอบรางวัล */}
-        {rewardModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-            <div className="bg-white rounded-xl shadow-lg p-6 min-w-[300px] max-w-md">
-              <h3 className="text-lg font-semibold mb-4 text-yellow-700 flex items-center gap-2">
-                <Gift className="w-5 h-5" />
+        {rewardModal && createPortal(
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm">
+            <div className="bg-white rounded-2xl shadow-xl border border-yellow-100 p-8 w-full max-w-lg relative max-h-[90vh] overflow-y-auto">
+              <h3 className="text-2xl font-bold text-yellow-700 mb-6 flex items-center gap-2">
+                <Gift className="w-6 h-6" />
                 มอบรางวัล
               </h3>
               <div className="space-y-4">
@@ -596,14 +596,14 @@ export default function EventDetailPage() {
                   </div>
                 </div>
               </div>
-              <div className="flex justify-end gap-2 mt-6">
+              <div className="flex justify-end gap-2 mt-8">
                 <button
                   onClick={() => {
                     setRewardModal(false);
                     setSelectedParticipant('');
                     setRewardName('');
                   }}
-                  className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50"
+                  className="px-6 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50"
                 >
                   ยกเลิก
                 </button>
@@ -617,13 +617,14 @@ export default function EventDetailPage() {
                     }
                   }}
                   disabled={!selectedParticipant || !rewardName}
-                  className="px-4 py-2 rounded-lg bg-yellow-500 text-white hover:bg-yellow-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-6 py-2 rounded-lg bg-yellow-500 text-white hover:bg-yellow-600 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   มอบรางวัล
                 </button>
               </div>
             </div>
-          </div>
+          </div>,
+          typeof window !== 'undefined' ? document.body : (null as any)
         )}
         {/* Toast แจ้งเตือน */}
         <Toast message={toast.message} show={toast.show} />
