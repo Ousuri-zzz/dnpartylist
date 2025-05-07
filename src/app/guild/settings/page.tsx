@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { ref, get, remove, update, onValue, query, orderByChild, equalTo, set } from 'firebase/database';
 import { db } from '@/lib/firebase';
 import { toast } from 'sonner';
-import { Settings, UserPlus, KeyRound, X, Check, Ban, DollarSign, Clock, CheckCircle2, XCircle, Crown, ChevronDown, ChevronUp, Bell, Users, Store, Building2, Shield, AlertCircle, Search } from 'lucide-react';
+import { Settings, UserPlus, KeyRound, X, Check, Ban, DollarSign, Clock, CheckCircle2, XCircle, Crown, ChevronDown, ChevronUp, Bell, Users, Store, Building2, Shield, AlertCircle, Search, RefreshCw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { GuildSettings, GuildLoan } from '@/types/trade';
 import { GuildService } from '@/lib/guildService';
@@ -50,6 +50,10 @@ export default function GuildSettingsPage() {
   const [selectedApproveMerchant, setSelectedApproveMerchant] = useState<Merchant | null>(null);
   const [showRejectMerchantModal, setShowRejectMerchantModal] = useState(false);
   const [selectedRejectMerchant, setSelectedRejectMerchant] = useState<Merchant | null>(null);
+  const [showResetStatsModal, setShowResetStatsModal] = useState(false);
+  const [selectedResetStatsUserId, setSelectedResetStatsUserId] = useState<string | null>(null);
+  const [userCharacters, setUserCharacters] = useState<any[]>([]);
+  const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -412,6 +416,57 @@ export default function GuildSettingsPage() {
     setSelectedRejectMerchant(null);
   };
 
+  const handleResetStats = async (userId: string) => {
+    setSelectedResetStatsUserId(userId);
+    setSelectedCharacterId(null);
+    try {
+      const charsSnap = await get(ref(db, `users/${userId}/characters`));
+      if (charsSnap.exists()) {
+        const chars = Object.entries(charsSnap.val()).map(([cid, data]: [string, any]) => ({
+          characterId: cid,
+          name: data.name || cid,
+          class: data.class || '',
+        }));
+        setUserCharacters(chars);
+      } else {
+        setUserCharacters([]);
+      }
+    } catch (error) {
+      setUserCharacters([]);
+    }
+    setShowResetStatsModal(true);
+  };
+
+  const confirmResetStats = async () => {
+    if (!selectedResetStatsUserId || !selectedCharacterId) return;
+    try {
+      const defaultStats = {
+        agi: 0,
+        atk: 0,
+        cri: 0,
+        ele: 0,
+        fd: 0,
+        hp: 0,
+        int: 0,
+        mdef: 0,
+        pdef: 0,
+        points: 0,
+        spr: 0,
+        str: 0,
+        vit: 0,
+        userId: selectedResetStatsUserId,
+      };
+      await update(ref(db, `users/${selectedResetStatsUserId}/characters/${selectedCharacterId}/stats`), defaultStats);
+      toast.success('รีเซ็ตสเตตัสสำเร็จ!');
+    } catch (error) {
+      toast.error('ไม่สามารถรีเซ็ตสเตตัสได้');
+    }
+    setShowResetStatsModal(false);
+    setSelectedResetStatsUserId(null);
+    setUserCharacters([]);
+    setSelectedCharacterId(null);
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -535,13 +590,24 @@ export default function GuildSettingsPage() {
                   </div>
                 </div>
                 {uid !== user?.uid && (
-                  <button
-                    onClick={() => handleRemoveLeader(uid)}
-                    className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                    title="ลบหัวกิลด์"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleRemoveLeader(uid)}
+                      className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                      title="ลบหัวกิลด์"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                    {isGuildLeader && (
+                      <button
+                        onClick={() => handleResetStats(uid)}
+                        className="p-2 text-orange-500 hover:bg-orange-50 rounded-lg transition-colors"
+                        title="รีเซ็ตสเตตัสตัวละคร"
+                      >
+                        <RefreshCw className="w-5 h-5" />
+                      </button>
+                    )}
+                  </div>
                 )}
               </div>
             ))}
@@ -736,13 +802,24 @@ export default function GuildSettingsPage() {
                     </div>
                   </div>
                   {uid !== user?.uid && !guild?.leaders?.[uid] && (
-                    <button
-                      onClick={() => handleRemoveMember(uid)}
-                      className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                      title="ลบสมาชิก"
-                    >
-                      <X className="w-5 h-5" />
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleRemoveMember(uid)}
+                        className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                        title="ลบสมาชิก"
+                      >
+                        <X className="w-5 h-5" />
+                      </button>
+                      {isGuildLeader && (
+                        <button
+                          onClick={() => handleResetStats(uid)}
+                          className="p-2 text-orange-500 hover:bg-orange-50 rounded-lg transition-colors"
+                          title="รีเซ็ตสเตตัสตัวละคร"
+                        >
+                          <RefreshCw className="w-5 h-5" />
+                        </button>
+                      )}
+                    </div>
                   )}
                 </div>
               ))
@@ -921,6 +998,60 @@ export default function GuildSettingsPage() {
                   <button
                     onClick={confirmRejectMerchant}
                     className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 shadow-sm"
+                  >
+                    ยืนยัน
+                  </button>
+                </div>
+              </div>
+            </div>
+          </ConfirmModalPortal>
+        )}
+
+        {/* Confirmation Modal for Reset Stats */}
+        {showResetStatsModal && selectedResetStatsUserId && (
+          <ConfirmModalPortal>
+            <div className="!fixed !inset-0 !z-[9999] h-screen w-screen flex items-center justify-center bg-black bg-opacity-50">
+              <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl pointer-events-auto">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2 bg-orange-100 rounded-lg">
+                    <RefreshCw className="w-6 h-6 text-orange-600" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900">เลือกตัวละครเพื่อรีเซ็ตสเตตัส</h3>
+                </div>
+                <div className="mb-4">
+                  {userCharacters.length === 0 ? (
+                    <p className="text-gray-500">ไม่พบตัวละครของสมาชิกนี้</p>
+                  ) : (
+                    <select
+                      className="w-full border rounded-lg p-2"
+                      value={selectedCharacterId || ''}
+                      onChange={e => setSelectedCharacterId(e.target.value)}
+                    >
+                      <option value="" disabled>เลือกตัวละคร</option>
+                      {userCharacters.map(char => (
+                        <option key={char.characterId} value={char.characterId}>
+                          {char.name} {char.class && `(${char.class})`}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                </div>
+                <div className="flex justify-end gap-4">
+                  <button
+                    onClick={() => {
+                      setShowResetStatsModal(false);
+                      setSelectedResetStatsUserId(null);
+                      setUserCharacters([]);
+                      setSelectedCharacterId(null);
+                    }}
+                    className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                  >
+                    ยกเลิก
+                  </button>
+                  <button
+                    onClick={confirmResetStats}
+                    className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 shadow-sm"
+                    disabled={!selectedCharacterId}
                   >
                     ยืนยัน
                   </button>

@@ -19,6 +19,8 @@ export default function Navigation() {
   const { isGuildLeader } = useGuild();
   const { user } = useAuth();
   const [pendingCount, setPendingCount] = React.useState(0);
+  const [pendingMerchantCount, setPendingMerchantCount] = React.useState(0);
+  const [pendingGuildLoanCount, setPendingGuildLoanCount] = React.useState(0);
 
   useGuildLoanNotification();
 
@@ -79,6 +81,38 @@ export default function Navigation() {
       unsubscribeLoans();
     };
   }, [user]);
+
+  React.useEffect(() => {
+    if (!isGuildLeader) return;
+    const merchantsRef = ref(db, 'tradeMerchants');
+    const unsubscribe = onValue(merchantsRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const merchants = Object.values(snapshot.val());
+        const pending = merchants.filter((m: any) => m.status === 'pending');
+        setPendingMerchantCount(pending.length);
+      } else {
+        setPendingMerchantCount(0);
+      }
+    });
+    return () => unsubscribe();
+  }, [isGuildLeader]);
+
+  React.useEffect(() => {
+    if (!isGuildLeader) return;
+    const loansRef = ref(db, 'guildLoans');
+    const unsubscribe = onValue(loansRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const loans = Object.values(snapshot.val());
+        const pending = loans.filter(
+          (l: any) => l.status === 'waitingApproval' || l.status === 'returned'
+        );
+        setPendingGuildLoanCount(pending.length);
+      } else {
+        setPendingGuildLoanCount(0);
+      }
+    });
+    return () => unsubscribe();
+  }, [isGuildLeader]);
 
   return (
     <nav className="sticky top-0 w-full bg-white/30 backdrop-blur-md border-b border-pink-200/50 shadow-sm z-50">
@@ -292,6 +326,16 @@ export default function Navigation() {
                       )}>
                         Guild Settings
                       </span>
+                      {pendingMerchantCount > 0 && (
+                        <span className="ml-2 inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold leading-none text-white bg-red-600 rounded-full">
+                          {pendingMerchantCount}
+                        </span>
+                      )}
+                      {pendingGuildLoanCount > 0 && (
+                        <span className="ml-1 inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold leading-none text-white bg-blue-600 rounded-full">
+                          {pendingGuildLoanCount}
+                        </span>
+                      )}
                     </motion.div>
                     {pathname === "/guild/settings" && (
                       <motion.div

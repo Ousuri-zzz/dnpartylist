@@ -47,6 +47,7 @@ export default function MyStorePage() {
   const [isDeletingItem, setIsDeletingItem] = useState(false);
   const [pendingLoans, setPendingLoans] = useState<any[]>([]);
   const [returnedLoans, setReturnedLoans] = useState<any[]>([]);
+  const [activeLoans, setActiveLoans] = useState<any[]>([]);
 
   useEffect(() => {
     if (authLoading || !user) return;
@@ -109,11 +110,22 @@ export default function MyStorePage() {
       setReturnedLoans(returnedList);
     });
 
+    // ดึง loan ที่ยังไม่ได้เงินคืน (active)
+    const unsubscribeActiveLoans = onValue(merchantLoansRef, (snapshot) => {
+      const data = snapshot.val();
+      const activeList = data ? Object.entries(data)
+        .map(([id, loan]: [string, any]) => ({ id, ...loan }))
+        .filter(loan => loan.source?.type === 'merchant' && loan.source?.merchantId === user.uid && loan.status === 'active')
+        .sort((a, b) => b.createdAt - a.createdAt) : [];
+      setActiveLoans(activeList);
+    });
+
     return () => {
       unsubscribeTrades();
       unsubscribeItems();
       unsubscribeLoans();
       unsubscribeReturnedLoans();
+      unsubscribeActiveLoans();
     };
   }, [user, authLoading]);
 
@@ -424,18 +436,27 @@ export default function MyStorePage() {
                     navigator.clipboard.writeText(message);
                     toast.success('คัดลอกข้อความสำเร็จ');
                   }}
-                  className="absolute top-4 right-4 px-3 py-1.5 rounded-lg bg-purple-50 text-purple-600 hover:bg-purple-100 transition-colors flex items-center shadow"
+                  className="absolute top-4 right-4 px-4 py-2 rounded-lg bg-purple-50 text-purple-600 hover:bg-purple-100 transition-colors flex items-center shadow font-semibold text-sm"
                   title="คัดลอกรายละเอียด"
                 >
                   <Copy className="w-5 h-5 mr-1" />
                   คัดลอก
                 </button>
-                <div className="space-y-2">
-                  <p className="text-gray-600">เหลือ: {openTrade.amountLeft}G</p>
-                  <p className="text-gray-600">ราคาต่อ 1G: {openTrade.pricePer100} บาท</p>
-                  <p className="text-gray-600">ข้อความโฆษณา: {openTrade.advertisement}</p>
+                <div className="space-y-2 mb-6">
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold text-gray-700">เหลือ:</span>
+                    <span className="text-lg font-bold text-pink-600">{openTrade.amountLeft}G</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold text-gray-700">ราคาต่อ 1G:</span>
+                    <span className="text-lg font-bold text-yellow-600">{openTrade.pricePer100} บาท</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold text-gray-700">ข้อความโฆษณา:</span>
+                    <span className="text-gray-600 break-all">{openTrade.advertisement}</span>
+                  </div>
                 </div>
-                <div className="flex gap-2 mt-4">
+                <div className="flex gap-3 mt-4">
                   <button
                     onClick={() => {
                       setNewTrade({
@@ -446,13 +467,13 @@ export default function MyStorePage() {
                       });
                       setIsEditing(true);
                     }}
-                    className="px-4 py-2 rounded-lg bg-yellow-100 text-yellow-700 hover:bg-yellow-200 transition-all"
+                    className="px-6 py-2 rounded-lg bg-yellow-100 text-yellow-800 hover:bg-yellow-200 font-bold transition-colors shadow"
                   >
                     แก้ไข
                   </button>
                   <button
                     onClick={() => setShowDeleteTradeModal(true)}
-                    className="px-4 py-2 rounded-lg bg-red-100 text-red-700 hover:bg-red-200 transition-all"
+                    className="px-6 py-2 rounded-lg bg-red-100 text-red-700 hover:bg-red-200 font-bold transition-colors shadow"
                   >
                     ลบ
                   </button>
@@ -666,15 +687,33 @@ export default function MyStorePage() {
             {/* แจ้งเตือนคำขอกู้ยืม */}
             {pendingLoans.length > 0 && (
               <div className="mb-6 bg-white rounded-xl p-6 shadow-sm border border-yellow-200">
-                <h3 className="text-lg font-bold text-yellow-700 mb-4 flex items-center gap-2"><PiggyBank className="w-6 h-6 text-yellow-500" /> แจ้งเตือนคำขอกู้ยืม</h3>
+                <h3 className="text-lg font-bold text-yellow-700 mb-4 flex items-center gap-2">
+                  <PiggyBank className="w-6 h-6 text-yellow-500" />
+                  แจ้งเตือนคำขอกู้ยืม
+                </h3>
                 <div className="space-y-4">
                   {pendingLoans.map((loan) => (
-                    <div key={loan.id} className="flex flex-col md:flex-row md:items-center md:justify-between bg-yellow-50 rounded-lg p-4 border border-yellow-100">
-                      <div>
-                        <p className="font-semibold text-gray-800">@{loan.borrower?.name || 'ไม่พบชื่อ Discord'}</p>
-                        <p className="text-sm text-gray-600">จำนวน: {loan.amount}G</p>
-                        {loan.dueDate && <p className="text-sm text-gray-500">กำหนดคืน: {new Date(loan.dueDate).toLocaleDateString()}</p>}
-                        <p className="text-xs text-gray-400">ขอเมื่อ: {new Date(loan.createdAt).toLocaleString()}</p>
+                    <div key={loan.id} className="flex flex-col md:flex-row md:items-center md:justify-between bg-gradient-to-r from-yellow-50 to-yellow-100 rounded-lg p-4 border border-yellow-100 shadow-sm">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <User className="w-4 h-4 text-yellow-500" />
+                          <span className="font-semibold text-gray-800">@{loan.borrower?.name || 'ไม่พบชื่อ Discord'}</span>
+                        </div>
+                        <div className="flex flex-wrap gap-4 mb-1">
+                          <span className="inline-flex items-center gap-1 text-sm text-yellow-700 bg-yellow-100 px-2 py-0.5 rounded">
+                            <DollarSign className="w-4 h-4 text-yellow-500" /> {loan.amount}G
+                          </span>
+                          {loan.dueDate && (
+                            <span className="inline-flex items-center gap-1 text-sm text-gray-600 bg-gray-100 px-2 py-0.5 rounded">
+                              <Clock className="w-4 h-4 text-gray-400" /> กำหนดคืน: {new Date(loan.dueDate).toLocaleDateString()}
+                            </span>
+                          )}
+                          <span className="inline-flex items-center gap-1 text-xs text-gray-500 bg-gray-50 px-2 py-0.5 rounded">
+                            <Clock className="w-4 h-4 text-gray-300" /> ขอเมื่อ: {new Date(loan.createdAt).toLocaleString()}
+                          </span>
+                        </div>
+                        {loan.note && <div className="text-xs text-gray-500 mt-1">หมายเหตุ: {loan.note}</div>}
+                        {loan.collateral && <div className="text-xs text-gray-500 mt-1">หลักประกัน: {loan.collateral}</div>}
                       </div>
                       <div className="flex gap-2 mt-4 md:mt-0">
                         <button
@@ -750,6 +789,43 @@ export default function MyStorePage() {
                           <X className="w-4 h-4" />
                           <span>ยกเลิก</span>
                         </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* เพิ่ม section แสดงรายการกู้ยืมที่ยังไม่ได้เงินคืน (active) ล่างสุด */}
+            {activeLoans.length > 0 && (
+              <div className="mb-6 bg-white rounded-xl p-6 shadow-sm border border-blue-200">
+                <h3 className="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
+                  <PiggyBank className="w-6 h-6 text-blue-500" />
+                  รายการกู้ยืมที่ยังไม่ได้เงินคืน
+                </h3>
+                <div className="space-y-4">
+                  {activeLoans.map((loan) => (
+                    <div key={loan.id} className="flex flex-col md:flex-row md:items-center md:justify-between bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-100 shadow-sm">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <User className="w-4 h-4 text-blue-400" />
+                          <span className="font-semibold text-gray-800">@{loan.borrower?.name || loan.borrowerDiscord || 'ไม่พบชื่อ Discord'}</span>
+                        </div>
+                        <div className="flex flex-wrap gap-4 mb-1">
+                          <span className="inline-flex items-center gap-1 text-sm text-blue-700 bg-blue-100 px-2 py-0.5 rounded">
+                            <DollarSign className="w-4 h-4 text-blue-400" /> {loan.amount}G
+                          </span>
+                          {loan.dueDate && (
+                            <span className="inline-flex items-center gap-1 text-sm text-gray-600 bg-gray-100 px-2 py-0.5 rounded">
+                              <Clock className="w-4 h-4 text-gray-400" /> กำหนดคืน: {new Date(loan.dueDate).toLocaleDateString()}
+                            </span>
+                          )}
+                          <span className="inline-flex items-center gap-1 text-xs text-gray-500 bg-gray-50 px-2 py-0.5 rounded">
+                            <Clock className="w-4 h-4 text-gray-300" /> ขอเมื่อ: {new Date(loan.createdAt).toLocaleString()}
+                          </span>
+                        </div>
+                        {loan.note && <div className="text-xs text-gray-500 mt-1">หมายเหตุ: {loan.note}</div>}
+                        {loan.collateral && <div className="text-xs text-gray-500 mt-1">หลักประกัน: {loan.collateral}</div>}
                       </div>
                     </div>
                   ))}
