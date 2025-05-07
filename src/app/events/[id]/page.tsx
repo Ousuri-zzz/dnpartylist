@@ -411,10 +411,10 @@ export default function EventDetailPage() {
           </motion.div>
         )}
         {/* ปุ่มเข้าร่วม/ออกกิจกรรม */}
-        <div className="flex gap-4 items-center my-6">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center my-6 w-full">
         {!joined ? (
           <Button
-            className="flex items-center gap-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white px-8 py-3 rounded-xl shadow-lg hover:scale-105 hover:shadow-2xl transition-all text-lg"
+            className="flex items-center gap-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white px-4 sm:px-8 py-3 rounded-xl shadow-lg hover:scale-105 hover:shadow-2xl transition-all text-lg w-full sm:w-auto"
             onClick={handleJoin}
             disabled={event.isEnded}
           >
@@ -423,28 +423,26 @@ export default function EventDetailPage() {
         ) : (
           <>
             {!event.isEnded && (
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    value={participantMessage}
-                    onChange={(e) => setParticipantMessage(e.target.value)}
-                    placeholder="พิมพ์ข้อความสั้นๆ (ไม่เกิน 30 ตัวอักษร)"
-                    maxLength={30}
-                    className="flex-1 rounded-lg border border-pink-200 p-2 text-sm focus:ring-2 focus:ring-pink-300"
-                  />
-                  <Button
-                    onClick={handleUpdateMessage}
-                    className="bg-pink-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-pink-600"
-                  >
-                    บันทึก
-                  </Button>
-                </div>
+              <div className="flex flex-col sm:flex-row gap-2 w-full">
+                <input
+                  type="text"
+                  value={participantMessage}
+                  onChange={(e) => setParticipantMessage(e.target.value)}
+                  placeholder="พิมพ์ข้อความสั้นๆ (ไม่เกิน 30 ตัวอักษร)"
+                  maxLength={30}
+                  className="rounded-lg border border-pink-200 p-2 text-sm focus:ring-2 focus:ring-pink-300 w-full"
+                />
+                <Button
+                  onClick={handleUpdateMessage}
+                  className="bg-pink-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-pink-600 w-full sm:w-auto"
+                >
+                  บันทึก
+                </Button>
               </div>
             )}
             <Button
               variant="outline"
-              className="flex items-center gap-2 border-red-400 text-red-600 hover:bg-red-50 ml-2 px-8 py-3 rounded-xl shadow text-lg"
+              className="flex items-center gap-2 border-red-400 text-red-600 hover:bg-red-50 px-4 sm:px-8 py-3 rounded-xl shadow text-lg w-full sm:w-auto"
               onClick={handleLeave}
               disabled={rewardGiven || event.isEnded}
             >

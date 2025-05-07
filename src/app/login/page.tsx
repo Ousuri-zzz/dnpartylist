@@ -39,10 +39,10 @@ export default function LoginPage() {
       >
         <div className="relative group">
           <div className="absolute -inset-1 bg-gradient-to-r from-pink-100 via-purple-100 to-blue-100 rounded-2xl blur opacity-75 group-hover:opacity-100 transition duration-1000"></div>
-          <div className="relative p-8 space-y-6 bg-white/80 backdrop-blur-lg rounded-xl shadow-xl">
+          <div className="relative p-4 sm:p-8 space-y-4 sm:space-y-6 bg-white/80 backdrop-blur-lg rounded-xl shadow-xl">
             <div className="text-center space-y-2">
               <motion.h1 
-                className="text-4xl font-bold bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 bg-clip-text text-transparent"
+                className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 bg-clip-text text-transparent"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
@@ -50,7 +50,7 @@ export default function LoginPage() {
                 DN Party List
               </motion.h1>
               <motion.p 
-                className="text-gray-600"
+                className="text-sm sm:text-base text-gray-600"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.3 }}

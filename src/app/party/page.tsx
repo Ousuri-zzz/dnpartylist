@@ -117,40 +117,40 @@ export default function PartyPage() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.3, ease: "easeOut" }}
-        className="container mx-auto px-4 py-8"
+        className="container mx-auto px-2 sm:px-4 py-4 sm:py-8"
       >
         {/* Header Section */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, ease: "easeOut" }}
-          className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg p-6 mb-8 relative"
+          className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg p-3 sm:p-6 mb-6 sm:mb-8 relative"
         >
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
             <motion.div 
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.2, delay: 0.1, ease: "easeOut" }}
               className="space-y-1"
             >
-              <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-pink-600 to-blue-600 bg-clip-text text-transparent">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-pink-600 to-blue-600 bg-clip-text text-transparent">
                 {selectedTab === 'all' ? 'ปาร์ตี้ทั้งหมด' : 'ปาร์ตี้ของฉัน'}
               </h1>
-              <p className="text-gray-500">เลือกปาร์ตี้ที่คุณต้องการเข้าร่วมหรือสร้างปาร์ตี้ใหม่</p>
+              <p className="text-gray-500 text-sm sm:text-base">เลือกปาร์ตี้ที่คุณต้องการเข้าร่วมหรือสร้างปาร์ตี้ใหม่</p>
             </motion.div>
             <motion.div 
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.2, delay: 0.2, ease: "easeOut" }}
-              className="flex items-center gap-4"
+              className="flex flex-nowrap items-center gap-2 sm:gap-4 min-w-0"
             >
-              <div className="relative">
+              <div className="relative flex-1 min-w-0 max-w-[140px] sm:max-w-xs">
                 <input
                   type="text"
                   placeholder="ค้นหาปาร์ตี้หรือชื่อเนส..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-64 px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200"
+                  className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200 text-sm"
                 />
               </div>
               <CreatePartyDialog />
@@ -161,17 +161,17 @@ export default function PartyPage() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.2, delay: 0.3, ease: "easeOut" }}
-            className="flex gap-2 mt-6"
+            className="flex gap-2 mt-4 sm:mt-6 overflow-x-auto"
           >
             <button
               onClick={() => setSelectedTab('all')}
-              className={`px-4 py-2 rounded font-semibold transition-all duration-200 border-b-2 ${selectedTab === 'all' ? 'border-violet-500 text-violet-700 bg-violet-100' : 'border-transparent text-gray-600 hover:bg-gray-100'}`}
+              className={`px-3 py-2 sm:px-4 sm:py-2 rounded font-semibold transition-all duration-200 border-b-2 text-sm sm:text-base ${selectedTab === 'all' ? 'border-violet-500 text-violet-700 bg-violet-100' : 'border-transparent text-gray-600 hover:bg-gray-100'}`}
             >
               ปาร์ตี้ทั้งหมด
             </button>
             <button
               onClick={() => setSelectedTab('my')}
-              className={`px-4 py-2 rounded font-semibold transition-all duration-200 border-b-2 ${selectedTab === 'my' ? 'border-violet-500 text-violet-700 bg-violet-100' : 'border-transparent text-gray-600 hover:bg-gray-100'}`}
+              className={`px-3 py-2 sm:px-4 sm:py-2 rounded font-semibold transition-all duration-200 border-b-2 text-sm sm:text-base ${selectedTab === 'my' ? 'border-violet-500 text-violet-700 bg-violet-100' : 'border-transparent text-gray-600 hover:bg-gray-100'}`}
             >
               ปาร์ตี้ของฉัน
             </button>
@@ -182,7 +182,7 @@ export default function PartyPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3, delay: 0.2, ease: "easeOut" }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6"
         >
           <AnimatePresence mode="wait">
             {filteredParties.length === 0 ? (
@@ -191,7 +191,7 @@ export default function PartyPage() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3, ease: "easeOut" }}
-                className="col-span-full flex flex-col items-center justify-center p-12 text-center bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg"
+                className="col-span-full flex flex-col items-center justify-center p-6 sm:p-12 text-center bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg"
               >
                 <motion.div 
                   initial={{ scale: 0.8 }}

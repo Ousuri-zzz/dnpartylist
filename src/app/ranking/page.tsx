@@ -211,7 +211,84 @@ export default function RankingPage() {
               />
             </div>
 
-            <div className="flex flex-wrap gap-2">
+            {/* Mobile Stats Selection */}
+            <div className="lg:hidden">
+              <Select value={selectedStat} onValueChange={(value) => setSelectedStat(value as StatType)}>
+                <SelectTrigger className="w-full bg-white/50 backdrop-blur-sm border-pink-200/50">
+                  <SelectValue placeholder="เลือกสเตตัส" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="score">
+                    <div className="flex items-center gap-2">
+                      <TrendingUp className="w-4 h-4 text-green-400" />
+                      <span>Score</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="atk">
+                    <div className="flex items-center gap-2">
+                      <Sword className="w-4 h-4 text-pink-500" />
+                      <span>ATK</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="hp">
+                    <div className="flex items-center gap-2">
+                      <Heart className="w-4 h-4 text-red-400" />
+                      <span>HP</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="def">
+                    <div className="flex items-center gap-2">
+                      <Shield className="w-4 h-4 text-blue-400" />
+                      <span>DEF%</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="cri">
+                    <div className="flex items-center gap-2">
+                      <Target className="w-4 h-4 text-yellow-400" />
+                      <span>CRI%</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="ele">
+                    <div className="flex items-center gap-2">
+                      <Flame className="w-4 h-4 text-purple-400" />
+                      <span>ELE%</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="fd">
+                    <div className="flex items-center gap-2">
+                      <Zap className="w-4 h-4 text-orange-400" />
+                      <span>FD%</span>
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Mobile Job Selection */}
+            <div className="lg:hidden">
+              <Select value={selectedJob} onValueChange={setSelectedJob}>
+                <SelectTrigger className="w-full bg-white/50 backdrop-blur-sm border-pink-200/50">
+                  <SelectValue placeholder="เลือกอาชีพ" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">
+                    <span className="text-gray-700">ทั้งหมด</span>
+                  </SelectItem>
+                  {ALLOWED_JOBS.map(job => {
+                    const role = CLASS_TO_ROLE[job];
+                    const colors = getClassColors(role);
+                    return (
+                      <SelectItem key={job} value={job}>
+                        <span className={cn(colors.text)}>{job}</span>
+                      </SelectItem>
+                    );
+                  })}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Desktop Job Filter */}
+            <div className="hidden lg:flex flex-wrap gap-2">
               <button
                 onClick={() => setSelectedJob('all')}
                 className={cn(
@@ -252,32 +329,32 @@ export default function RankingPage() {
                 <table className="w-full">
                   <thead>
                     <tr className="bg-gradient-to-r from-pink-50 to-blue-50">
-                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">
+                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 whitespace-nowrap">
                         <div className="flex items-center gap-1">
                           <span>🏅</span>
-                          <span>อันดับ</span>
+                          <span className="hidden sm:inline">อันดับ</span>
                         </div>
                       </th>
-                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">
+                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 whitespace-nowrap">
                         <div className="flex items-center gap-1">
                           <span>👤</span>
-                          <span>Discord</span>
+                          <span className="hidden sm:inline">Discord</span>
                         </div>
                       </th>
-                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">
+                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 whitespace-nowrap">
                         <div className="flex items-center gap-1">
                           <span>🎮</span>
-                          <span>ตัวละคร</span>
+                          <span className="hidden sm:inline">ตัวละคร</span>
                         </div>
                       </th>
-                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">
+                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 whitespace-nowrap">
                         <div className="flex items-center gap-1">
                           <span>🧙</span>
-                          <span>อาชีพ</span>
+                          <span className="hidden sm:inline">อาชีพ</span>
                         </div>
                       </th>
                       <th 
-                        className="px-4 py-3 text-left text-sm font-medium text-gray-500 cursor-pointer hover:bg-pink-50/50 transition-colors"
+                        className="px-4 py-3 text-left text-sm font-medium text-gray-500 cursor-pointer hover:bg-pink-50/50 transition-colors whitespace-nowrap"
                         onClick={() => handleSort('atk')}
                       >
                         <div className="flex items-center gap-1">
@@ -289,7 +366,7 @@ export default function RankingPage() {
                         </div>
                       </th>
                       <th 
-                        className="px-4 py-3 text-left text-sm font-medium text-gray-500 cursor-pointer hover:bg-pink-50/50 transition-colors"
+                        className="px-4 py-3 text-left text-sm font-medium text-gray-500 cursor-pointer hover:bg-pink-50/50 transition-colors whitespace-nowrap"
                         onClick={() => handleSort('hp')}
                       >
                         <div className="flex items-center gap-1">
@@ -301,7 +378,7 @@ export default function RankingPage() {
                         </div>
                       </th>
                       <th 
-                        className="px-4 py-3 text-left text-sm font-medium text-gray-500 cursor-pointer hover:bg-pink-50/50 transition-colors"
+                        className="px-4 py-3 text-left text-sm font-medium text-gray-500 cursor-pointer hover:bg-pink-50/50 transition-colors whitespace-nowrap"
                         onClick={() => handleSort('def')}
                       >
                         <div className="flex items-center gap-1">
@@ -313,7 +390,7 @@ export default function RankingPage() {
                         </div>
                       </th>
                       <th 
-                        className="px-4 py-3 text-left text-sm font-medium text-gray-500 cursor-pointer hover:bg-pink-50/50 transition-colors"
+                        className="px-4 py-3 text-left text-sm font-medium text-gray-500 cursor-pointer hover:bg-pink-50/50 transition-colors whitespace-nowrap"
                         onClick={() => handleSort('cri')}
                       >
                         <div className="flex items-center gap-1">
@@ -325,7 +402,7 @@ export default function RankingPage() {
                         </div>
                       </th>
                       <th 
-                        className="px-4 py-3 text-left text-sm font-medium text-gray-500 cursor-pointer hover:bg-pink-50/50 transition-colors"
+                        className="px-4 py-3 text-left text-sm font-medium text-gray-500 cursor-pointer hover:bg-pink-50/50 transition-colors whitespace-nowrap"
                         onClick={() => handleSort('ele')}
                       >
                         <div className="flex items-center gap-1">
@@ -337,7 +414,7 @@ export default function RankingPage() {
                         </div>
                       </th>
                       <th 
-                        className="px-4 py-3 text-left text-sm font-medium text-gray-500 cursor-pointer hover:bg-pink-50/50 transition-colors"
+                        className="px-4 py-3 text-left text-sm font-medium text-gray-500 cursor-pointer hover:bg-pink-50/50 transition-colors whitespace-nowrap"
                         onClick={() => handleSort('fd')}
                       >
                         <div className="flex items-center gap-1">
@@ -349,7 +426,7 @@ export default function RankingPage() {
                         </div>
                       </th>
                       <th 
-                        className="px-4 py-3 text-left text-sm font-medium text-gray-500 cursor-pointer hover:bg-pink-50/50 transition-colors"
+                        className="px-4 py-3 text-left text-sm font-medium text-gray-500 cursor-pointer hover:bg-pink-50/50 transition-colors whitespace-nowrap"
                         onClick={() => handleSort('score')}
                       >
                         <div className="flex items-center gap-1">
@@ -373,17 +450,17 @@ export default function RankingPage() {
                           user?.uid === character.userId && "bg-gradient-to-r from-blue-100/80 to-blue-50/80"
                         )}
                       >
-                        <td className="px-4 py-3 text-sm font-medium text-pink-600 group-hover:text-pink-700">#{character.rank}</td>
-                        <td className="px-4 py-3 text-sm">
+                        <td className="px-4 py-3 text-sm font-medium text-pink-600 group-hover:text-pink-700 whitespace-nowrap">#{character.rank}</td>
+                        <td className="px-4 py-3 text-sm whitespace-nowrap">
                           <span className="text-black font-medium group-hover:text-gray-800">{character.discordName}</span>
                         </td>
                         <td 
-                          className="px-4 py-3 text-sm cursor-pointer"
+                          className="px-4 py-3 text-sm cursor-pointer whitespace-nowrap"
                           onClick={() => setOpenCharacterId(character.id)}
                         >
                           <span className="text-gray-600 font-medium group-hover:text-gray-800 underline underline-offset-2">{character.name}</span>
                         </td>
-                        <td className="px-4 py-3 text-sm">
+                        <td className="px-4 py-3 text-sm whitespace-nowrap">
                           <span className={cn(
                             "font-medium group-hover:opacity-90",
                             getClassColors(CLASS_TO_ROLE[character.class]).text
@@ -391,19 +468,19 @@ export default function RankingPage() {
                             {character.class}
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-sm text-pink-600 font-medium group-hover:text-pink-700">{formatNumber(character.stats.atk)}</td>
-                        <td className="px-4 py-3 text-sm text-red-500 font-medium group-hover:text-red-600">{formatNumber(character.stats.hp)}</td>
-                        <td className="px-4 py-3 text-sm">
+                        <td className="px-4 py-3 text-sm text-pink-600 font-medium group-hover:text-pink-700 whitespace-nowrap">{formatNumber(character.stats.atk)}</td>
+                        <td className="px-4 py-3 text-sm text-red-500 font-medium group-hover:text-red-600 whitespace-nowrap">{formatNumber(character.stats.hp)}</td>
+                        <td className="px-4 py-3 text-sm whitespace-nowrap">
                           <div className="flex items-center gap-1">
                             <span className="text-blue-500 font-medium group-hover:text-blue-600">{character.stats.pdef}%</span>
                             <span className="text-gray-400">/</span>
                             <span className="text-purple-500 font-medium group-hover:text-purple-600">{character.stats.mdef}%</span>
                           </div>
                         </td>
-                        <td className="px-4 py-3 text-sm text-yellow-500 font-medium group-hover:text-yellow-600">{character.stats.cri}%</td>
-                        <td className="px-4 py-3 text-sm text-purple-500 font-medium group-hover:text-purple-600">{character.stats.ele}%</td>
-                        <td className="px-4 py-3 text-sm text-orange-500 font-medium group-hover:text-orange-600">{character.stats.fd}%</td>
-                        <td className="px-4 py-3 text-sm text-green-500 font-medium group-hover:text-green-600">
+                        <td className="px-4 py-3 text-sm text-yellow-500 font-medium group-hover:text-yellow-600 whitespace-nowrap">{character.stats.cri}%</td>
+                        <td className="px-4 py-3 text-sm text-purple-500 font-medium group-hover:text-purple-600 whitespace-nowrap">{character.stats.ele}%</td>
+                        <td className="px-4 py-3 text-sm text-orange-500 font-medium group-hover:text-orange-600 whitespace-nowrap">{character.stats.fd}%</td>
+                        <td className="px-4 py-3 text-sm text-green-500 font-medium group-hover:text-green-600 whitespace-nowrap">
                           {formatNumber(character.score)}
                         </td>
                       </tr>

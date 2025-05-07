@@ -23,11 +23,11 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
     <ErrorBoundary fallback={<div>Something went wrong</div>}>
       <div className="min-h-screen bg-gradient-to-br from-violet-100 via-pink-100 to-sky-100">
         <Navigation />
-        <div className="container mx-auto px-0 max-w-full">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-full">
           <div className="flex gap-0 pt-4">
             {/* Main Content */}
             <div className={cn(
-              "flex-1",
+              "flex-1 w-full",
               pathname === '/login' && "max-w-3xl mx-auto"
             )}>
               {children}
@@ -35,7 +35,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
         
-        <footer className="py-4 text-center text-gray-600 text-sm mt-8">
+        <footer className="py-4 text-center text-gray-600 text-sm mt-8 px-4">
           Guild GalaxyCat by Ousuri
         </footer>
       </div>

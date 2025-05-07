@@ -185,20 +185,20 @@ const TradeDashboardPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-pink-50 to-purple-50">
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-4 sm:py-8">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8 bg-gradient-to-r from-yellow-50 via-pink-50 to-purple-100 rounded-2xl p-8 shadow-lg border-2 border-pink-200 grid grid-cols-1 lg:grid-cols-[1fr_480px] gap-8 items-center"
+          className="mb-8 bg-gradient-to-r from-yellow-50 via-pink-50 to-purple-100 rounded-2xl p-4 sm:p-8 shadow-lg border-2 border-pink-200 grid grid-cols-1 lg:grid-cols-[1fr_480px] gap-4 sm:gap-8 items-center"
         >
           <div className="min-w-0 flex-1">
             <h1
-              className="text-4xl md:text-5xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 via-yellow-500 to-orange-500 drop-shadow mb-2 flex items-center gap-3 leading-normal py-2 whitespace-nowrap"
+              className="text-2xl sm:text-4xl md:text-5xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 via-yellow-500 to-orange-500 drop-shadow mb-2 flex items-center gap-3 leading-normal py-2 whitespace-nowrap"
               style={{ fontFamily: `'Noto Sans Thai', 'Prompt', 'Sarabun', 'Kanit', 'sans-serif'`, lineHeight: 1.2 }}
             >
               <span>💎</span> ตลาดซื้อขายสินค้าและบริการ
             </h1>
-            <p className="text-lg md:text-xl text-gray-700 font-medium mb-2">
+            <p className="text-base sm:text-lg md:text-xl text-gray-700 font-medium mb-2">
               ระบบกลางสำหรับ <span className="text-pink-600 font-bold">ซื้อขาย Gold</span>, <span className="text-yellow-600 font-bold">สินค้า</span>, <span className="text-purple-600 font-bold">บริการ</span> และ <span className="text-blue-600 font-bold">กู้ยืมเงิน</span> จาก <span className="font-bold text-gray-800">พ่อค้า</span> หรือ <span className="font-bold text-gray-800">กิลด์</span>
             </p>
             <div className="flex gap-3 mt-3 flex-wrap">

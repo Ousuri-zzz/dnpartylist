@@ -884,7 +884,7 @@ export default function PartyPage({ params }: { params: { id: string } }) {
                           <Button
                             onClick={() => setIsDiscordModalOpen(true)}
                             variant="outline"
-                            className="bg-gradient-to-r from-indigo-500 to-violet-500 text-white hover:from-indigo-600 hover:to-violet-600"
+                            className="hidden sm:flex bg-gradient-to-r from-indigo-500 to-violet-500 text-white hover:from-indigo-600 hover:to-violet-600"
                             title="แก้ไข Discord Link"
                           >
                             <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
@@ -895,7 +895,7 @@ export default function PartyPage({ params }: { params: { id: string } }) {
                         )}
                         <Button
                           variant="outline"
-                          className="bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600"
+                          className="hidden sm:flex bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600"
                           onClick={() => setIsInviteOpen(true)}
                         >
                           <UserPlus className="w-4 h-4 mr-2" />
@@ -903,7 +903,7 @@ export default function PartyPage({ params }: { params: { id: string } }) {
                         </Button>
                         <Button
                           variant="outline"
-                          className="bg-gradient-to-r from-green-500 to-teal-500 text-white hover:from-green-600 hover:to-teal-600"
+                          className="hidden sm:flex bg-gradient-to-r from-green-500 to-teal-500 text-white hover:from-green-600 hover:to-teal-600"
                           onClick={handleCapturePartyImage}
                           disabled={isCapturing}
                         >

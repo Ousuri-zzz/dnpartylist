@@ -10,8 +10,9 @@ import { useGuild } from '@/hooks/useGuild';
 import { useAuth } from '@/hooks/useAuth';
 import { ref, onValue } from 'firebase/database';
 import { db } from '@/lib/firebase';
-import React from 'react';
+import React, { useState } from 'react';
 import { useGuildLoanNotification } from '@/hooks/useGuildLoanNotification';
+import ReactDOM from 'react-dom';
 
 export default function Navigation() {
   const pathname = usePathname();
@@ -21,6 +22,7 @@ export default function Navigation() {
   const [pendingCount, setPendingCount] = React.useState(0);
   const [pendingMerchantCount, setPendingMerchantCount] = React.useState(0);
   const [pendingGuildLoanCount, setPendingGuildLoanCount] = React.useState(0);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useGuildLoanNotification();
 
@@ -120,7 +122,85 @@ export default function Navigation() {
         <div className="flex items-center h-14">
           {showNavLinks ? (
             <>
-              <div className="flex items-center gap-0 w-1/3">
+              {/* Mobile Menu Button */}
+              <button
+                onClick={() => setIsMobileMenuOpen(true)}
+                className="lg:hidden mr-2 p-2 rounded-lg hover:bg-pink-50/50 transition-colors"
+              >
+                <svg
+                  className="w-6 h-6 text-gray-600"
+                  fill="none"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+
+              {/* Mobile Navigation Modal Overlay using React Portal */}
+              {isMobileMenuOpen && typeof window !== 'undefined' && ReactDOM.createPortal(
+                <div className="fixed inset-0 z-[9999] bg-white/95 backdrop-blur-md flex flex-col min-h-screen">
+                  <div className="flex justify-between items-center p-4 border-b border-pink-100">
+                    <span className="text-lg font-bold text-gray-800">Menu</span>
+                    <button
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="p-2 rounded-lg hover:bg-pink-50/50 transition-colors"
+                    >
+                      <svg className="w-6 h-6 text-gray-600" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
+                        <path d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                  <nav className="flex-1 flex flex-col gap-2 p-4 overflow-y-auto">
+                    <Link href="/mypage" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-pink-50/50 text-gray-700">
+                      <Home className="w-5 h-5" />
+                      <span className="font-medium">My Character</span>
+                    </Link>
+                    <Link href="/party" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-purple-50/50 text-gray-700">
+                      <Users className="w-5 h-5" />
+                      <span className="font-medium">Party List</span>
+                    </Link>
+                    <Link href="/events" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-indigo-50/50 text-gray-700">
+                      <Calendar className="w-5 h-5" />
+                      <span className="font-medium">Event</span>
+                    </Link>
+                    <Link href="/ranking" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-blue-50/50 text-gray-700">
+                      <BarChart2 className="w-5 h-5" />
+                      <span className="font-medium">Ranking</span>
+                    </Link>
+                    <Link href="/trade" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-pink-50/50 text-gray-700">
+                      <ShoppingCart className="w-5 h-5" />
+                      <span className="font-medium">Trade</span>
+                      {pendingCount > 0 && (
+                        <span className="ml-auto px-2 py-0.5 rounded-full bg-yellow-300 text-yellow-900 text-xs font-bold shadow">
+                          {pendingCount}
+                        </span>
+                      )}
+                    </Link>
+                    {isGuildLeader && (
+                      <Link href="/guild/settings" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-green-50/50 text-gray-700">
+                        <Settings className="w-5 h-5" />
+                        <span className="font-medium">Guild Settings</span>
+                        {(pendingMerchantCount > 0 || pendingGuildLoanCount > 0) && (
+                          <span className="ml-auto px-2 py-0.5 rounded-full bg-red-500 text-white text-xs font-bold shadow">
+                            {pendingMerchantCount + pendingGuildLoanCount}
+                          </span>
+                        )}
+                      </Link>
+                    )}
+                  </nav>
+                  <div className="p-4 border-t border-pink-100 bg-white/95 backdrop-blur-md">
+                    <DiscordDropdown inMobileMenu={true} />
+                  </div>
+                </div>,
+                document.body
+              )}
+
+              {/* Desktop Navigation */}
+              <div className="hidden lg:flex items-center gap-0 w-1/3">
                 <Link
                   href="/mypage"
                   className={cn(
@@ -254,10 +334,13 @@ export default function Navigation() {
                   )}
                 </Link>
               </div>
-              <div className="flex-1 text-center">
+
+              <div className="flex-1 text-center hidden lg:block">
                 <span className="text-sm text-gray-500">Guild GalaxyCat by Ousuri</span>
               </div>
-              <div className="flex items-center gap-0 w-1/3 justify-end">
+
+              {/* Desktop Right Side */}
+              <div className="hidden lg:flex items-center gap-0 w-1/3 justify-end">
                 <Link
                   href="/trade"
                   className={cn(
@@ -346,6 +429,27 @@ export default function Navigation() {
                     )}
                   </Link>
                 )}
+                <DiscordDropdown />
+              </div>
+
+              {/* Mobile Right Side */}
+              <div className="flex lg:hidden items-center gap-2 ml-auto">
+                <Link
+                  href="/trade"
+                  className={cn(
+                    "relative group px-3 py-1.5 rounded-lg transition-all duration-200",
+                    pathname === "/trade"
+                      ? "bg-gradient-to-r from-pink-200 via-yellow-100 to-purple-200 text-pink-700"
+                      : "bg-white/60 border border-pink-100 shadow-sm hover:bg-pink-50/50"
+                  )}
+                >
+                  <ShoppingCart className="w-5 h-5" />
+                  {pendingCount > 0 && (
+                    <span className="absolute -top-2 -right-2 px-1.5 py-0.5 rounded-full bg-yellow-300 text-yellow-900 text-xs font-bold">
+                      {pendingCount}
+                    </span>
+                  )}
+                </Link>
                 <DiscordDropdown />
               </div>
             </>
