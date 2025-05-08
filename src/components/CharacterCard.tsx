@@ -26,44 +26,44 @@ const CLASS_TO_MAIN_CLASS: Record<CharacterClass, CharacterMainClass> = {
 // สีตามอาชีพหลัก
 const classColors: Record<CharacterMainClass, {text: string, bg: string, border: string, accent: string, icon?: string}> = {
   'Warrior': {
-    text: 'text-red-600',
-    bg: 'bg-gradient-to-br from-red-100 to-rose-200/70',
-    border: 'border-red-300',
-    accent: 'text-red-500'
+    text: 'text-red-700',
+    bg: 'bg-gradient-to-br from-red-200 to-rose-300/90',
+    border: 'border-red-400',
+    accent: 'text-red-600'
   },
   'Archer': {
-    text: 'text-emerald-600',
-    bg: 'bg-gradient-to-br from-emerald-100 to-green-200/70',
-    border: 'border-emerald-300',
-    accent: 'text-emerald-500'
+    text: 'text-emerald-700',
+    bg: 'bg-gradient-to-br from-emerald-200 to-green-300/90',
+    border: 'border-emerald-400',
+    accent: 'text-emerald-600'
   },
   'Sorceress': {
-    text: 'text-purple-600',
-    bg: 'bg-gradient-to-br from-purple-100 to-violet-200/70',
-    border: 'border-purple-300',
-    accent: 'text-purple-500'
+    text: 'text-purple-700',
+    bg: 'bg-gradient-to-br from-purple-200 to-violet-300/90',
+    border: 'border-purple-400',
+    accent: 'text-purple-600'
   },
   'Cleric': {
-    text: 'text-sky-600',
-    bg: 'bg-gradient-to-br from-sky-100 to-blue-200/70',
-    border: 'border-sky-300',
-    accent: 'text-sky-500'
+    text: 'text-sky-700',
+    bg: 'bg-gradient-to-br from-sky-200 to-blue-300/90',
+    border: 'border-sky-400',
+    accent: 'text-sky-600'
   },
   'Academic': {
-    bg: 'from-amber-100 to-yellow-200/70',
-    text: 'text-amber-600',
-    border: 'border-amber-300',
-    accent: 'text-amber-500',
+    bg: 'from-amber-200 to-yellow-300/90',
+    text: 'text-amber-700',
+    border: 'border-amber-400',
+    accent: 'text-amber-600',
     icon: '🔧'
   }
 };
 
 // ค่าสีเริ่มต้น
 const defaultColors = {
-  text: 'text-gray-600',
-  bg: 'bg-gradient-to-br from-gray-50 to-gray-100/50',
-  border: 'border-gray-200',
-  accent: 'text-gray-500'
+  text: 'text-gray-700',
+  bg: 'bg-gradient-to-br from-gray-100 to-gray-200/80',
+  border: 'border-gray-300',
+  accent: 'text-gray-600'
 };
 
 interface CharacterCardProps {
@@ -122,39 +122,42 @@ export function CharacterCard({ character, onEdit, onDelete, onChecklistChange }
 
   return (
     <Card className={cn(
-      "relative overflow-hidden rounded-3xl shadow-2xl bg-white/80 backdrop-blur-md border-2 border-violet-100 transition-all duration-500 group",
-      "hover:shadow-[0_12px_36px_0_rgba(124,58,237,0.12)] hover:bg-gradient-to-br hover:from-white/90 hover:to-violet-50/80",
-      "hover:border-violet-200 hover:ring-2 hover:ring-violet-100/60",
-      "before:content-[''] before:absolute before:inset-0 before:rounded-3xl before:pointer-events-none before:z-0 before:bg-gradient-to-br before:from-violet-100/40 before:to-pink-100/30 before:opacity-60",
-    )} style={{boxShadow: '0 8px 32px 0 rgba(124, 58, 237, 0.10)'}}>
+      "relative overflow-hidden rounded-3xl shadow-2xl transition-all duration-500 group",
+      "bg-white",
+      colors.border,
+      "border-2",
+      "hover:shadow-[0_12px_36px_0_rgba(124,58,237,0.18)] hover:bg-white hover:ring-2 hover:ring-opacity-80",
+    )} style={{
+      boxShadow: '0 8px 32px 0 rgba(124, 58, 237, 0.13)'
+    }}>
       {/* Header bar with class color */}
       <div className={cn(
         "w-full h-10 rounded-t-3xl flex items-center justify-center relative",
         "transition-all duration-500",
-        mainClass === 'Warrior' && 'bg-gradient-to-r from-red-500 to-rose-400',
-        mainClass === 'Archer' && 'bg-gradient-to-r from-emerald-500 to-green-400',
-        mainClass === 'Sorceress' && 'bg-gradient-to-r from-purple-500 to-violet-400',
-        mainClass === 'Cleric' && 'bg-gradient-to-r from-sky-500 to-blue-400',
-        mainClass === 'Academic' && 'bg-gradient-to-r from-amber-400 to-yellow-300',
+        mainClass === 'Warrior' && 'bg-gradient-to-r from-red-600 to-rose-500',
+        mainClass === 'Archer' && 'bg-gradient-to-r from-emerald-600 to-green-500',
+        mainClass === 'Sorceress' && 'bg-gradient-to-r from-purple-600 to-violet-500',
+        mainClass === 'Cleric' && 'bg-gradient-to-r from-sky-600 to-blue-500',
+        mainClass === 'Academic' && 'bg-gradient-to-r from-amber-500 to-yellow-400',
         "group-hover:brightness-110 group-hover:contrast-110",
-        "group-hover:shadow-inner group-hover:shadow-black/5"
+        "group-hover:shadow-inner group-hover:shadow-black/10"
       )}>
         {/* Floating class icon */}
         <div className={cn(
           "absolute left-1/2 -bottom-7 -translate-x-1/2 z-20 flex items-center justify-center",
           "transition-transform duration-500 group-hover:scale-105",
-          "group-hover:drop-shadow-[0_0_6px_rgba(0,0,0,0.15)]"
+          "group-hover:drop-shadow-[0_0_8px_rgba(0,0,0,0.2)]"
         )}>
           <div className={cn(
             "w-16 h-16 rounded-full flex items-center justify-center shadow-lg border-4 border-white",
             "transition-all duration-500",
-            mainClass === 'Warrior' && 'bg-red-100',
-            mainClass === 'Archer' && 'bg-emerald-100',
-            mainClass === 'Sorceress' && 'bg-purple-100',
-            mainClass === 'Cleric' && 'bg-sky-100',
-            mainClass === 'Academic' && 'bg-amber-100',
-            "group-hover:shadow-lg group-hover:border-opacity-80",
-            "group-hover:bg-opacity-95 group-hover:backdrop-blur-[2px]"
+            mainClass === 'Warrior' && 'bg-red-200',
+            mainClass === 'Archer' && 'bg-emerald-200',
+            mainClass === 'Sorceress' && 'bg-purple-200',
+            mainClass === 'Cleric' && 'bg-sky-200',
+            mainClass === 'Academic' && 'bg-amber-200',
+            "group-hover:shadow-lg group-hover:border-opacity-90",
+            "group-hover:bg-opacity-100 group-hover:backdrop-blur-[2px]"
           )}>
             {getClassIcon(character.class)}
           </div>
@@ -164,29 +167,29 @@ export function CharacterCard({ character, onEdit, onDelete, onChecklistChange }
           <Button
             variant="ghost"
             size="icon"
-            className={cn("hover:bg-black/10 transition-all duration-300 rounded-full")}
+            className={cn("hover:bg-black/20 transition-all duration-300 rounded-full")}
             onClick={() => {
               if (onEdit && character) {
                 onEdit(character);
               }
             }}
           >
-            <Pencil className="h-5 w-5 text-gray-600" />
+            <Pencil className="h-5 w-5 text-gray-800" />
           </Button>
           <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
             <DialogTrigger asChild>
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="hover:bg-red-100/40 transition-all duration-300 rounded-full"
+                className="hover:bg-red-200/60 transition-all duration-300 rounded-full"
               >
-                <Trash2 className="h-5 w-5 text-red-500 hover:text-red-600" />
+                <Trash2 className="h-5 w-5 text-red-700 hover:text-red-800" />
               </Button>
             </DialogTrigger>
             <DialogContent className="bg-background/95 backdrop-blur-sm">
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2">
-                  <Trash2 className="h-5 w-5 text-red-500" />
+                  <Trash2 className="h-5 w-5 text-red-700" />
                   ลบตัวละคร
                 </DialogTitle>
                 <DialogDescription>
@@ -212,42 +215,42 @@ export function CharacterCard({ character, onEdit, onDelete, onChecklistChange }
       </div>
       {/* Content below header */}
       <div className="pt-8 pb-4 px-4 flex flex-col items-center">
-        <h3 className={cn("text-xl font-bold flex items-center gap-2 mt-2 mb-1 text-gray-800")}>{character.name}</h3>
+        <h3 className={cn("text-xl font-bold flex items-center gap-2 mt-2 mb-1 text-gray-900")}>{character.name}</h3>
         <p className={cn("text-base font-semibold flex items-center gap-1 mb-4",
-          mainClass === 'Warrior' && 'text-red-500',
-          mainClass === 'Archer' && 'text-emerald-500',
-          mainClass === 'Sorceress' && 'text-purple-500',
-          mainClass === 'Cleric' && 'text-sky-500',
-          mainClass === 'Academic' && 'text-amber-500',
+          mainClass === 'Warrior' && 'text-red-700',
+          mainClass === 'Archer' && 'text-emerald-700',
+          mainClass === 'Sorceress' && 'text-purple-700',
+          mainClass === 'Cleric' && 'text-sky-700',
+          mainClass === 'Academic' && 'text-amber-700',
         )}>
           {character.class}
         </p>
         <div className="w-full flex flex-col gap-2">
-          <div className="p-3 rounded-xl bg-white/40 shadow-inner border border-gray-100/50">
-            <h4 className="text-sm font-semibold mb-2 flex items-center gap-1 text-gray-700">
+          <div className="p-3 rounded-xl bg-white shadow-inner border border-gray-300">
+            <h4 className="text-sm font-semibold mb-2 flex items-center gap-1 text-gray-900">
               <Target className={cn("h-4 w-4",
-                mainClass === 'Warrior' && 'text-red-400',
-                mainClass === 'Archer' && 'text-emerald-400',
-                mainClass === 'Sorceress' && 'text-purple-400',
-                mainClass === 'Cleric' && 'text-sky-400',
-                mainClass === 'Academic' && 'text-amber-400',
+                mainClass === 'Warrior' && 'text-red-600',
+                mainClass === 'Archer' && 'text-emerald-600',
+                mainClass === 'Sorceress' && 'text-purple-600',
+                mainClass === 'Cleric' && 'text-sky-600',
+                mainClass === 'Academic' && 'text-amber-600',
                 "transition-all duration-500 group-hover:scale-110",
-                "group-hover:drop-shadow-[0_0_3px_rgba(0,0,0,0.15)]"
+                "group-hover:drop-shadow-[0_0_4px_rgba(0,0,0,0.2)]"
               )} />
               สถานะตัวละคร
             </h4>
             <CharacterStats stats={character.stats} />
           </div>
-          <div className="p-3 rounded-xl bg-white/40 shadow-inner border border-gray-100/50">
-            <h4 className="text-sm font-semibold mb-2 flex items-center gap-1 text-gray-700">
+          <div className="p-3 rounded-xl bg-white shadow-inner border border-gray-300">
+            <h4 className="text-sm font-semibold mb-2 flex items-center gap-1 text-gray-900">
               <CheckCircle2 className={cn("h-4 w-4",
-                mainClass === 'Warrior' && 'text-red-400',
-                mainClass === 'Archer' && 'text-emerald-400',
-                mainClass === 'Sorceress' && 'text-purple-400',
-                mainClass === 'Cleric' && 'text-sky-400',
-                mainClass === 'Academic' && 'text-amber-400',
+                mainClass === 'Warrior' && 'text-red-600',
+                mainClass === 'Archer' && 'text-emerald-600',
+                mainClass === 'Sorceress' && 'text-purple-600',
+                mainClass === 'Cleric' && 'text-sky-600',
+                mainClass === 'Academic' && 'text-amber-600',
                 "transition-all duration-500 group-hover:scale-110",
-                "group-hover:drop-shadow-[0_0_3px_rgba(0,0,0,0.15)]"
+                "group-hover:drop-shadow-[0_0_4px_rgba(0,0,0,0.2)]"
               )} />
               รายการเช็คลิสต์
             </h4>
