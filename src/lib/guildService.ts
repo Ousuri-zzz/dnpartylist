@@ -78,6 +78,9 @@ export class GuildService {
         joinedAt: new Date().toISOString()
       };
       await set(memberRef, memberData);
+      // sync ไปที่ users/{uid}/meta/discord ด้วย
+      const userMetaRef = ref(db, `users/${uid}/meta`);
+      await update(userMetaRef, { discord: discordName });
       return memberData;
     } catch (error) {
       console.error('Error adding member:', error);

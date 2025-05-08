@@ -64,6 +64,14 @@ export default function RankingPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const [openCharacterId, setOpenCharacterId] = useState<string | null>(null);
+  const [forceUpdate, setForceUpdate] = useState(0);
+
+  // เพิ่ม useEffect เพื่อติดตามการเปลี่ยนแปลง
+  useEffect(() => {
+    console.log('Users updated:', users);
+    console.log('Characters updated:', characters);
+    setForceUpdate(prev => prev + 1);
+  }, [users, characters]);
 
   const handleSort = (stat: StatType) => {
     if (selectedStat === stat) {
@@ -92,11 +100,15 @@ export default function RankingPage() {
   // Filter and sort characters
   const rankedCharacters = useMemo(() => {
     // First, calculate score and add Discord name for all characters
-    let processed = characters.map(char => ({
-      ...char,
-      score: calculateScore(char),
-      discordName: users[char.userId]?.meta?.discord || 'ไม่มีชื่อ Discord'
-    })) as RankedCharacter[];
+    let processed = characters.map(char => {
+      const discordName = users[char.userId]?.meta?.discord || 'ไม่มีชื่อ Discord';
+      console.log(`Character ${char.name} (${char.userId}): Discord name = ${discordName}`);
+      return {
+        ...char,
+        score: calculateScore(char),
+        discordName
+      };
+    }) as RankedCharacter[];
 
     // Sort by selected stat first
     processed.sort((a, b) => {
