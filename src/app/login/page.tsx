@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '../../hooks/useAuth';
 import { motion } from 'framer-motion';
+import { FaCat } from 'react-icons/fa';
 
 export default function LoginPage() {
   const { user, loading, signIn } = useAuth();
@@ -42,12 +43,14 @@ export default function LoginPage() {
           <div className="relative p-4 sm:p-8 space-y-4 sm:space-y-6 bg-white/80 backdrop-blur-lg rounded-xl shadow-xl">
             <div className="text-center space-y-2">
               <motion.h1 
-                className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 bg-clip-text text-transparent"
+                className="flex items-center justify-center gap-2 text-3xl sm:text-4xl font-bold bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 bg-clip-text text-transparent"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
               >
-                DN Party List
+                <FaCat className="w-8 h-8 text-pink-300 drop-shadow-sm shimmer-pastel" />
+                GalaxyCat
+                <FaCat className="w-8 h-8 text-blue-300 drop-shadow-sm shimmer-pastel" />
               </motion.h1>
               <motion.p 
                 className="text-sm sm:text-base text-gray-600"

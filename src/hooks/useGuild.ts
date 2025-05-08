@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { ref, onValue } from 'firebase/database';
 import { db } from '@/lib/firebase';
 import { GuildSettings } from '@/types/trade';
@@ -29,6 +29,19 @@ export function useGuild() {
       setLoading(false);
     });
 
+    return () => unsubscribe();
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) {
+      setIsGuildLeader(false);
+      return;
+    }
+    const leadersRef = ref(db, 'guild/leaders');
+    const unsubscribe = onValue(leadersRef, (snapshot) => {
+      const leaders = snapshot.val() || {};
+      setIsGuildLeader(!!leaders[user.uid]);
+    });
     return () => unsubscribe();
   }, [user]);
 

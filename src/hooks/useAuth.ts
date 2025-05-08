@@ -70,6 +70,7 @@ const setupAuthListener = () => {
 export function useAuth() {
   const [state, setState] = useState<{ user: User | null; discordName: string; showDiscordDialog: boolean }>(() => ({ ...authState }));
   const [loading, setLoading] = useState(true);
+  const [isSigningIn, setIsSigningIn] = useState(false);
 
   useEffect(() => {
     setupAuthListener();
@@ -88,6 +89,8 @@ export function useAuth() {
   }, []);
 
   const signIn = async () => {
+    if (isSigningIn) return;
+    setIsSigningIn(true);
     try {
       const auth = getAuth();
       const provider = new GoogleAuthProvider();
@@ -95,6 +98,8 @@ export function useAuth() {
     } catch (error) {
       console.error('Error signing in with Google:', error);
       throw error;
+    } finally {
+      setIsSigningIn(false);
     }
   };
 
@@ -153,6 +158,7 @@ export function useAuth() {
     setShowDiscordDialog,
     updateDiscordName,
     signIn,
-    signOut
+    signOut,
+    isSigningIn
   };
 } 

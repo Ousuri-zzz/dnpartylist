@@ -13,6 +13,7 @@ import { db } from '@/lib/firebase';
 import React, { useState } from 'react';
 import { useGuildLoanNotification } from '@/hooks/useGuildLoanNotification';
 import ReactDOM from 'react-dom';
+import { FaCat } from 'react-icons/fa';
 
 export default function Navigation() {
   const pathname = usePathname();
@@ -342,8 +343,31 @@ export default function Navigation() {
                 </Link>
               </div>
 
-              <div className="flex-1 text-center hidden lg:block">
-                <span className="text-sm text-gray-500">Guild GalaxyCat by Ousuri</span>
+              <div className="flex-1 text-center">
+                <div className="flex items-center justify-center gap-3 group relative">
+                  <FaCat className="w-6 h-6 text-pink-300 drop-shadow-sm shimmer-pastel" />
+                  <span className="text-xl lg:text-2xl font-extrabold tracking-wide bg-gradient-to-r from-pink-300 via-purple-300 to-blue-300 bg-clip-text text-transparent px-1 drop-shadow-sm shimmer-text">
+                    GalaxyCat
+                  </span>
+                  <FaCat className="w-6 h-6 text-blue-300 drop-shadow-sm shimmer-pastel" />
+                </div>
+                <style jsx global>{`
+                  .shimmer-text {
+                    background-size: 200% 100%;
+                    animation: shimmer-gradient 3.5s linear infinite;
+                  }
+                  @keyframes shimmer-gradient {
+                    0% { background-position: 0% 50%; }
+                    100% { background-position: 100% 50%; }
+                  }
+                  .shimmer-pastel {
+                    filter: drop-shadow(0 1px 2px #fff6) brightness(1.08);
+                    transition: filter 0.3s;
+                  }
+                  .shimmer-pastel:hover {
+                    filter: drop-shadow(0 2px 6px #fff9) brightness(1.18);
+                  }
+                `}</style>
               </div>
 
               {/* Desktop Right Side */}

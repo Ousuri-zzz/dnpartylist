@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { Banknote, CreditCard, User, MessageSquare, HelpCircle } from 'lucide-react';
-import { toast } from 'react-hot-toast';
+import { toast } from 'sonner';
 import { db } from '@/lib/firebase';
 import { ref, set, get } from 'firebase/database';
 import { useRouter } from 'next/navigation';
@@ -125,8 +125,8 @@ export default function RegisterPage() {
         animate={{ opacity: 1, y: 0 }}
         className="bg-white/80 rounded-2xl shadow-xl border border-pink-100 p-8 w-full max-w-md"
       >
-        <h2 className="text-2xl font-bold text-pink-600 mb-2 text-center">สมัครเป็นพ่อค้า</h2>
-        <p className="text-gray-500 mb-6 text-center">กรอกข้อมูลร้านค้าของคุณเพื่อเริ่มต้นขาย Gold หรือไอเทม</p>
+        <h2 className="text-2xl font-bold text-pink-600 mb-2 text-center">ลงทะเบียนร้านค้า</h2>
+        <p className="text-gray-500 mb-6 text-center">กรอกข้อมูลร้านค้าของคุณเพื่อยืนยันตัวตนกับหัวกิลด์</p>
         <form onSubmit={handleRegister} className="space-y-4">
           <div>
             <label className="block text-sm text-gray-700 mb-1 flex items-center gap-2">

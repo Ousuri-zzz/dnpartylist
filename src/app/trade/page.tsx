@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 import { MessageSquare, Copy, History, Store, Users, User, PiggyBank, ShoppingBag, Package } from 'lucide-react';
-import { toast } from 'react-hot-toast';
+import { toast } from 'sonner';
 import { db } from '@/lib/firebase';
 import { ref, onValue, get } from 'firebase/database';
 import { useRouter } from 'next/navigation';
@@ -189,8 +189,18 @@ const TradeDashboardPage = () => {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8 bg-gradient-to-r from-yellow-50 via-pink-50 to-purple-100 rounded-2xl p-4 sm:p-8 shadow-lg border-2 border-pink-200 grid grid-cols-1 lg:grid-cols-[1fr_480px] gap-4 sm:gap-8 items-center"
+          className="relative mb-8 bg-gradient-to-r from-yellow-50 via-pink-50 to-purple-100 rounded-2xl p-4 sm:p-8 shadow-lg border-2 border-pink-200 grid grid-cols-1 lg:grid-cols-[1fr_480px] gap-4 sm:gap-8 items-center"
         >
+          {/* ปุ่มบริจาคกิลด์ มุมซ้ายบน */}
+          <a
+            href="/guild-donate"
+            className="absolute top-4 left-4 z-10 flex items-center gap-1 px-4 py-1.5 rounded-full bg-gradient-to-r from-pink-200 via-orange-100 to-yellow-100 text-pink-800 text-sm font-bold shadow-lg border-2 border-pink-300 hover:from-pink-400 hover:to-orange-200 hover:text-white hover:shadow-xl transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-pink-300/60 focus:ring-offset-2 cursor-pointer"
+            style={{ minWidth: 'fit-content', boxShadow: '0 2px 12px 0 rgba(236, 72, 153, 0.13)' }}
+            tabIndex={0}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" /></svg>
+            บริจาคกิลด์
+          </a>
           <div className="min-w-0 flex-1">
             <h1
               className="text-2xl sm:text-4xl md:text-5xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 via-yellow-500 to-orange-500 drop-shadow mb-2 flex items-center gap-3 leading-normal py-2 whitespace-nowrap"
@@ -302,7 +312,7 @@ const TradeDashboardPage = () => {
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
               <h2 className="text-2xl font-extrabold flex items-center gap-3 bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent drop-shadow">
                 <Store className="w-7 h-7 text-pink-500" />
-                ร้านค้าพ่อค้าทั้งหมด
+                ร้านค้าทั้งหมด
               </h2>
               <input
                 type="text"
@@ -466,7 +476,7 @@ const TradeDashboardPage = () => {
                               <span className="ml-2 px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700 text-xs font-bold">ใหม่</span>
                             )}
                           </div>
-                          <p className="text-gray-600 mb-1 text-xs line-clamp-2 break-all">{item.description}</p>
+                          <p className="text-gray-600 whitespace-pre-line break-words mb-2" style={{ minHeight: '2.5em', fontSize: '13px' }}>{item.description}</p>
                           <div className="flex justify-end">
                             <a
                               href={`https://discord.com/users/${item.merchantId}`}

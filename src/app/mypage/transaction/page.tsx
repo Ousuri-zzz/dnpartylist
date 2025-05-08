@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 import { Check, Clock, History, ArrowLeft, Coins, ShoppingBag, Banknote, Loader2, XCircle, CheckCircle2, Store } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { db } from '@/lib/firebase';
-import { ref, onValue, update } from 'firebase/database';
+import { ref, onValue, update, remove } from 'firebase/database';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -24,6 +24,7 @@ export default function TransactionHistoryPage() {
   const [merchants, setMerchants] = useState<Record<string, any>>({});
   const PAGE_SIZE = 10;
   const [currentPage, setCurrentPage] = useState(1);
+  const [pendingGoldBuys, setPendingGoldBuys] = useState<any[]>([]);
 
   useEffect(() => {
     if (!user) {
@@ -98,6 +99,33 @@ export default function TransactionHistoryPage() {
       unsubscribeMerchants();
     };
   }, [user, router, discordName]);
+
+  // Subscribe trade ทั้งหมดเพื่อหารายการซื้อ Gold ที่รอยืนยัน
+  useEffect(() => {
+    if (!user) return;
+    const tradesRef = ref(db, 'trade');
+    const unsubscribe = onValue(tradesRef, (snapshot) => {
+      const data = snapshot.val();
+      if (!data) return setPendingGoldBuys([]);
+      const pending = Object.entries(data)
+        .flatMap(([tradeId, trade]: [string, any]) => {
+          if (!trade.confirms) return [];
+          return Object.entries(trade.confirms)
+            .filter(([confirmId, confirm]: [string, any]) => confirm.buyerId === user.uid && confirm.status === 'waiting')
+            .map(([confirmId, confirm]: [string, any]) => ({
+              tradeId,
+              confirmId,
+              merchantId: trade.merchantId,
+              amount: confirm.amount,
+              pricePer100: trade.pricePer100 || trade.price || 0,
+              merchantName: trade.merchantName || trade.discordName || trade.merchantDiscord || trade.name || '',
+              createdAt: confirm.confirmedAt,
+            }));
+        });
+      setPendingGoldBuys(pending as any[]);
+    });
+    return () => unsubscribe();
+  }, [user]);
 
   const handleReturn = async (loanId: string) => {
     if (!user) return;
@@ -179,6 +207,18 @@ export default function TransactionHistoryPage() {
   const pagedTransactions = sortedTransactions.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
   const totalPages = Math.ceil(sortedTransactions.length / PAGE_SIZE);
 
+  // ฟังก์ชันยกเลิกการซื้อ Gold (ใช้ confirmId แทน user.uid)
+  const handleCancelGoldBuy = async (tradeId: string, confirmId: string) => {
+    if (!user) return;
+    try {
+      const confirmRef = ref(db, `trade/${tradeId}/confirms/${confirmId}`);
+      await remove(confirmRef);
+      toast.success('ยกเลิกรายการซื้อแล้ว');
+    } catch (e) {
+      toast.error('เกิดข้อผิดพลาดในการยกเลิก');
+    }
+  };
+
   if (!user) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-pink-50 to-purple-50 flex items-center justify-center">
@@ -251,6 +291,27 @@ export default function TransactionHistoryPage() {
             <span>กู้ยืม</span>
           </button>
         </div>
+
+        {/* รายการซื้อ Gold ที่รอยืนยัน */}
+        {pendingGoldBuys.length > 0 && (
+          <div className="mb-8 bg-yellow-50 border border-yellow-200 rounded-xl shadow p-4">
+            <h2 className="text-lg font-bold text-yellow-700 mb-2 flex items-center gap-2"><Coins className="w-5 h-5" /> รายการซื้อ Gold ที่รอยืนยัน</h2>
+            <div className="space-y-2">
+              {pendingGoldBuys.map((buy) => (
+                <div key={buy.tradeId + '-' + buy.confirmId} className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 bg-white/80 rounded-lg p-3 border border-yellow-100">
+                  <div>
+                    <div className="font-semibold text-yellow-700">จำนวน: <b>{buy.amount}G</b> | ราคา: <b>{buy.pricePer100} บาท/1G</b></div>
+                    <div className="text-sm text-gray-700">ร้าน: {buy.merchantName}</div>
+                    <div className="text-xs text-gray-400">เวลายืนยัน: {new Date(buy.createdAt).toLocaleString()}</div>
+                  </div>
+                  <button onClick={() => handleCancelGoldBuy(buy.tradeId, buy.confirmId)} className="px-3 py-1 rounded-lg bg-red-100 hover:bg-red-200 text-red-700 font-semibold flex items-center gap-1 border border-red-200 transition-all">
+                    <XCircle className="w-5 h-5" /> ยกเลิกการซื้อ
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="space-y-4">
           {pagedTransactions.length === 0 ? (

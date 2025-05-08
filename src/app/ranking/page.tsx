@@ -444,9 +444,9 @@ export default function RankingPage() {
                       <tr
                         key={character.id}
                         className={cn(
-                          "group transition-all duration-200",
-                          "hover:bg-gradient-to-r hover:from-pink-100/80 hover:to-pink-50/80 hover:shadow-md hover:scale-[1.01]",
-                          "hover:border-l-4 hover:border-pink-300/50",
+                          "group transition-all duration-200 border-l-4 border-transparent",
+                          "hover:bg-gradient-to-r hover:from-pink-100/80 hover:to-pink-50/80",
+                          "hover:border-pink-300/50",
                           user?.uid === character.userId && "bg-gradient-to-r from-blue-100/80 to-blue-50/80"
                         )}
                       >

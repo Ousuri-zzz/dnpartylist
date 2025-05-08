@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 import { MessageSquare, Copy, Clock, Check, X } from 'lucide-react';
-import { toast } from 'react-hot-toast';
+import { toast } from 'sonner';
 import { db } from '@/lib/firebase';
 import { ref, onValue, push, set, get, update } from 'firebase/database';
 import { useRouter } from 'next/navigation';

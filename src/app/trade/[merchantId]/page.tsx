@@ -4,10 +4,10 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
-import { MessageSquare, Copy, ShoppingCart, History, DollarSign, ShoppingBag, Store, Coins, Banknote } from 'lucide-react';
-import { toast } from 'react-hot-toast';
+import { MessageSquare, Copy, ShoppingCart, History, DollarSign, ShoppingBag, Store, Coins, Banknote, XCircle } from 'lucide-react';
+import { toast } from 'sonner';
 import { db } from '@/lib/firebase';
-import { ref, onValue, push, set, update } from 'firebase/database';
+import { ref, onValue, push, set, update, remove } from 'firebase/database';
 import Link from 'next/link';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { useSearchParams } from 'next/navigation';
@@ -29,6 +29,7 @@ export default function MerchantShopPage({ params }: { params: { merchantId: str
   const [loanDueTime, setLoanDueTime] = useState('');
   const [isLoaning, setIsLoaning] = useState(false);
   const searchParams = useSearchParams();
+  const [pendingBuy, setPendingBuy] = useState<any | null>(null);
 
   useEffect(() => {
     const merchantRef = ref(db, `tradeMerchants/${params.merchantId}`);
@@ -85,6 +86,46 @@ export default function MerchantShopPage({ params }: { params: { merchantId: str
       }
     }
   }, [searchParams, trades]);
+
+  // Subscribe pending buy confirm ของ user ปัจจุบัน
+  useEffect(() => {
+    if (!user) return;
+    // subscribe ทุก trade ของร้านนี้
+    const unsubscribes: (() => void)[] = [];
+    trades.forEach(trade => {
+      const confirmsRef = ref(db, `trade/${trade.id}/confirms`);
+      const unsubscribe = onValue(confirmsRef, (snapshot) => {
+        const data = snapshot.val();
+        if (data && data[user.uid] && data[user.uid].status === 'waiting') {
+          setPendingBuy({
+            tradeId: trade.id,
+            amount: data[user.uid].amount,
+            pricePer100: trade.pricePer100,
+            merchantName: merchant?.discordName || merchant?.name || '',
+            createdAt: data[user.uid].confirmedAt,
+            status: data[user.uid].status
+          });
+        } else {
+          setPendingBuy(null);
+        }
+      });
+      unsubscribes.push(unsubscribe);
+    });
+    return () => { unsubscribes.forEach(unsub => unsub()); };
+  }, [user, trades, merchant]);
+
+  // ฟังก์ชันยกเลิกการซื้อ
+  const handleCancelBuy = async () => {
+    if (!pendingBuy || !user) return;
+    try {
+      const confirmRef = ref(db, `trade/${pendingBuy.tradeId}/confirms/${user.uid}`);
+      await remove(confirmRef);
+      toast.success('ยกเลิกรายการซื้อแล้ว');
+      setPendingBuy(null);
+    } catch (e) {
+      toast.error('เกิดข้อผิดพลาดในการยกเลิก');
+    }
+  };
 
   if (!merchant) {
     return (
@@ -451,6 +492,22 @@ export default function MerchantShopPage({ params }: { params: { merchantId: str
             </div>
           </DialogContent>
         </Dialog>
+
+        {/* Overlay รายการซื้อที่รอยืนยัน */}
+        {pendingBuy && (
+          <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 bg-yellow-50 border border-yellow-300 rounded-xl shadow-lg px-6 py-4 flex items-center gap-4 animate-fade-in">
+            <Coins className="w-7 h-7 text-yellow-400" />
+            <div className="flex flex-col">
+              <span className="font-bold text-yellow-700">รอการยืนยันจากพ่อค้า</span>
+              <span className="text-sm text-gray-700">จำนวน: <b>{pendingBuy.amount}G</b> | ราคา: <b>{pendingBuy.pricePer100} บาท/1G</b></span>
+              <span className="text-xs text-gray-500">ร้าน: {pendingBuy.merchantName}</span>
+              <span className="text-xs text-gray-400">เวลายืนยัน: {new Date(pendingBuy.createdAt).toLocaleString()}</span>
+            </div>
+            <button onClick={handleCancelBuy} className="ml-4 px-3 py-1 rounded-lg bg-red-100 hover:bg-red-200 text-red-700 font-semibold flex items-center gap-1 border border-red-200 transition-all">
+              <XCircle className="w-5 h-5" /> ยกเลิกการซื้อ
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

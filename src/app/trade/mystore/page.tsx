@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 import { Plus, Check, X, Package, MessageSquare, Copy, Settings, UserPlus, User, KeyRound, DollarSign, Clock, CheckCircle2, XCircle, Crown, ChevronDown, ChevronUp, LogOut, History, Store, ShoppingBag, Edit, Trash2, PlusCircle, ClipboardList, PiggyBank } from 'lucide-react';
-import { toast } from 'react-hot-toast';
+import { toast } from 'sonner';
 import { db } from '@/lib/firebase';
 import { ref, push, set, onValue, update, get, remove } from 'firebase/database';
 import { useRouter } from 'next/navigation';

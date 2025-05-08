@@ -122,12 +122,11 @@ export function CharacterCard({ character, onEdit, onDelete, onChecklistChange }
 
   return (
     <Card className={cn(
-      "relative overflow-hidden rounded-3xl shadow-xl bg-white/60 backdrop-blur-sm border border-white/80 transition-all duration-500 group",
-      "hover:shadow-2xl hover:bg-gradient-to-br hover:from-white/70 hover:to-violet-50/50",
-      "hover:border-opacity-60 hover:border-violet-100",
-      "hover:shadow-[0_8px_32px_0_rgba(31,38,135,0.15)]",
-      "hover:ring-1 hover:ring-violet-50/50"
-    )} style={{boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.07)'}}>
+      "relative overflow-hidden rounded-3xl shadow-2xl bg-white/80 backdrop-blur-md border-2 border-violet-100 transition-all duration-500 group",
+      "hover:shadow-[0_12px_36px_0_rgba(124,58,237,0.12)] hover:bg-gradient-to-br hover:from-white/90 hover:to-violet-50/80",
+      "hover:border-violet-200 hover:ring-2 hover:ring-violet-100/60",
+      "before:content-[''] before:absolute before:inset-0 before:rounded-3xl before:pointer-events-none before:z-0 before:bg-gradient-to-br before:from-violet-100/40 before:to-pink-100/30 before:opacity-60",
+    )} style={{boxShadow: '0 8px 32px 0 rgba(124, 58, 237, 0.10)'}}>
       {/* Header bar with class color */}
       <div className={cn(
         "w-full h-10 rounded-t-3xl flex items-center justify-center relative",

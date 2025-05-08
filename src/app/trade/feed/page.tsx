@@ -5,13 +5,13 @@ import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 import { MessageSquare, Copy, ArrowLeft, Search } from 'lucide-react';
-import { toast } from 'react-hot-toast';
+import { toast } from 'sonner';
 import { db } from '@/lib/firebase';
 import { ref, onValue, query, orderByChild, update, get } from 'firebase/database';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-type FeedType = 'all' | 'gold' | 'item' | 'loan';
+type FeedType = 'all' | 'gold' | 'item' | 'loan' | 'donate';
 
 export default function FeedPage() {
   const { user } = useAuth();
@@ -76,6 +76,10 @@ export default function FeedPage() {
       if (msg.subType === 'completed' || msg.subType === 'complete') {
         return `@${msg.merchantDiscord || msg.merchantName || 'พ่อค้า'} ยืนยันว่าได้รับคืนเงินกู้ ${msg.amount || ''}G จาก @${msg.borrower?.name || 'ผู้ยืม'} ✅`;
       }
+      return msg.text;
+    }
+    // Donate
+    if (msg.type === 'donate') {
       return msg.text;
     }
     // Default
@@ -187,7 +191,7 @@ export default function FeedPage() {
     return () => unsubscribe();
   }, []);
 
-  const validTypes = ['gold', 'loan'];
+  const validTypes = ['gold', 'loan', 'donate'];
   // รวม feedMessages, loanHistory, guildLoanHistory
   const mergedFeed = feedMessages
     .filter(msg => validTypes.includes(msg.type))
@@ -231,6 +235,7 @@ export default function FeedPage() {
       case 'gold': return '💰';
       case 'item': return '🎁';
       case 'loan': return '🧾';
+      case 'donate': return '💖';
       default: return '📋';
     }
   };
@@ -307,6 +312,17 @@ export default function FeedPage() {
             >
               <span>🧾 กู้ยืม</span>
             </button>
+            <button
+              onClick={() => setActiveTab('donate')}
+              className={cn(
+                "flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors whitespace-nowrap",
+                activeTab === 'donate'
+                  ? "bg-pink-100 text-pink-600"
+                  : "bg-white text-gray-600 hover:bg-pink-50"
+              )}
+            >
+              <span>💖 บริจาค</span>
+            </button>
           </div>
           <div className="relative flex-1">
             <input
@@ -349,10 +365,12 @@ export default function FeedPage() {
                   <span className={cn(
                     "px-3 py-1 rounded-full text-xs font-semibold",
                     message.type === 'gold' && "bg-blue-100 text-blue-800",
-                    message.type === 'loan' && "bg-green-100 text-green-800"
+                    message.type === 'loan' && "bg-green-100 text-green-800",
+                    message.type === 'donate' && "bg-pink-100 text-pink-800"
                   )}>
                     {message.type === 'gold' && 'Gold'}
                     {message.type === 'loan' && 'กู้ยืม'}
+                    {message.type === 'donate' && 'บริจาค'}
                   </span>
                   {message.type === 'loan' && (
                     <span className={cn(
