@@ -1,5 +1,8 @@
 import { Metadata } from 'next';
  
 export const metadata: Metadata = {
-  title: 'ตัวละครของฉัน',
+  title: {
+    default: 'ตัวละครของฉัน',
+    template: '%s | GalaxyCat'
+  },
 }; 

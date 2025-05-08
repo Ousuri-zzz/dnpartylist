@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
-import { MessageSquare, Copy, History, Store, Users, User, PiggyBank, ShoppingBag, Package } from 'lucide-react';
+import { MessageSquare, Copy, History, Store, Users, User, PiggyBank, ShoppingBag, Package, Heart } from 'lucide-react';
 import { toast } from 'sonner';
 import { db } from '@/lib/firebase';
 import { ref, onValue, get } from 'firebase/database';
@@ -216,6 +216,7 @@ const TradeDashboardPage = () => {
               <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-pink-100 text-pink-700 font-semibold text-sm"><ShoppingBag className="w-4 h-4" /> Gold</span>
               <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-purple-100 text-purple-700 font-semibold text-sm"><Users className="w-4 h-4" /> บริการ</span>
               <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-blue-100 text-blue-700 font-semibold text-sm"><PiggyBank className="w-4 h-4" /> กู้ยืม</span>
+              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-pink-100 text-pink-700 font-semibold text-sm"><Heart className="w-4 h-4" /> บริจาค</span>
             </div>
           </div>
           <div className="w-full max-w-[700px] px-0 mx-auto">

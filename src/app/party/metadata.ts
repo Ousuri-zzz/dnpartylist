@@ -1,5 +1,8 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'ปาร์ตี้ทั้งหมด',
+  title: {
+    default: 'ปาร์ตี้ทั้งหมด',
+    template: '%s | GalaxyCat'
+  },
 }; 

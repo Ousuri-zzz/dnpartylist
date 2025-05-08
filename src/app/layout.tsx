@@ -9,8 +9,8 @@ const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: {
-    default: 'DNPartyList',
-    template: '%s | DNPartyList'
+    default: 'GalaxyCat',
+    template: '%s | GalaxyCat'
   },
   description: 'Dragon Nest Party List - เว็บไซต์สำหรับผู้เล่น Dragon Nest (Classic)',
 }
