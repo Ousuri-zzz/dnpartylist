@@ -31,131 +31,106 @@ const TradeDashboardPage = () => {
   const [itemSearch, setItemSearch] = useState('');
 
   useEffect(() => {
-    if (!user && !authCheckRef.current) {
-      authCheckRef.current = true;
-      router.push('/');
+    if (!user) {
+      router.push('/login');
       return;
     }
 
     if (isInitialized.current) return;
     isInitialized.current = true;
 
-    const setupData = () => {
-      const merchantsRef = ref(db, 'tradeMerchants');
-      const feedRef = ref(db, 'feed/all');
-      const tradesRef = ref(db, 'trade');
-      const itemsRef = ref(db, 'tradeItems');
+    setLoading(true);
 
-      const unsubscribeMerchants = onValue(merchantsRef, (snapshot) => {
-        const data = snapshot.val();
-        const merchantsList = data ? Object.entries(data)
-          .map(([id, merchant]: [string, any]) => ({
-            id,
-            ...merchant
-          }))
-          .sort((a, b) => b.gold - a.gold) : [];
-        setMerchants(merchantsList);
-      });
+    // ดึงข้อมูลพ่อค้า
+    const merchantsRef = ref(db, 'tradeMerchants');
+    const unsubscribeMerchants = onValue(merchantsRef, (snapshot) => {
+      const data = snapshot.val();
+      const merchantsList = data ? Object.entries(data)
+        .map(([id, merchant]: [string, any]) => ({
+          id,
+          ...merchant
+        }))
+        .sort((a, b) => b.createdAt - a.createdAt) : [];
+      setMerchants(merchantsList);
+    });
 
-      // ดึง trade ทั้งหมดเพื่อคำนวณ goldLeft ของแต่ละ merchant
-      const unsubscribeTrades = onValue(tradesRef, (snapshot) => {
-        const data = snapshot.val();
-        const goldLeftMap: Record<string, number> = {};
-        const latestTradeMap: Record<string, any> = {};
-        if (data) {
-          Object.values<any>(data).forEach((trade: any) => {
-            if (trade.status === 'open' && trade.merchantId) {
-              goldLeftMap[trade.merchantId] = (goldLeftMap[trade.merchantId] || 0) + (trade.amountLeft || 0);
-              // หา trade ล่าสุดของแต่ละ merchant
-              if (!latestTradeMap[trade.merchantId] || trade.createdAt > latestTradeMap[trade.merchantId].createdAt) {
-                latestTradeMap[trade.merchantId] = trade;
-              }
+    // ดึงข้อมูลข้อความ
+    const feedRef = ref(db, 'feed/all');
+    const unsubscribeFeed = onValue(feedRef, (snapshot) => {
+      const data = snapshot.val();
+      const feedList = data ? Object.entries(data)
+        .map(([id, message]: [string, any]) => ({
+          id,
+          ...message
+        }))
+        .sort((a, b) => b.timestamp - a.timestamp) : [];
+      setFeedMessages(feedList);
+    });
+
+    // ดึงข้อมูลสินค้า
+    const itemsRef = ref(db, 'tradeItems');
+    const unsubscribeItems = onValue(itemsRef, (snapshot) => {
+      const data = snapshot.val();
+      const itemsByMerchant: Record<string, any[]> = {};
+      if (data) {
+        Object.entries(data).forEach(([id, item]: [string, any]) => {
+          if (!itemsByMerchant[item.merchantId]) {
+            itemsByMerchant[item.merchantId] = [];
+          }
+          itemsByMerchant[item.merchantId].push({ id, ...item });
+        });
+      }
+      setMerchantItems(itemsByMerchant);
+    });
+
+    // ดึงข้อมูลการค้า
+    const tradesRef = ref(db, 'trade');
+    const unsubscribeTrades = onValue(tradesRef, (snapshot) => {
+      const data = snapshot.val();
+      const goldLeft: Record<string, number> = {};
+      const latestTrade: Record<string, any> = {};
+      if (data) {
+        Object.entries(data).forEach(([id, trade]: [string, any]) => {
+          if (trade.status === 'open') {
+            goldLeft[trade.merchantId] = (goldLeft[trade.merchantId] || 0) + trade.amountLeft;
+            if (!latestTrade[trade.merchantId] || trade.createdAt > latestTrade[trade.merchantId].createdAt) {
+              latestTrade[trade.merchantId] = { id, ...trade };
             }
-          });
-        }
-        setMerchantGoldLeft(goldLeftMap);
-        setMerchantLatestTrade(latestTradeMap);
-      });
+          }
+        });
+      }
+      setMerchantGoldLeft(goldLeft);
+      setMerchantLatestTrade(latestTrade);
+    });
 
-      // ดึง tradeItems ทั้งหมดเพื่อ map ไอเทมของแต่ละ merchant
-      const unsubscribeItems = onValue(itemsRef, (snapshot) => {
-        const data = snapshot.val();
-        const itemsMap: Record<string, any[]> = {};
-        if (data) {
-          Object.values<any>(data).forEach((item: any) => {
-            if (item.merchantId) {
-              if (!itemsMap[item.merchantId]) itemsMap[item.merchantId] = [];
-              itemsMap[item.merchantId].push(item);
-            }
-          });
-        }
-        setMerchantItems(itemsMap);
-      });
-
-      const unsubscribeFeed = onValue(feedRef, (snapshot) => {
-        const data = snapshot.val();
-        const feedList = data ? Object.entries(data)
-          .map(([id, feed]: [string, any]) => ({
-            id,
-            ...feed
-          }))
-          .sort((a, b) => b.timestamp - a.timestamp) : [];
-        setFeedMessages(feedList);
-        setLoading(false);
-      });
-
-      unsubscribeRef.current = [unsubscribeMerchants, unsubscribeFeed, unsubscribeTrades, unsubscribeItems];
+    // ตรวจสอบการลงทะเบียน
+    const checkRegistration = async () => {
+      try {
+        const merchantRef = ref(db, `tradeMerchants/${user.uid}`);
+        const snapshot = await get(merchantRef);
+        setIsRegistered(snapshot.exists());
+        setCheckingRegister(false);
+      } catch (error) {
+        console.error('Error checking registration:', error);
+        setCheckingRegister(false);
+      }
     };
 
-    setupData();
+    checkRegistration();
 
-    // เช็คว่ายังไม่ได้สมัครเป็นพ่อค้าหรือไม่
-    if (user && user.uid) {
-      const merchantRef = ref(db, `tradeMerchants/${user.uid}`);
-      get(merchantRef).then(snapshot => {
-        setShowRegister(!snapshot.exists());
-        setCheckingRegister(false);
-        setIsRegistered(snapshot.exists());
-      });
-    }
+    unsubscribeRef.current = [
+      unsubscribeMerchants,
+      unsubscribeFeed,
+      unsubscribeItems,
+      unsubscribeTrades
+    ];
 
-    if (!user) return;
-    let merchantCount = 0;
-    let guildCount = 0;
-    const merchantLoansRef = ref(db, 'merchantLoans');
-    const guildLoansRef = ref(db, 'guildLoans');
-    const unsubMerchant = onValue(merchantLoansRef, (snapshot) => {
-      const data = snapshot.val();
-      merchantCount = data
-        ? Object.values(data).filter(
-            (loan: any) =>
-              loan.borrower?.discordId === user.uid &&
-              (loan.status === 'active' || loan.status === 'returned')
-          ).length
-        : 0;
-      setPendingReturnCount(merchantCount + guildCount);
-    });
-    const unsubGuild = onValue(guildLoansRef, (snapshot) => {
-      const data = snapshot.val();
-      guildCount = data
-        ? Object.values(data).filter(
-            (loan: any) =>
-              loan.borrowerId === user.uid &&
-              (loan.status === 'active' || loan.status === 'returned')
-          ).length
-        : 0;
-      setPendingReturnCount(merchantCount + guildCount);
-    });
+    setLoading(false);
 
     return () => {
       unsubscribeRef.current.forEach(unsubscribe => unsubscribe());
-      unsubscribeRef.current = [];
-      isInitialized.current = false;
-      authCheckRef.current = false;
-      unsubMerchant();
-      unsubGuild();
     };
-  }, [user]);
+  }, [user, router]);
 
   const copyMessage = (message: string) => {
     navigator.clipboard.writeText(message);

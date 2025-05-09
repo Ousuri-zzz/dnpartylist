@@ -12,7 +12,7 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
 export function DiscordDropdown({ inMobileMenu = false }: { inMobileMenu?: boolean }) {
-  const { user, discordName, signOut, updateDiscordName } = useAuth();
+  const { user, discordName, logout, updateDiscordName } = useAuth();
   const router = useRouter();
   const [isSettingDiscordName, setIsSettingDiscordName] = useState(false);
   const [newDiscordName, setNewDiscordName] = useState('');
@@ -126,10 +126,10 @@ export function DiscordDropdown({ inMobileMenu = false }: { inMobileMenu?: boole
     setIsResetting(true);
     try {
       await resetChecklist(user.uid, type);
-      alert(`รีเซ็ต ${type === 'daily' ? 'รายวัน' : 'รายสัปดาห์'} เรียบร้อยแล้ว!`);
+      toast.success(`รีเซ็ต ${type === 'daily' ? 'รายวัน' : 'รายสัปดาห์'} เรียบร้อยแล้ว!`);
     } catch (error) {
       console.error('Error resetting checklist:', error);
-      alert('เกิดข้อผิดพลาดในการรีเซ็ต กรุณาลองใหม่อีกครั้ง');
+      toast.error('เกิดข้อผิดพลาดในการรีเซ็ต กรุณาลองใหม่อีกครั้ง');
     } finally {
       setIsResetting(false);
     }
@@ -137,11 +137,11 @@ export function DiscordDropdown({ inMobileMenu = false }: { inMobileMenu?: boole
 
   const handleLogout = async () => {
     try {
-      await signOut();
+      await logout();
       router.push('/login');
     } catch (error) {
       console.error('Error signing out:', error);
-      alert('เกิดข้อผิดพลาดในการออกจากระบบ กรุณาลองใหม่อีกครั้ง');
+      toast.error('เกิดข้อผิดพลาดในการออกจากระบบ กรุณาลองใหม่อีกครั้ง');
     }
   };
 

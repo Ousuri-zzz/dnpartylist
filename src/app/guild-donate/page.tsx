@@ -9,6 +9,8 @@ import { useCharacters } from '@/hooks/useCharacters';
 import { useState, useEffect, useMemo } from 'react';
 import { toast } from 'sonner';
 import { getClassColors, CLASS_TO_ROLE } from '@/config/theme';
+import Link from 'next/link';
+import { Crown } from 'lucide-react';
 
 interface Donate {
   id: string;
@@ -213,10 +215,19 @@ export default function GuildDonatePage() {
         {/* ส่วนอนุมัติ (หัวกิลด์) */}
         {isGuildLeader && (
           <div className="mb-10">
-            <h2 className="text-lg font-bold text-yellow-700 mb-4 flex items-center gap-2">
-              <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-yellow-100 text-yellow-500 shadow"><span className="text-xl">📝</span></span>
-              รายการรออนุมัติ
-            </h2>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-bold text-yellow-700 mb-4 flex items-center gap-2">
+                <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-yellow-100 text-yellow-500 shadow"><span className="text-xl">📝</span></span>
+                รายการรออนุมัติ
+              </h2>
+              <Link
+                href="/guild-donate/history"
+                className="flex items-center gap-2 px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-colors shadow-sm"
+              >
+                <Crown className="w-4 h-4" />
+                <span>ดูประวัติการบริจาค</span>
+              </Link>
+            </div>
             <div className="space-y-4">
               {donates.filter(d => d.status === 'waiting').length === 0 && (
                 <div className="text-gray-400 text-center">ยังไม่มีรายการรออนุมัติ</div>

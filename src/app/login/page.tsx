@@ -7,7 +7,7 @@ import { motion } from 'framer-motion';
 import { FaCat } from 'react-icons/fa';
 
 export default function LoginPage() {
-  const { user, loading, signIn } = useAuth();
+  const { user, loading, login } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const from = searchParams.get('from') || '/mypage';
@@ -63,7 +63,7 @@ export default function LoginPage() {
             </div>
 
             <motion.button
-              onClick={signIn}
+              onClick={login}
               className="w-full px-6 py-3 text-sm font-medium text-white bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 rounded-xl hover:from-pink-600 hover:via-purple-600 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transform hover:scale-[1.02] transition-all duration-300 shadow-md hover:shadow-lg relative group overflow-hidden"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}

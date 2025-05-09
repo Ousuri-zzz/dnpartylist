@@ -1,0 +1,304 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useAuth } from '@/hooks/useAuth';
+import { useGuild } from '@/hooks/useGuild';
+import { useRouter } from 'next/navigation';
+import { ref, onValue, get } from 'firebase/database';
+import { db } from '@/lib/firebase';
+import { toast } from 'sonner';
+import { Crown, Search, Calendar, Users, Coins } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import Link from 'next/link';
+
+interface Donate {
+  id: string;
+  userId: string;
+  discordName: string;
+  amount: number;
+  status: 'waiting' | 'active' | 'rejected';
+  createdAt: number;
+  approvedAt?: number;
+  approvedBy?: string;
+  characters?: Array<{
+    id: string;
+    name: string;
+    class: string;
+  }>;
+}
+
+interface MemberDonation {
+  userId: string;
+  discordName: string;
+  lastDonation: number | null;
+  lastDonationAmount: number | null;
+  totalDonations: number;
+  donationCount: number;
+}
+
+export default function GuildDonateHistoryPage() {
+  const { user } = useAuth();
+  const { isGuildLeader } = useGuild();
+  const router = useRouter();
+  const [donates, setDonates] = useState<Donate[]>([]);
+  const [members, setMembers] = useState<Record<string, any>>({});
+  const [searchTerm, setSearchTerm] = useState('');
+  const [memberDonations, setMemberDonations] = useState<MemberDonation[]>([]);
+  const [sortBy, setSortBy] = useState<'lastDonation' | 'totalDonations' | 'donationCount'>('lastDonation');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+
+  useEffect(() => {
+    if (!user) {
+      router.push('/');
+      return;
+    }
+
+    // เช็คสิทธิ์หัวกิลด์
+    const checkLeaderStatus = async () => {
+      const leaderRef = ref(db, `guild/leaders/${user.uid}`);
+      const snapshot = await get(leaderRef);
+      if (!snapshot.exists() || !snapshot.val()) {
+        toast.error('คุณไม่มีสิทธิ์เข้าถึงหน้านี้');
+        router.push('/');
+        return;
+      }
+    };
+    checkLeaderStatus();
+
+    // Load guild members
+    const membersRef = ref(db, 'guild/members');
+    const unsubMembers = onValue(membersRef, (snapshot) => {
+      if (snapshot.exists()) {
+        setMembers(snapshot.val());
+      }
+    });
+
+    // Load donations
+    const donatesRef = ref(db, 'guilddonate');
+    const unsubDonates = onValue(donatesRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        const donatesList = Object.entries(data).map(([id, value]: [string, any]) => ({
+          id,
+          ...value
+        }));
+        setDonates(donatesList);
+      }
+    });
+
+    return () => {
+      unsubMembers();
+      unsubDonates();
+    };
+  }, [user, router]);
+
+  useEffect(() => {
+    // Process donations data
+    const donationsByMember: Record<string, MemberDonation> = {};
+
+    // Initialize with all members
+    Object.entries(members).forEach(([userId, member]: [string, any]) => {
+      donationsByMember[userId] = {
+        userId,
+        discordName: member.discordName || 'ไม่ทราบ',
+        lastDonation: null,
+        lastDonationAmount: null,
+        totalDonations: 0,
+        donationCount: 0
+      };
+    });
+
+    // Process donations
+    donates.forEach(donate => {
+      if (donate.status === 'active') {
+        const member = donationsByMember[donate.userId];
+        if (member) {
+          member.totalDonations += donate.amount;
+          member.donationCount += 1;
+          if (!member.lastDonation || donate.createdAt >= member.lastDonation) {
+            member.lastDonation = donate.createdAt;
+            member.lastDonationAmount = donate.amount;
+          }
+        }
+      }
+    });
+
+    // แยกการเรียงลำดับข้อมูล
+    const sortedDonations = Object.values(donationsByMember).sort((a, b) => {
+      if (sortBy === 'lastDonation') {
+        const aDate = a.lastDonation || 0;
+        const bDate = b.lastDonation || 0;
+        return sortOrder === 'desc' ? bDate - aDate : aDate - bDate;
+      } else if (sortBy === 'totalDonations') {
+        return sortOrder === 'desc' ? b.totalDonations - a.totalDonations : a.totalDonations - b.totalDonations;
+      } else {
+        return sortOrder === 'desc' ? b.donationCount - a.donationCount : a.donationCount - b.donationCount;
+      }
+    });
+
+    // เพิ่ม console.log เพื่อตรวจสอบข้อมูล
+    console.log('Processed donations:', sortedDonations);
+
+    setMemberDonations(sortedDonations);
+  }, [donates, members, sortBy, sortOrder]);
+
+  const filteredDonations = memberDonations.filter(member => 
+    member.discordName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleSort = (column: 'lastDonation' | 'totalDonations' | 'donationCount') => {
+    if (sortBy === column) {
+      setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc');
+    } else {
+      setSortBy(column);
+      setSortOrder('desc');
+    }
+  };
+
+  return (
+    <div className="max-w-6xl mx-auto p-6">
+      <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-pink-200">
+        {/* Header */}
+        <div className="flex items-center gap-4 mb-8 pb-6 border-b border-pink-100">
+          <div className="p-3 bg-pink-100 rounded-xl">
+            <Crown className="w-8 h-8 text-pink-600" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-800">📊 ประวัติการบริจาคของสมาชิก</h1>
+            <p className="text-sm text-gray-500 mt-1">ดูประวัติการบริจาคของสมาชิกทั้งหมดในกิลด์</p>
+          </div>
+          <Link
+            href="/guild-donate"
+            className="ml-auto flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-pink-200 via-orange-100 to-yellow-100 text-pink-800 text-sm font-bold rounded-full shadow border-2 border-pink-300 hover:from-pink-400 hover:to-orange-200 hover:text-white hover:shadow-xl transition-all duration-150"
+            style={{ minWidth: 'fit-content' }}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" /></svg>
+            บริจาคกิลด์
+          </Link>
+        </div>
+
+        {/* Search */}
+        <div className="mb-6">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <input
+              type="text"
+              placeholder="ค้นหาด้วยชื่อ Discord..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border-2 border-pink-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-200 focus:border-pink-300"
+            />
+          </div>
+        </div>
+
+        {/* Table */}
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="bg-pink-50">
+                <th 
+                  className="px-4 py-3 text-center text-sm font-semibold text-gray-600 cursor-pointer hover:bg-pink-100 w-24"
+                  onClick={() => handleSort('donationCount')}
+                >
+                  <div className="flex items-center justify-center gap-1">
+                    <Users className="w-4 h-4" />
+                    ครั้ง
+                    {sortBy === 'donationCount' && (
+                      <span className="text-pink-500">{sortOrder === 'desc' ? '↓' : '↑'}</span>
+                    )}
+                  </div>
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Discord</th>
+                <th 
+                  className="px-4 py-3 text-left text-sm font-semibold text-gray-600 cursor-pointer hover:bg-pink-100"
+                  onClick={() => handleSort('lastDonation')}
+                >
+                  <div className="flex items-center gap-1">
+                    <Calendar className="w-4 h-4" />
+                    บริจาคล่าสุด
+                    {sortBy === 'lastDonation' && (
+                      <span className="text-pink-500">{sortOrder === 'desc' ? '↓' : '↑'}</span>
+                    )}
+                  </div>
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600 w-32">
+                  <div className="flex items-center gap-1">
+                    <Coins className="w-4 h-4" />
+                    ยอดล่าสุด
+                  </div>
+                </th>
+                <th 
+                  className="px-4 py-3 text-left text-sm font-semibold text-gray-600 cursor-pointer hover:bg-pink-100"
+                  onClick={() => handleSort('totalDonations')}
+                >
+                  <div className="flex items-center gap-1">
+                    <Coins className="w-4 h-4" />
+                    ยอดรวม
+                    {sortBy === 'totalDonations' && (
+                      <span className="text-pink-500">{sortOrder === 'desc' ? '↓' : '↑'}</span>
+                    )}
+                  </div>
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-pink-100">
+              {filteredDonations.map((member) => (
+                <tr key={member.userId} className="hover:bg-pink-50/50">
+                  <td className="px-4 py-3 text-center">
+                    <span className={cn(
+                      "font-medium",
+                      member.donationCount > 0 ? "text-blue-600" : "text-gray-400"
+                    )}>
+                      {member.donationCount}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-gray-700">{member.discordName}</span>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    {member.lastDonation ? (
+                      <span className="text-gray-600">
+                        {new Date(member.lastDonation).toLocaleDateString('th-TH', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric'
+                        })}
+                      </span>
+                    ) : (
+                      <span className="text-gray-400">ยังไม่เคยบริจาค</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3">
+                    {member.lastDonationAmount ? (
+                      <span className="font-medium text-green-600">
+                        {member.lastDonationAmount.toLocaleString()}G
+                      </span>
+                    ) : (
+                      <span className="text-gray-400">-</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className={cn(
+                      "font-medium",
+                      member.totalDonations > 0 ? "text-green-600" : "text-gray-400"
+                    )}>
+                      {member.totalDonations.toLocaleString()}G
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {filteredDonations.length === 0 && (
+          <div className="text-center py-8 text-gray-500">
+            ไม่พบข้อมูลที่ค้นหา
+          </div>
+        )}
+      </div>
+    </div>
+  );
+} 
