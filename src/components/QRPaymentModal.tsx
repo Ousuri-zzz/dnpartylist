@@ -35,7 +35,7 @@ export default function QRPaymentModal({ isOpen, onClose, onSuccess }: QRPayment
   const qrRef = useRef<HTMLDivElement>(null);
 
   // PromptPay number - replace with your actual PromptPay number
-  const promptPayNumber = '0812345678';
+  const promptPayNumber = '0612319777';
   
   // โหลด base64 code ที่บันทึกไว้
   useEffect(() => {
