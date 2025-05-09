@@ -26,7 +26,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
   const auth = useAuth();
 
   return (
-    <AuthContext.Provider value={auth}>
+    <AuthContext.Provider value={{
+      ...auth,
+      signIn: async () => { await auth.login(); },
+      signOut: auth.logout
+    }}>
       {children}
     </AuthContext.Provider>
   );
