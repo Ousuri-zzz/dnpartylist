@@ -171,4 +171,71 @@ export class GuildService {
       return false;
     }
   }
+
+  static async validateDiscordName(discordName: string): Promise<boolean> {
+    const discordRegex = /^.{2,32}#[0-9]{4}$/;
+    return discordRegex.test(discordName);
+  }
+
+  static async initializeUser(uid: string, userData: any) {
+    try {
+      const userRef = ref(db, `users/${uid}`);
+      const userSnapshot = await get(userRef);
+      
+      if (!userSnapshot.exists()) {
+        const initialUserData = {
+          email: userData.email,
+          displayName: userData.displayName,
+          photoURL: userData.photoURL,
+          meta: {
+            discord: '',
+            lastResetDaily: Date.now(),
+            lastResetWeekly: Date.now()
+          },
+          characters: {}
+        };
+        
+        await set(userRef, initialUserData);
+      }
+    } catch (error) {
+      console.error('Error initializing user:', error);
+      throw error;
+    }
+  }
+
+  static async validateAndUpdateDiscordName(uid: string, discordName: string) {
+    try {
+      // เอา validation ออก ให้ใส่ชื่ออะไรก็ได้
+      if (!discordName || discordName.length < 1) {
+        throw new Error('Discord name is required');
+      }
+      
+      // ตรวจสอบและสร้าง meta node ถ้ายังไม่มี
+      const userMetaRef = ref(db, `users/${uid}/meta`);
+      const metaSnap = await get(userMetaRef);
+      if (!metaSnap.exists()) {
+        await set(userMetaRef, { discord: discordName });
+      } else {
+        await update(userMetaRef, { discord: discordName });
+      }
+      
+      // อัพเดทข้อมูลในกิลด์
+      const guildRef = ref(db, 'guild');
+      const guildSnapshot = await get(guildRef);
+      
+      if (guildSnapshot.exists()) {
+        const memberRef = ref(db, `guild/members/${uid}`);
+        const memberSnapshot = await get(memberRef);
+        
+        if (memberSnapshot.exists()) {
+          await update(memberRef, { discordName });
+        } else {
+          await GuildService.addMember(uid, discordName);
+        }
+      }
+    } catch (error) {
+      console.error('Error validating and updating Discord name:', error);
+      throw error;
+    }
+  }
 } 

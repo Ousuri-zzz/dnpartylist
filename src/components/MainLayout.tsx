@@ -6,7 +6,6 @@ import { Sidebar } from './Sidebar';
 import { useUsers } from '../hooks/useUsers';
 import { usePathname } from 'next/navigation';
 import { cn } from '../lib/utils';
-import { useDiscordCheck } from '../hooks/useDiscordCheck';
 
 const Navigation = dynamic(() => import('./Navigation'), {
   ssr: false,
@@ -17,7 +16,6 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
   const { users } = useUsers();
   const pathname = usePathname();
   const showSidebar = pathname !== '/login' && pathname !== '/ranking';
-  useDiscordCheck();
 
   return (
     <ErrorBoundary fallback={<div>Something went wrong</div>}>

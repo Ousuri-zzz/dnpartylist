@@ -2,6 +2,7 @@
 
 import { createContext, useContext } from 'react';
 import { useAuth } from '../hooks/useAuth';
+import { DiscordNameDialog } from '@/components/DiscordNameDialog';
 
 interface AuthContextType {
   user: any;
@@ -25,6 +26,15 @@ export function useAuthContext() {
 export function Providers({ children }: { children: React.ReactNode }) {
   const auth = useAuth();
 
+  const handleDiscordSubmit = async (discordName: string) => {
+    try {
+      await auth.updateDiscordName(discordName);
+      auth.setShowDiscordDialog(false);
+    } catch (error) {
+      console.error('Error updating Discord name:', error);
+    }
+  };
+
   return (
     <AuthContext.Provider value={{
       ...auth,
@@ -32,6 +42,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       signOut: auth.logout
     }}>
       {children}
+      <DiscordNameDialog onSubmit={handleDiscordSubmit} />
     </AuthContext.Provider>
   );
 } 

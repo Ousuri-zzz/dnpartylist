@@ -26,10 +26,20 @@ let authSubscribers: ((state: {
   isInitialized: boolean;
 }) => void)[] = [];
 
-const notifySubscribers = () => {
+// เพิ่ม debounce function
+const debounce = (func: Function, wait: number) => {
+  let timeout: NodeJS.Timeout;
+  return (...args: any[]) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func(...args), wait);
+  };
+};
+
+// ปรับปรุง notifySubscribers ให้ใช้ debounce
+const notifySubscribers = debounce(() => {
   const clone = { ...authState };
   authSubscribers.forEach(subscriber => subscriber(clone));
-};
+}, 100);
 
 const setupAuthListener = () => {
   if (authListener) return;
@@ -45,32 +55,50 @@ const setupAuthListener = () => {
       document.cookie = `auth-token=${token}; path=/; max-age=604800; SameSite=Lax`;
 
       try {
+        // สร้างข้อมูล User เริ่มต้น
+        await GuildService.initializeUser(user.uid, user);
+        
         // ดึงข้อมูล Discord name
         const userMetaRef = ref(db, `users/${user.uid}/meta`);
         const snapshot = await get(userMetaRef);
         if (snapshot.exists()) {
-          authState.discordName = snapshot.val().discord || '';
-        }
-
-        // เพิ่มสมาชิกเข้ากิลด์อัตโนมัติ
-        const guildRef = ref(db, 'guild');
-        const guildSnapshot = await get(guildRef);
-        
-        if (guildSnapshot.exists()) {
-          const memberRef = ref(db, `guild/members/${user.uid}`);
-          const memberSnapshot = await get(memberRef);
-          
-          if (!memberSnapshot.exists()) {
-            await GuildService.addMember(user.uid, user.displayName || 'Unknown');
+          const discordName = snapshot.val().discord;
+          if (discordName) {
+            authState.discordName = discordName;
+            
+            // เพิ่มสมาชิกเข้ากิลด์อัตโนมัติ
+            const guildRef = ref(db, 'guild');
+            const guildSnapshot = await get(guildRef);
+            
+            if (guildSnapshot.exists()) {
+              const memberRef = ref(db, `guild/members/${user.uid}`);
+              const memberSnapshot = await get(memberRef);
+              
+              if (!memberSnapshot.exists()) {
+                await GuildService.addMember(user.uid, discordName);
+              }
+            }
+          } else {
+            // ถ้าไม่มี Discord name ให้แสดง dialog
+            authState.showDiscordDialog = true;
+            notifySubscribers();
           }
+        } else {
+          // ถ้าไม่มีข้อมูล meta ให้แสดง dialog
+          authState.showDiscordDialog = true;
+          notifySubscribers();
         }
       } catch (error) {
         console.error('Error fetching user data:', error);
+        // ถ้าเกิด error ให้แสดง dialog
+        authState.showDiscordDialog = true;
+        notifySubscribers();
       }
     } else {
       // Remove the session cookie when user is not authenticated
       document.cookie = 'auth-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
       authState.discordName = '';
+      authState.showDiscordDialog = false;
     }
     
     authState.isInitialized = true;
@@ -99,7 +127,13 @@ export function useAuth() {
       showDiscordDialog: boolean;
       isInitialized: boolean;
     }) => {
-      setState(() => ({ ...newState }));
+      setState(prev => {
+        // ตรวจสอบว่ามีการเปลี่ยนแปลงจริงหรือไม่
+        if (JSON.stringify(prev) === JSON.stringify(newState)) {
+          return prev;
+        }
+        return { ...newState };
+      });
       setLoading(false);
     };
     
@@ -152,8 +186,10 @@ export function useAuth() {
     discordName: state.discordName,
     showDiscordDialog: state.showDiscordDialog,
     setShowDiscordDialog: (show: boolean) => {
-      authState.showDiscordDialog = show;
-      notifySubscribers();
+      if (authState.showDiscordDialog !== show) {
+        authState.showDiscordDialog = show;
+        notifySubscribers();
+      }
     },
     updateDiscordName: async (newName: string) => {
       if (!authState.user) {
@@ -167,11 +203,7 @@ export function useAuth() {
       }
       
       try {
-        const userRef = ref(db, `users/${authState.user.uid}/meta`);
-        await update(userRef, {
-          discord: newName
-        });
-        
+        await GuildService.validateAndUpdateDiscordName(authState.user.uid, newName);
         authState.discordName = newName;
         notifySubscribers();
       } catch (error) {

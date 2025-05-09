@@ -47,9 +47,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/mypage/:path*',
-    '/guild-donate/:path*',
-    '/trade/:path*',
-    '/login'
+    '/((?!_next|static|api|favicon.ico).*)',
   ],
 }; 
