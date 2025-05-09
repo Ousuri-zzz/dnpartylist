@@ -1,0 +1,240 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useAuth } from '@/hooks/useAuth';
+import { useGuild } from '@/hooks/useGuild';
+import { useRouter } from 'next/navigation';
+import { ref, onValue, update, get, push } from 'firebase/database';
+import { db } from '@/lib/firebase';
+import { toast } from 'sonner';
+import { Crown, Check, X, Clock, Search } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+
+interface CashDonation {
+  id: string;
+  userId: string;
+  amount: number;
+  status: 'waiting' | 'active' | 'rejected';
+  createdAt: number;
+  approvedAt?: number;
+  approvedBy?: string;
+  type: 'cash';
+  paymentMethod: 'promptpay';
+}
+
+export default function GuildDonateCashPage() {
+  const { user } = useAuth();
+  const { isGuildLeader } = useGuild();
+  const router = useRouter();
+  const [donations, setDonations] = useState<CashDonation[]>([]);
+  const [donorDiscords, setDonorDiscords] = useState<Record<string, string>>({});
+  const [searchTerm, setSearchTerm] = useState('');
+  const [page, setPage] = useState(1);
+  const perPage = 10;
+
+  useEffect(() => {
+    if (!user) {
+      router.push('/');
+      return;
+    }
+
+    // Check guild leader status
+    const checkLeaderStatus = async () => {
+      const leaderRef = ref(db, `guild/leaders/${user.uid}`);
+      const snapshot = await get(leaderRef);
+      if (!snapshot.exists() || !snapshot.val()) {
+        toast.error('คุณไม่มีสิทธิ์เข้าถึงหน้านี้');
+        router.push('/');
+        return;
+      }
+    };
+    checkLeaderStatus();
+
+    // Load donations
+    const donationsRef = ref(db, 'guilddonatecash');
+    const unsubDonations = onValue(donationsRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        const donationsList = Object.entries(data)
+          .filter(([id, value]: [string, any]) => (
+            value &&
+            typeof value.amount === 'number' &&
+            typeof value.createdAt === 'number' &&
+            typeof value.userId === 'string' &&
+            value.type === 'cash' &&
+            value.paymentMethod === 'promptpay'
+          ))
+          .map(([id, value]: [string, any]) => ({
+            id,
+            ...value
+          }));
+        setDonations(donationsList);
+      }
+    });
+
+    return () => {
+      unsubDonations();
+    };
+  }, [user, router]);
+
+  useEffect(() => {
+    const fetchDiscords = async () => {
+      const userIds = Array.from(new Set(donations.map(d => d.userId)));
+      const newDiscords: Record<string, string> = { ...donorDiscords };
+      await Promise.all(userIds.map(async (uid) => {
+        if (!newDiscords[uid]) {
+          const metaSnap = await get(ref(db, `users/${uid}/meta/discord`));
+          if (metaSnap.exists()) {
+            newDiscords[uid] = metaSnap.val();
+          }
+        }
+      }));
+      setDonorDiscords(newDiscords);
+    };
+    if (donations.length > 0) fetchDiscords();
+  }, [donations]);
+
+  const handleApprove = async (donationId: string, approve: boolean) => {
+    const status = approve ? 'active' : 'rejected';
+    const approvedAt = Date.now();
+    await update(ref(db, `guilddonatecash/${donationId}`), {
+      status,
+      approvedAt,
+      approvedBy: user?.uid || ''
+    });
+
+    const donation = donations.find(d => d.id === donationId);
+    if (donation) {
+      const discordName = donorDiscords[donation.userId] || '...';
+      const feedText = approve
+        ? `@${discordName} บริจาคเงินสด ${donation.amount} บาท ให้กิลด์ GalaxyCat สำเร็จ ✅`
+        : `@${discordName} ยกเลิกการบริจาคเงินสด ${donation.amount} บาท ให้กิลด์ GalaxyCat ❌`;
+
+      await push(ref(db, 'feed/all'), {
+        type: 'donate',
+        subType: status,
+        text: feedText,
+        userId: donation.userId,
+        discordName,
+        amount: donation.amount,
+        status,
+        timestamp: approvedAt
+      });
+    }
+
+    toast.success(approve ? 'ยืนยันการบริจาคสำเร็จ' : 'ยกเลิกการบริจาคแล้ว');
+  };
+
+  const filteredDonations = donations.filter(donation => {
+    const discordName = donorDiscords[donation.userId] || '';
+    return discordName.toLowerCase().includes(searchTerm.toLowerCase());
+  });
+
+  const pagedDonations = filteredDonations.slice((page - 1) * perPage, page * perPage);
+  const totalPages = Math.ceil(filteredDonations.length / perPage);
+
+  return (
+    <div className="max-w-6xl mx-auto p-6">
+      <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-pink-200">
+        {/* Header */}
+        <div className="flex items-center gap-4 mb-8 pb-6 border-b border-pink-100">
+          <div className="p-3 bg-pink-100 rounded-xl">
+            <Crown className="w-8 h-8 text-pink-600" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-800">📜 ประวัติการบริจาคเงินสด</h1>
+            <p className="text-sm text-gray-500 mt-1">ดูประวัติการบริจาคเงินสดของสมาชิกทั้งหมดในกิลด์</p>
+          </div>
+          <Link
+            href="/guild-donate"
+            className="ml-auto flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-pink-200 via-orange-100 to-yellow-100 text-pink-800 text-sm font-bold rounded-full shadow border-2 border-pink-300 hover:from-pink-400 hover:to-orange-200 hover:text-white hover:shadow-xl transition-all duration-150"
+          >
+            <span>กลับไปหน้าระบบบริจาค</span>
+          </Link>
+        </div>
+
+        {/* Search */}
+        <div className="mb-6">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <input
+              type="text"
+              placeholder="ค้นหาด้วยชื่อ Discord..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border-2 border-pink-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-200 focus:border-pink-300"
+            />
+          </div>
+        </div>
+
+        {/* Table */}
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="bg-pink-50">
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">จำนวนเงิน</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Discord</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">วันที่</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">สถานะ</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-pink-100">
+              {pagedDonations.length === 0 ? (
+                <tr><td colSpan={4} className="text-center py-8 text-gray-500">ไม่พบรายการบริจาค</td></tr>
+              ) : (
+                pagedDonations.map((donation) => {
+                  const discordName = donorDiscords[donation.userId] || '...';
+                  return (
+                    <tr key={donation.id} className="hover:bg-pink-50/50">
+                      <td className="px-4 py-3 font-bold text-pink-700">{donation.amount} บาท</td>
+                      <td className="px-4 py-3">@{discordName}</td>
+                      <td className="px-4 py-3">{new Date(donation.createdAt).toLocaleString()}</td>
+                      <td className="px-4 py-3">
+                        {donation.status === 'waiting' && <span className="text-yellow-600 font-semibold">รออนุมัติ</span>}
+                        {donation.status === 'active' && <span className="text-green-600 font-semibold">อนุมัติแล้ว</span>}
+                        {donation.status === 'rejected' && <span className="text-red-600 font-semibold">ถูกยกเลิก</span>}
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex justify-center items-center gap-2 mt-3">
+            <button
+              className="px-2 py-1 rounded bg-pink-50 text-pink-600 border border-pink-200 disabled:opacity-50"
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={page === 1}
+            >
+              &lt;
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => (
+              <button
+                key={i}
+                className={cn(
+                  "px-3 py-1 rounded font-bold border",
+                  page === i + 1 ? "bg-pink-400 text-white border-pink-400" : "bg-white text-pink-700 border-pink-200"
+                )}
+                onClick={() => setPage(i + 1)}
+              >
+                {i + 1}
+              </button>
+            ))}
+            <button
+              className="px-2 py-1 rounded bg-pink-50 text-pink-600 border border-pink-200 disabled:opacity-50"
+              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+            >
+              &gt;
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+} 

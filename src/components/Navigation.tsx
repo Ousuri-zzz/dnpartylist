@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { cn } from '../lib/utils';
 import { DiscordDropdown } from './DiscordDropdown';
 import { motion } from 'framer-motion';
-import { Home, Users, BarChart2, Calendar, ShoppingCart, PiggyBank, Settings, Crown, LogOut } from 'lucide-react';
+import { Home, Users, BarChart2, Calendar, ShoppingCart, PiggyBank, Settings, Crown, LogOut, CreditCard } from 'lucide-react';
 import { useGuild } from '@/hooks/useGuild';
 import { useAuth } from '@/hooks/useAuth';
 import { ref, onValue } from 'firebase/database';
@@ -547,17 +547,37 @@ export default function Navigation() {
                           Donation History
                         </span>
                       </motion.div>
-                      {pendingDonationCount > 0 && (
-                        <Link
-                          href="/guild-donate"
-                          className="absolute bottom-0 right-0 px-1.5 py-0.5 rounded-full bg-yellow-300 text-yellow-900 text-xs font-bold shadow-md border border-yellow-200 cursor-pointer hover:bg-yellow-200 transition-colors drop-shadow"
-                          style={{ minWidth: 20, textAlign: 'center' }}
-                          title="มีรายการรออนุมัติบริจาค"
-                        >
-                          {pendingDonationCount}
-                        </Link>
-                      )}
                     </Link>
+
+                    {isGuildLeader && (
+                      <Link
+                        href="/guild-donate/cash"
+                        className={cn(
+                          "relative group px-3 py-1.5 rounded-lg transition-all duration-300 cursor-pointer",
+                          pathname === "/guild-donate/cash"
+                            ? "bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-md shadow-pink-500/20"
+                            : "bg-white/60 border border-pink-100 shadow-sm hover:bg-pink-50/50 hover:shadow-xl hover:scale-105 hover:ring-2 hover:ring-pink-300 hover:border-pink-400 hover:text-pink-600"
+                        )}
+                      >
+                        <motion.div
+                          className="flex items-center gap-1.5"
+                          whileHover={{ scale: 1.05, y: -1 }}
+                          whileTap={{ scale: 0.98 }}
+                          transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                        >
+                          <CreditCard className={cn(
+                            "w-3.5 h-3.5 transition-colors duration-300",
+                            pathname === "/guild-donate/cash" ? "text-white" : "group-hover:text-pink-600 text-pink-500"
+                          )} />
+                          <span className={cn(
+                            "text-sm font-medium transition-colors duration-300",
+                            pathname === "/guild-donate/cash" ? "text-white" : "group-hover:text-pink-600 text-gray-700"
+                          )}>
+                            Cash Donations
+                          </span>
+                        </motion.div>
+                      </Link>
+                    )}
                   </>
                 )}
                 <DiscordDropdown />

@@ -10,7 +10,8 @@ import { useState, useEffect, useMemo } from 'react';
 import { toast } from 'sonner';
 import { getClassColors, CLASS_TO_ROLE } from '@/config/theme';
 import Link from 'next/link';
-import { Crown } from 'lucide-react';
+import { Crown, CreditCard } from 'lucide-react';
+import QRPaymentModal from '@/components/QRPaymentModal';
 
 interface Donate {
   id: string;
@@ -40,6 +41,10 @@ export default function GuildDonatePage() {
   const [donorDiscords, setDonorDiscords] = useState<Record<string, string>>({});
   const [historyPage, setHistoryPage] = useState(1);
   const historyPerPage = 6;
+  const [showQRPayment, setShowQRPayment] = useState(false);
+  const [cashDonations, setCashDonations] = useState<any[]>([]);
+  const [cashDonorDiscords, setCashDonorDiscords] = useState<Record<string, string>>({});
+  const [myCashDonations, setMyCashDonations] = useState<any[]>([]);
 
   useEffect(() => {
     const donatesRef = ref(db, 'guilddonate');
@@ -75,6 +80,73 @@ export default function GuildDonatePage() {
     if (donates.length > 0) fetchDiscords();
     // eslint-disable-next-line
   }, [donates]);
+
+  useEffect(() => {
+    if (!isGuildLeader) return;
+    const cashRef = ref(db, 'guilddonatecash');
+    const unsub = onValue(cashRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        const list = Object.entries(data)
+          .filter(([id, value]: [string, any]) => (
+            value &&
+            value.status === 'waiting' &&
+            typeof value.amount === 'number' &&
+            typeof value.createdAt === 'number' &&
+            typeof value.userId === 'string' &&
+            value.type === 'cash' &&
+            value.paymentMethod === 'promptpay'
+          ))
+          .map(([id, value]: [string, any]) => ({ id, ...value }));
+        setCashDonations(list);
+      } else {
+        setCashDonations([]);
+      }
+    });
+    return () => unsub();
+  }, [isGuildLeader]);
+
+  useEffect(() => {
+    const fetchDiscords = async () => {
+      const userIds = Array.from(new Set(cashDonations.map(d => d.userId)));
+      const newDiscords: Record<string, string> = { ...cashDonorDiscords };
+      await Promise.all(userIds.map(async (uid) => {
+        if (!newDiscords[uid]) {
+          const metaSnap = await get(dbRef(db, `users/${uid}/meta/discord`));
+          if (metaSnap.exists()) {
+            newDiscords[uid] = metaSnap.val();
+          }
+        }
+      }));
+      setCashDonorDiscords(newDiscords);
+    };
+    if (cashDonations.length > 0) fetchDiscords();
+    // eslint-disable-next-line
+  }, [cashDonations]);
+
+  useEffect(() => {
+    if (!user) return;
+    const cashRef = ref(db, 'guilddonatecash');
+    const unsub = onValue(cashRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        const list = Object.entries(data)
+          .filter(([id, value]: [string, any]) => (
+            value &&
+            value.userId === user.uid &&
+            typeof value.amount === 'number' &&
+            typeof value.createdAt === 'number' &&
+            value.type === 'cash' &&
+            value.paymentMethod === 'promptpay'
+          ))
+          .map(([id, value]: [string, any]) => ({ id, ...value }));
+        setMyCashDonations(list);
+      } else {
+        setMyCashDonations([]);
+      }
+    });
+    return () => unsub();
+  }, [user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -156,10 +228,40 @@ export default function GuildDonatePage() {
     toast.success(approve ? 'ยืนยันบริจาคสำเร็จ' : 'ยกเลิกบริจาคแล้ว');
   };
 
-  const myHistory = useMemo(() =>
-    donates.filter(d => d.userId === user?.uid).sort((a, b) => b.createdAt - a.createdAt),
-    [donates, user]
-  );
+  const handleApproveCash = async (donationId: string, approve: boolean) => {
+    const status = approve ? 'active' : 'rejected';
+    const approvedAt = Date.now();
+    await update(ref(db, `guilddonatecash/${donationId}`), {
+      status,
+      approvedAt,
+      approvedBy: user?.uid || ''
+    });
+    const donation = cashDonations.find(d => d.id === donationId);
+    if (donation) {
+      const metaSnap = await get(dbRef(db, `users/${donation.userId}/meta/discord`));
+      const discordName = metaSnap.exists() ? metaSnap.val() : '...';
+      const feedText = approve
+        ? `@${discordName} บริจาคเงินสด ${donation.amount} บาท ให้กิลด์ GalaxyCat สำเร็จ ✅`
+        : `@${discordName} ยกเลิกการบริจาคเงินสด ${donation.amount} บาท ให้กิลด์ GalaxyCat ❌`;
+      await push(ref(db, 'feed/all'), {
+        type: 'donate',
+        subType: status,
+        text: feedText,
+        userId: donation.userId,
+        discordName,
+        amount: donation.amount,
+        status,
+        timestamp: approvedAt
+      });
+    }
+    toast.success(approve ? 'ยืนยันการบริจาคเงินสดสำเร็จ' : 'ยกเลิกการบริจาคเงินสดแล้ว');
+  };
+
+  const myHistory = useMemo(() => {
+    const gold = donates.filter(d => d.userId === user?.uid).map(d => ({ ...d, _type: 'gold' }));
+    const cash = myCashDonations.map(d => ({ ...d, _type: 'cash' }));
+    return [...gold, ...cash].sort((a, b) => b.createdAt - a.createdAt);
+  }, [donates, myCashDonations, user]);
   const totalHistoryPages = Math.ceil(myHistory.length / historyPerPage);
   const pagedHistory = myHistory.slice((historyPage - 1) * historyPerPage, historyPage * historyPerPage);
 
@@ -172,9 +274,21 @@ export default function GuildDonatePage() {
             <span className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-pink-100 text-pink-500 shadow"><span className="text-2xl">💖</span></span>
             ส่งคำขอบริจาคกิลด์
           </h2>
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1 flex items-center gap-1"><span className="text-lg">💰</span> จำนวนเงิน (G)</label>
-            <input type="number" min="1" className="w-full border-2 border-yellow-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-pink-200 bg-white shadow-sm text-lg" value={amount} onChange={e => setAmount(e.target.value)} disabled={submitting} placeholder="เช่น 1000" />
+          <div className="flex gap-4">
+            <div className="flex-1">
+              <label className="block text-sm font-semibold text-gray-700 mb-1 flex items-center gap-1"><span className="text-lg">💰</span> จำนวนเงิน (G)</label>
+              <input type="number" min="1" className="w-full border-2 border-yellow-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-pink-200 bg-white shadow-sm text-lg" value={amount} onChange={e => setAmount(e.target.value)} disabled={submitting} placeholder="จำนวน Gold" />
+            </div>
+            <div className="flex items-end">
+              <Button
+                type="button"
+                onClick={() => setShowQRPayment(true)}
+                className="bg-green-500 hover:bg-green-600 text-white h-[42px] px-4 flex items-center gap-2"
+              >
+                <CreditCard className="w-4 h-4" />
+                <span>บริจาคเงินสด</span>
+              </Button>
+            </div>
           </div>
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-1"><span className="text-lg">🧙‍♂️</span> เลือกตัวละครที่ใช้บริจาค</label>
@@ -212,6 +326,41 @@ export default function GuildDonatePage() {
           </Button>
         </form>
 
+        {/* เพิ่ม section แสดงเงินสดไว้บนสุดของรายการอนุมัติ (เฉพาะหัวกิลด์) */}
+        {isGuildLeader && cashDonations.length > 0 && (
+          <div className="mb-10">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-bold text-yellow-700 mb-4 flex items-center gap-2">
+                <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-yellow-100 text-yellow-500 shadow"><span className="text-xl">💵</span></span>
+                รายการรออนุมัติเงินสด
+              </h2>
+              <div className="flex items-center gap-2">
+                <Link
+                  href="/guild-donate/cash"
+                  className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors shadow-sm"
+                >
+                  <CreditCard className="w-4 h-4" />
+                  <span>ประวัติเงินสด</span>
+                </Link>
+              </div>
+            </div>
+            {cashDonations.map(donation => (
+              <div key={donation.id} className="bg-gradient-to-r from-yellow-50 via-pink-50 to-purple-50 border-2 border-yellow-200 rounded-xl p-5 flex flex-col gap-2 shadow-md relative overflow-hidden">
+                <div className="flex flex-wrap gap-4 items-center mb-1">
+                  <span className="inline-flex items-center gap-1 font-bold text-pink-700 bg-pink-100 px-3 py-1 rounded-full shadow-sm"><span className="text-lg">💰</span> {donation.amount} บาท</span>
+                  <span className="text-gray-500 text-xs flex items-center gap-1"><span className="text-lg">⏰</span> {new Date(donation.createdAt).toLocaleString()}</span>
+                </div>
+                <div className="text-sm text-gray-700 mb-2 flex items-center gap-2 flex-wrap">
+                  <span className="inline-flex items-center gap-1 font-semibold text-pink-600"><span className="text-lg">💖</span> @{cashDonorDiscords[donation.userId] || '...'}</span>
+                </div>
+                <div className="flex gap-2 mt-2">
+                  <Button onClick={() => handleApproveCash(donation.id, true)} className="bg-green-100 text-green-700 hover:bg-green-200 shadow flex items-center gap-1"><span className="text-lg">✅</span> ยืนยัน</Button>
+                  <Button onClick={() => handleApproveCash(donation.id, false)} className="bg-red-100 text-red-700 hover:bg-red-200 shadow flex items-center gap-1"><span className="text-lg">❌</span> ยกเลิก</Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
         {/* ส่วนอนุมัติ (หัวกิลด์) */}
         {isGuildLeader && (
           <div className="mb-10">
@@ -220,13 +369,15 @@ export default function GuildDonatePage() {
                 <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-yellow-100 text-yellow-500 shadow"><span className="text-xl">📝</span></span>
                 รายการรออนุมัติ
               </h2>
-              <Link
-                href="/guild-donate/history"
-                className="flex items-center gap-2 px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-colors shadow-sm"
-              >
-                <Crown className="w-4 h-4" />
-                <span>ดูประวัติการบริจาค</span>
-              </Link>
+              <div className="flex justify-end">
+                <Link
+                  href="/guild-donate/history"
+                  className="flex items-center gap-2 px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-colors shadow-sm"
+                >
+                  <Crown className="w-4 h-4" />
+                  <span>ดูประวัติการบริจาค</span>
+                </Link>
+              </div>
             </div>
             <div className="space-y-4">
               {donates.filter(d => d.status === 'waiting').length === 0 && (
@@ -297,7 +448,11 @@ export default function GuildDonatePage() {
                 donate.status === 'active' && 'bg-green-50 border-green-200',
                 donate.status === 'rejected' && 'bg-red-50 border-red-200'
               )}>
-                <span className="font-bold text-yellow-700 flex items-center gap-1"><span className="text-lg">🎁</span> {donate.amount}G</span>
+                {donate._type === 'gold' ? (
+                  <span className="font-bold text-yellow-700 flex items-center gap-1"><span className="text-lg">🎁</span> {donate.amount}G</span>
+                ) : (
+                  <span className="font-bold text-green-700 flex items-center gap-1"><span className="text-lg">💵</span> {donate.amount} บาท</span>
+                )}
                 <span className={cn(
                   'font-semibold flex items-center gap-1',
                   donate.status === 'waiting' && 'text-yellow-700',
@@ -343,6 +498,16 @@ export default function GuildDonatePage() {
           )}
         </div>
       </aside>
+
+      {/* QR Payment Modal */}
+      <QRPaymentModal
+        isOpen={showQRPayment}
+        onClose={() => setShowQRPayment(false)}
+        onSuccess={() => {
+          setShowQRPayment(false);
+          // Refresh data if needed
+        }}
+      />
     </div>
   );
 } 
