@@ -34,6 +34,11 @@ interface MemberDonation {
   lastDonationAmount: number | null;
   totalDonations: number;
   donationCount: number;
+  characters?: Array<{
+    id: string;
+    name: string;
+    class: string;
+  }>;
 }
 
 export default function GuildDonateHistoryPage() {
@@ -46,6 +51,8 @@ export default function GuildDonateHistoryPage() {
   const [memberDonations, setMemberDonations] = useState<MemberDonation[]>([]);
   const [sortBy, setSortBy] = useState<'lastDonation' | 'totalDonations' | 'donationCount'>('lastDonation');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [hoveredMember, setHoveredMember] = useState<string | null>(null);
+  const [allCharactersByUserId, setAllCharactersByUserId] = useState<Record<string, any[]>>({});
 
   useEffect(() => {
     if (!user) {
@@ -118,6 +125,7 @@ export default function GuildDonateHistoryPage() {
           if (!member.lastDonation || donate.createdAt >= member.lastDonation) {
             member.lastDonation = donate.createdAt;
             member.lastDonationAmount = donate.amount;
+            member.characters = donate.characters;
           }
         }
       }
@@ -142,9 +150,35 @@ export default function GuildDonateHistoryPage() {
     setMemberDonations(sortedDonations);
   }, [donates, members, sortBy, sortOrder]);
 
-  const filteredDonations = memberDonations.filter(member => 
-    member.discordName.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  useEffect(() => {
+    const fetchAllCharacters = async () => {
+      const result: Record<string, any[]> = {};
+      await Promise.all(Object.keys(members).map(async (userId) => {
+        const charsRef = ref(db, `users/${userId}/characters`);
+        const snap = await get(charsRef);
+        if (snap.exists()) {
+          // filter เฉพาะ object ที่มี name และ class (ไม่ใช่ checklist/stats)
+          result[userId] = Object.values(snap.val()).filter(
+            (c: any) => typeof c === 'object' && c.name && c.class
+          );
+        } else {
+          result[userId] = [];
+        }
+      }));
+      setAllCharactersByUserId(result);
+    };
+    if (Object.keys(members).length > 0) fetchAllCharacters();
+  }, [members]);
+
+  const filteredDonations = memberDonations.filter(member => {
+    const search = searchTerm.toLowerCase();
+    const matchesDiscord = member.discordName.toLowerCase().includes(search);
+    const charList = allCharactersByUserId[member.userId] || [];
+    const matchesCharacter = charList.some(char =>
+      char.name.toLowerCase().includes(search)
+    );
+    return matchesDiscord || matchesCharacter;
+  });
 
   const handleSort = (column: 'lastDonation' | 'totalDonations' | 'donationCount') => {
     if (sortBy === column) {
@@ -183,7 +217,7 @@ export default function GuildDonateHistoryPage() {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
               type="text"
-              placeholder="ค้นหาด้วยชื่อ Discord..."
+              placeholder="ค้นหาด้วยชื่อ Discord หรือชื่อตัวละคร..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border-2 border-pink-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-200 focus:border-pink-300"
@@ -254,7 +288,26 @@ export default function GuildDonateHistoryPage() {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
-                      <span className="font-medium text-gray-700">{member.discordName}</span>
+                      <span 
+                        className="font-medium text-gray-700 cursor-help relative"
+                        onMouseEnter={() => setHoveredMember(member.userId)}
+                        onMouseLeave={() => setHoveredMember(null)}
+                      >
+                        {member.discordName}
+                        {hoveredMember === member.userId && (allCharactersByUserId[member.userId]?.length > 0) && (
+                          <div className="absolute left-0 top-full mt-2 bg-white border border-pink-200 rounded-lg shadow-lg p-3 z-50 min-w-[200px]">
+                            <div className="text-sm font-semibold text-pink-600 mb-2">ตัวละครทั้งหมด:</div>
+                            <div className="space-y-1">
+                              {allCharactersByUserId[member.userId].map(char => (
+                                <div key={char.id} className="flex items-center gap-2 text-sm">
+                                  <span className="text-gray-600">{char.name}</span>
+                                  <span className="text-gray-400">({char.class})</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </span>
                     </div>
                   </td>
                   <td className="px-4 py-3">

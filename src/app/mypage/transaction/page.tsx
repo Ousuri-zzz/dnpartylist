@@ -47,7 +47,29 @@ export default function TransactionHistoryPage() {
         }))
         .filter(feed => feed.type === 'gold' && feed.buyerName === (discordName || ''))
         .sort((a, b) => b.timestamp - a.timestamp) : [];
-      setTrades(tradesList);
+
+      // แยก feed ที่ไม่มี relatedId ออกมา
+      const noRelatedId = tradesList.filter(feed => !feed.relatedId);
+      const withRelatedId = tradesList.filter(feed => feed.relatedId);
+
+      // Group by relatedId (tradeId)
+      const tradeMap: Record<string, any[]> = {};
+      withRelatedId.forEach(feed => {
+        if (!tradeMap[feed.relatedId]) tradeMap[feed.relatedId] = [];
+        tradeMap[feed.relatedId].push(feed);
+      });
+
+      // สำหรับแต่ละ tradeId ถ้ามี subType 'complete' ให้แสดงเฉพาะ complete, ถ้าไม่มีให้แสดงทุก subType
+      const filteredTrades = [
+        ...noRelatedId,
+        ...Object.values(tradeMap).flatMap(feeds => {
+          const completeFeed = feeds.find(f => f.subType === 'complete');
+          if (completeFeed) return [completeFeed];
+          return feeds;
+        })
+      ];
+
+      setTrades(filteredTrades);
     });
 
     const unsubscribeLoans = onValue(loansRef, (snapshot) => {
