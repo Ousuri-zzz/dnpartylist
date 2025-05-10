@@ -54,6 +54,7 @@ export default function GuildSettingsPage() {
   const [selectedResetStatsUserId, setSelectedResetStatsUserId] = useState<string | null>(null);
   const [userCharacters, setUserCharacters] = useState<any[]>([]);
   const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(null);
+  const [pendingMembers, setPendingMembers] = useState<any[]>([]);
 
   useEffect(() => {
     if (!user) return;
@@ -164,6 +165,27 @@ export default function GuildSettingsPage() {
       clearTimeout(timeoutId);
     };
   }, [lastLoanCount, isFirstLoad]);
+
+  useEffect(() => {
+    if (!user) return;
+    const usersRef = ref(db, 'users');
+    const fetchPendingMembers = async () => {
+      const snap = await get(usersRef);
+      if (snap.exists()) {
+        const users = snap.val();
+        const pending = Object.entries(users)
+          .filter(([uid, u]: any) => u.meta && u.meta.discord && u.meta.approved === false)
+          .map(([uid, u]: any) => ({
+            uid,
+            discord: u.meta.discord,
+          }));
+        setPendingMembers(pending);
+      } else {
+        setPendingMembers([]);
+      }
+    };
+    fetchPendingMembers();
+  }, [user]);
 
   const [debouncedMerchantSearch, setDebouncedMerchantSearch] = useState('');
   const [debouncedMemberSearch, setDebouncedMemberSearch] = useState('');
@@ -467,6 +489,30 @@ export default function GuildSettingsPage() {
     setSelectedCharacterId(null);
   };
 
+  const handleApproveMember = async (uid: string) => {
+    try {
+      await update(ref(db, `users/${uid}/meta`), { approved: true });
+      await update(ref(db, `guild/members/${uid}`), { approved: true });
+      setPendingMembers(prev => prev.filter(m => m.uid !== uid));
+      toast.success('อนุมัติสมาชิกสำเร็จ');
+    } catch (error) {
+      toast.error('ไม่สามารถอนุมัติสมาชิกได้');
+    }
+  };
+
+  const handleRejectMember = async (uid: string) => {
+    try {
+      await remove(ref(db, `users/${uid}`));
+      await remove(ref(db, `guild/members/${uid}`));
+      await remove(ref(db, `guild/leaders/${uid}`));
+      await remove(ref(db, `tradeMerchants/${uid}`));
+      setPendingMembers(prev => prev.filter(m => m.uid !== uid));
+      toast.success('ยกเลิกและลบสมาชิกสำเร็จ');
+    } catch (error) {
+      toast.error('ไม่สามารถลบสมาชิกได้');
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -613,6 +659,59 @@ export default function GuildSettingsPage() {
             ))}
           </div>
         </div>
+
+        {/* Pending Members Section */}
+        {isGuildLeader && (
+          <div className="mb-10">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-red-100 rounded-lg">
+                  <UserPlus className="w-5 h-5 text-red-600" />
+                </div>
+                <h2 className="text-xl font-semibold text-gray-800">สมาชิกใหม่ที่รออนุมัติ</h2>
+              </div>
+              <div className="flex items-center gap-2 px-4 py-2 bg-red-50 rounded-full">
+                <span className="text-sm font-medium text-red-700">{pendingMembers.length} คน</span>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {pendingMembers.map((member) => (
+                <div key={member.uid} className="bg-white rounded-xl p-6 border border-red-100 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <div className="font-semibold text-red-600">{member.discord}</div>
+                      <div className="text-sm text-gray-500">UID: {member.uid}</div>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleApproveMember(member.uid)}
+                        className="p-2 rounded-lg bg-green-100 text-green-600 hover:bg-green-200 transition-colors"
+                        title="อนุมัติ"
+                      >
+                        <Check className="w-5 h-5" />
+                      </button>
+                      <button
+                        onClick={() => handleRejectMember(member.uid)}
+                        className="p-2 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 transition-colors"
+                        title="ยกเลิกและลบ"
+                      >
+                        <X className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              {pendingMembers.length === 0 && (
+                <div className="col-span-2 flex items-center justify-center p-8 bg-red-50 rounded-xl border border-red-100">
+                  <div className="text-center">
+                    <UserPlus className="w-8 h-8 text-red-400 mx-auto mb-2" />
+                    <p className="text-sm text-gray-500">ไม่มีสมาชิกใหม่ที่รออนุมัติ</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Pending Merchants Section */}
         <div className="mb-10">

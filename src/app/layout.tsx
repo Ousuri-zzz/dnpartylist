@@ -1,11 +1,9 @@
-import { Inter } from 'next/font/google'
-import './globals.css'
-import { Providers } from './providers'
-import { MainLayout } from '../components/MainLayout'
-import { Toaster } from 'sonner'
-import { Metadata } from 'next'
+import { Inter } from 'next/font/google';
+import './globals.css';
+import { Metadata } from 'next';
+import ClientLayout from '@/components/ClientLayout';
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: {
@@ -13,23 +11,20 @@ export const metadata: Metadata = {
     template: '%s | GalaxyCat'
   },
   description: 'Dragon Nest Party List - เว็บไซต์สำหรับผู้เล่น Dragon Nest (Classic)',
-}
+};
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
     <html lang="th">
       <body className={inter.className}>
-        <Providers>
-          <MainLayout>
-            {children}
-          </MainLayout>
-          <Toaster richColors position="top-center" />
-        </Providers>
+        <ClientLayout>
+          {children}
+        </ClientLayout>
       </body>
     </html>
-  )
+  );
 } 

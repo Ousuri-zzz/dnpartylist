@@ -24,6 +24,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { WEEKLY_MAX_VALUES } from '@/constants/checklist';
 import { motion } from 'framer-motion';
 import { ClipboardCheck, ClipboardCopy } from 'lucide-react';
+import { resetChecklist } from '@/lib/checklist';
 
 const CHARACTER_CLASSES: CharacterClass[] = [
   'Sword Master',
@@ -958,7 +959,55 @@ export default function MyPage() {
               <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-violet-600 to-blue-600 bg-clip-text text-transparent">
                 ตัวละครของฉัน
               </h1>
-              <p className="text-gray-500">จัดการตัวละครและติดตามความคืบหน้าของคุณ</p>
+              <div className="flex items-center gap-2">
+                <p className="text-gray-500">จัดการตัวละครและติดตามความคืบหน้าของคุณ</p>
+                <div className="flex items-center gap-2 ml-4">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={async () => {
+                      if (window.confirm('คุณต้องการรีเซ็ต Checklist รายวันทั้งหมดใช่หรือไม่?')) {
+                        try {
+                          await resetChecklist(user.uid, 'daily');
+                          toast.success('รีเซ็ต Checklist รายวันเรียบร้อยแล้ว!');
+                        } catch (error) {
+                          console.error('Error resetting daily checklist:', error);
+                          toast.error('เกิดข้อผิดพลาดในการรีเซ็ต Checklist');
+                        }
+                      }
+                    }}
+                    className="text-xs text-gray-500 hover:text-gray-700 hover:bg-gray-100/50"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                      <path d="M3 3v5h5"/>
+                    </svg>
+                    รีเซ็ตวัน
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={async () => {
+                      if (window.confirm('คุณต้องการรีเซ็ต Checklist รายสัปดาห์ทั้งหมดใช่หรือไม่?')) {
+                        try {
+                          await resetChecklist(user.uid, 'weekly');
+                          toast.success('รีเซ็ต Checklist รายสัปดาห์เรียบร้อยแล้ว!');
+                        } catch (error) {
+                          console.error('Error resetting weekly checklist:', error);
+                          toast.error('เกิดข้อผิดพลาดในการรีเซ็ต Checklist');
+                        }
+                      }
+                    }}
+                    className="text-xs text-gray-500 hover:text-gray-700 hover:bg-gray-100/50"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                      <path d="M3 3v5h5"/>
+                    </svg>
+                    รีเซ็ตสัปดาห์
+                  </Button>
+                </div>
+              </div>
               <div className="flex items-center gap-3 mt-2">
                 <span className="text-xs text-gray-400">ปุ่มคัดลอกข้อความรายวัน</span>
                 <button

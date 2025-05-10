@@ -5,11 +5,10 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { ref, get } from 'firebase/database';
 import { db } from '@/lib/firebase';
-import { DiscordNameDialog } from '@/components/DiscordNameDialog';
 import { toast } from 'sonner';
 
 export default function HomePage() {
-  const { user, loading: authLoading, updateDiscordName, showDiscordDialog, setShowDiscordDialog } = useAuth();
+  const { user, loading: authLoading, updateDiscordName } = useAuth();
   const router = useRouter();
   const [isChecking, setIsChecking] = useState(true);
 
@@ -22,10 +21,7 @@ export default function HomePage() {
         const metaSnapshot = await get(metaRef);
         const hasDiscord = metaSnapshot.exists() && metaSnapshot.val().discord;
 
-        if (!hasDiscord) {
-          setShowDiscordDialog(true);
-        } else {
-          // ถ้ามีชื่อ Discord แล้ว ให้ไปที่หน้า mypage
+        if (hasDiscord) {
           router.push('/mypage');
         }
       } catch (error) {
@@ -37,19 +33,7 @@ export default function HomePage() {
     };
 
     checkDiscordName();
-  }, [user, authLoading, router, setShowDiscordDialog]);
-
-  const handleDiscordSubmit = async (discordName: string) => {
-    try {
-      await updateDiscordName(discordName);
-      setShowDiscordDialog(false);
-      toast.success('บันทึกชื่อ Discord เรียบร้อยแล้ว');
-      router.push('/mypage');
-    } catch (error) {
-      console.error('Error updating Discord name:', error);
-      toast.error('เกิดข้อผิดพลาดในการบันทึกชื่อ Discord');
-    }
-  };
+  }, [user, authLoading, router]);
 
   if (authLoading || isChecking) {
     return (
@@ -69,9 +53,6 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-pink-50 to-purple-50">
-      {showDiscordDialog && (
-        <DiscordNameDialog onSubmit={handleDiscordSubmit} />
-      )}
     </div>
   );
 } 

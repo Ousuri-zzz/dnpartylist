@@ -4,6 +4,9 @@ import type { NextRequest } from 'next/server';
 // Add paths that don't require authentication
 const publicPaths = ['/login', '/api/auth'];
 
+// Add paths that are allowed for unapproved users
+const unapprovedPaths = ['/set-discord', '/waiting-approval'];
+
 export function middleware(request: NextRequest) {
   const token = request.cookies.get('auth-token');
   const { pathname } = request.nextUrl;
@@ -15,9 +18,6 @@ export function middleware(request: NextRequest) {
       pathname.includes('api')) {
     return NextResponse.next();
   }
-
-  // ตรวจสอบว่าอยู่ในหน้า Trade หรือไม่
-  const isTradePage = pathname.startsWith('/trade');
 
   // ถ้าไม่มี token และพยายามเข้าถึงหน้าที่ต้องการการยืนยันตัวตน
   if (!token) {
@@ -37,9 +37,16 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/mypage', request.url));
   }
 
-  // ถ้าอยู่ในหน้า Trade และมี token ให้ปล่อยผ่านไปได้เลย
-  if (isTradePage && token) {
-    return NextResponse.next();
+  // ตรวจสอบว่าเป็น path ที่อนุญาตสำหรับผู้ใช้ที่ยังไม่ได้รับการอนุมัติหรือไม่
+  const isUnapprovedPath = unapprovedPaths.some(path => pathname.startsWith(path));
+  
+  // ถ้าไม่ใช่ path ที่อนุญาต และเป็นผู้ใช้ที่ยังไม่ได้รับการอนุมัติ ให้ redirect ไปหน้า waiting-approval
+  if (!isUnapprovedPath) {
+    // ตรวจสอบ approved status จาก cookie
+    const approved = request.cookies.get('approved')?.value === 'true';
+    if (!approved) {
+      return NextResponse.redirect(new URL('/waiting-approval', request.url));
+    }
   }
 
   return NextResponse.next();

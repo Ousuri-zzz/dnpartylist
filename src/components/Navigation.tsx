@@ -25,6 +25,8 @@ export default function Navigation() {
   const [pendingMerchantCount, setPendingMerchantCount] = React.useState(0);
   const [pendingGuildLoanCount, setPendingGuildLoanCount] = React.useState(0);
   const [pendingDonationCount, setPendingDonationCount] = React.useState(0);
+  const [pendingCashDonationCount, setPendingCashDonationCount] = React.useState(0);
+  const [pendingNewMemberCount, setPendingNewMemberCount] = React.useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useGuildLoanNotification();
@@ -132,6 +134,37 @@ export default function Navigation() {
     });
     return () => unsubscribe();
   }, []);
+
+  React.useEffect(() => {
+    if (!isGuildLeader) return;
+    const cashRef = ref(db, 'guilddonatecash');
+    const unsubscribe = onValue(cashRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        const waitingCash = Object.values(data).filter((d: any) => d.status === 'waiting' && d.type === 'cash');
+        setPendingCashDonationCount(waitingCash.length);
+      } else {
+        setPendingCashDonationCount(0);
+      }
+    });
+    return () => unsubscribe();
+  }, [isGuildLeader]);
+
+  React.useEffect(() => {
+    if (!isGuildLeader) return;
+    const usersRef = ref(db, 'users');
+    const unsubscribe = onValue(usersRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const users = snapshot.val();
+        const pending = Object.entries(users)
+          .filter(([uid, u]: [string, any]) => u.meta && u.meta.discord && u.meta.approved === false);
+        setPendingNewMemberCount(pending.length);
+      } else {
+        setPendingNewMemberCount(0);
+      }
+    });
+    return () => unsubscribe();
+  }, [isGuildLeader]);
 
   const handleLogout = async () => {
     try {
@@ -471,57 +504,6 @@ export default function Navigation() {
                 {isGuildLeader && (
                   <>
                     <Link
-                      href="/guild/settings"
-                      className={cn(
-                        "relative group px-3 py-1.5 rounded-lg transition-all duration-300 cursor-pointer",
-                        pathname === "/guild/settings"
-                          ? "bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-md shadow-green-500/20"
-                          : "bg-white/60 border border-green-100 shadow-sm hover:bg-green-50/50 hover:shadow-xl hover:scale-105 hover:ring-2 hover:ring-green-300 hover:border-green-400 hover:text-green-600"
-                      )}
-                    >
-                      <motion.div
-                        className="flex items-center gap-1.5"
-                        whileHover={{ scale: 1.05, y: -1 }}
-                        whileTap={{ scale: 0.98 }}
-                        transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                      >
-                        <Settings className={cn(
-                          "w-3.5 h-3.5 transition-colors duration-300",
-                          pathname === "/guild/settings" ? "text-white" : "group-hover:text-green-600 text-green-500"
-                        )} />
-                        <span className={cn(
-                          "text-sm font-medium transition-colors duration-300",
-                          pathname === "/guild/settings" ? "text-white" : "group-hover:text-green-600 text-gray-700"
-                        )}>
-                          Guild Settings
-                        </span>
-                      </motion.div>
-                      {(pendingGuildLoanCount > 0 || pendingMerchantCount > 0) && (
-                        <div className="absolute top-0 right-0 flex gap-0 z-30">
-                          {pendingGuildLoanCount > 0 && (
-                            <Link
-                              href="/guildloan"
-                              className="px-1.5 py-0.5 rounded-full bg-red-500 text-white text-xs font-bold shadow-md border border-red-400 cursor-pointer hover:bg-red-400 transition-colors drop-shadow"
-                              style={{ minWidth: 20, textAlign: 'center' }}
-                              title="มีคำขอกู้ยืมใหม่"
-                            >
-                              {pendingGuildLoanCount}
-                            </Link>
-                          )}
-                          {pendingMerchantCount > 0 && (
-                            <Link
-                              href="/guild/settings"
-                              className="px-1.5 py-0.5 rounded-full bg-yellow-300 text-yellow-900 text-xs font-bold shadow-md border border-yellow-200 cursor-pointer hover:bg-yellow-200 transition-colors drop-shadow -ml-[6px]"
-                              style={{ minWidth: 20, textAlign: 'center' }}
-                              title="มีร้านค้ารออนุมัติ"
-                            >
-                              {pendingMerchantCount}
-                            </Link>
-                          )}
-                        </div>
-                      )}
-                    </Link>
-                    <Link
                       href="/guild-donate/history"
                       className={cn(
                         "relative group px-3 py-1.5 rounded-lg transition-all duration-300 cursor-pointer",
@@ -549,35 +531,105 @@ export default function Navigation() {
                       </motion.div>
                     </Link>
 
-                    {isGuildLeader && (
-                      <Link
-                        href="/guild-donate/cash"
-                        className={cn(
-                          "relative group px-3 py-1.5 rounded-lg transition-all duration-300 cursor-pointer",
-                          pathname === "/guild-donate/cash"
-                            ? "bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-md shadow-pink-500/20"
-                            : "bg-white/60 border border-pink-100 shadow-sm hover:bg-pink-50/50 hover:shadow-xl hover:scale-105 hover:ring-2 hover:ring-pink-300 hover:border-pink-400 hover:text-pink-600"
-                        )}
+                    <Link
+                      href="/guild-donate/cash"
+                      className={cn(
+                        "relative group px-3 py-1.5 rounded-lg transition-all duration-300 cursor-pointer",
+                        pathname === "/guild-donate/cash"
+                          ? "bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-md shadow-pink-500/20"
+                          : "bg-white/60 border border-pink-100 shadow-sm hover:bg-pink-50/50 hover:shadow-xl hover:scale-105 hover:ring-2 hover:ring-pink-300 hover:border-pink-400 hover:text-pink-600"
+                      )}
+                    >
+                      <motion.div
+                        className="flex items-center gap-1.5"
+                        whileHover={{ scale: 1.05, y: -1 }}
+                        whileTap={{ scale: 0.98 }}
+                        transition={{ type: "spring", stiffness: 400, damping: 17 }}
                       >
-                        <motion.div
-                          className="flex items-center gap-1.5"
-                          whileHover={{ scale: 1.05, y: -1 }}
-                          whileTap={{ scale: 0.98 }}
-                          transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                        <CreditCard className={cn(
+                          "w-3.5 h-3.5 transition-colors duration-300",
+                          pathname === "/guild-donate/cash" ? "text-white" : "group-hover:text-pink-600 text-pink-500"
+                        )} />
+                        <span className={cn(
+                          "text-sm font-medium transition-colors duration-300",
+                          pathname === "/guild-donate/cash" ? "text-white" : "group-hover:text-pink-600 text-gray-700"
+                        )}>
+                          Cash Donations
+                        </span>
+                      </motion.div>
+                      {pendingCashDonationCount > 0 && (
+                        <Link
+                          href="/guild-donate"
+                          className="absolute top-1 right-1 px-1.5 py-0.5 rounded-full bg-green-500 text-white text-xs font-bold shadow-md border border-green-400 cursor-pointer hover:bg-green-400 transition-colors drop-shadow"
+                          style={{ minWidth: 20, textAlign: 'center' }}
+                          title="มีรายการบริจาคเงินสดรออนุมัติ"
                         >
-                          <CreditCard className={cn(
-                            "w-3.5 h-3.5 transition-colors duration-300",
-                            pathname === "/guild-donate/cash" ? "text-white" : "group-hover:text-pink-600 text-pink-500"
-                          )} />
-                          <span className={cn(
-                            "text-sm font-medium transition-colors duration-300",
-                            pathname === "/guild-donate/cash" ? "text-white" : "group-hover:text-pink-600 text-gray-700"
-                          )}>
-                            Cash Donations
-                          </span>
-                        </motion.div>
-                      </Link>
-                    )}
+                          {pendingCashDonationCount}
+                        </Link>
+                      )}
+                    </Link>
+
+                    <Link
+                      href="/guild/settings"
+                      className={cn(
+                        "relative group px-3 py-1.5 rounded-lg transition-all duration-300 cursor-pointer",
+                        pathname === "/guild/settings"
+                          ? "bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-md shadow-green-500/20"
+                          : "bg-white/60 border border-green-100 shadow-sm hover:bg-green-50/50 hover:shadow-xl hover:scale-105 hover:ring-2 hover:ring-green-300 hover:border-green-400 hover:text-green-600"
+                      )}
+                    >
+                      <motion.div
+                        className="flex items-center gap-1.5"
+                        whileHover={{ scale: 1.05, y: -1 }}
+                        whileTap={{ scale: 0.98 }}
+                        transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                      >
+                        <Settings className={cn(
+                          "w-3.5 h-3.5 transition-colors duration-300",
+                          pathname === "/guild/settings" ? "text-white" : "group-hover:text-green-600 text-green-500"
+                        )} />
+                        <span className={cn(
+                          "text-sm font-medium transition-colors duration-300",
+                          pathname === "/guild/settings" ? "text-white" : "group-hover:text-green-600 text-gray-700"
+                        )}>
+                          Guild Settings
+                        </span>
+                      </motion.div>
+                      {(pendingNewMemberCount > 0 || pendingGuildLoanCount > 0 || pendingMerchantCount > 0) && (
+                        <div className="absolute top-0 right-0 flex gap-0 z-30">
+                          {pendingNewMemberCount > 0 && (
+                            <Link
+                              href="/guild/settings"
+                              className="px-1.5 py-0.5 rounded-full bg-orange-400 text-white text-xs font-bold shadow-md border border-orange-300 cursor-pointer hover:bg-orange-300 transition-colors drop-shadow"
+                              style={{ minWidth: 20, textAlign: 'center' }}
+                              title="มีสมาชิกใหม่รออนุมัติ"
+                            >
+                              {pendingNewMemberCount}
+                            </Link>
+                          )}
+                          {pendingGuildLoanCount > 0 && (
+                            <Link
+                              href="/guildloan"
+                              className="px-1.5 py-0.5 rounded-full bg-red-500 text-white text-xs font-bold shadow-md border border-red-400 cursor-pointer hover:bg-red-400 transition-colors drop-shadow -ml-[6px]"
+                              style={{ minWidth: 20, textAlign: 'center' }}
+                              title="มีคำขอกู้ยืมใหม่"
+                            >
+                              {pendingGuildLoanCount}
+                            </Link>
+                          )}
+                          {pendingMerchantCount > 0 && (
+                            <Link
+                              href="/guild/settings"
+                              className="px-1.5 py-0.5 rounded-full bg-yellow-300 text-yellow-900 text-xs font-bold shadow-md border border-yellow-200 cursor-pointer hover:bg-yellow-200 transition-colors drop-shadow -ml-[6px]"
+                              style={{ minWidth: 20, textAlign: 'center' }}
+                              title="มีร้านค้ารออนุมัติ"
+                            >
+                              {pendingMerchantCount}
+                            </Link>
+                          )}
+                        </div>
+                      )}
+                    </Link>
                   </>
                 )}
                 <DiscordDropdown />
