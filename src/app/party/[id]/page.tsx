@@ -272,7 +272,7 @@ export default function PartyPage({ params }: { params: { id: string } }) {
   };
 
   const { isFull, hasUserInParty, canJoinParty, availableCharacters } = useMemo(() => {
-    const count = Object.keys(party?.members || {}).length;
+    const count = members.length;
     const maxMember = party?.maxMember || 4;
     const full = count >= maxMember;
     
@@ -293,7 +293,7 @@ export default function PartyPage({ params }: { params: { id: string } }) {
       canJoinParty: user && !full && available.length > 0 && !hasUserInParty,
       availableCharacters: available
     };
-  }, [party, userCharacters, user, users]);
+  }, [party, userCharacters, user, users, members]);
 
   const handleJoinParty = async () => {
     if (!selectedCharacter || !user || !party || !party.nest) return;
