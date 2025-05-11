@@ -676,7 +676,7 @@ export default function PartyPage({ params }: { params: { id: string } }) {
                             </div>
                             <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-pink-100 to-purple-100 border border-pink-200/50">
                               <span className="text-lg font-semibold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
-                                {Object.keys(party.members || {}).length}
+                                {members.length}
                               </span>
                               <span className="text-sm text-gray-500">/</span>
                               <span className="text-lg font-semibold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
