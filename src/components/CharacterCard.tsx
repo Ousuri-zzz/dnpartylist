@@ -26,34 +26,34 @@ const CLASS_TO_MAIN_CLASS: Record<CharacterClass, CharacterMainClass> = {
 // สีตามอาชีพหลัก
 const classColors: Record<CharacterMainClass, {text: string, bg: string, border: string, accent: string, icon?: string}> = {
   'Warrior': {
-    text: 'text-red-600',
-    bg: 'bg-gradient-to-br from-red-100/80 to-rose-200/70',
-    border: 'border-red-300/70',
-    accent: 'text-red-500'
+    text: 'text-rose-500',
+    bg: 'bg-gradient-to-br from-rose-50/90 to-pink-100/80',
+    border: 'border-rose-200/80',
+    accent: 'text-rose-400'
   },
   'Archer': {
-    text: 'text-emerald-600',
-    bg: 'bg-gradient-to-br from-emerald-100/80 to-green-200/70',
-    border: 'border-emerald-300/70',
-    accent: 'text-emerald-500'
+    text: 'text-lime-500',
+    bg: 'bg-gradient-to-br from-lime-50/90 to-green-100/80',
+    border: 'border-lime-200/80',
+    accent: 'text-lime-400'
   },
   'Sorceress': {
-    text: 'text-purple-600',
-    bg: 'bg-gradient-to-br from-purple-100/80 to-violet-200/70',
-    border: 'border-purple-300/70',
-    accent: 'text-purple-500'
+    text: 'text-fuchsia-500',
+    bg: 'bg-gradient-to-br from-fuchsia-50/90 to-purple-100/80',
+    border: 'border-fuchsia-200/80',
+    accent: 'text-fuchsia-400'
   },
   'Cleric': {
-    text: 'text-sky-600',
-    bg: 'bg-gradient-to-br from-sky-100/80 to-blue-200/70',
-    border: 'border-sky-300/70',
-    accent: 'text-sky-500'
+    text: 'text-cyan-500',
+    bg: 'bg-gradient-to-br from-cyan-50/90 to-blue-100/80',
+    border: 'border-cyan-200/80',
+    accent: 'text-cyan-400'
   },
   'Academic': {
-    bg: 'from-amber-100/80 to-yellow-200/70',
-    text: 'text-amber-600',
-    border: 'border-amber-300/70',
-    accent: 'text-amber-500',
+    bg: 'from-yellow-50/90 to-amber-100/80',
+    text: 'text-amber-500',
+    border: 'border-amber-200/80',
+    accent: 'text-amber-400',
     icon: '🔧'
   }
 };
@@ -139,11 +139,11 @@ export function CharacterCard({ character, onEdit, onDelete, onChecklistChange }
       <div className={cn(
         "w-full h-10 rounded-t-3xl flex items-center justify-center relative",
         "transition-all duration-500",
-        mainClass === 'Warrior' && 'bg-gradient-to-r from-red-400/90 to-rose-300/80',
-        mainClass === 'Archer' && 'bg-gradient-to-r from-emerald-400/90 to-green-300/80',
-        mainClass === 'Sorceress' && 'bg-gradient-to-r from-purple-400/90 to-violet-300/80',
-        mainClass === 'Cleric' && 'bg-gradient-to-r from-sky-400/90 to-blue-300/80',
-        mainClass === 'Academic' && 'bg-gradient-to-r from-amber-400/90 to-yellow-300/80',
+        mainClass === 'Warrior' && 'bg-gradient-to-r from-rose-300/90 to-pink-200/80',
+        mainClass === 'Archer' && 'bg-gradient-to-r from-lime-300/90 to-green-200/80',
+        mainClass === 'Sorceress' && 'bg-gradient-to-r from-fuchsia-300/90 to-purple-200/80',
+        mainClass === 'Cleric' && 'bg-gradient-to-r from-cyan-300/90 to-blue-200/80',
+        mainClass === 'Academic' && 'bg-gradient-to-r from-yellow-300/90 to-amber-200/80',
         "group-hover:brightness-110 group-hover:contrast-110",
         "group-hover:shadow-inner group-hover:shadow-black/10"
       )}>
@@ -156,11 +156,11 @@ export function CharacterCard({ character, onEdit, onDelete, onChecklistChange }
           <div className={cn(
             "w-16 h-16 rounded-full flex items-center justify-center shadow-lg border-4 border-white",
             "transition-all duration-500",
-            mainClass === 'Warrior' && 'bg-red-200',
-            mainClass === 'Archer' && 'bg-emerald-200',
-            mainClass === 'Sorceress' && 'bg-purple-200',
-            mainClass === 'Cleric' && 'bg-sky-200',
-            mainClass === 'Academic' && 'bg-amber-200',
+            mainClass === 'Warrior' && 'bg-rose-100',
+            mainClass === 'Archer' && 'bg-lime-100',
+            mainClass === 'Sorceress' && 'bg-fuchsia-100',
+            mainClass === 'Cleric' && 'bg-cyan-100',
+            mainClass === 'Academic' && 'bg-yellow-100',
             "group-hover:shadow-lg group-hover:border-opacity-90",
             "group-hover:bg-opacity-100 group-hover:backdrop-blur-[2px]"
           )}>
