@@ -154,5 +154,20 @@ export function useParties() {
     }
   };
 
-  return { parties, loading, error, createParty, joinPartyWithKickIfNeeded };
+  const deleteParty = async (partyId: string) => {
+    if (!user?.uid) {
+      throw new Error('กรุณาเข้าสู่ระบบก่อนลบปาร์ตี้');
+    }
+
+    try {
+      const partyRef = ref(db, `parties/${partyId}`);
+      await remove(partyRef);
+      return true;
+    } catch (error) {
+      console.error('Error deleting party:', error);
+      throw error;
+    }
+  };
+
+  return { parties, loading, error, createParty, joinPartyWithKickIfNeeded, deleteParty };
 } 

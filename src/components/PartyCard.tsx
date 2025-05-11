@@ -6,15 +6,19 @@ import { Party } from '../types/party';
 import { useUsers } from '../hooks/useUsers';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useMemo, useState } from 'react';
-import { Users, Clock } from 'lucide-react';
+import { Users, Clock, Trash2 } from 'lucide-react';
 import styles from './PartyCard.module.css';
 import { CLASS_TO_ROLE, getClassColors } from '@/config/theme';
 import { CharacterClass, Role } from '@/types/character';
 import { Button } from './ui/button';
-import { Dialog, DialogContent } from './ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from './ui/dialog';
 import { Character } from '../types/character';
 import { cn } from '@/lib/utils';
 import { CharacterChecklist } from './CharacterChecklist';
+import { useAuth } from '../hooks/useAuth';
+import { useParties } from '../hooks/useParties';
+import { toast } from 'sonner';
+import { useGuild } from '@/hooks/useGuild';
 
 interface PartyCardProps {
   party: Party;
@@ -37,7 +41,11 @@ function getClassStyle(characterClass: string) {
 export function PartyCard({ party }: PartyCardProps) {
   const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const { users } = useUsers();
+  const { user } = useAuth();
+  const { deleteParty } = useParties();
+  const { isGuildLeader } = useGuild();
 
   const { memberCount, maxMembers, sortedMembers } = useMemo(() => {
     const members = [];
@@ -151,6 +159,16 @@ export function PartyCard({ party }: PartyCardProps) {
     setIsDialogOpen(true);
   };
 
+  const handleDeleteParty = async () => {
+    try {
+      await deleteParty(party.id);
+      toast.success('ลบปาร์ตี้สำเร็จ');
+      setIsDeleteDialogOpen(false);
+    } catch (error) {
+      toast.error('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง');
+    }
+  };
+
   return (
     <>
       <Card className="group relative overflow-hidden bg-white/80 backdrop-blur-md border border-white/60 shadow-lg hover:shadow-2xl transition-all duration-500 rounded-2xl">
@@ -166,29 +184,44 @@ export function PartyCard({ party }: PartyCardProps) {
         <div className="relative z-20 p-6">
           <div className="flex flex-col gap-4">
             {/* Party header */}
-            <Link href={`/party/${party.id}`} className="space-y-2">
-              <h3 className="text-xl font-bold">
-                <span className={styles.partyName}>
-                  {party.name}
-                </span>
-              </h3>
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-blue-400" />
-                  <span className={styles.nestName}>
-                    {party.nest}
+            <div className="space-y-2">
+              {isGuildLeader && (
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setIsDeleteDialogOpen(true);
+                  }}
+                  className="absolute top-2 right-2 p-1.5 rounded-full bg-white/90 border border-red-200 hover:bg-red-100 transition z-10"
+                  title="ลบปาร์ตี้"
+                >
+                  <Trash2 className="w-4 h-4 text-red-600" />
+                </button>
+              )}
+              <Link href={`/party/${party.id}`}>
+                <h3 className="text-xl font-bold">
+                  <span className={styles.partyName}>
+                    {party.name}
                   </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Users className="w-4 h-4 text-purple-500" />
-                  <div className="px-2 py-1 rounded-full bg-gradient-to-r from-pink-50 via-purple-50 to-blue-50 border border-purple-100/30">
-                    <span className="text-sm font-medium bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 bg-clip-text text-transparent">
-                      {memberCount}/{maxMembers}
+                </h3>
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-blue-400" />
+                    <span className={styles.nestName}>
+                      {party.nest}
                     </span>
                   </div>
+                  <div className="flex items-center gap-2">
+                    <Users className="w-4 h-4 text-purple-500" />
+                    <div className="px-2 py-1 rounded-full bg-gradient-to-r from-pink-50 via-purple-50 to-blue-50 border border-purple-100/30">
+                      <span className="text-sm font-medium bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 bg-clip-text text-transparent">
+                        {memberCount}/{maxMembers}
+                      </span>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </Link>
+              </Link>
+            </div>
 
             {/* Members list */}
             <div className="flex flex-col gap-[1px] -space-y-1">
@@ -229,6 +262,26 @@ export function PartyCard({ party }: PartyCardProps) {
           </div>
         </div>
       </Card>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent className="max-w-md p-4">
+          <DialogHeader className="mb-4">
+            <DialogTitle>ยืนยันการลบปาร์ตี้</DialogTitle>
+            <DialogDescription>
+              คุณต้องการลบปาร์ตี้ "{party.name}" ใช่หรือไม่? การกระทำนี้ไม่สามารถย้อนกลับได้
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+              ยกเลิก
+            </Button>
+            <Button variant="destructive" onClick={handleDeleteParty}>
+              ลบปาร์ตี้
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-md overflow-y-auto p-0 bg-transparent border-none">

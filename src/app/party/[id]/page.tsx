@@ -6,6 +6,7 @@ import { useParties } from '../../../hooks/useParties';
 import { useCharacters } from '../../../hooks/useCharacters';
 import { useUsers } from '../../../hooks/useUsers';
 import { useAuth } from '../../../hooks/useAuth';
+import { useGuild } from '@/hooks/useGuild';
 import { PartyCard } from '../../../components/PartyCard';
 import { Character } from '../../../types/character';
 import { Party, NestType } from '../../../types/party';
@@ -60,6 +61,7 @@ export default function PartyPage({ params }: { params: { id: string } }) {
   const { parties, loading: partiesLoading, joinPartyWithKickIfNeeded } = useParties();
   const { characters: userCharacters, loading: charactersLoading } = useCharacters();
   const { users, isLoading: usersLoading } = useUsers();
+  const { isGuildLeader } = useGuild();
   const [party, setParty] = useState<Party | null>(null);
   const [members, setMembers] = useState<PartyMember[]>([]);
   const [loading, setLoading] = useState(true);
@@ -258,7 +260,7 @@ export default function PartyPage({ params }: { params: { id: string } }) {
   }
 
   const handleSetGoals = async () => {
-    if (!party || !user || user.uid !== party.leader) return;
+    if (!party || !user || (user.uid !== party.leader && !isGuildLeader)) return;
 
     try {
       const partyRef = ref(db, `parties/${party.id}/goals`);
@@ -357,7 +359,7 @@ export default function PartyPage({ params }: { params: { id: string } }) {
   };
 
   const handleEditPartyName = async () => {
-    if (!party || !user || user.uid !== party.leader) return;
+    if (!party || !user || (user.uid !== party.leader && !isGuildLeader)) return;
     if (!newPartyName.trim()) {
       toast.error('กรุณากรอกชื่อปาร์ตี้ใหม่');
       return;
@@ -413,7 +415,7 @@ export default function PartyPage({ params }: { params: { id: string } }) {
   };
 
   const handleKickMember = async (charId: string) => {
-    if (!party || !user || user.uid !== party.leader) return;
+    if (!party || !user || (user.uid !== party.leader && !isGuildLeader)) return;
     try {
       await set(ref(db, `parties/${party.id}/members/${charId}`), null);
       toast.success('เตะสมาชิกออกจากปาร์ตี้สำเร็จ');
@@ -458,20 +460,17 @@ export default function PartyPage({ params }: { params: { id: string } }) {
 
   const handleSaveMessage = async () => {
     if (!party || !user) return;
-    
-    // Check if user is a member of the party
+    // อนุญาตให้หัวกิลด์แก้ไขได้
     const isMember = Object.entries(party.members || {}).some(([charId, memberData]) => {
       const userId = typeof memberData === 'boolean' 
         ? Object.entries(users).find(([, userData]) => userData.characters?.[charId])?.[0]
         : (memberData as { userId: string }).userId;
       return userId === user.uid;
     });
-    
-    if (!isMember) {
-      toast.error('คุณต้องเป็นสมาชิกของปาร์ตี้นี้จึงจะสามารถแก้ไขข้อความได้');
+    if (!isMember && !isGuildLeader) {
+      toast.error('คุณต้องเป็นสมาชิกของปาร์ตี้นี้หรือหัวกิลด์จึงจะสามารถแก้ไขข้อความได้');
       return;
     }
-    
     setIsSavingMessage(true);
     try {
       await set(ref(db, `parties/${party.id}/message`), partyMessage);
@@ -641,7 +640,7 @@ export default function PartyPage({ params }: { params: { id: string } }) {
                     <div className="flex items-center gap-3">
                       <CardTitle className="text-lg font-bold text-violet-700 flex items-center gap-2">
                         {party.name}
-                        {user?.uid === party.leader && (
+                        { (user?.uid === party.leader || isGuildLeader) && (
                           <button
                             className="ml-2 p-1 rounded hover:bg-gray-100 transition"
                             onClick={() => {
@@ -690,7 +689,7 @@ export default function PartyPage({ params }: { params: { id: string } }) {
                       <div className="p-3 rounded-lg bg-gradient-to-r from-pink-50 to-purple-50 border border-pink-100/30">
                         <div className="flex items-center mb-2 gap-2">
                           <h4 className="font-semibold text-sm md:text-base text-gray-800 tracking-wide">Status แนะนำ</h4>
-                          {user?.uid === party.leader && (
+                          { (user?.uid === party.leader || isGuildLeader) && (
                             <Dialog open={isGoalDialogOpen} onOpenChange={setIsGoalDialogOpen}>
                               <DialogTrigger asChild>
                                 <button className="p-1 rounded-full hover:bg-violet-100 transition" title="แก้ไข Status แนะนำ">
@@ -778,7 +777,7 @@ export default function PartyPage({ params }: { params: { id: string } }) {
                           whileHover={{ scale: 1.03 }}
                           whileTap={{ scale: 0.98 }}
                         >
-                          {user?.uid === party.leader && member.character.userId !== user.uid && (
+                          { (user?.uid === party.leader || isGuildLeader) && user && member.character.userId !== user.uid && (
                             <button
                               className="absolute top-2 right-2 p-1.5 rounded-full bg-white/90 border border-red-200 hover:bg-red-100 transition z-10"
                               title="เตะสมาชิกออกจากปาร์ตี้"
@@ -922,14 +921,14 @@ export default function PartyPage({ params }: { params: { id: string } }) {
                           value={partyMessage}
                           onChange={(e) => setPartyMessage(e.target.value)}
                           maxLength={300}
-                          disabled={!hasUserInParty}
+                          disabled={!(hasUserInParty || isGuildLeader)}
                         />
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-xs text-gray-500">
                           {partyMessage.length}/300 อักษร
                         </span>
-                        {hasUserInParty && (
+                        {(hasUserInParty || isGuildLeader) && (
                           <Button
                             onClick={handleSaveMessage}
                             disabled={isSavingMessage}

@@ -13,6 +13,7 @@ export interface User {
   };
   discordName?: string;
   discordId: string;
+  isGuildLeader?: boolean;
 }
 
 export interface UserWithCharacters extends User {
