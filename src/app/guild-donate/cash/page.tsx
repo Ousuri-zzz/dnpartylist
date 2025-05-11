@@ -125,9 +125,9 @@ export default function GuildDonateCashPage() {
 
   return (
     <div className="max-w-6xl mx-auto p-6">
-      <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-pink-200">
+      <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-pink-200 max-w-2xl mx-auto md:max-w-6xl">
         {/* Header */}
-        <div className="flex items-center gap-4 mb-8 pb-6 border-b border-pink-100">
+        <div className="flex items-center gap-4 mb-8 pb-6 border-b border-pink-100 relative">
           <div className="p-3 bg-pink-100 rounded-xl">
             <Crown className="w-8 h-8 text-pink-600" />
           </div>
@@ -135,15 +135,26 @@ export default function GuildDonateCashPage() {
             <h1 className="text-2xl font-bold text-gray-800">📜 ประวัติการบริจาคเงินสด</h1>
             <p className="text-sm text-gray-500 mt-1">ดูประวัติการบริจาคเงินสดของสมาชิกทั้งหมดในกิลด์</p>
           </div>
+          {/* ปุ่มบริจาคกิลด์: Desktop */}
           <Link
             href="/guild-donate"
-            className="ml-auto flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-pink-200 via-orange-100 to-yellow-100 text-pink-800 text-sm font-bold rounded-full shadow border-2 border-pink-300 hover:from-pink-400 hover:to-orange-200 hover:text-white hover:shadow-xl transition-all duration-150"
+            className="ml-auto hidden sm:flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-pink-200 via-orange-100 to-yellow-100 text-pink-800 text-sm font-bold rounded-full shadow border-2 border-pink-300 hover:from-pink-400 hover:to-orange-200 hover:text-white hover:shadow-xl transition-all duration-150"
             style={{ minWidth: 'fit-content' }}
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" /></svg>
             บริจาคกิลด์
           </Link>
         </div>
+        {/* ปุ่มบริจาคกิลด์: Mobile */}
+        <Link
+          href="/guild-donate"
+          className="block sm:hidden w-full mb-4 px-0 py-2 bg-gradient-to-r from-pink-200 via-orange-100 to-yellow-100 text-pink-800 text-base font-bold rounded-xl shadow-sm border border-pink-200 text-center hover:from-pink-400 hover:to-orange-200 hover:text-white hover:shadow transition-all duration-150"
+        >
+          <span className="inline-flex items-center gap-2 justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" /></svg>
+            บริจาคกิลด์
+          </span>
+        </Link>
 
         {/* Search */}
         <div className="mb-6">
@@ -159,8 +170,8 @@ export default function GuildDonateCashPage() {
           </div>
         </div>
 
-        {/* Table */}
-        <div className="overflow-x-auto">
+        {/* Table (Desktop only) */}
+        <div className="overflow-x-auto hidden md:block">
           <table className="w-full">
             <thead>
               <tr className="bg-pink-50">
@@ -193,6 +204,38 @@ export default function GuildDonateCashPage() {
             </tbody>
           </table>
         </div>
+
+        {/* Mobile Card List (Mobile only) */}
+        <div className="block md:hidden space-y-2 px-1">
+          {pagedDonations.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">ไม่พบรายการบริจาค</div>
+          ) : (
+            pagedDonations.map((donation) => {
+              const discordName = donorDiscords[donation.userId] || '...';
+              return (
+                <div key={donation.id} className="bg-white/90 border border-pink-100 rounded-lg shadow-sm p-2 flex flex-col gap-1">
+                  <div className="flex items-center gap-2">
+                    <Crown className="w-5 h-5 text-pink-400 shrink-0" />
+                    <span className="font-bold text-gray-800 text-base truncate max-w-[120px]">@{discordName}</span>
+                    <span className="ml-auto text-xs text-pink-700 font-bold whitespace-nowrap">{donation.amount} บาท</span>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm mt-1">
+                    <div className="flex items-center gap-1 min-w-[120px]">
+                      <Clock className="w-4 h-4 text-pink-300" />
+                      <span className="text-gray-600 truncate">{new Date(donation.createdAt).toLocaleDateString('th-TH', { year: '2-digit', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                    </div>
+                    <div className="flex items-center gap-1 min-w-[80px]">
+                      {donation.status === 'waiting' && <span className="text-yellow-600 font-semibold flex items-center gap-1"><Clock className="w-4 h-4" />รออนุมัติ</span>}
+                      {donation.status === 'active' && <span className="text-green-600 font-semibold flex items-center gap-1"><Check className="w-4 h-4" />อนุมัติแล้ว</span>}
+                      {donation.status === 'rejected' && <span className="text-red-600 font-semibold flex items-center gap-1"><X className="w-4 h-4" />ถูกยกเลิก</span>}
+                    </div>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+
         {/* Pagination */}
         {totalPages > 1 && (
           <div className="flex justify-center items-center gap-2 mt-3">

@@ -543,41 +543,41 @@ export default function GuildSettingsPage() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto p-6">
-      <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-pink-200">
+    <div className="max-w-5xl mx-auto p-4 md:p-6">
+      <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-4 md:p-8 border border-pink-200">
         {/* Header Section */}
-        <div className="flex items-center gap-4 mb-8 pb-6 border-b border-pink-100">
-          <div className="p-3 bg-pink-100 rounded-xl">
-            <Settings className="w-8 h-8 text-pink-600" />
+        <div className="flex flex-col md:flex-row items-start md:items-center gap-4 mb-6 md:mb-8 pb-4 md:pb-6 border-b border-pink-100">
+          <div className="p-2 md:p-3 bg-pink-100 rounded-lg md:rounded-xl">
+            <Settings className="w-7 h-7 md:w-8 md:h-8 text-pink-600" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-800">⚙️ ตั้งค่ากิลด์</h1>
-            <p className="text-sm text-gray-500 mt-1">จัดการการตั้งค่าและสมาชิกของกิลด์</p>
+            <h1 className="text-xl md:text-2xl font-bold text-gray-800">⚙️ ตั้งค่ากิลด์</h1>
+            <p className="text-xs md:text-sm text-gray-500 mt-1">จัดการการตั้งค่าและสมาชิกของกิลด์</p>
           </div>
           {newLoanCount > 0 && (
             <div 
-              className="ml-auto flex items-center gap-2 bg-pink-100 text-pink-600 px-4 py-2 rounded-full cursor-pointer hover:bg-pink-200 transition-colors"
+              className="ml-auto flex items-center gap-2 bg-pink-100 text-pink-600 px-3 md:px-4 py-1.5 md:py-2 rounded-lg md:rounded-full cursor-pointer hover:bg-pink-200 transition-colors text-xs md:text-sm"
               onClick={clearLoanNotifications}
               title="คลิกเพื่อล้างการแจ้งเตือน"
             >
               <Bell className="w-4 h-4" />
-              <span className="text-sm font-medium">มีคำขอกู้ยืมใหม่ {newLoanCount} รายการ</span>
+              <span className="font-medium">มีคำขอกู้ยืมใหม่ {newLoanCount} รายการ</span>
             </div>
           )}
         </div>
 
         {/* Leaders Section */}
-        <div className="mb-10">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-purple-100 rounded-lg">
+        <div className="mb-6 md:mb-10">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-4 md:mb-6 gap-2 md:gap-0">
+            <div className="flex items-center gap-2 md:gap-3">
+              <div className="p-1.5 md:p-2 bg-purple-100 rounded-lg">
                 <Crown className="w-5 h-5 text-purple-600" />
               </div>
-              <h2 className="text-xl font-semibold text-gray-800">หัวกิลด์</h2>
+              <h2 className="text-lg md:text-xl font-semibold text-gray-800">หัวกิลด์</h2>
             </div>
             <button
               onClick={() => setIsAddingLeader(!isAddingLeader)}
-              className="flex items-center gap-2 px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-colors shadow-sm"
+              className="flex items-center gap-2 px-3 md:px-4 py-1.5 md:py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-colors shadow-sm text-xs md:text-base"
             >
               <UserPlus className="w-4 h-4" />
               <span>เพิ่มหัวกิลด์</span>
@@ -641,11 +641,11 @@ export default function GuildSettingsPage() {
             </div>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
             {Object.entries(guild?.leaders || {}).map(([uid, isLeader]) => (
               <div
                 key={uid}
-                className="flex items-center justify-between p-4 bg-purple-50 rounded-xl border border-purple-100 hover:bg-purple-100/50 transition-colors"
+                className="flex flex-col md:flex-row md:items-center md:justify-between p-4 md:p-4 bg-purple-50 rounded-xl border border-purple-100 hover:bg-purple-100/50 transition-colors gap-2 md:gap-0"
               >
                 <div className="flex items-center gap-4">
                   <div className="p-2 bg-purple-100 rounded-lg">
@@ -657,10 +657,10 @@ export default function GuildSettingsPage() {
                   </div>
                 </div>
                 {uid !== user?.uid && (
-                  <div className="flex gap-2">
+                  <div className="w-full md:w-auto flex flex-row gap-x-2 md:gap-2">
                     <button
                       onClick={() => handleRemoveLeader(uid)}
-                      className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                      className="flex-1 md:w-auto p-2 rounded-l-lg md:rounded-lg text-red-500 hover:bg-red-50 transition-colors"
                       title="ลบหัวกิลด์"
                     >
                       <X className="w-5 h-5" />
@@ -668,7 +668,7 @@ export default function GuildSettingsPage() {
                     {isGuildLeader && (
                       <button
                         onClick={() => handleResetStats(uid)}
-                        className="p-2 text-orange-500 hover:bg-orange-50 rounded-lg transition-colors"
+                        className="flex-1 md:w-auto p-2 rounded-r-lg md:rounded-lg text-orange-500 hover:bg-orange-50 transition-colors"
                         title="รีเซ็ตสเตตัสตัวละคร"
                       >
                         <RefreshCw className="w-5 h-5" />
@@ -683,37 +683,37 @@ export default function GuildSettingsPage() {
 
         {/* Pending Members Section */}
         {isGuildLeader && (
-          <div className="mb-10">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-red-100 rounded-lg">
+          <div className="mb-6 md:mb-10">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-4 md:mb-6 gap-2 md:gap-0">
+              <div className="flex items-center gap-2 md:gap-3">
+                <div className="p-1.5 md:p-2 bg-red-100 rounded-lg">
                   <UserPlus className="w-5 h-5 text-red-600" />
                 </div>
-                <h2 className="text-xl font-semibold text-gray-800">สมาชิกใหม่ที่รออนุมัติ</h2>
+                <h2 className="text-lg md:text-xl font-semibold text-gray-800">สมาชิกใหม่ที่รออนุมัติ</h2>
               </div>
-              <div className="flex items-center gap-2 px-4 py-2 bg-red-50 rounded-full">
-                <span className="text-sm font-medium text-red-700">{pendingMembers.length} คน</span>
+              <div className="flex items-center gap-2 px-3 md:px-4 py-1.5 md:py-2 bg-red-50 rounded-lg md:rounded-full">
+                <span className="text-xs md:text-sm font-medium text-red-700">{pendingMembers.length} คน</span>
               </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
               {pendingMembers.map((member) => (
-                <div key={member.uid} className="bg-white rounded-xl p-6 border border-red-100 shadow-sm hover:shadow-md transition-shadow">
-                  <div className="flex justify-between items-center">
+                <div key={member.uid} className="bg-white rounded-xl p-4 md:p-6 border border-red-100 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-0">
                     <div>
                       <div className="font-semibold text-red-600">{member.discord}</div>
                       <div className="text-sm text-gray-500">UID: {member.uid}</div>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="w-full md:w-auto flex flex-row gap-x-2 md:gap-2">
                       <button
                         onClick={() => handleApproveMember(member.uid)}
-                        className="p-2 rounded-lg bg-green-100 text-green-600 hover:bg-green-200 transition-colors"
+                        className="flex-1 md:w-auto p-2 rounded-l-lg md:rounded-lg bg-green-100 text-green-600 hover:bg-green-200 transition-colors"
                         title="อนุมัติ"
                       >
                         <Check className="w-5 h-5" />
                       </button>
                       <button
                         onClick={() => handleRejectMember(member.uid)}
-                        className="p-2 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 transition-colors"
+                        className="flex-1 md:w-auto p-2 rounded-r-lg md:rounded-lg bg-red-100 text-red-600 hover:bg-red-200 transition-colors"
                         title="ยกเลิกและลบ"
                       >
                         <X className="w-5 h-5" />
@@ -735,22 +735,22 @@ export default function GuildSettingsPage() {
         )}
 
         {/* Pending Merchants Section */}
-        <div className="mb-10">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-yellow-100 rounded-lg">
+        <div className="mb-6 md:mb-10">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-4 md:mb-6 gap-2 md:gap-0">
+            <div className="flex items-center gap-2 md:gap-3">
+              <div className="p-1.5 md:p-2 bg-yellow-100 rounded-lg">
                 <Store className="w-5 h-5 text-yellow-600" />
               </div>
-              <h2 className="text-xl font-semibold text-gray-800">ร้านค้าที่รออนุมัติ</h2>
+              <h2 className="text-lg md:text-xl font-semibold text-gray-800">ร้านค้าที่รออนุมัติ</h2>
             </div>
-            <div className="flex items-center gap-2 px-4 py-2 bg-yellow-50 rounded-full">
-              <span className="text-sm font-medium text-yellow-700">{pendingMerchants.length} ร้านค้า</span>
+            <div className="flex items-center gap-2 px-3 md:px-4 py-1.5 md:py-2 bg-yellow-50 rounded-lg md:rounded-full">
+              <span className="text-xs md:text-sm font-medium text-yellow-700">{pendingMerchants.length} ร้านค้า</span>
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
             {pendingMerchants.map((merchant) => (
-              <div key={merchant.uid} className="bg-white rounded-xl p-6 border border-yellow-100 shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex justify-between items-start">
+              <div key={merchant.uid} className="bg-white rounded-xl p-4 md:p-6 border border-yellow-100 shadow-sm hover:shadow-md transition-shadow">
+                <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-2 md:gap-0">
                   <div className="space-y-2">
                     <div className="font-semibold text-yellow-600">{merchant.bankAccountName}</div>
                     <div className="flex items-center gap-2 text-sm text-gray-500">
@@ -766,17 +766,17 @@ export default function GuildSettingsPage() {
                       <span>{merchant.bankAccountNumber}</span>
                     </div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="w-full md:w-auto flex flex-row gap-x-2 md:gap-2">
                     <button
                       onClick={() => handleApproveMerchant(merchant)}
-                      className="p-2 rounded-lg bg-green-100 text-green-600 hover:bg-green-200 transition-colors"
+                      className="flex-1 md:w-auto p-2 rounded-l-lg md:rounded-lg bg-green-100 text-green-600 hover:bg-green-200 transition-colors"
                       title="อนุมัติ"
                     >
                       <Check className="w-5 h-5" />
                     </button>
                     <button
                       onClick={() => handleRejectMerchant(merchant)}
-                      className="p-2 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 transition-colors"
+                      className="flex-1 md:w-auto p-2 rounded-r-lg md:rounded-lg bg-red-100 text-red-600 hover:bg-red-200 transition-colors"
                       title="ระงับ"
                     >
                       <X className="w-5 h-5" />
@@ -797,15 +797,15 @@ export default function GuildSettingsPage() {
         </div>
 
         {/* Active Merchants Section */}
-        <div className="mb-10">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-green-100 rounded-lg">
+        <div className="mb-6 md:mb-10">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-4 md:mb-6 gap-2 md:gap-0">
+            <div className="flex items-center gap-2 md:gap-3">
+              <div className="p-1.5 md:p-2 bg-green-100 rounded-lg">
                 <Store className="w-5 h-5 text-green-600" />
               </div>
-              <h2 className="text-xl font-semibold text-gray-800">ร้านค้าที่ลงทะเบียนแล้ว ({filteredActiveMerchants.length})</h2>
+              <h2 className="text-lg md:text-xl font-semibold text-gray-800">ร้านค้าที่ลงทะเบียนแล้ว</h2>
             </div>
-            <div className="relative w-64">
+            <div className="relative w-full md:w-64 mt-2 md:mt-0">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <Search className="w-4 h-4 text-gray-400" />
               </div>
@@ -814,11 +814,11 @@ export default function GuildSettingsPage() {
                 placeholder="ค้นหาร้านค้า..."
                 value={merchantSearch}
                 onChange={(e) => setMerchantSearch(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-xs md:text-base"
               />
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
             {filteredActiveMerchants.length === 0 ? (
               <div className="col-span-2 flex items-center justify-center p-8 bg-green-50 rounded-xl border border-green-100">
                 <div className="text-center">
@@ -830,8 +830,8 @@ export default function GuildSettingsPage() {
               </div>
             ) : (
               filteredActiveMerchants.map((merchant) => (
-                <div key={merchant.uid} className="bg-white rounded-xl p-6 border border-green-100 shadow-sm hover:shadow-md transition-shadow">
-                  <div className="flex justify-between items-start">
+                <div key={merchant.uid} className="bg-white rounded-xl p-4 md:p-6 border border-green-100 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-2 md:gap-0">
                     <div className="space-y-2">
                       <h3 className="font-medium text-gray-900">{merchant.discordName}</h3>
                       <div className="flex items-center gap-2 text-sm text-gray-500">
@@ -851,13 +851,15 @@ export default function GuildSettingsPage() {
                         <span>{merchant.bankAccountName}</span>
                       </div>
                     </div>
-                    <button
-                      onClick={() => handleUnregisterMerchant(merchant)}
-                      className="flex items-center gap-1 px-3 py-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors text-sm font-medium"
-                    >
-                      <X className="w-4 h-4" />
-                      <span>ยกเลิก</span>
-                    </button>
+                    <div className="w-full md:w-auto flex flex-row gap-x-2 md:gap-2">
+                      <button
+                        onClick={() => handleUnregisterMerchant(merchant)}
+                        className="flex-1 md:w-auto flex items-center gap-1 px-3 py-1.5 rounded-lg text-red-500 hover:bg-red-50 transition-colors text-sm font-medium"
+                      >
+                        <X className="w-4 h-4" />
+                        <span>ยกเลิก</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))
@@ -867,22 +869,22 @@ export default function GuildSettingsPage() {
 
         {/* Members Section */}
         <div>
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-100 rounded-lg">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-4 md:mb-6 gap-2 md:gap-0">
+            <div className="flex items-center gap-2 md:gap-3">
+              <div className="p-1.5 md:p-2 bg-blue-100 rounded-lg">
                 <Users className="w-5 h-5 text-blue-600" />
               </div>
-              <h2 className="text-xl font-semibold text-gray-800">รายชื่อสมาชิก ({filteredMembers.length})</h2>
+              <h2 className="text-lg md:text-xl font-semibold text-gray-800">รายชื่อสมาชิก ({filteredMembers.length})</h2>
               <button
                 onClick={handleImportAllUsers}
-                className="ml-3 px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors shadow-sm font-semibold flex items-center gap-2"
+                className="ml-2 md:ml-3 px-3 md:px-4 py-1.5 md:py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors shadow-sm font-semibold flex items-center gap-2 text-xs md:text-base"
                 title="ดึงสมาชิกเก่าทั้งหมดเข้ากิลด์"
               >
                 <UserPlus className="w-4 h-4" />
                 ดึงสมาชิกเก่าทั้งหมด
               </button>
             </div>
-            <div className="relative w-64">
+            <div className="relative w-full md:w-64 mt-2 md:mt-0">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <Search className="w-4 h-4 text-gray-400" />
               </div>
@@ -891,11 +893,11 @@ export default function GuildSettingsPage() {
                 placeholder="ค้นหาสมาชิก..."
                 value={memberSearch}
                 onChange={(e) => setMemberSearch(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-xs md:text-base"
               />
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
             {filteredMembers.length === 0 ? (
               <div className="col-span-2 flex items-center justify-center p-8 bg-blue-50 rounded-xl border border-blue-100">
                 <div className="text-center">
@@ -909,7 +911,7 @@ export default function GuildSettingsPage() {
               filteredMembers.map(([uid, member]) => (
                 <div
                   key={uid}
-                  className="flex items-center justify-between p-4 bg-blue-50 rounded-xl border border-blue-100 hover:bg-blue-100/50 transition-colors"
+                  className="flex flex-col md:flex-row md:items-center md:justify-between p-4 md:p-4 bg-blue-50 rounded-xl border border-blue-100 hover:bg-blue-100/50 transition-colors gap-2 md:gap-0"
                 >
                   <div className="flex items-center gap-4">
                     <div className="p-2 bg-blue-100 rounded-lg">
@@ -922,10 +924,10 @@ export default function GuildSettingsPage() {
                     </div>
                   </div>
                   {uid !== user?.uid && !guild?.leaders?.[uid] && (
-                    <div className="flex gap-2">
+                    <div className="w-full md:w-auto flex flex-row gap-x-2 md:gap-2">
                       <button
                         onClick={() => handleRemoveMember(uid)}
-                        className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                        className="flex-1 md:w-auto p-2 rounded-l-lg md:rounded-lg text-red-500 hover:bg-red-50 transition-colors"
                         title="ลบสมาชิก"
                       >
                         <X className="w-5 h-5" />
@@ -933,7 +935,7 @@ export default function GuildSettingsPage() {
                       {isGuildLeader && (
                         <button
                           onClick={() => handleResetStats(uid)}
-                          className="p-2 text-orange-500 hover:bg-orange-50 rounded-lg transition-colors"
+                          className="flex-1 md:w-auto p-2 rounded-r-lg md:rounded-lg text-orange-500 hover:bg-orange-50 transition-colors"
                           title="รีเซ็ตสเตตัสตัวละคร"
                         >
                           <RefreshCw className="w-5 h-5" />

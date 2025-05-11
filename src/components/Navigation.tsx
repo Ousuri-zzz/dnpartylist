@@ -240,6 +240,24 @@ export default function Navigation() {
                         </span>
                       )}
                     </Link>
+                    <Link href="/guild-donate/history" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-pink-50/50 text-gray-700">
+                      <Crown className="w-5 h-5" />
+                      <span className="font-medium">Donation History</span>
+                      {isGuildLeader && pendingDonationCount > 0 && (
+                        <span className="ml-auto px-2 py-0.5 rounded-full bg-red-500 text-white text-xs font-bold shadow">
+                          {pendingDonationCount}
+                        </span>
+                      )}
+                    </Link>
+                    <Link href="/guild-donate/cash" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-pink-50/50 text-gray-700">
+                      <CreditCard className="w-5 h-5" />
+                      <span className="font-medium">Cash History</span>
+                      {isGuildLeader && pendingCashDonationCount > 0 && (
+                        <span className="ml-auto px-2 py-0.5 rounded-full bg-red-500 text-white text-xs font-bold shadow">
+                          {pendingCashDonationCount}
+                        </span>
+                      )}
+                    </Link>
                     {isGuildLeader && (
                       <Link href="/guild/settings" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-green-50/50 text-gray-700 relative">
                         <Settings className="w-5 h-5" />

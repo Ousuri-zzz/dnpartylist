@@ -26,34 +26,34 @@ const CLASS_TO_MAIN_CLASS: Record<CharacterClass, CharacterMainClass> = {
 // สีตามอาชีพหลัก
 const classColors: Record<CharacterMainClass, {text: string, bg: string, border: string, accent: string, icon?: string}> = {
   'Warrior': {
-    text: 'text-red-700',
-    bg: 'bg-gradient-to-br from-red-200 to-rose-300/90',
-    border: 'border-red-400',
-    accent: 'text-red-600'
+    text: 'text-red-600',
+    bg: 'bg-gradient-to-br from-red-100/80 to-rose-200/70',
+    border: 'border-red-300/70',
+    accent: 'text-red-500'
   },
   'Archer': {
-    text: 'text-emerald-700',
-    bg: 'bg-gradient-to-br from-emerald-200 to-green-300/90',
-    border: 'border-emerald-400',
-    accent: 'text-emerald-600'
+    text: 'text-emerald-600',
+    bg: 'bg-gradient-to-br from-emerald-100/80 to-green-200/70',
+    border: 'border-emerald-300/70',
+    accent: 'text-emerald-500'
   },
   'Sorceress': {
-    text: 'text-purple-700',
-    bg: 'bg-gradient-to-br from-purple-200 to-violet-300/90',
-    border: 'border-purple-400',
-    accent: 'text-purple-600'
+    text: 'text-purple-600',
+    bg: 'bg-gradient-to-br from-purple-100/80 to-violet-200/70',
+    border: 'border-purple-300/70',
+    accent: 'text-purple-500'
   },
   'Cleric': {
-    text: 'text-sky-700',
-    bg: 'bg-gradient-to-br from-sky-200 to-blue-300/90',
-    border: 'border-sky-400',
-    accent: 'text-sky-600'
+    text: 'text-sky-600',
+    bg: 'bg-gradient-to-br from-sky-100/80 to-blue-200/70',
+    border: 'border-sky-300/70',
+    accent: 'text-sky-500'
   },
   'Academic': {
-    bg: 'from-amber-200 to-yellow-300/90',
-    text: 'text-amber-700',
-    border: 'border-amber-400',
-    accent: 'text-amber-600',
+    bg: 'from-amber-100/80 to-yellow-200/70',
+    text: 'text-amber-600',
+    border: 'border-amber-300/70',
+    accent: 'text-amber-500',
     icon: '🔧'
   }
 };
@@ -124,8 +124,13 @@ export function CharacterCard({ character, onEdit, onDelete, onChecklistChange }
     <Card className={cn(
       "relative overflow-hidden rounded-3xl shadow-2xl transition-all duration-500 group",
       "bg-white",
-      colors.border,
       "border-2",
+      mainClass === 'Warrior' && 'border-red-400/90',
+      mainClass === 'Archer' && 'border-emerald-400/90',
+      mainClass === 'Sorceress' && 'border-purple-400/90',
+      mainClass === 'Cleric' && 'border-sky-400/90',
+      mainClass === 'Academic' && 'border-amber-400/90',
+      !mainClass && 'border-gray-400/90',
       "hover:shadow-[0_12px_36px_0_rgba(124,58,237,0.18)] hover:bg-white hover:ring-2 hover:ring-opacity-80",
     )} style={{
       boxShadow: '0 8px 32px 0 rgba(124, 58, 237, 0.13)'
@@ -134,11 +139,11 @@ export function CharacterCard({ character, onEdit, onDelete, onChecklistChange }
       <div className={cn(
         "w-full h-10 rounded-t-3xl flex items-center justify-center relative",
         "transition-all duration-500",
-        mainClass === 'Warrior' && 'bg-gradient-to-r from-red-600 to-rose-500',
-        mainClass === 'Archer' && 'bg-gradient-to-r from-emerald-600 to-green-500',
-        mainClass === 'Sorceress' && 'bg-gradient-to-r from-purple-600 to-violet-500',
-        mainClass === 'Cleric' && 'bg-gradient-to-r from-sky-600 to-blue-500',
-        mainClass === 'Academic' && 'bg-gradient-to-r from-amber-500 to-yellow-400',
+        mainClass === 'Warrior' && 'bg-gradient-to-r from-red-400/90 to-rose-300/80',
+        mainClass === 'Archer' && 'bg-gradient-to-r from-emerald-400/90 to-green-300/80',
+        mainClass === 'Sorceress' && 'bg-gradient-to-r from-purple-400/90 to-violet-300/80',
+        mainClass === 'Cleric' && 'bg-gradient-to-r from-sky-400/90 to-blue-300/80',
+        mainClass === 'Academic' && 'bg-gradient-to-r from-amber-400/90 to-yellow-300/80',
         "group-hover:brightness-110 group-hover:contrast-110",
         "group-hover:shadow-inner group-hover:shadow-black/10"
       )}>
