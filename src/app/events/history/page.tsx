@@ -105,7 +105,7 @@ export default function EventHistoryPage() {
                           <span className="text-3xl">🎉</span>
                           <span className="break-words whitespace-normal min-w-0 w-full">{event.name}</span>
                         </h2>
-                        <div className="mt-2 bg-white/80 rounded-xl px-4 py-2 shadow-sm w-full">
+                        <div className="mt-2 px-4 py-2 w-full">
                           <div className="inline-flex items-start w-full min-w-0">
                             <span className="text-xl flex-shrink-0 mt-1">📝</span>
                             <span className="break-words whitespace-pre-line w-full ml-2 text-gray-700 text-base min-w-0">{event.description}</span>

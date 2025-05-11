@@ -230,10 +230,10 @@ export default function EventsPage() {
                             <span className="text-2xl">🎉</span>
                             <h3 className="font-bold text-lg text-pink-700 group-hover:text-pink-600 transition-colors break-words whitespace-normal flex-1 min-w-0">{event.name}</h3>
                           </div>
-                          <div className="bg-white/80 rounded-xl px-4 py-2 shadow-sm w-full mb-2">
+                          <div className="px-4 py-2 w-full mb-2">
                             <div className="inline-flex items-start w-full min-w-0">
                               <span className="text-lg flex-shrink-0 mt-1">📝</span>
-                              <span className="break-words whitespace-pre-line w-full ml-2 text-gray-700 text-sm min-w-0">{event.description}</span>
+                              <span className="break-words whitespace-pre-line w-full ml-2 text-green-700 text-sm font-semibold min-w-0">{event.description}</span>
                             </div>
                           </div>
                           <div className="mb-2 space-y-2">

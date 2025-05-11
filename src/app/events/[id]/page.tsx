@@ -380,10 +380,10 @@ export default function EventDetailPage() {
             <div className="text-lg text-purple-700 font-semibold flex items-center gap-2 animate-pulse">
               ✨ ยินดีต้อนรับสู่กิจกรรมสุดพิเศษ! ✨
             </div>
-            <div className="bg-white/80 rounded-xl px-4 py-2 shadow-sm w-full">
+            <div className="px-4 py-2 w-full">
               <div className="inline-flex items-start w-full min-w-0">
                 <span className="text-xl flex-shrink-0 mt-1">📝</span>
-                <span className="break-words whitespace-pre-line w-full ml-2 text-gray-700 text-lg min-w-0">{event.description || 'ไม่มีรายละเอียดกิจกรรม'}</span>
+                <span className="break-words whitespace-pre-line w-full ml-2 text-green-700 text-lg font-semibold drop-shadow-sm min-w-0">{event.description || 'ไม่มีรายละเอียดกิจกรรม'}</span>
               </div>
             </div>
           </div>
