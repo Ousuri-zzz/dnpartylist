@@ -60,18 +60,6 @@ export default function GuildDonateHistoryPage() {
       return;
     }
 
-    // เช็คสิทธิ์หัวกิลด์
-    const checkLeaderStatus = async () => {
-      const leaderRef = ref(db, `guild/leaders/${user.uid}`);
-      const snapshot = await get(leaderRef);
-      if (!snapshot.exists() || !snapshot.val()) {
-        toast.error('คุณไม่มีสิทธิ์เข้าถึงหน้านี้');
-        router.push('/');
-        return;
-      }
-    };
-    checkLeaderStatus();
-
     // Load guild members
     const membersRef = ref(db, 'guild/members');
     const unsubMembers = onValue(membersRef, (snapshot) => {

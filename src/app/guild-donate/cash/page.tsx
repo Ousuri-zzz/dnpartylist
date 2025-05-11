@@ -40,18 +40,6 @@ export default function GuildDonateCashPage() {
       return;
     }
 
-    // Check guild leader status
-    const checkLeaderStatus = async () => {
-      const leaderRef = ref(db, `guild/leaders/${user.uid}`);
-      const snapshot = await get(leaderRef);
-      if (!snapshot.exists() || !snapshot.val()) {
-        toast.error('คุณไม่มีสิทธิ์เข้าถึงหน้านี้');
-        router.push('/');
-        return;
-      }
-    };
-    checkLeaderStatus();
-
     // Load donations
     const donationsRef = ref(db, 'guilddonatecash');
     const unsubDonations = onValue(donationsRef, (snapshot) => {
@@ -150,8 +138,10 @@ export default function GuildDonateCashPage() {
           <Link
             href="/guild-donate"
             className="ml-auto flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-pink-200 via-orange-100 to-yellow-100 text-pink-800 text-sm font-bold rounded-full shadow border-2 border-pink-300 hover:from-pink-400 hover:to-orange-200 hover:text-white hover:shadow-xl transition-all duration-150"
+            style={{ minWidth: 'fit-content' }}
           >
-            <span>กลับไปหน้าระบบบริจาค</span>
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" /></svg>
+            บริจาคกิลด์
           </Link>
         </div>
 

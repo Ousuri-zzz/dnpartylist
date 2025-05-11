@@ -23,6 +23,25 @@ interface Merchant {
   bankAccountNumber: string;
 }
 
+function parseJoinedAt(joinedAt: any): number {
+  if (typeof joinedAt === 'number') return joinedAt;
+  if (typeof joinedAt === 'string') {
+    // ISO string เช่น "2025-05-07T13:11:42.081Z"
+    const t = Date.parse(joinedAt);
+    if (!isNaN(t)) return t;
+    // กรณี "7/5/2568" (dd/mm/yyyy พ.ศ.)
+    const match = joinedAt.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    if (match) {
+      const [_, d, m, y] = match;
+      const year = parseInt(y, 10) - 543;
+      const month = parseInt(m, 10) - 1;
+      const day = parseInt(d, 10);
+      return new Date(year, month, day).getTime();
+    }
+  }
+  return 0;
+}
+
 export default function GuildSettingsPage() {
   const { user } = useAuth();
   const router = useRouter();
@@ -217,17 +236,19 @@ export default function GuildSettingsPage() {
   }, [activeMerchants, debouncedMerchantSearch]);
 
   const filteredMembers = React.useMemo(() => {
-    return Object.entries(guild?.members || {}).filter(([uid, member]) => {
-      const searchTerm = debouncedMemberSearch.toLowerCase();
-      const name = member.discordName ? member.discordName.toLowerCase() : '';
-      if (searchTerm === 'ไม่ทราบ') {
-        return !member.discordName || member.discordName.trim() === '';
-      }
-      return (
-        name.includes(searchTerm) ||
-        (uid.toLowerCase() || '').includes(searchTerm)
-      );
-    });
+    return Object.entries(guild?.members || {})
+      .filter(([uid, member]) => {
+        const searchTerm = debouncedMemberSearch.toLowerCase();
+        const name = member.discordName ? member.discordName.toLowerCase() : '';
+        if (searchTerm === 'ไม่ทราบ') {
+          return !member.discordName || member.discordName.trim() === '';
+        }
+        return (
+          name.includes(searchTerm) ||
+          (uid.toLowerCase() || '').includes(searchTerm)
+        );
+      })
+      .sort((a, b) => parseJoinedAt(b[1].joinedAt) - parseJoinedAt(a[1].joinedAt));
   }, [guild?.members, debouncedMemberSearch]);
 
   const clearLoanNotifications = () => {

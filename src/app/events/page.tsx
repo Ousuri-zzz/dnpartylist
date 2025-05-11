@@ -224,23 +224,27 @@ export default function EventsPage() {
                           initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
                           whileHover={{ scale: 1.03, boxShadow: '0 8px 32px 0 rgba(236, 72, 153, 0.15)' }}
-                          className="cursor-pointer bg-gradient-to-br from-pink-50 via-purple-50 to-white border border-pink-100 rounded-2xl p-5 shadow-sm hover:shadow-lg transition-all group mb-2"
+                          className="cursor-pointer bg-gradient-to-br from-pink-50 via-purple-50 to-white border border-pink-100 rounded-2xl p-5 shadow-md hover:shadow-xl transition-all group mb-2"
                         >
                           <div className="flex items-center gap-2 mb-2">
                             <span className="text-2xl">🎉</span>
-                            <h3 className="font-bold text-lg text-pink-700 group-hover:text-pink-600 transition-colors">{event.name}</h3>
+                            <h3 className="font-bold text-lg text-pink-700 group-hover:text-pink-600 transition-colors break-words whitespace-normal flex-1 min-w-0">{event.name}</h3>
                           </div>
-                          <div className="flex items-center gap-2 text-gray-700 mb-1">
-                            <span className="text-lg">📝</span>
-                            <span className="text-sm">{event.description}</span>
+                          <div className="bg-white/80 rounded-xl px-4 py-2 shadow-sm w-full mb-2">
+                            <div className="inline-flex items-start w-full min-w-0">
+                              <span className="text-lg flex-shrink-0 mt-1">📝</span>
+                              <span className="break-words whitespace-pre-line w-full ml-2 text-gray-700 text-sm min-w-0">{event.description}</span>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-2 text-blue-700 mb-1">
-                            <span className="text-lg">🗓️</span>
-                            <span className="text-sm">{startDate ? startDate.toLocaleString('th-TH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}</span>
-                          </div>
-                          <div className="flex items-center gap-2 text-yellow-700 mb-2">
-                            <span className="text-lg">🎁</span>
-                            <span className="text-sm">{event.rewardInfo}</span>
+                          <div className="mb-2 space-y-2">
+                            <div className="inline-flex items-center gap-2 bg-yellow-50 rounded-lg px-3 py-1 shadow-sm text-yellow-700 font-semibold text-sm w-fit self-start">
+                              <span className="text-lg">🎁</span>
+                              <span className="break-words whitespace-normal">{event.rewardInfo}</span>
+                            </div>
+                            <div className="inline-flex items-center gap-2 bg-blue-50 rounded-lg px-3 py-1 shadow-sm text-blue-700 font-semibold text-sm w-fit self-start">
+                              <span className="text-lg">🗓️</span>
+                              <span>{startDate ? startDate.toLocaleString('th-TH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}</span>
+                            </div>
                           </div>
                           <CountdownTimer targetDate={startDate} />
                         </motion.div>

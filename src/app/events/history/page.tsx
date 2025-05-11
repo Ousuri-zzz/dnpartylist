@@ -103,12 +103,14 @@ export default function EventHistoryPage() {
                       <div className="w-full">
                         <h2 className="text-2xl font-extrabold text-pink-700 flex items-center gap-2 drop-shadow-sm">
                           <span className="text-3xl">🎉</span>
-                          {event.name}
+                          <span className="break-words whitespace-normal min-w-0 w-full">{event.name}</span>
                         </h2>
-                        <p className="text-base text-gray-700 mt-2 flex items-center gap-2 font-medium">
-                          <span className="text-xl">📝</span>
-                          {event.description}
-                        </p>
+                        <div className="mt-2 bg-white/80 rounded-xl px-4 py-2 shadow-sm w-full">
+                          <div className="inline-flex items-start w-full min-w-0">
+                            <span className="text-xl flex-shrink-0 mt-1">📝</span>
+                            <span className="break-words whitespace-pre-line w-full ml-2 text-gray-700 text-base min-w-0">{event.description}</span>
+                          </div>
+                        </div>
                         <div className="flex flex-wrap gap-2 mt-4">
                           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-blue-100 text-blue-700 text-sm font-semibold">
                             <span className="text-lg">🗓️</span>
@@ -145,7 +147,7 @@ export default function EventHistoryPage() {
                           {event.participants && event.participants.length > 0 && (
                             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-yellow-100 text-yellow-700 text-base font-semibold">
                               <Gift className="w-4 h-4 inline" />
-                              <span>
+                              <span className="break-words whitespace-normal min-w-0">
                                 รางวัล: {event.participants.filter((p: any) => p.rewardGiven).map((p: any) => p.rewardNote).filter((v: any, i: number, arr: any[]) => v && arr.indexOf(v) === i).join(', ') || '-'}
                                 {' '}(
                                 {event.participants.filter((p: any) => p.rewardGiven).length}
