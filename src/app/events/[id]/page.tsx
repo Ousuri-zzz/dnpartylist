@@ -389,12 +389,10 @@ export default function EventDetailPage() {
           </div>
           {/* กล่องรางวัล */}
           <div className="bg-yellow-50 rounded-xl px-4 py-2 shadow-sm min-h-[48px] w-full mb-4">
-            <div className="flex items-center gap-2 text-yellow-700 text-lg font-semibold mb-1">
+            <div className="flex items-center gap-2 text-yellow-700 text-lg font-semibold mb-1 whitespace-nowrap overflow-x-auto">
               <span className="text-2xl flex items-center">🎁</span>
               <span className="font-medium flex items-center">ของรางวัล:</span>
-            </div>
-            <div className="break-words whitespace-pre-line w-full text-yellow-700 text-lg font-semibold min-w-0">
-              {event.rewardInfo || 'ไม่มีข้อมูลรางวัล'}
+              <span className="ml-2">{event.rewardInfo || 'ไม่มีข้อมูลรางวัล'}</span>
             </div>
           </div>
           <div className="flex flex-col sm:flex-row gap-4 mb-4">
