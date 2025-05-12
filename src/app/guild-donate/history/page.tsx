@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import { Crown, Search, Calendar, Users, Coins } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import { createPortal } from 'react-dom';
 
 interface Donate {
   id: string;
@@ -60,6 +61,8 @@ export default function GuildDonateHistoryPage() {
   const badgeRefs = useRef<Record<string, (HTMLSpanElement | null)[]>>({});
   const containerRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const [showCount, setShowCount] = useState<Record<string, number>>({});
+  const plusNRefs = useRef<Record<string, HTMLSpanElement | null>>({});
+  const [popoverPos, setPopoverPos] = useState<{left: number, top: number} | null>(null);
 
   useEffect(() => {
     if (!user) {
@@ -351,15 +354,33 @@ export default function GuildDonateHistoryPage() {
                               ))}
                               {chars.length > count && (
                                 <span
+                                  ref={el => { plusNRefs.current[member.userId] = el; }}
                                   className="px-1.5 py-0.5 bg-pink-100 text-pink-600 rounded-full text-xs border border-pink-200 cursor-pointer select-none flex-shrink-0"
-                                  onClick={() => setOpenPopoverUser(openPopoverUser === member.userId ? null : member.userId)}
+                                  onClick={e => {
+                                    if (openPopoverUser === member.userId) {
+                                      setOpenPopoverUser(null);
+                                      setPopoverPos(null);
+                                    } else {
+                                      setOpenPopoverUser(member.userId);
+                                      const rect = e.currentTarget.getBoundingClientRect();
+                                      const popoverHeight = 220; // px
+                                      const margin = 8;
+                                      let top = rect.bottom + window.scrollY;
+                                      let left = rect.left;
+                                      if (rect.bottom + popoverHeight + margin > window.innerHeight) {
+                                        top = rect.top + window.scrollY - popoverHeight - margin;
+                                      }
+                                      setPopoverPos({ left, top });
+                                    }
+                                  }}
                                 >
                                   +{chars.length - count}
                                 </span>
                               )}
                               {/* Popover */}
-                              {openPopoverUser === member.userId && chars.length > count && (
-                                <div className="absolute left-0 top-full mt-2 bg-white border border-pink-200 rounded-lg shadow-lg p-3 z-50 min-w-[200px] max-w-xs">
+                              {openPopoverUser === member.userId && chars.length > count && popoverPos && typeof window !== 'undefined' && createPortal(
+                                <div style={{ position: 'absolute', left: popoverPos.left, top: popoverPos.top, zIndex: 9999, maxHeight: 220, overflowY: 'auto' }}
+                                  className="bg-white border border-pink-200 rounded-lg shadow-lg p-3 min-w-[200px] max-w-xs">
                                   <div className="text-sm font-semibold text-pink-600 mb-2">ตัวละครเพิ่มเติม:</div>
                                   <div className="space-y-1">
                                     {chars.slice(count).map(char => (
@@ -371,11 +392,12 @@ export default function GuildDonateHistoryPage() {
                                   </div>
                                   <button
                                     className="mt-2 px-3 py-1 bg-pink-50 text-pink-500 rounded text-xs border border-pink-100 hover:bg-pink-100"
-                                    onClick={() => setOpenPopoverUser(null)}
+                                    onClick={() => { setOpenPopoverUser(null); setPopoverPos(null); }}
                                   >
                                     ปิด
                                   </button>
-                                </div>
+                                </div>,
+                                document.body
                               )}
                             </>
                           );
