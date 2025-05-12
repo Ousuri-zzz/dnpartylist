@@ -143,8 +143,8 @@ export default function EventsPage() {
     <div className="container mx-auto px-4 py-8">
       <div className="flex flex-col lg:flex-row gap-8 w-full max-w-6xl mx-auto">
         {/* Calendar Section */}
-        <div className="w-full lg:w-1/3 max-w-md mx-auto lg:mx-0">
-          <div className="bg-white/30 backdrop-blur-md border border-pink-200/50 shadow-lg p-4 rounded-xl">
+        <div className="w-full lg:w-1/3 max-w-md mx-auto flex flex-col items-center justify-center mb-8">
+          <div className="bg-white/30 backdrop-blur-md border border-pink-200/50 shadow-lg p-4 rounded-xl mx-auto max-w-xs sm:max-w-md">
             <h2 className="text-xl font-extrabold text-pink-700 flex items-center gap-2 mb-4">
               <CalendarIcon className="w-6 h-6 text-pink-500" />
               ปฏิทินกิจกรรม
@@ -233,7 +233,7 @@ export default function EventsPage() {
                           <div className="px-4 py-2 w-full mb-2">
                             <div className="inline-flex items-start w-full min-w-0">
                               <span className="text-lg flex-shrink-0 mt-1">📝</span>
-                              <span className="break-words whitespace-pre-line w-full ml-2 text-green-700 text-sm font-semibold min-w-0">{event.description}</span>
+                              <span className="break-words whitespace-pre-line w-full ml-2 text-pink-500 text-sm font-semibold drop-shadow-sm min-w-0">{event.description}</span>
                             </div>
                           </div>
                           <div className="mb-2 space-y-2">

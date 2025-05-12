@@ -383,7 +383,7 @@ export default function EventDetailPage() {
             <div className="px-4 py-2 w-full">
               <div className="inline-flex items-start w-full min-w-0">
                 <span className="text-xl flex-shrink-0 mt-1">📝</span>
-                <span className="break-words whitespace-pre-line w-full ml-2 text-green-700 text-lg font-semibold drop-shadow-sm min-w-0">{event.description || 'ไม่มีรายละเอียดกิจกรรม'}</span>
+                <span className="break-words whitespace-pre-line w-full ml-2 text-pink-500 text-lg font-semibold drop-shadow-sm min-w-0">{event.description || 'ไม่มีรายละเอียดกิจกรรม'}</span>
               </div>
             </div>
           </div>
