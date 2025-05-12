@@ -8,14 +8,74 @@ import { useUsers } from '../../hooks/useUsers';
 import { useAuth } from '../../hooks/useAuth';
 import { PartyCard } from '../../components/PartyCard';
 import { CreatePartyDialog } from '../../components/CreatePartyDialog';
-import { Character } from '../../types/character';
+import { Character, CharacterClass } from '../../types/character';
 import { Party } from '../../types/party';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../components/ui/dialog';
-import { PlusCircle } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../../components/ui/dialog';
+import { PlusCircle, Users, Clock, Trash2, Search } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
+import { cn } from '@/lib/utils';
+
+// เพิ่ม interface สำหรับ JobFilterModal
+interface JobFilterModalProps {
+  selectedJob: CharacterClass | 'all';
+  onSelect: (job: CharacterClass | 'all') => void;
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+// เพิ่ม component JobFilterModal
+function JobFilterModal({ selectedJob, onSelect, isOpen, onOpenChange }: JobFilterModalProps) {
+  const jobs: { value: CharacterClass | 'all'; label: string; icon: string; color: string }[] = [
+    { value: 'all', label: 'ทั้งหมด', icon: '👥', color: 'from-pink-100 to-purple-100' },
+    { value: 'Sword Master', label: 'Sword Master', icon: '⚔️', color: 'from-red-100 to-rose-100' },
+    { value: 'Mercenary', label: 'Mercenary', icon: '⚔️', color: 'from-red-100 to-rose-100' },
+    { value: 'Bowmaster', label: 'Bowmaster', icon: '🏹', color: 'from-emerald-100 to-green-100' },
+    { value: 'Acrobat', label: 'Acrobat', icon: '🏹', color: 'from-emerald-100 to-green-100' },
+    { value: 'Force User', label: 'Force User', icon: '🔮', color: 'from-purple-100 to-violet-100' },
+    { value: 'Elemental Lord', label: 'Elemental Lord', icon: '🔮', color: 'from-purple-100 to-violet-100' },
+    { value: 'Paladin', label: 'Paladin', icon: '✨', color: 'from-sky-100 to-blue-100' },
+    { value: 'Priest', label: 'Priest', icon: '✨', color: 'from-sky-100 to-blue-100' },
+    { value: 'Engineer', label: 'Engineer', icon: '🔧', color: 'from-amber-100 to-yellow-100' },
+    { value: 'Alchemist', label: 'Alchemist', icon: '🔧', color: 'from-amber-100 to-yellow-100' },
+  ];
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md bg-white/95 backdrop-blur-sm">
+        <DialogHeader>
+          <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-pink-600 to-indigo-600 bg-clip-text text-transparent">
+            กรองปาร์ตี้ตามอาชีพ
+          </DialogTitle>
+        </DialogHeader>
+        <div className="grid grid-cols-2 gap-3 p-4">
+          {jobs.map((job) => (
+            <button
+              key={job.value}
+              onClick={() => {
+                onSelect(job.value);
+                onOpenChange(false);
+              }}
+              className={cn(
+                "flex items-center gap-2 p-3 rounded-xl transition-all duration-200",
+                "hover:scale-105 hover:shadow-lg",
+                selectedJob === job.value
+                  ? "bg-gradient-to-r " + job.color + " text-gray-800 shadow-md border border-gray-200"
+                  : "bg-white/90 hover:bg-white border border-gray-200"
+              )}
+            >
+              <span className="text-xl">{job.icon}</span>
+              <span className="font-medium">{job.label}</span>
+            </button>
+          ))}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 export default function PartyPage() {
   const router = useRouter();
@@ -27,6 +87,8 @@ export default function PartyPage() {
   const [loading, setLoading] = useState(true);
   const [selectedTab, setSelectedTab] = useState<'all' | 'my'>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedJob, setSelectedJob] = useState<CharacterClass | 'all'>('all');
+  const [isJobFilterOpen, setIsJobFilterOpen] = useState(false);
 
   // Group characters by Discord name
   const charactersByDiscord = useMemo(() => {
@@ -85,6 +147,26 @@ export default function PartyPage() {
       });
     }
 
+    // Filter by selected job
+    if (selectedJob !== 'all') {
+      filtered = filtered.filter(party => {
+        // Check if any member in the party has the selected job
+        const hasJob = Object.entries(party.members || {}).some(([charId, memberData]) => {
+          const userId = typeof memberData === 'boolean' 
+            ? Object.entries(users).find(([, userData]) => userData.characters?.[charId])?.[0]
+            : (memberData as { userId: string }).userId;
+          
+          if (userId && users[userId]?.characters?.[charId]) {
+            return users[userId].characters[charId].class === selectedJob;
+          }
+          return false;
+        });
+
+        // Return parties that DON'T have the selected job
+        return !hasJob;
+      });
+    }
+
     // Sort by createdAt timestamp (newest first)
     filtered.sort((a, b) => {
       const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
@@ -93,7 +175,7 @@ export default function PartyPage() {
     });
 
     return filtered;
-  }, [selectedTab, parties, user, searchQuery]);
+  }, [selectedTab, parties, user, searchQuery, selectedJob, users]);
 
   useEffect(() => {
     if (!partiesLoading && !charactersLoading && !usersLoading) {
@@ -175,6 +257,35 @@ export default function PartyPage() {
             >
               ปาร์ตี้ของฉัน
             </button>
+            <button
+              onClick={() => setIsJobFilterOpen(true)}
+              className={cn(
+                "px-3 py-2 sm:px-4 sm:py-2 rounded font-semibold transition-all duration-200 border-b-2 text-sm sm:text-base flex items-center gap-2",
+                selectedJob === 'all'
+                  ? "border-transparent text-gray-600 hover:bg-gray-100"
+                  : selectedJob === 'Sword Master' || selectedJob === 'Mercenary'
+                    ? "border-red-200 text-red-600 bg-red-50 hover:bg-red-100"
+                    : selectedJob === 'Bowmaster' || selectedJob === 'Acrobat'
+                      ? "border-emerald-200 text-emerald-600 bg-emerald-50 hover:bg-emerald-100"
+                      : selectedJob === 'Force User' || selectedJob === 'Elemental Lord'
+                        ? "border-purple-200 text-purple-600 bg-purple-50 hover:bg-purple-100"
+                        : selectedJob === 'Paladin' || selectedJob === 'Priest'
+                          ? "border-sky-200 text-sky-600 bg-sky-50 hover:bg-sky-100"
+                          : "border-amber-200 text-amber-600 bg-amber-50 hover:bg-amber-100"
+              )}
+            >
+              <span className="text-lg">
+                {selectedJob === 'all' ? '👥' :
+                  selectedJob === 'Sword Master' || selectedJob === 'Mercenary' ? '⚔️' :
+                  selectedJob === 'Bowmaster' || selectedJob === 'Acrobat' ? '🏹' :
+                  selectedJob === 'Force User' || selectedJob === 'Elemental Lord' ? '🔮' :
+                  selectedJob === 'Paladin' || selectedJob === 'Priest' ? '✨' :
+                  '🔧'}
+              </span>
+              <span>
+                {selectedJob === 'all' ? 'กรองอาชีพ' : `ไม่มี ${selectedJob}`}
+              </span>
+            </button>
           </motion.div>
         </motion.div>
 
@@ -241,6 +352,13 @@ export default function PartyPage() {
             )}
           </AnimatePresence>
         </motion.div>
+
+        <JobFilterModal
+          selectedJob={selectedJob}
+          onSelect={setSelectedJob}
+          isOpen={isJobFilterOpen}
+          onOpenChange={setIsJobFilterOpen}
+        />
       </motion.div>
     </div>
   );
