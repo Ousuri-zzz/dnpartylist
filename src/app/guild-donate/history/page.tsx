@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useGuild } from '@/hooks/useGuild';
 import { useRouter } from 'next/navigation';
@@ -41,6 +41,8 @@ interface MemberDonation {
   }>;
 }
 
+const BADGE_CONTAINER_WIDTH = 350; // px
+
 export default function GuildDonateHistoryPage() {
   const { user } = useAuth();
   const { isGuildLeader } = useGuild();
@@ -49,10 +51,15 @@ export default function GuildDonateHistoryPage() {
   const [members, setMembers] = useState<Record<string, any>>({});
   const [searchTerm, setSearchTerm] = useState('');
   const [memberDonations, setMemberDonations] = useState<MemberDonation[]>([]);
-  const [sortBy, setSortBy] = useState<'lastDonation' | 'totalDonations' | 'donationCount'>('lastDonation');
+  const [sortBy, setSortBy] = useState<'lastDonation' | 'totalDonations' | 'donationCount' | 'lastDonationAmount'>('lastDonation');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [hoveredMember, setHoveredMember] = useState<string | null>(null);
   const [allCharactersByUserId, setAllCharactersByUserId] = useState<Record<string, any[]>>({});
+  const [openPopoverUser, setOpenPopoverUser] = useState<string | null>(null);
+  const [firstLineCount, setFirstLineCount] = useState<Record<string, number>>({});
+  const badgeRefs = useRef<Record<string, (HTMLSpanElement | null)[]>>({});
+  const containerRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const [showCount, setShowCount] = useState<Record<string, number>>({});
 
   useEffect(() => {
     if (!user) {
@@ -127,6 +134,10 @@ export default function GuildDonateHistoryPage() {
         return sortOrder === 'desc' ? bDate - aDate : aDate - bDate;
       } else if (sortBy === 'totalDonations') {
         return sortOrder === 'desc' ? b.totalDonations - a.totalDonations : a.totalDonations - b.totalDonations;
+      } else if (sortBy === 'lastDonationAmount') {
+        const aAmt = a.lastDonationAmount || 0;
+        const bAmt = b.lastDonationAmount || 0;
+        return sortOrder === 'desc' ? bAmt - aAmt : aAmt - bAmt;
       } else {
         return sortOrder === 'desc' ? b.donationCount - a.donationCount : a.donationCount - b.donationCount;
       }
@@ -158,6 +169,27 @@ export default function GuildDonateHistoryPage() {
     if (Object.keys(members).length > 0) fetchAllCharacters();
   }, [members]);
 
+  useLayoutEffect(() => {
+    Object.entries(allCharactersByUserId).forEach(([userId, chars]) => {
+      if (!containerRefs.current[userId] || !badgeRefs.current[userId]) return;
+      let total = 0;
+      let count = 0;
+      const plusNWidth = 40; // เผื่อความกว้าง +N
+      for (let i = 0; i < chars.length; i++) {
+        const el = badgeRefs.current[userId][i];
+        if (!el) continue;
+        const badgeWidth = el.getBoundingClientRect().width + 4; // +gap
+        // ถ้าเหลือ badge อีกและต้องมี +N ให้เผื่อที่
+        const isLast = i === chars.length - 1;
+        const reserve = !isLast ? plusNWidth : 0;
+        if (total + badgeWidth + reserve > BADGE_CONTAINER_WIDTH) break;
+        total += badgeWidth;
+        count++;
+      }
+      setShowCount(prev => ({ ...prev, [userId]: count }));
+    });
+  }, [allCharactersByUserId, memberDonations, searchTerm, sortBy, sortOrder]);
+
   const filteredDonations = memberDonations.filter(member => {
     const search = searchTerm.toLowerCase();
     const matchesDiscord = member.discordName.toLowerCase().includes(search);
@@ -168,7 +200,7 @@ export default function GuildDonateHistoryPage() {
     return matchesDiscord || matchesCharacter;
   });
 
-  const handleSort = (column: 'lastDonation' | 'totalDonations' | 'donationCount') => {
+  const handleSort = (column: 'lastDonation' | 'totalDonations' | 'donationCount' | 'lastDonationAmount') => {
     if (sortBy === column) {
       setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc');
     } else {
@@ -241,12 +273,12 @@ export default function GuildDonateHistoryPage() {
                     )}
                   </div>
                 </th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Discord</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600 w-24">รายชื่อสมาชิก</th>
                 <th 
-                  className="px-4 py-3 text-left text-sm font-semibold text-gray-600 cursor-pointer hover:bg-pink-100"
+                  className="px-4 py-3 text-center text-sm font-semibold text-gray-600 cursor-pointer hover:bg-pink-100 w-44 whitespace-nowrap"
                   onClick={() => handleSort('lastDonation')}
                 >
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1 justify-center">
                     <Calendar className="w-4 h-4" />
                     บริจาคล่าสุด
                     {sortBy === 'lastDonation' && (
@@ -254,17 +286,23 @@ export default function GuildDonateHistoryPage() {
                     )}
                   </div>
                 </th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600 w-32">
-                  <div className="flex items-center gap-1">
+                <th 
+                  className="px-4 py-3 text-center text-sm font-semibold text-gray-600 cursor-pointer hover:bg-pink-100 w-40 whitespace-nowrap"
+                  onClick={() => handleSort('lastDonationAmount')}
+                >
+                  <div className="flex items-center gap-1 justify-center">
                     <Coins className="w-4 h-4" />
                     ยอดล่าสุด
+                    {sortBy === 'lastDonationAmount' && (
+                      <span className="text-pink-500">{sortOrder === 'desc' ? '↓' : '↑'}</span>
+                    )}
                   </div>
                 </th>
                 <th 
-                  className="px-4 py-3 text-left text-sm font-semibold text-gray-600 cursor-pointer hover:bg-pink-100"
+                  className="px-4 py-3 text-left text-sm font-semibold text-gray-600 cursor-pointer hover:bg-pink-100 w-40 whitespace-nowrap"
                   onClick={() => handleSort('totalDonations')}
                 >
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1 justify-center">
                     <Coins className="w-4 h-4" />
                     ยอดรวม
                     {sortBy === 'totalDonations' && (
@@ -286,32 +324,71 @@ export default function GuildDonateHistoryPage() {
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      <span 
-                        className="font-medium text-gray-700 cursor-help relative"
-                        onMouseEnter={() => setHoveredMember(member.userId)}
-                        onMouseLeave={() => setHoveredMember(null)}
-                      >
+                    <div className="flex items-center gap-2 flex-nowrap">
+                      <span className="font-medium text-gray-700 flex-shrink min-w-0 whitespace-nowrap">
                         {member.discordName}
-                        {hoveredMember === member.userId && (allCharactersByUserId[member.userId]?.length > 0) && (
-                          <div className="absolute left-0 top-full mt-2 bg-white border border-pink-200 rounded-lg shadow-lg p-3 z-50 min-w-[200px]">
-                            <div className="text-sm font-semibold text-pink-600 mb-2">ตัวละครทั้งหมด:</div>
-                            <div className="space-y-1">
-                              {allCharactersByUserId[member.userId].map(char => (
-                                <div key={char.id} className="flex items-center gap-2 text-sm">
-                                  <span className="text-gray-600">{char.name}</span>
-                                  <span className="text-gray-400">({char.class})</span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
                       </span>
+                      <div
+                        className="hidden md:flex flex-nowrap gap-1 relative flex-shrink-0"
+                        style={{ maxWidth: BADGE_CONTAINER_WIDTH }}
+                        ref={el => { containerRefs.current[member.userId] = el; }}
+                      >
+                        {(() => {
+                          const chars = allCharactersByUserId[member.userId] || [];
+                          const count = showCount[member.userId] ?? chars.length;
+                          badgeRefs.current[member.userId] = [];
+                          return (
+                            <>
+                              {chars.slice(0, count).map((char, idx) => (
+                                <span
+                                  key={char.id}
+                                  ref={el => { badgeRefs.current[member.userId][idx] = el; }}
+                                  className="px-1.5 py-0.5 bg-pink-50 text-pink-500 rounded-full text-xs border border-pink-100 hover:bg-pink-100 transition-colors whitespace-nowrap flex-shrink-0"
+                                  title={`${char.name} (${char.class})`}
+                                >
+                                  {char.name} <span className="text-gray-400">({char.class})</span>
+                                </span>
+                              ))}
+                              {chars.length > count && (
+                                <span
+                                  className="px-1.5 py-0.5 bg-pink-100 text-pink-600 rounded-full text-xs border border-pink-200 cursor-pointer select-none flex-shrink-0"
+                                  onClick={() => setOpenPopoverUser(openPopoverUser === member.userId ? null : member.userId)}
+                                >
+                                  +{chars.length - count}
+                                </span>
+                              )}
+                              {/* Popover */}
+                              {openPopoverUser === member.userId && chars.length > count && (
+                                <div className="absolute left-0 top-full mt-2 bg-white border border-pink-200 rounded-lg shadow-lg p-3 z-50 min-w-[200px] max-w-xs">
+                                  <div className="text-sm font-semibold text-pink-600 mb-2">ตัวละครเพิ่มเติม:</div>
+                                  <div className="space-y-1">
+                                    {chars.slice(count).map(char => (
+                                      <div key={char.id} className="flex items-center gap-2 text-sm">
+                                        <span className="text-gray-600">{char.name}</span>
+                                        <span className="text-gray-400">({char.class})</span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                  <button
+                                    className="mt-2 px-3 py-1 bg-pink-50 text-pink-500 rounded text-xs border border-pink-100 hover:bg-pink-100"
+                                    onClick={() => setOpenPopoverUser(null)}
+                                  >
+                                    ปิด
+                                  </button>
+                                </div>
+                              )}
+                            </>
+                          );
+                        })()}
+                      </div>
                     </div>
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3 w-44 whitespace-nowrap text-center">
                     {member.lastDonation ? (
-                      <span className="text-gray-600">
+                      <span className={cn(
+                        "text-gray-600",
+                        new Date().getTime() - member.lastDonation > 30 * 24 * 60 * 60 * 1000 && "text-pink-500"
+                      )}>
                         {new Date(member.lastDonation).toLocaleDateString('th-TH', {
                           year: 'numeric',
                           month: 'long',
@@ -322,7 +399,7 @@ export default function GuildDonateHistoryPage() {
                       <span className="text-gray-400">ยังไม่เคยบริจาค</span>
                     )}
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3 text-center w-40">
                     {member.lastDonationAmount ? (
                       <span className="font-medium text-green-600">
                         {member.lastDonationAmount.toLocaleString()}G
@@ -331,7 +408,7 @@ export default function GuildDonateHistoryPage() {
                       <span className="text-gray-400">-</span>
                     )}
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3 text-center w-40 whitespace-nowrap">
                     <span className={cn(
                       "font-medium",
                       member.totalDonations > 0 ? "text-green-600" : "text-gray-400"
@@ -379,7 +456,7 @@ export default function GuildDonateHistoryPage() {
               {allCharactersByUserId[member.userId]?.length > 0 && (
                 <div className="flex flex-wrap gap-1 mt-1">
                   {allCharactersByUserId[member.userId].map(char => (
-                    <span key={char.id} className="px-2 py-0.5 bg-pink-50 text-pink-500 rounded-full text-xs border border-pink-100 truncate max-w-[90px]">
+                    <span key={char.id} className="px-2 py-0.5 bg-pink-50 text-pink-500 rounded-full text-xs border border-pink-100" /* mobile: show full name, no truncate */>
                       {char.name} <span className="text-gray-400">({char.class})</span>
                     </span>
                   ))}
