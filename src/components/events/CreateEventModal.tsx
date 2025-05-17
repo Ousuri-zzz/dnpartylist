@@ -28,6 +28,7 @@ interface CreateEventModalProps {
     name: string;
     description: string;
     startAt: Date;
+    endAt: Date;
     rewardInfo: string;
     notifyMessage: string;
   }) => void;
@@ -35,6 +36,7 @@ interface CreateEventModalProps {
     name: string;
     description: string;
     startAt: Date;
+    endAt: Date;
     rewardInfo: string;
     notifyMessage: string;
   };
@@ -45,13 +47,16 @@ export function CreateEventModal({ isOpen, onClose, onSubmit, defaultValues, isE
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [startAt, setStartAt] = useState<Date | undefined>(new Date());
+  const [endAt, setEndAt] = useState<Date | undefined>(new Date());
   const [rewardInfo, setRewardInfo] = useState('');
   const [notifyMessage, setNotifyMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
   const [time, setTime] = useState<string>('00:00');
+  const [endTime, setEndTime] = useState<string>('00:00');
   const [openCalendar, setOpenCalendar] = useState(false);
+  const [openEndCalendar, setOpenEndCalendar] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -59,6 +64,7 @@ export function CreateEventModal({ isOpen, onClose, onSubmit, defaultValues, isE
       setName(defaultValues.name || '');
       setDescription(defaultValues.description || '');
       setStartAt(defaultValues.startAt ? new Date(defaultValues.startAt) : new Date());
+      setEndAt(defaultValues.endAt ? new Date(defaultValues.endAt) : new Date());
       setRewardInfo(defaultValues.rewardInfo || '');
       setNotifyMessage(defaultValues.notifyMessage || '');
       if (defaultValues.startAt) {
@@ -66,6 +72,12 @@ export function CreateEventModal({ isOpen, onClose, onSubmit, defaultValues, isE
         setTime(d.toTimeString().slice(0,5));
       } else {
         setTime('00:00');
+      }
+      if (defaultValues.endAt) {
+        const d = new Date(defaultValues.endAt);
+        setEndTime(d.toTimeString().slice(0,5));
+      } else {
+        setEndTime('00:00');
       }
     }
   }, [isOpen, defaultValues]);
@@ -83,15 +95,32 @@ export function CreateEventModal({ isOpen, onClose, onSubmit, defaultValues, isE
     }
   };
 
+  const handleEndTimeChange = (newTime: string) => {
+    setEndTime(newTime);
+    if (endAt) {
+      const [h, m] = newTime.split(':');
+      const newDate = new Date(endAt);
+      newDate.setHours(Number(h));
+      newDate.setMinutes(Number(m));
+      newDate.setSeconds(0);
+      newDate.setMilliseconds(0);
+      setEndAt(newDate);
+    }
+  };
+
   const handleDateChange = (date: Date) => {
     setStartAt(date);
     setTime(date.toTimeString().slice(0, 5));
   };
 
+  const handleEndDateChange = (date: Date) => {
+    setEndAt(date);
+    setEndTime(date.toTimeString().slice(0, 5));
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!startAt) return;
-
+    if (!startAt || !endAt) return;
     setLoading(true);
     setError(null);
     try {
@@ -99,6 +128,7 @@ export function CreateEventModal({ isOpen, onClose, onSubmit, defaultValues, isE
         name,
         description,
         startAt: Timestamp.fromDate(startAt),
+        endAt: Timestamp.fromDate(endAt),
         rewardInfo,
         notifyMessage,
         createdAt: serverTimestamp(),
@@ -110,6 +140,7 @@ export function CreateEventModal({ isOpen, onClose, onSubmit, defaultValues, isE
         name,
         description,
         startAt,
+        endAt,
         rewardInfo,
         notifyMessage,
       });
@@ -128,6 +159,7 @@ export function CreateEventModal({ isOpen, onClose, onSubmit, defaultValues, isE
     setName('');
     setDescription('');
     setStartAt(new Date());
+    setEndAt(new Date());
     setRewardInfo('');
     setNotifyMessage('');
     onClose();
@@ -212,6 +244,42 @@ export function CreateEventModal({ isOpen, onClose, onSubmit, defaultValues, isE
                   value={time}
                   onChange={e => handleTimeChange(e.target.value)}
                   className="w-[100px] rounded-lg border-blue-200 focus:ring-2 focus:ring-blue-300"
+                  required
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2 text-red-700"><span className="text-lg">⏰</span>วันเวลาสิ้นสุด</Label>
+            <div className="flex gap-2 items-center">
+              <Popover open={openEndCalendar} onOpenChange={setOpenEndCalendar}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal border-red-200 bg-gradient-to-r from-red-50 to-purple-50 hover:from-red-100 hover:to-purple-100 shadow-sm rounded-xl transition-all duration-200",
+                      !endAt && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4 text-red-500" />
+                    {endAt ? endAt.toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }) : <span>เลือกวันที่</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0 bg-gradient-to-br from-red-50 to-purple-50 rounded-2xl shadow-xl border-red-200">
+                  <ThaiEventCalendar
+                    selected={endAt}
+                    onSelect={date => { handleEndDateChange(date as Date); setOpenEndCalendar(false); }}
+                  />
+                </PopoverContent>
+              </Popover>
+              <div className="flex items-center gap-1">
+                <span className="text-red-500 text-lg">⏰</span>
+                <Input
+                  type="time"
+                  value={endTime}
+                  onChange={e => handleEndTimeChange(e.target.value)}
+                  className="w-[100px] rounded-lg border-red-200 focus:ring-2 focus:ring-red-300"
                   required
                 />
               </div>

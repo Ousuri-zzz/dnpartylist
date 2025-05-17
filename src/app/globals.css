@@ -126,4 +126,15 @@ body {
 .react-calendar__month-view__weekdays__weekday abbr {
   text-decoration: none !important;
   border-bottom: none !important;
-} 
+}
+
+/* ให้ weekend ใช้สี gray ตามปกติ และ tileClassName override ได้เมื่อมี event */
+.react-calendar__month-view__days__day--weekend {
+  color: inherit !important;
+}
+
+/* ให้ Tailwind class จาก tileClassName สามารถ override สีวันที่ใน react-calendar ได้ */
+/* .react-calendar__tile,
+.react-calendar__month-view__days__day {
+  color: inherit !important;
+} */ 

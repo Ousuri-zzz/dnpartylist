@@ -94,16 +94,18 @@ export default function EventsPage() {
     name: string;
     description: string;
     startAt: Date;
+    endAt: Date;
     rewardInfo: string;
     notifyMessage: string;
   }) => {
     if (!user) return;
-    const { name, description, startAt, rewardInfo, notifyMessage } = data;
+    const { name, description, startAt, endAt, rewardInfo, notifyMessage } = data;
     const { addDoc, collection, serverTimestamp, Timestamp } = await import('firebase/firestore');
     await addDoc(collection(firestore, 'events'), {
       name,
       description,
       startAt: Timestamp.fromDate(startAt),
+      endAt: Timestamp.fromDate(endAt),
       rewardInfo,
       notifyMessage,
       isEnded: false,
@@ -132,6 +134,25 @@ export default function EventsPage() {
     return map;
   }, [filteredEvents]);
 
+  // ใหม่: Map วันที่ทั้งหมดที่อยู่ในช่วงกิจกรรม (start ถึง end)
+  const eventsRangeByDate = useMemo(() => {
+    const map: Record<string, any[]> = {};
+    filteredEvents.forEach(ev => {
+      if (ev.startAt && ev.startAt.seconds && ev.endAt && ev.endAt.seconds) {
+        let cur = new Date(ev.startAt.seconds * 1000);
+        const end = new Date(ev.endAt.seconds * 1000);
+        // เดินวันทีละวัน
+        while (cur <= end) {
+          const key = getLocalDateKey(cur);
+          if (!map[key]) map[key] = [];
+          map[key].push(ev);
+          cur = new Date(cur.getTime() + 24 * 60 * 60 * 1000);
+        }
+      }
+    });
+    return map;
+  }, [filteredEvents]);
+
   // Polling reload ถ้ายังเจอ event id ที่เพิ่งจบ
   useEffect(() => {
     if (waitForEndedId && filteredEvents.some(ev => ev.id === waitForEndedId)) {
@@ -139,12 +160,29 @@ export default function EventsPage() {
     }
   }, [waitForEndedId, filteredEvents]);
 
+  // Auto end event ฝั่ง client
+  useEffect(() => {
+    const now = Date.now();
+    filteredEvents.forEach(async (ev) => {
+      if (!ev.isEnded && ev.endAt && ev.endAt.seconds) {
+        const endDate = new Date(ev.endAt.seconds * 1000);
+        if (now > endDate.getTime()) {
+          const { doc, updateDoc, serverTimestamp } = await import('firebase/firestore');
+          await updateDoc(doc(firestore, 'events', ev.id), {
+            isEnded: true,
+            endedAt: serverTimestamp(),
+          });
+        }
+      }
+    });
+  }, [filteredEvents]);
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex flex-col lg:flex-row gap-8 w-full max-w-6xl mx-auto">
         {/* Calendar Section */}
-        <div className="w-full lg:w-1/3 max-w-md mx-auto flex flex-col items-center justify-center mb-8">
-          <div className="bg-white/30 backdrop-blur-md border border-pink-200/50 shadow-lg p-4 rounded-xl mx-auto max-w-xs sm:max-w-md">
+        <div className="w-full lg:w-1/3 max-w-md mx-auto flex flex-col items-center justify-center mb-8 self-start h-fit">
+          <div className="bg-white/30 backdrop-blur-md border border-pink-200/50 shadow-lg p-4 rounded-xl mx-auto max-w-xs sm:max-w-md sticky top-0 z-30 lg:top-8">
             <h2 className="text-xl font-extrabold text-pink-700 flex items-center gap-2 mb-4">
               <CalendarIcon className="w-6 h-6 text-pink-500" />
               ปฏิทินกิจกรรม
@@ -154,19 +192,49 @@ export default function EventsPage() {
               value={date}
               className="border-none rounded-2xl shadow-lg bg-gradient-to-br from-pink-50 via-purple-50 to-white p-2 calendar-pastel"
               locale="th-TH"
+              tileContent={({ date: tileDate }: { date: Date }) => {
+                const key = getLocalDateKey(tileDate);
+                const events = eventsRangeByDate[key] || [];
+                if (events.length > 0) {
+                  return (
+                    <div className="absolute -top-1 -right-1 bg-pink-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                      {events.length}
+                    </div>
+                  );
+                }
+                return null;
+              }}
               tileClassName={({ date: tileDate }: { date: Date }) => {
                 const key = getLocalDateKey(tileDate);
-                const isEvent = !!eventsByDate[key];
+                const events = eventsRangeByDate[key] || [];
                 const isToday = tileDate.toDateString() === new Date().toDateString();
-                const isWeekend = tileDate.getDay() === 0 || tileDate.getDay() === 6;
+                // วันเริ่มกิจกรรม
+                const isStartDate = events.some(ev => {
+                  if (ev.startAt?.seconds) {
+                    const startDate = new Date(ev.startAt.seconds * 1000);
+                    return getLocalDateKey(startDate) === key;
+                  }
+                  return false;
+                });
+                // วันจบกิจกรรม
+                const isEndDate = events.some(ev => {
+                  if (ev.endAt?.seconds) {
+                    const endDate = new Date(ev.endAt.seconds * 1000);
+                    return getLocalDateKey(endDate) === key;
+                  }
+                  return false;
+                });
+                // วันระหว่างกิจกรรม (ไม่ใช่ start, ไม่ใช่ end)
+                const isBetween = events.length > 0 && !isStartDate && !isEndDate;
                 return cn(
-                  "rounded-lg p-2 transition-all font-semibold",
+                  "rounded-lg p-2 transition-all font-semibold relative",
                   tileDate.getMonth() === (date as Date).getMonth() 
-                    ? "text-gray-800" 
+                    ? "" 
                     : "text-gray-300",
-                  isEvent && "bg-pink-200 text-pink-700 ring-2 ring-pink-400 ring-offset-2 hover:bg-pink-300 cursor-pointer",
-                  isToday && "bg-purple-200 text-purple-700 border-2 border-purple-300",
-                  isWeekend && "text-pink-400"
+                  isStartDate && "bg-green-200 ring-2 ring-green-400 ring-offset-2",
+                  isEndDate && "bg-red-200 ring-2 ring-red-400 ring-offset-2",
+                  isBetween && "bg-pink-100",
+                  isToday && "bg-purple-200 border-2 border-purple-300"
                 );
               }}
               prevLabel={<span className="text-pink-400 text-lg font-bold">«</span>}
@@ -183,7 +251,6 @@ export default function EventsPage() {
             </button>
           </div>
         </div>
-
         {/* Events List Section */}
         <div className="w-full lg:w-2/3 max-w-2xl mx-auto lg:mx-0">
           <div className="bg-white/30 backdrop-blur-md border border-pink-200/50 shadow-lg p-4 rounded-xl">
@@ -236,15 +303,23 @@ export default function EventsPage() {
                               <span className="break-words whitespace-pre-line w-full ml-2 text-pink-500 text-sm font-semibold drop-shadow-sm min-w-0">{event.description}</span>
                             </div>
                           </div>
-                          <div className="mb-2 space-y-2">
-                            <div className="inline-flex items-center gap-2 bg-yellow-50 rounded-lg px-3 py-1 shadow-sm text-yellow-700 font-semibold text-sm w-fit self-start">
-                              <span className="text-lg">🎁</span>
-                              <span className="break-words whitespace-normal">{event.rewardInfo}</span>
+                          <div className="mb-2 space-y-2 flex flex-col">
+                            <div className="bg-yellow-50 rounded-lg px-3 py-1 shadow-sm text-yellow-700 font-semibold text-sm max-w-[600px] break-words whitespace-pre-line self-start block inline-flex items-center">
+                              <span className="text-lg mr-1 flex items-center justify-center">🎁</span>
+                              <span className="break-all whitespace-pre-line flex items-center">{event.rewardInfo}</span>
                             </div>
-                            <div className="inline-flex items-center gap-2 bg-blue-50 rounded-lg px-3 py-1 shadow-sm text-blue-700 font-semibold text-sm w-fit self-start">
+                            <div className="inline-flex items-center gap-1 bg-blue-50 rounded-lg px-3 py-1 shadow-sm text-blue-700 font-semibold text-sm w-fit self-start">
                               <span className="text-lg">🗓️</span>
+                              <span>เริ่ม:</span>
                               <span>{startDate ? startDate.toLocaleString('th-TH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}</span>
                             </div>
+                            {event.endAt && event.endAt.seconds && (
+                              <div className="inline-flex items-center gap-1 bg-red-50 rounded-lg px-3 py-1 shadow-sm text-red-700 font-semibold text-sm w-fit self-start">
+                                <span className="text-lg">⏰</span>
+                                <span>สิ้นสุด:</span>
+                                <span>{new Date(event.endAt.seconds * 1000).toLocaleString('th-TH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                              </div>
+                            )}
                           </div>
                           <CountdownTimer targetDate={startDate} />
                         </motion.div>

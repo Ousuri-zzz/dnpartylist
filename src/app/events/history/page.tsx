@@ -138,6 +138,12 @@ export default function EventHistoryPage() {
                               })()}
                             </div>
                           )}
+                          {event.endAt && event.endAt.seconds && (
+                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-orange-100 text-orange-700 text-sm font-semibold">
+                              <span className="text-lg">⏳</span>
+                              สิ้นสุดตามกำหนด: {new Date(event.endAt.seconds * 1000).toLocaleString('th-TH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                            </div>
+                          )}
                         </div>
                         <div className="mt-4">
                           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-purple-100 text-purple-700 text-base font-semibold mb-2">
