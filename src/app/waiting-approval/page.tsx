@@ -130,6 +130,22 @@ export default function WaitingApprovalPage() {
           กรุณารอหัวกิลด์อนุมัติการเข้าใช้งานระบบ<br />
           คุณจะได้รับสิทธิ์เข้าถึงระบบหลังจากได้รับการอนุมัติ
         </motion.p>
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6, duration: 0.5 }}
+          className="mt-6"
+        >
+          <a
+            href="https://discord.com/users/1163943838826631258"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-sky-50 border border-sky-100 hover:bg-sky-100 text-sky-600 hover:text-sky-700 transition-colors font-medium text-sm shadow-sm"
+          >
+            <FaDiscord className="w-4 h-4" />
+            ติดต่อหัวกิลด์
+          </a>
+        </motion.div>
         {/* เอฟเฟคพื้นหลังเบา ๆ */}
         <motion.div
           className="absolute -top-10 -right-10 w-40 h-40 bg-pink-200/30 rounded-full blur-2xl z-0"

@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { cn } from '../lib/utils';
 import { DiscordDropdown } from './DiscordDropdown';
 import { motion } from 'framer-motion';
-import { Home, Users, BarChart2, Calendar, ShoppingCart, PiggyBank, Settings, Crown, LogOut, CreditCard } from 'lucide-react';
+import { Home, Users, BarChart2, Calendar, ShoppingCart, PiggyBank, Settings, Crown, LogOut, CreditCard, MessageSquare } from 'lucide-react';
 import { useGuild } from '@/hooks/useGuild';
 import { useAuth } from '@/hooks/useAuth';
 import { ref, onValue } from 'firebase/database';
@@ -258,6 +258,16 @@ export default function Navigation() {
                         </span>
                       )}
                     </Link>
+                    <a
+                      href="https://discord.com/users/1163943838826631258"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-sky-50/50 text-gray-700"
+                    >
+                      <MessageSquare className="w-5 h-5" />
+                      <span className="font-medium">ติดต่อหัวกิลด์</span>
+                    </a>
                     {isGuildLeader && (
                       <Link href="/guild/settings" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-green-50/50 text-gray-700 relative">
                         <Settings className="w-5 h-5" />
@@ -583,69 +593,6 @@ export default function Navigation() {
                     )}
                   </motion.div>
                 </Link>
-                {isGuildLeader && (
-                  <Link
-                    href="/guild/settings"
-                    className={cn(
-                      "relative group px-3 py-1.5 rounded-lg transition-all duration-300 cursor-pointer",
-                      pathname === "/guild/settings"
-                        ? "bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-md shadow-green-500/20"
-                        : "bg-white/60 border border-green-100 shadow-sm hover:bg-green-50/50 hover:shadow-xl hover:scale-105 hover:ring-2 hover:ring-green-300 hover:border-green-400 hover:text-green-600"
-                    )}
-                  >
-                    <motion.div
-                      className="flex items-center gap-1.5"
-                      whileHover={{ scale: 1.05, y: -1 }}
-                      whileTap={{ scale: 0.98 }}
-                      transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                    >
-                      <Settings className={cn(
-                        "w-3.5 h-3.5 transition-colors duration-300",
-                        pathname === "/guild/settings" ? "text-white" : "group-hover:text-green-600 text-green-500"
-                      )} />
-                      <span className={cn(
-                        "text-sm font-medium transition-colors duration-300",
-                        pathname === "/guild/settings" ? "text-white" : "group-hover:text-green-600 text-gray-700"
-                      )}>
-                        Guild Settings
-                      </span>
-                    </motion.div>
-                    {(pendingNewMemberCount > 0 || pendingGuildLoanCount > 0 || pendingMerchantCount > 0) && (
-                      <div className="absolute top-0 right-0 flex gap-0 z-30">
-                        {pendingNewMemberCount > 0 && (
-                          <Link
-                            href="/guild/settings"
-                            className="px-1.5 py-0.5 rounded-full bg-orange-400 text-white text-xs font-bold shadow-md border border-orange-300 cursor-pointer hover:bg-orange-300 transition-colors drop-shadow"
-                            style={{ minWidth: 20, textAlign: 'center' }}
-                            title="มีสมาชิกใหม่รออนุมัติ"
-                          >
-                            {pendingNewMemberCount}
-                          </Link>
-                        )}
-                        {pendingGuildLoanCount > 0 && (
-                          <Link
-                            href="/guildloan"
-                            className="px-1.5 py-0.5 rounded-full bg-red-500 text-white text-xs font-bold shadow-md border border-red-400 cursor-pointer hover:bg-red-400 transition-colors drop-shadow -ml-[6px]"
-                            style={{ minWidth: 20, textAlign: 'center' }}
-                            title="มีคำขอกู้ยืมใหม่"
-                          >
-                            {pendingGuildLoanCount}
-                          </Link>
-                        )}
-                        {pendingMerchantCount > 0 && (
-                          <Link
-                            href="/guild/settings"
-                            className="px-1.5 py-0.5 rounded-full bg-yellow-300 text-yellow-900 text-xs font-bold shadow-md border border-yellow-200 cursor-pointer hover:bg-yellow-200 transition-colors drop-shadow -ml-[6px]"
-                            style={{ minWidth: 20, textAlign: 'center' }}
-                            title="มีร้านค้ารออนุมัติ"
-                          >
-                            {pendingMerchantCount}
-                          </Link>
-                        )}
-                      </div>
-                    )}
-                  </Link>
-                )}
                 <DiscordDropdown />
               </div>
 

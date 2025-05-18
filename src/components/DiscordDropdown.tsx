@@ -101,6 +101,16 @@ export function DiscordDropdown({ inMobileMenu = false }: { inMobileMenu?: boole
               เปลี่ยนชื่อ Discord
             </button>
           )}
+          <a
+            href="https://discord.com/users/1163943838826631258"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full flex items-center gap-2 px-4 py-3 text-left text-sm text-sky-300 hover:bg-sky-900/30 hover:text-sky-200 transition-all duration-200 rounded-xl"
+            style={{ textDecoration: 'none' }}
+          >
+            <FaDiscord className="w-4 h-4 text-sky-400" />
+            ติดต่อหัวกิลด์
+          </a>
           <button
             className="w-full flex items-center gap-2 px-4 py-3 text-left text-sm text-red-500 hover:bg-red-100/10 hover:text-red-600 transition-all duration-200 rounded-xl"
             onClick={handleLogout}
