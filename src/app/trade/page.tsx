@@ -454,15 +454,17 @@ const TradeDashboardPage = () => {
                           </div>
                           <p className="text-gray-600 whitespace-pre-line break-words mb-2" style={{ minHeight: '2.5em', fontSize: '13px' }}>{item.description}</p>
                           <div className="flex justify-end">
-                            <Link
-                              href={`/trade/${item.merchantId}`}
+                            <a
+                              href={`https://discord.com/users/${merchants.find(m => m.id === item.merchantId)?.discordId}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
                               className="flex items-center gap-1 h-8 px-2 rounded-md bg-sky-50 border border-sky-100 hover:bg-sky-100 text-sky-600 hover:text-sky-700 transition-colors font-medium text-xs shadow-sm"
                               onClick={e => e.stopPropagation()}
-                              title="ดูร้านค้า"
+                              title="DM"
                             >
-                              <Store className="w-4 h-4" />
-                              <span className="font-medium text-xs">ร้านค้า</span>
-                            </Link>
+                              <MessageSquare className="w-4 h-4" />
+                              <span className="font-medium text-xs">DM</span>
+                            </a>
                           </div>
                         </motion.div>
                       </Link>
