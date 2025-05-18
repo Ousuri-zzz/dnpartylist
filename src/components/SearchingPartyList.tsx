@@ -62,7 +62,7 @@ const CharacterCard = ({ char }: CharacterCardProps) => {
         </div>
         <div>
           <h4 className={cn('text-lg font-bold', colors.text)}>{discordName}</h4>
-          <p className={cn('text-sm font-medium', colors.text)}>{char.characterClass} - {char.characterName}</p>
+          <p className={cn('text-sm font-medium', colors.text)}>{char.characterName} - {char.characterClass}</p>
         </div>
         <div className="flex flex-col divide-y divide-violet-100">
           <div className="flex flex-wrap gap-1 ml-4 text-xs items-center">
