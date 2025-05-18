@@ -18,6 +18,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { PlusCircle, Users, Clock, Trash2, Search } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import { cn } from '@/lib/utils';
+import { SearchingPartyList } from '@/components/SearchingPartyList';
 
 // เพิ่ม interface สำหรับ JobFilterModal
 interface JobFilterModalProps {
@@ -85,7 +86,7 @@ export default function PartyPage() {
   const { user } = useAuth();
   const [selectedDiscord, setSelectedDiscord] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [selectedTab, setSelectedTab] = useState<'all' | 'my'>('all');
+  const [activeTab, setActiveTab] = useState<'my-parties' | 'all-parties' | 'searching'>('all-parties');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedJob, setSelectedJob] = useState<CharacterClass | 'all'>('all');
   const [isJobFilterOpen, setIsJobFilterOpen] = useState(false);
@@ -127,7 +128,7 @@ export default function PartyPage() {
     let filtered = parties;
     
     // Filter by tab
-    if (selectedTab === 'my') {
+    if (activeTab === 'my-parties') {
       if (!user) return [];
       filtered = parties.filter(party =>
         party.members && Object.values(party.members).some(member => member.userId === user.uid)
@@ -175,7 +176,7 @@ export default function PartyPage() {
     });
 
     return filtered;
-  }, [selectedTab, parties, user, searchQuery, selectedJob, users]);
+  }, [activeTab, parties, user, searchQuery, selectedJob, users]);
 
   useEffect(() => {
     if (!partiesLoading && !charactersLoading && !usersLoading) {
@@ -216,7 +217,7 @@ export default function PartyPage() {
               className="space-y-1"
             >
               <h1 className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-pink-600 to-blue-600 bg-clip-text text-transparent">
-                {selectedTab === 'all' ? 'ปาร์ตี้ทั้งหมด' : 'ปาร์ตี้ของฉัน'}
+                {activeTab === 'all-parties' ? 'ปาร์ตี้ทั้งหมด' : activeTab === 'my-parties' ? 'ปาร์ตี้ของฉัน' : 'กำลังหาปาร์ตี้'}
               </h1>
               <p className="text-gray-500 text-sm sm:text-base">เลือกปาร์ตี้ที่คุณต้องการเข้าร่วมหรือสร้างปาร์ตี้ใหม่</p>
             </motion.div>
@@ -243,115 +244,142 @@ export default function PartyPage() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.2, delay: 0.3, ease: "easeOut" }}
-            className="flex gap-2 mt-4 sm:mt-6 overflow-x-auto"
+            className="flex justify-between items-center gap-2 mt-4 sm:mt-6 overflow-x-auto"
           >
-            <button
-              onClick={() => setSelectedTab('all')}
-              className={`px-3 py-2 sm:px-4 sm:py-2 rounded font-semibold transition-all duration-200 border-b-2 text-sm sm:text-base ${selectedTab === 'all' ? 'border-violet-500 text-violet-700 bg-violet-100' : 'border-transparent text-gray-600 hover:bg-gray-100'}`}
-            >
-              ปาร์ตี้ทั้งหมด
-            </button>
-            <button
-              onClick={() => setSelectedTab('my')}
-              className={`px-3 py-2 sm:px-4 sm:py-2 rounded font-semibold transition-all duration-200 border-b-2 text-sm sm:text-base ${selectedTab === 'my' ? 'border-violet-500 text-violet-700 bg-violet-100' : 'border-transparent text-gray-600 hover:bg-gray-100'}`}
-            >
-              ปาร์ตี้ของฉัน
-            </button>
-            <button
-              onClick={() => setIsJobFilterOpen(true)}
+            <div className="flex gap-2 items-center">
+              <Button
+                variant={activeTab === 'all-parties' ? 'default' : 'outline'}
+                onClick={() => setActiveTab('all-parties')}
+                className={cn(
+                  "px-3 py-2 sm:px-4 sm:py-2 rounded font-semibold transition-all duration-200 border-b-2 text-sm sm:text-base",
+                  activeTab === 'all-parties' && "border-violet-500 text-violet-700 bg-violet-100"
+                )}
+              >
+                ปาร์ตี้ทั้งหมด
+              </Button>
+              <Button
+                variant={activeTab === 'my-parties' ? 'default' : 'outline'}
+                onClick={() => setActiveTab('my-parties')}
+                className={cn(
+                  "px-3 py-2 sm:px-4 sm:py-2 rounded font-semibold transition-all duration-200 border-b-2 text-sm sm:text-base",
+                  activeTab === 'my-parties' && "border-violet-500 text-violet-700 bg-violet-100"
+                )}
+              >
+                ปาร์ตี้ของฉัน
+              </Button>
+              <button
+                onClick={() => setIsJobFilterOpen(true)}
+                className={cn(
+                  "px-3 py-2 sm:px-4 sm:py-2 rounded font-semibold transition-all duration-200 border-b-2 text-sm sm:text-base flex items-center gap-2",
+                  selectedJob === 'all'
+                    ? "border-transparent text-gray-600 hover:bg-gray-100"
+                    : selectedJob === 'Sword Master' || selectedJob === 'Mercenary'
+                      ? "border-red-200 text-red-600 bg-red-50 hover:bg-red-100"
+                      : selectedJob === 'Bowmaster' || selectedJob === 'Acrobat'
+                        ? "border-emerald-200 text-emerald-600 bg-emerald-50 hover:bg-emerald-100"
+                        : selectedJob === 'Force User' || selectedJob === 'Elemental Lord'
+                          ? "border-purple-200 text-purple-600 bg-purple-50 hover:bg-purple-100"
+                          : selectedJob === 'Paladin' || selectedJob === 'Priest'
+                            ? "border-sky-200 text-sky-600 bg-sky-50 hover:bg-sky-100"
+                            : "border-amber-200 text-amber-600 bg-amber-50 hover:bg-amber-100"
+                )}
+              >
+                <span className="text-lg">
+                  {selectedJob === 'all' ? '👥' :
+                    selectedJob === 'Sword Master' || selectedJob === 'Mercenary' ? '⚔️' :
+                    selectedJob === 'Bowmaster' || selectedJob === 'Acrobat' ? '🏹' :
+                    selectedJob === 'Force User' || selectedJob === 'Elemental Lord' ? '🔮' :
+                    selectedJob === 'Paladin' || selectedJob === 'Priest' ? '✨' :
+                    '🔧'}
+                </span>
+                <span>
+                  {selectedJob === 'all' ? 'กรองอาชีพ' : `ไม่มี ${selectedJob}`}
+                </span>
+              </button>
+            </div>
+            <Button
+              variant={activeTab === 'searching' ? 'default' : 'outline'}
+              onClick={() => setActiveTab('searching')}
               className={cn(
-                "px-3 py-2 sm:px-4 sm:py-2 rounded font-semibold transition-all duration-200 border-b-2 text-sm sm:text-base flex items-center gap-2",
-                selectedJob === 'all'
-                  ? "border-transparent text-gray-600 hover:bg-gray-100"
-                  : selectedJob === 'Sword Master' || selectedJob === 'Mercenary'
-                    ? "border-red-200 text-red-600 bg-red-50 hover:bg-red-100"
-                    : selectedJob === 'Bowmaster' || selectedJob === 'Acrobat'
-                      ? "border-emerald-200 text-emerald-600 bg-emerald-50 hover:bg-emerald-100"
-                      : selectedJob === 'Force User' || selectedJob === 'Elemental Lord'
-                        ? "border-purple-200 text-purple-600 bg-purple-50 hover:bg-purple-100"
-                        : selectedJob === 'Paladin' || selectedJob === 'Priest'
-                          ? "border-sky-200 text-sky-600 bg-sky-50 hover:bg-sky-100"
-                          : "border-amber-200 text-amber-600 bg-amber-50 hover:bg-amber-100"
+                "ml-auto px-3 py-2 sm:px-4 sm:py-2 rounded font-semibold transition-all duration-200 border-b-2 text-sm sm:text-base",
+                activeTab === 'searching' && "border-violet-500 text-violet-700 bg-violet-100"
               )}
             >
-              <span className="text-lg">
-                {selectedJob === 'all' ? '👥' :
-                  selectedJob === 'Sword Master' || selectedJob === 'Mercenary' ? '⚔️' :
-                  selectedJob === 'Bowmaster' || selectedJob === 'Acrobat' ? '🏹' :
-                  selectedJob === 'Force User' || selectedJob === 'Elemental Lord' ? '🔮' :
-                  selectedJob === 'Paladin' || selectedJob === 'Priest' ? '✨' :
-                  '🔧'}
-              </span>
-              <span>
-                {selectedJob === 'all' ? 'กรองอาชีพ' : `ไม่มี ${selectedJob}`}
-              </span>
-            </button>
+              กำลังหาปาร์ตี้
+            </Button>
           </motion.div>
         </motion.div>
 
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.3, delay: 0.2, ease: "easeOut" }}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6"
-        >
-          <AnimatePresence mode="wait">
-            {filteredParties.length === 0 ? (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3, ease: "easeOut" }}
-                className="col-span-full flex flex-col items-center justify-center p-6 sm:p-12 text-center bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg"
-              >
-                <motion.div 
-                  initial={{ scale: 0.8 }}
-                  animate={{ scale: 1 }}
-                  transition={{ duration: 0.3, delay: 0.2, ease: "easeOut" }}
-                  className="w-16 h-16 mb-4 rounded-full bg-gradient-to-r from-pink-100 via-purple-100 to-blue-100 flex items-center justify-center"
-                >
-                  <PlusCircle className="w-8 h-8 text-purple-600" />
-                </motion.div>
-                <motion.h3 
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.2, delay: 0.3, ease: "easeOut" }}
-                  className="text-xl font-semibold text-gray-800 mb-2"
-                >
-                  {selectedTab === 'all' ? 'ยังไม่มีปาร์ตี้' : 'ยังไม่ได้เข้าร่วมปาร์ตี้ใด ๆ'}
-                </motion.h3>
-                <motion.p 
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.2, delay: 0.4, ease: "easeOut" }}
-                  className="text-gray-600 mb-4"
-                >
-                  {selectedTab === 'all' ? 'เริ่มต้นสร้างปาร์ตี้แรกของคุณ' : 'คุณยังไม่ได้เข้าร่วมปาร์ตี้ใด ๆ ด้วยตัวละครของคุณ'}
-                </motion.p>
+        {/* Content Section */}
+        {activeTab === 'searching' ? (
+          <div>
+            <SearchingPartyList searchQuery={searchQuery} />
+          </div>
+        ) : (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3, delay: 0.2, ease: "easeOut" }}
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6"
+          >
+            <AnimatePresence mode="wait">
+              {filteredParties.length === 0 ? (
                 <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.2, delay: 0.5, ease: "easeOut" }}
-                >
-                  <CreatePartyDialog />
-                </motion.div>
-              </motion.div>
-            ) : (
-              filteredParties.map((party, index) => (
-                <motion.div
-                  key={party.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: index * 0.1, ease: "easeOut" }}
-                  whileHover={{ scale: 1.02 }}
-                  className="transform transition-all duration-200"
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3, ease: "easeOut" }}
+                  className="col-span-full flex flex-col items-center justify-center p-6 sm:p-12 text-center bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg"
                 >
-                  <PartyCard party={party} />
+                  <motion.div 
+                    initial={{ scale: 0.8 }}
+                    animate={{ scale: 1 }}
+                    transition={{ duration: 0.3, delay: 0.2, ease: "easeOut" }}
+                    className="w-16 h-16 mb-4 rounded-full bg-gradient-to-r from-pink-100 via-purple-100 to-blue-100 flex items-center justify-center"
+                  >
+                    <PlusCircle className="w-8 h-8 text-purple-600" />
+                  </motion.div>
+                  <motion.h3 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.2, delay: 0.3, ease: "easeOut" }}
+                    className="text-xl font-semibold text-gray-800 mb-2"
+                  >
+                    {activeTab === 'all-parties' ? 'ยังไม่มีปาร์ตี้' : 'ยังไม่ได้เข้าร่วมปาร์ตี้ใด ๆ'}
+                  </motion.h3>
+                  <motion.p 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.2, delay: 0.4, ease: "easeOut" }}
+                    className="text-gray-600 mb-4"
+                  >
+                    {activeTab === 'all-parties' ? 'เริ่มต้นสร้างปาร์ตี้แรกของคุณ' : 'คุณยังไม่ได้เข้าร่วมปาร์ตี้ใด ๆ ด้วยตัวละครของคุณ'}
+                  </motion.p>
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.2, delay: 0.5, ease: "easeOut" }}
+                  >
+                    <CreatePartyDialog />
+                  </motion.div>
                 </motion.div>
-              ))
-            )}
-          </AnimatePresence>
-        </motion.div>
+              ) : (
+                filteredParties.map((party, index) => (
+                  <motion.div
+                    key={party.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: index * 0.1, ease: "easeOut" }}
+                    whileHover={{ scale: 1.02 }}
+                    className="transform transition-all duration-200"
+                  >
+                    <PartyCard party={party} />
+                  </motion.div>
+                ))
+              )}
+            </AnimatePresence>
+          </motion.div>
+        )}
 
         <JobFilterModal
           selectedJob={selectedJob}

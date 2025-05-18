@@ -178,4 +178,56 @@ export const ROLE_DESCRIPTIONS: Record<Role, string> = {
   Sorceress: 'Magic damage dealers',
   Cleric: 'Support and healing',
   Academic: 'Technical specialists'
-}; 
+};
+
+interface ClassColors {
+  text: string;
+  border: string;
+  icon: string;
+}
+
+export function getClassColor(characterClass: string): ClassColors {
+  switch (characterClass.toLowerCase()) {
+    case 'sword master':
+    case 'mercenary':
+      return {
+        text: 'text-red-700',
+        border: 'border-red-500',
+        icon: '⚔️'
+      };
+    case 'bowmaster':
+    case 'acrobat':
+      return {
+        text: 'text-green-700',
+        border: 'border-green-500',
+        icon: '🏹'
+      };
+    case 'force user':
+    case 'elemental lord':
+      return {
+        text: 'text-purple-700',
+        border: 'border-purple-500',
+        icon: '✨'
+      };
+    case 'paladin':
+    case 'priest':
+      return {
+        text: 'text-blue-700',
+        border: 'border-blue-500',
+        icon: '🛡️'
+      };
+    case 'engineer':
+    case 'alchemist':
+      return {
+        text: 'text-yellow-700',
+        border: 'border-yellow-500',
+        icon: '🔧'
+      };
+    default:
+      return {
+        text: 'text-gray-700',
+        border: 'border-gray-500',
+        icon: '👤'
+      };
+  }
+} 

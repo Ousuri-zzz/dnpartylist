@@ -127,6 +127,29 @@
         ".read": "auth != null",
         ".write": "root.child('guild/leaders/' + auth.uid).val() === true"
       }
+    },
+    "searchingParties": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      "$characterId": {
+        ".validate": "newData.hasChildren(['characterId', 'characterName', 'characterClass', 'message', 'nests', 'stats', 'updatedAt'])",
+        "characterId": { ".validate": "newData.isString() && newData.val().length > 0" },
+        "characterName": { ".validate": "newData.isString() && newData.val().length > 0" },
+        "characterClass": { ".validate": "newData.isString() && newData.val().length > 0" },
+        "message": { ".validate": "newData.isString()" },
+        "nests": { ".validate": "newData.isString()" },
+        "stats": {
+          ".validate": "newData.hasChildren(['atk', 'hp', 'pdef', 'mdef', 'cri', 'ele', 'fd'])",
+          "atk": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+          "hp": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+          "pdef": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+          "mdef": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+          "cri": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+          "ele": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+          "fd": { ".validate": "newData.isNumber() && newData.val() >= 0" }
+        },
+        "updatedAt": { ".validate": "newData.isString()" }
+      }
     }
   }
 }
