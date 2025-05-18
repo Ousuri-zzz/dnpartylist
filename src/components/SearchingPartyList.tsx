@@ -47,6 +47,9 @@ interface CharacterCardProps {
 const CharacterCard = ({ char }: CharacterCardProps) => {
   const colors = getClassColor(char.characterClass);
   const nests: string[] = Array.isArray(char.nests) ? char.nests : (char.nests ? char.nests.split(',') : []);
+  const { users } = useUsers();
+  const discordName = users[char.userId]?.meta?.discord || 'Unknown';
+
   return (
     <div className="p-1">
       {/* ไอคอน + ชื่อ + อาชีพ + stat + ข้อความ */}
@@ -58,8 +61,8 @@ const CharacterCard = ({ char }: CharacterCardProps) => {
           <span className="text-xl">{colors.icon}</span>
         </div>
         <div>
-          <h4 className={cn('text-lg font-bold', colors.text)}>{char.characterName}</h4>
-          <p className={cn('text-sm font-medium', colors.text)}>{char.characterClass}</p>
+          <h4 className={cn('text-lg font-bold', colors.text)}>{discordName}</h4>
+          <p className={cn('text-sm font-medium', colors.text)}>{char.characterClass} - {char.characterName}</p>
         </div>
         <div className="flex flex-col divide-y divide-violet-100">
           <div className="flex flex-wrap gap-1 ml-4 text-xs items-center">
