@@ -74,9 +74,14 @@ const CharacterCard = ({ char }: CharacterCardProps) => {
             <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded">✨ ELE: <span className="font-bold">{char.stats.ele}%</span></span>
             <span className="bg-orange-100 text-orange-700 px-2 py-0.5 rounded">💥 FD: <span className="font-bold">{char.stats.fd}%</span></span>
             {char.message && (
-              <span className="ml-2 border border-violet-200 bg-white/80 rounded px-2 py-0.5 text-gray-700">
-                {char.message}
-              </span>
+              <div className="ml-2 max-w-xl">
+                <div className="relative bg-white/90 border border-violet-200 rounded-2xl px-4 py-2 text-base text-gray-800 shadow flex items-center gap-2">
+                  <span className="text-violet-400">
+                    <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path d="M7 8h10M7 12h6m-6 4h8M21 12c0 4.418-4.03 8-9 8a9.77 9.77 0 0 1-4-.8L3 20l.8-3.2A7.96 7.96 0 0 1 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  </span>
+                  <span className="whitespace-pre-line">{char.message}</span>
+                </div>
+              </div>
             )}
           </div>
         </div>
@@ -84,6 +89,13 @@ const CharacterCard = ({ char }: CharacterCardProps) => {
     </div>
   );
 };
+
+const ALL_NESTS = [
+  "DQ+FTG700", "Minotaur", "Cerberus", "Cerberus Hell", "Cerberus Challenge",
+  "Manticore", "Manticore Hell", "Apocalypse", "Apocalypse Hell", "Sea Dragon",
+  "Chaos Rift: Bairra", "Chaos Rift: Kamala", "Dark Banquet Hall",
+  "Jealous Albeuteur", "Theme Park"
+];
 
 export function SearchingPartyList({ searchQuery }: SearchingPartyListProps) {
   const { user } = useAuth();
@@ -285,6 +297,12 @@ export function SearchingPartyList({ searchQuery }: SearchingPartyListProps) {
     return acc;
   }, {});
 
+  const nestsWithChars = ALL_NESTS
+    .filter(nest => (groupedByNest[nest] || []).length > 0)
+    .sort((a, b) => (groupedByNest[b]?.length || 0) - (groupedByNest[a]?.length || 0));
+  const nestsWithoutChars = ALL_NESTS.filter(nest => (groupedByNest[nest] || []).length === 0);
+  const sortedNests = [...nestsWithChars, ...nestsWithoutChars];
+
   return (
     <div className="space-y-6">
       {/* ปุ่มเพิ่มตัวละคร + จัดการ */}
@@ -349,9 +367,11 @@ export function SearchingPartyList({ searchQuery }: SearchingPartyListProps) {
               <div className="relative">
                 <Input
                   value={message}
-                  onChange={(e) => setMessage(e.target.value)}
+                  onChange={(e) => {
+                    if (e.target.value.length <= 35) setMessage(e.target.value);
+                  }}
                   placeholder="พิมพ์ข้อความที่ต้องการแจ้ง..."
-                  maxLength={70}
+                  maxLength={35}
                   className="pl-10"
                 />
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
@@ -468,9 +488,11 @@ export function SearchingPartyList({ searchQuery }: SearchingPartyListProps) {
               <div className="relative">
                 <Input
                   value={manageMessage}
-                  onChange={e => setManageMessage(e.target.value)}
+                  onChange={e => {
+                    if (e.target.value.length <= 35) setManageMessage(e.target.value);
+                  }}
                   placeholder="พิมพ์ข้อความที่ต้องการแจ้ง..."
-                  maxLength={70}
+                  maxLength={35}
                   className="pl-10"
                 />
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
@@ -548,23 +570,27 @@ export function SearchingPartyList({ searchQuery }: SearchingPartyListProps) {
       </Dialog>
 
       {/* แสดงผลตามดันเจี้ยน */}
-      {Object.entries(groupedByNest).map(([nest, characters]) => (
-        <div
-          key={nest}
-          className="mb-6 rounded-2xl border-2 border-violet-300 bg-white/80 shadow-sm px-0 pt-0 pb-4"
-        >
-          <div className="px-6 pt-4 pb-2">
-            <h3 className="inline-block bg-violet-50 px-4 py-1 rounded-lg font-semibold text-gray-800 mb-2 shadow-sm">
-              {nest}
-            </h3>
+      {sortedNests.map((nest) => {
+        const characters = groupedByNest[nest] || [];
+        return (
+          <div
+            key={nest}
+            className="mb-6 rounded-2xl border-2 border-violet-200/60 bg-gradient-to-br from-violet-100/80 via-white/80 to-blue-100/80 shadow-xl overflow-hidden transition-transform hover:scale-[1.01]"
+          >
+            <div className="px-6 pt-4 pb-2 flex items-center justify-between">
+              <h3 className="inline-block text-xl font-extrabold bg-gradient-to-r from-violet-600 to-blue-500 bg-clip-text text-transparent drop-shadow">
+                {nest} <span className="text-violet-600">({characters.length})</span>
+              </h3>
+            </div>
+            <div className="border-t border-violet-100 mx-6 mb-2" />
+            <div className="flex flex-col gap-0">
+              {characters.map((char) => (
+                <CharacterCard key={char.characterId} char={char} />
+              ))}
+            </div>
           </div>
-          <div className="flex flex-col gap-0">
-            {characters.map((char) => (
-              <CharacterCard key={char.characterId} char={char} />
-            ))}
-          </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 } 
