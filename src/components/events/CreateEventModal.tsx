@@ -31,6 +31,7 @@ interface CreateEventModalProps {
     endAt: Date;
     rewardInfo: string;
     notifyMessage: string;
+    color: string;
   }) => void;
   defaultValues?: {
     name: string;
@@ -39,6 +40,7 @@ interface CreateEventModalProps {
     endAt: Date;
     rewardInfo: string;
     notifyMessage: string;
+    color: string;
   };
   isEdit?: boolean;
 }
@@ -50,6 +52,7 @@ export function CreateEventModal({ isOpen, onClose, onSubmit, defaultValues, isE
   const [endAt, setEndAt] = useState<Date | undefined>(new Date());
   const [rewardInfo, setRewardInfo] = useState('');
   const [notifyMessage, setNotifyMessage] = useState('');
+  const [color, setColor] = useState('#FFB5E8');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
@@ -59,6 +62,17 @@ export function CreateEventModal({ isOpen, onClose, onSubmit, defaultValues, isE
   const [openEndCalendar, setOpenEndCalendar] = useState(false);
   const router = useRouter();
 
+  const pastelColors = [
+    { name: 'พาสเทลพิ้ง', value: '#FFB5E8' },
+    { name: 'พาสเทลม่วง', value: '#B5B9FF' },
+    { name: 'พาสเทลฟ้า', value: '#B5EAD7' },
+    { name: 'พาสเทลรุ้ง', value: 'linear-gradient(to right, #FFB5E8, #B5B9FF, #B5EAD7, #FFE5B4, #FFB7B2, #FF9B9B, #B5D8FF)' },
+    { name: 'พาสเทลเหลือง', value: '#FFE5B4' },
+    { name: 'พาสเทลส้ม', value: '#FFB7B2' },
+    { name: 'พาสเทลแดง', value: '#FF9B9B' },
+    { name: 'พาสเทลน้ำเงิน', value: '#B5D8FF' },
+  ];
+
   useEffect(() => {
     if (isOpen && defaultValues) {
       setName(defaultValues.name || '');
@@ -67,6 +81,7 @@ export function CreateEventModal({ isOpen, onClose, onSubmit, defaultValues, isE
       setEndAt(defaultValues.endAt ? new Date(defaultValues.endAt) : new Date());
       setRewardInfo(defaultValues.rewardInfo || '');
       setNotifyMessage(defaultValues.notifyMessage || '');
+      setColor(defaultValues.color || '#FFB5E8');
       if (defaultValues.startAt) {
         const d = new Date(defaultValues.startAt);
         setTime(d.toTimeString().slice(0,5));
@@ -131,6 +146,7 @@ export function CreateEventModal({ isOpen, onClose, onSubmit, defaultValues, isE
         endAt: Timestamp.fromDate(endAt),
         rewardInfo,
         notifyMessage,
+        color,
         createdAt: serverTimestamp(),
         createdBy: user?.uid,
         ownerUid: user?.uid,
@@ -143,6 +159,7 @@ export function CreateEventModal({ isOpen, onClose, onSubmit, defaultValues, isE
         endAt,
         rewardInfo,
         notifyMessage,
+        color,
       });
 
       handleClose();
@@ -162,6 +179,7 @@ export function CreateEventModal({ isOpen, onClose, onSubmit, defaultValues, isE
     setEndAt(new Date());
     setRewardInfo('');
     setNotifyMessage('');
+    setColor('#FFB5E8');
     onClose();
   };
 
@@ -294,6 +312,39 @@ export function CreateEventModal({ isOpen, onClose, onSubmit, defaultValues, isE
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRewardInfo(e.target.value)}
               className="rounded-lg border-yellow-200 focus:ring-2 focus:ring-yellow-300"
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="color" className="flex items-center gap-2 text-purple-700"><span className="text-lg">🎨</span>สีกิจกรรม</Label>
+            <div className="grid grid-cols-4 gap-2">
+              {pastelColors.map((pastelColor) => (
+                <button
+                  key={pastelColor.value}
+                  type="button"
+                  onClick={() => setColor(pastelColor.value)}
+                  className={cn(
+                    "relative p-2 rounded-lg border-2 transition-all duration-200 hover:scale-105",
+                    color === pastelColor.value ? "ring-2 ring-offset-2 ring-purple-300" : "border-transparent"
+                  )}
+                  style={{ 
+                    background: pastelColor.value.includes('linear-gradient') 
+                      ? pastelColor.value 
+                      : pastelColor.value,
+                    backgroundSize: pastelColor.value.includes('linear-gradient') ? '200% 100%' : 'auto'
+                  }}
+                >
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    {color === pastelColor.value && (
+                      <span className="text-white drop-shadow-lg">✓</span>
+                    )}
+                  </div>
+                  <div className="h-8 w-full rounded-md" />
+                  <div className="mt-1 text-xs text-center font-medium text-gray-700">
+                    {pastelColor.name}
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
 
           {error && <div className="text-red-600 text-sm mb-2">{error}</div>}

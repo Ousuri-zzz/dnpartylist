@@ -195,6 +195,17 @@ export default function EventDetailPage() {
     }
   };
 
+  const pastelColors = [
+    { name: 'พาสเทลพิ้ง', value: '#FFB5E8' },
+    { name: 'พาสเทลม่วง', value: '#B5B9FF' },
+    { name: 'พาสเทลฟ้า', value: '#B5EAD7' },
+    { name: 'พาสเทลเขียว', value: '#C7CEEA' },
+    { name: 'พาสเทลเหลือง', value: '#FFE5B4' },
+    { name: 'พาสเทลส้ม', value: '#FFB7B2' },
+    { name: 'พาสเทลแดง', value: '#FF9B9B' },
+    { name: 'พาสเทลน้ำเงิน', value: '#B5D8FF' },
+  ];
+
   useEffect(() => {
     if (!params?.id) return;
     setLoading(true);
@@ -317,15 +328,16 @@ export default function EventDetailPage() {
   };
 
   // ฟังก์ชันอัปเดตกิจกรรม
-  const handleEditEvent = async (data: { name: string; description: string; startAt: Date; endAt: Date; rewardInfo: string; notifyMessage: string; }) => {
+  const handleEditEvent = async (data: { name: string; description: string; startAt: Date; endAt: Date; rewardInfo: string; notifyMessage: string; color: string; }) => {
     if (!user || !event) return;
-    const { name, description, startAt, endAt, rewardInfo } = data;
+    const { name, description, startAt, endAt, rewardInfo, color } = data;
     await updateDoc(doc(firestore, 'events', event.id), {
       name,
       description,
       startAt,
       endAt,
       rewardInfo,
+      color,
     });
     setIsEditModalOpen(false);
     router.push('/events');
@@ -674,6 +686,7 @@ export default function EventDetailPage() {
                 endAt: endDate,
                 rewardInfo: event.rewardInfo,
                 notifyMessage: event.notifyMessage || '',
+                color: event.color || '#FFB5E8',
               }}
               isEdit
             />

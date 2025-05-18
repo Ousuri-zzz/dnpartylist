@@ -291,37 +291,57 @@ export default function EventsPage() {
                           initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
                           whileHover={{ scale: 1.03, boxShadow: '0 8px 32px 0 rgba(236, 72, 153, 0.15)' }}
-                          className="cursor-pointer bg-gradient-to-br from-pink-50 via-purple-50 to-white border border-pink-100 rounded-2xl p-5 shadow-md hover:shadow-xl transition-all group mb-2"
+                          className={
+                            "cursor-pointer border-2 rounded-2xl p-5 shadow-md hover:shadow-xl transition-all group mb-2 relative overflow-hidden"
+                          }
+                          style={{
+                            ...(event.color && event.color.startsWith('linear-gradient')
+                              ? {
+                                  backgroundImage: event.color,
+                                  borderColor: '#FFB5E8',
+                                }
+                              : {
+                                  backgroundColor: `${event.color || '#FFB5E8'}0D`, // 0D = 5% opacity
+                                  borderColor: event.color || '#FFB5E8',
+                                }
+                            ),
+                            boxShadow: `0 0 0 1px ${(event.color && !event.color.startsWith('linear-gradient')) ? (event.color || '#FFB5E8') + '40' : '#FFB5E8' + '40'}, 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)`
+                          }}
                         >
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className="text-2xl">🎉</span>
-                            <h3 className="font-bold text-lg text-pink-700 group-hover:text-pink-600 transition-colors break-words whitespace-normal flex-1 min-w-0">{event.name}</h3>
-                          </div>
-                          <div className="px-4 py-2 w-full mb-2">
-                            <div className="inline-flex items-start w-full min-w-0">
-                              <span className="text-lg flex-shrink-0 mt-1">📝</span>
-                              <span className="break-words whitespace-pre-line w-full ml-2 text-pink-500 text-sm font-semibold drop-shadow-sm min-w-0">{event.description}</span>
+                          {event.color && event.color.startsWith('linear-gradient') && (
+                            <div style={{position:'absolute',inset:0,background:'rgba(255,255,255,0.7)',zIndex:1,borderRadius:'inherit'}} />
+                          )}
+                          <div style={{position:'relative',zIndex:2}}>
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="text-2xl">🎉</span>
+                              <h3 className="font-bold text-lg text-pink-700 group-hover:text-pink-600 transition-colors break-words whitespace-normal flex-1 min-w-0">{event.name}</h3>
                             </div>
-                          </div>
-                          <div className="mb-2 space-y-2 flex flex-col">
-                            <div className="bg-yellow-50 rounded-lg px-3 py-1 shadow-sm text-yellow-700 font-semibold text-sm max-w-[600px] break-words whitespace-pre-line self-start block inline-flex items-center">
-                              <span className="text-lg mr-1 flex items-center justify-center">🎁</span>
-                              <span className="break-all whitespace-pre-line flex items-center">{event.rewardInfo}</span>
-                            </div>
-                            <div className="inline-flex items-center gap-1 bg-blue-50 rounded-lg px-3 py-1 shadow-sm text-blue-700 font-semibold text-sm w-fit self-start">
-                              <span className="text-lg">🗓️</span>
-                              <span>เริ่ม:</span>
-                              <span>{startDate ? startDate.toLocaleString('th-TH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}</span>
-                            </div>
-                            {event.endAt && event.endAt.seconds && (
-                              <div className="inline-flex items-center gap-1 bg-red-50 rounded-lg px-3 py-1 shadow-sm text-red-700 font-semibold text-sm w-fit self-start">
-                                <span className="text-lg">⏰</span>
-                                <span>สิ้นสุด:</span>
-                                <span>{new Date(event.endAt.seconds * 1000).toLocaleString('th-TH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                            <div className="px-4 py-2 w-full mb-2">
+                              <div className="inline-flex items-start w-full min-w-0">
+                                <span className="text-lg flex-shrink-0 mt-1">📝</span>
+                                <span className="break-words whitespace-pre-line w-full ml-2 text-pink-500 text-sm font-semibold drop-shadow-sm min-w-0">{event.description}</span>
                               </div>
-                            )}
+                            </div>
+                            <div className="mb-2 space-y-2 flex flex-col">
+                              <div className="bg-yellow-50 rounded-lg px-3 py-1 shadow-sm text-yellow-700 font-semibold text-sm max-w-[600px] break-words whitespace-pre-line self-start block inline-flex items-center">
+                                <span className="text-lg mr-1 flex items-center justify-center">🎁</span>
+                                <span className="break-all whitespace-pre-line flex items-center">{event.rewardInfo}</span>
+                              </div>
+                              <div className="inline-flex items-center gap-1 bg-blue-50 rounded-lg px-3 py-1 shadow-sm text-blue-700 font-semibold text-sm w-fit self-start">
+                                <span className="text-lg">🗓️</span>
+                                <span>เริ่ม:</span>
+                                <span>{startDate ? startDate.toLocaleString('th-TH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}</span>
+                              </div>
+                              {event.endAt && event.endAt.seconds && (
+                                <div className="inline-flex items-center gap-1 bg-red-50 rounded-lg px-3 py-1 shadow-sm text-red-700 font-semibold text-sm w-fit self-start">
+                                  <span className="text-lg">⏰</span>
+                                  <span>สิ้นสุด:</span>
+                                  <span>{new Date(event.endAt.seconds * 1000).toLocaleString('th-TH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                                </div>
+                              )}
+                            </div>
+                            <CountdownTimer targetDate={startDate} />
                           </div>
-                          <CountdownTimer targetDate={startDate} />
                         </motion.div>
                       </a>
                     </Link>
