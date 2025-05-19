@@ -4,7 +4,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { useAllCharacters } from '../../hooks/useAllCharacters';
 import { useAuth } from '../../hooks/useAuth';
 import { useUsers } from '../../hooks/useUsers';
-import { Character, CharacterClass } from '../../types/character';
+import { Character, CharacterClass, CharacterStats } from '../../types/character';
 import { motion } from 'framer-motion';
 import { cn } from '../../lib/utils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
@@ -13,7 +13,7 @@ import { Input } from '../../components/ui/input';
 import { Sword, Heart, Shield, Target, Flame, Zap, TrendingUp } from 'lucide-react';
 import { CLASS_TO_ROLE, getClassColors } from '../../config/theme';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../../components/ui/dialog';
-import { CharacterStats } from '../../components/CharacterStats';
+import { CharacterStats as CharacterStatsComponent } from '../../components/CharacterStats';
 import { CharacterChecklist } from '../../components/CharacterChecklist';
 
 const ALLOWED_JOBS = [
@@ -29,7 +29,14 @@ const ALLOWED_JOBS = [
   "Alchemist"
 ] as const;
 
-type StatType = 'score' | 'atk' | 'hp' | 'def' | 'cri' | 'ele' | 'fd' | 'discord';
+// แยก type สำหรับ sorting
+type StatSortType = 'atk' | 'hp' | 'cri' | 'ele' | 'fd';
+type SortType = 'score' | 'discord' | StatSortType | 'def';
+
+// Type guard functions
+function isStatSortType(stat: SortType): stat is StatSortType {
+  return ['atk', 'hp', 'cri', 'ele', 'fd'].includes(stat as string);
+}
 
 interface RankedCharacter extends Character {
   score: number;
@@ -97,12 +104,40 @@ const formatNumber = (num: number): string => {
   return num.toFixed(0);
 };
 
+// Helper function to get stat value
+function getStatValue(character: RankedCharacter, stat: SortType): number {
+  if (stat === 'score') {
+    return character.score;
+  } else if (stat === 'def') {
+    return (character.stats.pdef + character.stats.mdef) / 2;
+  } else if (isStatSortType(stat)) {
+    return character.stats[stat] || 0;
+  }
+  return 0;
+}
+
+// Helper function to sort characters
+function sortCharacters(characters: RankedCharacter[], stat: SortType, direction: 'asc' | 'desc'): RankedCharacter[] {
+  return [...characters].sort((a, b) => {
+    if (stat === 'discord') {
+      return direction === 'desc' 
+        ? b.discordName.localeCompare(a.discordName)
+        : a.discordName.localeCompare(b.discordName);
+    }
+
+    const aValue = getStatValue(a, stat);
+    const bValue = getStatValue(b, stat);
+
+    return direction === 'desc' ? bValue - aValue : aValue - bValue;
+  });
+}
+
 export default function RankingPage() {
   const { characters, loading: charactersLoading } = useAllCharacters();
   const { user } = useAuth();
   const { users } = useUsers();
   const [selectedJob, setSelectedJob] = useState<string>('all');
-  const [selectedStat, setSelectedStat] = useState<StatType>('score');
+  const [selectedStat, setSelectedStat] = useState<SortType>('score');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const [openCharacterId, setOpenCharacterId] = useState<string | null>(null);
@@ -115,7 +150,7 @@ export default function RankingPage() {
     setForceUpdate(prev => prev + 1);
   }, [users, characters]);
 
-  const handleSort = (stat: StatType) => {
+  const handleSort = (stat: SortType) => {
     if (selectedStat === stat) {
       // ถ้าคลิกที่คอลัมน์เดิม สลับทิศทางการเรียง
       setSortDirection(prev => prev === 'desc' ? 'asc' : 'desc');
@@ -152,38 +187,13 @@ export default function RankingPage() {
       return {
         ...char,
         score: calculateScore(char),
-        discordName
+        discordName,
+        stats: char.stats as CharacterStats
       };
     }) as RankedCharacter[];
 
     // Sort by selected stat first
-    processed.sort((a, b) => {
-      if (selectedStat === 'discord') {
-        // For Discord name, use string comparison
-        return sortDirection === 'desc' 
-          ? b.discordName.localeCompare(a.discordName)
-          : a.discordName.localeCompare(b.discordName);
-      }
-
-      let aValue: number;
-      let bValue: number;
-
-      if (selectedStat === 'score') {
-        aValue = a.score;
-        bValue = b.score;
-      } else if (selectedStat === 'def') {
-        // For DEF, use the average of PDEF and MDEF
-        aValue = (a.stats.pdef + a.stats.mdef) / 2;
-        bValue = (b.stats.pdef + b.stats.mdef) / 2;
-      } else {
-        // Type guard for other stats
-        const statKey = selectedStat as Exclude<keyof typeof a.stats, 'pdef' | 'mdef'>;
-        aValue = a.stats[statKey] || 0;
-        bValue = b.stats[statKey] || 0;
-      }
-
-      return sortDirection === 'desc' ? bValue - aValue : aValue - bValue;
-    });
+    processed = sortCharacters(processed, selectedStat, sortDirection);
 
     // Add rank to each character
     processed = processed.map((char, index) => ({
@@ -199,27 +209,10 @@ export default function RankingPage() {
       filtered = filtered.filter(char => char.class === selectedJob);
       
       // ถ้าเลือกอาชีพเฉพาะ ให้เรียงลำดับใหม่เฉพาะอาชีพนั้น
-      const jobCharacters = filtered;
-      jobCharacters.sort((a, b) => {
-        let aValue: number;
-        let bValue: number;
-
-        if (selectedStat === 'score') {
-          aValue = a.score;
-          bValue = b.score;
-        } else if (selectedStat === 'def') {
-          aValue = (a.stats.pdef + a.stats.mdef) / 2;
-          bValue = (b.stats.pdef + b.stats.mdef) / 2;
-        } else {
-          aValue = a.stats[selectedStat];
-          bValue = b.stats[selectedStat];
-        }
-
-        return sortDirection === 'desc' ? bValue - aValue : aValue - bValue;
-      });
+      filtered = sortCharacters(filtered, selectedStat, sortDirection);
 
       // กำหนดอันดับใหม่เฉพาะอาชีพนั้น
-      filtered = jobCharacters.map((char, index) => ({
+      filtered = filtered.map((char, index) => ({
         ...char,
         rank: index + 1
       }));
@@ -280,7 +273,7 @@ export default function RankingPage() {
 
             {/* Mobile Stats Selection */}
             <div className="lg:hidden">
-              <Select value={selectedStat} onValueChange={(value) => setSelectedStat(value as StatType)}>
+              <Select value={selectedStat} onValueChange={(value) => setSelectedStat(value as SortType)}>
                 <SelectTrigger className="w-full bg-white/50 backdrop-blur-sm border-pink-200/50">
                   <SelectValue placeholder="เลือกสเตตัส" />
                 </SelectTrigger>
@@ -592,7 +585,7 @@ export default function RankingPage() {
                     <Sword className="w-3.5 h-3.5 text-pink-500" />
                     สเตตัสตัวละคร
                   </h4>
-                  <CharacterStats stats={openCharacter.stats} />
+                  <CharacterStatsComponent stats={openCharacter.stats} />
                 </div>
                 <div className="bg-white/50 backdrop-blur-sm rounded-lg p-3 shadow-sm">
                   <h4 className="text-sm font-semibold mb-2 flex items-center gap-1.5 text-gray-700">
