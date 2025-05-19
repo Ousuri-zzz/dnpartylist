@@ -175,12 +175,11 @@ export default function RankingPage() {
         // For DEF, use the average of PDEF and MDEF
         aValue = (a.stats.pdef + a.stats.mdef) / 2;
         bValue = (b.stats.pdef + b.stats.mdef) / 2;
-      } else if (selectedStat in a.stats) {
-        // Type guard to ensure the stat exists
-        aValue = a.stats[selectedStat as keyof typeof a.stats] || 0;
-        bValue = b.stats[selectedStat as keyof typeof b.stats] || 0;
       } else {
-        return 0;
+        // Type guard for other stats
+        const statKey = selectedStat as Exclude<keyof typeof a.stats, 'pdef' | 'mdef'>;
+        aValue = a.stats[statKey] || 0;
+        bValue = b.stats[statKey] || 0;
       }
 
       return sortDirection === 'desc' ? bValue - aValue : aValue - bValue;
