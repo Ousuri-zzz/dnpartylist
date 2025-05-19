@@ -244,14 +244,14 @@ export default function PartyPage() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.2, delay: 0.3, ease: "easeOut" }}
-            className="flex flex-wrap items-center justify-between mt-4 sm:mt-6 gap-2"
+            className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between mt-4 sm:mt-6 gap-3 sm:gap-2 w-full"
           >
-            <div className="flex gap-2 items-center flex-shrink-0 min-w-0">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-2 items-stretch sm:items-center flex-shrink-0 min-w-0 w-full sm:w-auto">
               <button
                 type="button"
                 onClick={() => setActiveTab('all-parties')}
                 className={cn(
-                  "px-4 py-2 rounded-xl font-semibold text-base transition-all duration-200 border shadow-sm",
+                  "px-4 py-2 rounded-xl font-semibold text-base transition-all duration-200 border shadow-sm w-full sm:w-auto",
                   activeTab === 'all-parties'
                     ? "bg-gradient-to-r from-blue-100 to-purple-100 text-blue-800 border-blue-200 shadow-md"
                     : "bg-white text-gray-600 border-gray-200 hover:bg-blue-50 hover:text-blue-700"
@@ -263,7 +263,7 @@ export default function PartyPage() {
                 type="button"
                 onClick={() => setActiveTab('my-parties')}
                 className={cn(
-                  "px-4 py-2 rounded-xl font-semibold text-base transition-all duration-200 border shadow-sm",
+                  "px-4 py-2 rounded-xl font-semibold text-base transition-all duration-200 border shadow-sm w-full sm:w-auto",
                   activeTab === 'my-parties'
                     ? "bg-gradient-to-r from-green-100 to-blue-100 text-green-800 border-green-200 shadow-md"
                     : "bg-white text-gray-600 border-gray-200 hover:bg-green-50 hover:text-green-700"
@@ -274,7 +274,7 @@ export default function PartyPage() {
               <button
                 onClick={() => setIsJobFilterOpen(true)}
                 className={cn(
-                  "px-4 py-2 rounded-xl font-semibold text-base transition-all duration-200 border shadow-sm flex items-center gap-2",
+                  "px-4 py-2 rounded-xl font-semibold text-base transition-all duration-200 border shadow-sm flex items-center gap-2 w-full sm:w-auto",
                   selectedJob === 'all'
                     ? "bg-white text-gray-600 border-gray-200 hover:bg-gray-100"
                     : selectedJob === 'Sword Master' || selectedJob === 'Mercenary'
@@ -302,9 +302,9 @@ export default function PartyPage() {
               </button>
               {/* Banner เชิญชวน */}
               {activeTab !== 'searching' && (
-                <div className="flex items-center gap-2 bg-gradient-to-r from-blue-50 via-pink-50 to-purple-50 border border-blue-200 rounded-xl px-3 py-2 shadow-sm animate-pulse ml-2 flex-1 min-w-0">
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-2 bg-gradient-to-r from-blue-50 via-pink-50 to-purple-50 border border-blue-200 rounded-xl px-3 py-2 shadow-sm animate-pulse ml-0 sm:ml-2 flex-1 min-w-0 mt-2 sm:mt-0">
                   <span className="text-xl md:text-2xl">👉</span>
-                  <span className="text-sm md:text-base font-medium text-blue-700">
+                  <span className="text-sm md:text-base font-medium text-blue-700 text-center">
                     อยากหาเพื่อนเข้าปาร์ตี้?
                   </span>
                   <button
@@ -315,7 +315,7 @@ export default function PartyPage() {
                   >
                     กำลังหาปาร์ตี้
                   </button>
-                  <span className="text-sm md:text-base font-medium text-blue-700">
+                  <span className="text-sm md:text-base font-medium text-blue-700 text-center">
                     เพื่อดูรายชื่อคนที่รอเข้าปาร์ตี้!
                   </span>
                 </div>
@@ -325,7 +325,7 @@ export default function PartyPage() {
               type="button"
               onClick={() => setActiveTab('searching')}
               className={cn(
-                "ml-2 px-4 py-2 rounded-xl font-semibold text-base transition-all duration-200 border shadow-sm flex-shrink-0",
+                "ml-0 sm:ml-2 px-4 py-2 rounded-xl font-semibold text-base transition-all duration-200 border shadow-sm flex-shrink-0 w-full sm:w-auto mt-2 sm:mt-0",
                 activeTab === 'searching'
                   ? "bg-gradient-to-r from-pink-100 to-blue-100 text-pink-800 border-pink-200 shadow-md"
                   : "bg-white text-gray-600 border-gray-200 hover:bg-pink-50 hover:text-pink-700"
