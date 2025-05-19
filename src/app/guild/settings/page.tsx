@@ -66,6 +66,7 @@ export default function GuildSettingsPage() {
   const [selectedLeaderId, setSelectedLeaderId] = useState<string | null>(null);
   const [merchantSearch, setMerchantSearch] = useState('');
   const [memberSearch, setMemberSearch] = useState('');
+  const [memberCharacters, setMemberCharacters] = useState<Record<string, any[]>>({});
   const [showApproveMerchantModal, setShowApproveMerchantModal] = useState(false);
   const [selectedApproveMerchant, setSelectedApproveMerchant] = useState<Merchant | null>(null);
   const [showRejectMerchantModal, setShowRejectMerchantModal] = useState(false);
@@ -75,6 +76,9 @@ export default function GuildSettingsPage() {
   const [userCharacters, setUserCharacters] = useState<any[]>([]);
   const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(null);
   const [pendingMembers, setPendingMembers] = useState<any[]>([]);
+
+  const [debouncedMerchantSearch, setDebouncedMerchantSearch] = useState('');
+  const [debouncedMemberSearch, setDebouncedMemberSearch] = useState('');
 
   useEffect(() => {
     if (!user) return;
@@ -207,9 +211,6 @@ export default function GuildSettingsPage() {
     fetchPendingMembers();
   }, [user]);
 
-  const [debouncedMerchantSearch, setDebouncedMerchantSearch] = useState('');
-  const [debouncedMemberSearch, setDebouncedMemberSearch] = useState('');
-
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       setDebouncedMerchantSearch(merchantSearch);
@@ -224,6 +225,33 @@ export default function GuildSettingsPage() {
     return () => clearTimeout(timeoutId);
   }, [memberSearch]);
 
+  useEffect(() => {
+    if (!guild?.members) return;
+
+    const fetchCharacterData = async () => {
+      const characterData: Record<string, any[]> = {};
+      
+      for (const uid of Object.keys(guild.members)) {
+        try {
+          const charsSnap = await get(ref(db, `users/${uid}/characters`));
+          if (charsSnap.exists()) {
+            characterData[uid] = Object.entries(charsSnap.val()).map(([cid, data]: [string, any]) => ({
+              characterId: cid,
+              ...data
+            }));
+          }
+        } catch (error) {
+          console.error('Error fetching characters:', error);
+          characterData[uid] = [];
+        }
+      }
+      
+      setMemberCharacters(characterData);
+    };
+
+    fetchCharacterData();
+  }, [guild?.members]);
+
   const filteredActiveMerchants = React.useMemo(() => {
     return activeMerchants.filter(merchant => {
       const searchTerm = debouncedMerchantSearch.toLowerCase();
@@ -237,20 +265,23 @@ export default function GuildSettingsPage() {
   }, [activeMerchants, debouncedMerchantSearch]);
 
   const filteredMembers = React.useMemo(() => {
+    const searchTerm = debouncedMemberSearch.toLowerCase();
     return Object.entries(guild?.members || {})
       .filter(([uid, member]) => {
-        const searchTerm = debouncedMemberSearch.toLowerCase();
         const name = member.discordName ? member.discordName.toLowerCase() : '';
-        if (searchTerm === 'ไม่ทราบ') {
-          return !member.discordName || member.discordName.trim() === '';
-        }
-        return (
-          name.includes(searchTerm) ||
-          (uid.toLowerCase() || '').includes(searchTerm)
+        const memberMatch =
+          searchTerm === 'ไม่ทราบ'
+            ? !member.discordName || member.discordName.trim() === ''
+            : name.includes(searchTerm) || (uid.toLowerCase() || '').includes(searchTerm);
+        const characters = memberCharacters[uid] || [];
+        const hasMatchingCharacter = characters.some(char =>
+          char.name?.toLowerCase().includes(searchTerm)
         );
+        if (!searchTerm) return true;
+        return memberMatch || hasMatchingCharacter;
       })
       .sort((a, b) => parseJoinedAt(b[1].joinedAt) - parseJoinedAt(a[1].joinedAt));
-  }, [guild?.members, debouncedMemberSearch]);
+  }, [guild?.members, debouncedMemberSearch, memberCharacters]);
 
   const clearLoanNotifications = () => {
     setNewLoanCount(0);
@@ -903,22 +934,14 @@ export default function GuildSettingsPage() {
                 <Users className="w-5 h-5 text-blue-600" />
               </div>
               <h2 className="text-lg md:text-xl font-semibold text-gray-800">รายชื่อสมาชิก ({filteredMembers.length})</h2>
-              <button
-                onClick={handleImportAllUsers}
-                className="ml-2 md:ml-3 px-3 md:px-4 py-1.5 md:py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors shadow-sm font-semibold flex items-center gap-2 text-xs md:text-base"
-                title="ดึงสมาชิกเก่าทั้งหมดเข้ากิลด์"
-              >
-                <UserPlus className="w-4 h-4" />
-                ดึงสมาชิกเก่าทั้งหมด
-              </button>
             </div>
-            <div className="relative w-full md:w-64 mt-2 md:mt-0">
+            <div className="relative w-full md:w-[420px] mt-2 md:mt-0">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <Search className="w-4 h-4 text-gray-400" />
               </div>
               <input
                 type="text"
-                placeholder="ค้นหาสมาชิก..."
+                placeholder="ค้นหาตัวละคร หรือ Discord..."
                 value={memberSearch}
                 onChange={(e) => setMemberSearch(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-xs md:text-base"
