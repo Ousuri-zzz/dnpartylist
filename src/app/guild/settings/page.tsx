@@ -6,12 +6,13 @@ import { useRouter } from 'next/navigation';
 import { ref, get, remove, update, onValue, query, orderByChild, equalTo, set } from 'firebase/database';
 import { db } from '@/lib/firebase';
 import { toast } from 'sonner';
-import { Settings, UserPlus, KeyRound, X, Check, Ban, DollarSign, Clock, CheckCircle2, XCircle, Crown, ChevronDown, ChevronUp, Bell, Users, Store, Building2, Shield, AlertCircle, Search, RefreshCw } from 'lucide-react';
+import { Settings, UserPlus, KeyRound, X, Check, Ban, DollarSign, Clock, CheckCircle2, XCircle, Crown, ChevronDown, ChevronUp, Bell, Users, Store, Building2, Shield, AlertCircle, Search, RefreshCw, PiggyBank } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { GuildSettings, GuildLoan } from '@/types/trade';
 import { GuildService } from '@/lib/guildService';
 import React from 'react';
 import ConfirmModalPortal from '@/components/ConfirmModalPortal';
+import Link from 'next/link';
 
 interface Merchant {
   uid: string;
@@ -683,55 +684,82 @@ export default function GuildSettingsPage() {
 
         {/* Pending Members Section */}
         {isGuildLeader && (
-          <div className="mb-6 md:mb-10">
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-4 md:mb-6 gap-2 md:gap-0">
-              <div className="flex items-center gap-2 md:gap-3">
-                <div className="p-1.5 md:p-2 bg-red-100 rounded-lg">
-                  <UserPlus className="w-5 h-5 text-red-600" />
+          <>
+            {/* Guild Loan Button */}
+            <div className="mb-6 md:mb-10">
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-4 md:mb-6 gap-2 md:gap-0">
+                <div className="flex items-center gap-2 md:gap-3">
+                  <div className="p-1.5 md:p-2 bg-purple-100 rounded-lg">
+                    <PiggyBank className="w-5 h-5 text-purple-600" />
+                  </div>
+                  <h2 className="text-lg md:text-xl font-semibold text-gray-800">ระบบกู้ยืมกิลด์</h2>
                 </div>
-                <h2 className="text-lg md:text-xl font-semibold text-gray-800">สมาชิกใหม่ที่รออนุมัติ</h2>
-              </div>
-              <div className="flex items-center gap-2 px-3 md:px-4 py-1.5 md:py-2 bg-red-50 rounded-lg md:rounded-full">
-                <span className="text-xs md:text-sm font-medium text-red-700">{pendingMembers.length} คน</span>
+                <Link
+                  href="/guildloan"
+                  className="flex items-center gap-2 px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors shadow-sm"
+                >
+                  <PiggyBank className="w-5 h-5" />
+                  <span>จัดการกู้ยืม</span>
+                  {pendingLoans.length > 0 && (
+                    <span className="px-2 py-0.5 rounded-full bg-red-500 text-white text-xs font-bold">
+                      {pendingLoans.length}
+                    </span>
+                  )}
+                </Link>
               </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
-              {pendingMembers.map((member) => (
-                <div key={member.uid} className="bg-white rounded-xl p-4 md:p-6 border border-red-100 shadow-sm hover:shadow-md transition-shadow">
-                  <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-0">
-                    <div>
-                      <div className="font-semibold text-red-600">{member.discord}</div>
-                      <div className="text-sm text-gray-500">UID: {member.uid}</div>
-                    </div>
-                    <div className="w-full md:w-auto flex flex-row gap-x-2 md:gap-2">
-                      <button
-                        onClick={() => handleApproveMember(member.uid)}
-                        className="flex-1 md:w-auto p-2 rounded-l-lg md:rounded-lg bg-green-100 text-green-600 hover:bg-green-200 transition-colors"
-                        title="อนุมัติ"
-                      >
-                        <Check className="w-5 h-5" />
-                      </button>
-                      <button
-                        onClick={() => handleRejectMember(member.uid)}
-                        className="flex-1 md:w-auto p-2 rounded-r-lg md:rounded-lg bg-red-100 text-red-600 hover:bg-red-200 transition-colors"
-                        title="ยกเลิกและลบ"
-                      >
-                        <X className="w-5 h-5" />
-                      </button>
+
+            {/* Pending Members Section */}
+            <div className="mb-6 md:mb-10">
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-4 md:mb-6 gap-2 md:gap-0">
+                <div className="flex items-center gap-2 md:gap-3">
+                  <div className="p-1.5 md:p-2 bg-red-100 rounded-lg">
+                    <UserPlus className="w-5 h-5 text-red-600" />
+                  </div>
+                  <h2 className="text-lg md:text-xl font-semibold text-gray-800">สมาชิกใหม่ที่รออนุมัติ</h2>
+                </div>
+                <div className="flex items-center gap-2 px-3 md:px-4 py-1.5 md:py-2 bg-red-50 rounded-lg md:rounded-full">
+                  <span className="text-xs md:text-sm font-medium text-red-700">{pendingMembers.length} คน</span>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
+                {pendingMembers.map((member) => (
+                  <div key={member.uid} className="bg-white rounded-xl p-4 md:p-6 border border-red-100 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-0">
+                      <div>
+                        <div className="font-semibold text-red-600">{member.discord}</div>
+                        <div className="text-sm text-gray-500">UID: {member.uid}</div>
+                      </div>
+                      <div className="w-full md:w-auto flex flex-row gap-x-2 md:gap-2">
+                        <button
+                          onClick={() => handleApproveMember(member.uid)}
+                          className="flex-1 md:w-auto p-2 rounded-l-lg md:rounded-lg bg-green-100 text-green-600 hover:bg-green-200 transition-colors"
+                          title="อนุมัติ"
+                        >
+                          <Check className="w-5 h-5" />
+                        </button>
+                        <button
+                          onClick={() => handleRejectMember(member.uid)}
+                          className="flex-1 md:w-auto p-2 rounded-r-lg md:rounded-lg bg-red-100 text-red-600 hover:bg-red-200 transition-colors"
+                          title="ยกเลิกและลบ"
+                        >
+                          <X className="w-5 h-5" />
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-              {pendingMembers.length === 0 && (
-                <div className="col-span-2 flex items-center justify-center p-8 bg-red-50 rounded-xl border border-red-100">
-                  <div className="text-center">
-                    <UserPlus className="w-8 h-8 text-red-400 mx-auto mb-2" />
-                    <p className="text-sm text-gray-500">ไม่มีสมาชิกใหม่ที่รออนุมัติ</p>
+                ))}
+                {pendingMembers.length === 0 && (
+                  <div className="col-span-2 flex items-center justify-center p-8 bg-red-50 rounded-xl border border-red-100">
+                    <div className="text-center">
+                      <UserPlus className="w-8 h-8 text-red-400 mx-auto mb-2" />
+                      <p className="text-sm text-gray-500">ไม่มีสมาชิกใหม่ที่รออนุมัติ</p>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
-          </div>
+          </>
         )}
 
         {/* Pending Merchants Section */}

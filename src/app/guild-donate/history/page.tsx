@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { ref, onValue, get } from 'firebase/database';
 import { db } from '@/lib/firebase';
 import { toast } from 'sonner';
-import { Crown, Search, Calendar, Users, Coins } from 'lucide-react';
+import { Crown, Search, Calendar, Users, Coins, CreditCard } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { createPortal } from 'react-dom';
@@ -224,15 +224,25 @@ export default function GuildDonateHistoryPage() {
             <h1 className="text-2xl font-bold text-gray-800">📊 ประวัติการบริจาคของสมาชิก</h1>
             <p className="text-sm text-gray-500 mt-1">ดูประวัติการบริจาคของสมาชิกทั้งหมดในกิลด์</p>
           </div>
-          {/* ปุ่มบริจาคกิลด์: Desktop */}
-          <Link
-            href="/guild-donate"
-            className="ml-auto hidden sm:flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-pink-200 via-orange-100 to-yellow-100 text-pink-800 text-sm font-bold rounded-full shadow border-2 border-pink-300 hover:from-pink-400 hover:to-orange-200 hover:text-white hover:shadow-xl transition-all duration-150"
-            style={{ minWidth: 'fit-content' }}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" /></svg>
-            บริจาคกิลด์
-          </Link>
+          {/* Navigation Buttons */}
+          <div className="ml-auto flex items-center gap-2">
+            <Link
+              href="/guild-donate/cash"
+              className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors shadow-sm"
+            >
+              <CreditCard className="w-4 h-4" />
+              <span>ประวัติบริจาคเงินสด</span>
+            </Link>
+            {/* ปุ่มบริจาคกิลด์: Desktop */}
+            <Link
+              href="/guild-donate"
+              className="hidden sm:flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-pink-200 via-orange-100 to-yellow-100 text-pink-800 text-sm font-bold rounded-full shadow border-2 border-pink-300 hover:from-pink-400 hover:to-orange-200 hover:text-white hover:shadow-xl transition-all duration-150"
+              style={{ minWidth: 'fit-content' }}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" /></svg>
+              บริจาคกิลด์
+            </Link>
+          </div>
         </div>
         {/* ปุ่มบริจาคกิลด์: Mobile */}
         <Link

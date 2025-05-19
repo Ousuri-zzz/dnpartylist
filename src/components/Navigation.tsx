@@ -242,19 +242,10 @@ export default function Navigation() {
                     </Link>
                     <Link href="/guild-donate/history" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-pink-50/50 text-gray-700">
                       <Crown className="w-5 h-5" />
-                      <span className="font-medium">Donation History</span>
-                      {isGuildLeader && pendingDonationCount > 0 && (
+                      <span className="font-medium whitespace-nowrap flex items-center">บริจาคกิลด์</span>
+                      {(isGuildLeader && (pendingDonationCount > 0 || pendingCashDonationCount > 0)) && (
                         <span className="ml-auto px-2 py-0.5 rounded-full bg-red-500 text-white text-xs font-bold shadow">
-                          {pendingDonationCount}
-                        </span>
-                      )}
-                    </Link>
-                    <Link href="/guild-donate/cash" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-pink-50/50 text-gray-700">
-                      <CreditCard className="w-5 h-5" />
-                      <span className="font-medium">Cash History</span>
-                      {isGuildLeader && pendingCashDonationCount > 0 && (
-                        <span className="ml-auto px-2 py-0.5 rounded-full bg-red-500 text-white text-xs font-bold shadow">
-                          {pendingCashDonationCount}
+                          {pendingDonationCount + pendingCashDonationCount}
                         </span>
                       )}
                     </Link>
@@ -271,7 +262,7 @@ export default function Navigation() {
                     {isGuildLeader && (
                       <Link href="/guild/settings" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-green-50/50 text-gray-700 relative">
                         <Settings className="w-5 h-5" />
-                        <span className="font-medium">Guild</span>
+                        <span className="font-medium whitespace-nowrap flex items-center">จัดการกิลด์</span>
                         {(pendingGuildLoanCount > 0 || pendingMerchantCount > 0) && (
                           <div className="absolute top-0 right-0 flex gap-0 z-30">
                             {pendingGuildLoanCount > 0 && (
@@ -549,46 +540,14 @@ export default function Navigation() {
                       pathname === "/guild-donate/history" ? "text-white" : "group-hover:text-pink-600 text-pink-500"
                     )} />
                     <span className={cn(
-                      "text-sm font-medium transition-colors duration-300",
+                      "text-sm font-medium transition-colors duration-300 whitespace-nowrap flex items-center",
                       pathname === "/guild-donate/history" ? "text-white" : "group-hover:text-pink-600 text-gray-700"
                     )}>
-                      Donation History
+                      บริจาคกิลด์
                     </span>
-                    {isGuildLeader && pendingDonationCount > 0 && (
+                    {isGuildLeader && (pendingDonationCount > 0 || pendingCashDonationCount > 0) && (
                       <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-                        {pendingDonationCount}
-                      </span>
-                    )}
-                  </motion.div>
-                </Link>
-                <Link
-                  href="/guild-donate/cash"
-                  className={cn(
-                    "relative group px-3 py-1.5 rounded-lg transition-all duration-300 cursor-pointer",
-                    pathname === "/guild-donate/cash"
-                      ? "bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-md shadow-pink-500/20"
-                      : "bg-white/60 border border-pink-100 shadow-sm hover:bg-pink-50/50 hover:shadow-xl hover:scale-105 hover:ring-2 hover:ring-pink-300 hover:border-pink-400 hover:text-pink-600"
-                  )}
-                >
-                  <motion.div
-                    className="flex items-center gap-1.5"
-                    whileHover={{ scale: 1.05, y: -1 }}
-                    whileTap={{ scale: 0.98 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                  >
-                    <CreditCard className={cn(
-                      "w-3.5 h-3.5 transition-colors duration-300",
-                      pathname === "/guild-donate/cash" ? "text-white" : "group-hover:text-pink-600 text-pink-500"
-                    )} />
-                    <span className={cn(
-                      "text-sm font-medium transition-colors duration-300",
-                      pathname === "/guild-donate/cash" ? "text-white" : "group-hover:text-pink-600 text-gray-700"
-                    )}>
-                      Cash History
-                    </span>
-                    {isGuildLeader && pendingCashDonationCount > 0 && (
-                      <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-                        {pendingCashDonationCount}
+                        {pendingDonationCount + pendingCashDonationCount}
                       </span>
                     )}
                   </motion.div>
@@ -609,10 +568,10 @@ export default function Navigation() {
                       pathname === "/guild/settings" ? "text-white" : "group-hover:text-green-600 text-green-500"
                     )} />
                     <span className={cn(
-                      "text-sm font-medium transition-colors duration-300",
+                      "text-sm font-medium transition-colors duration-300 whitespace-nowrap flex items-center",
                       pathname === "/guild/settings" ? "text-white" : "group-hover:text-green-600 text-gray-700"
                     )}>
-                      Guild
+                      จัดการกิลด์
                     </span>
                     {(pendingGuildLoanCount > 0 || pendingMerchantCount > 0 || pendingNewMemberCount > 0) && (
                       <span className="absolute -top-2 -right-2 flex gap-1 z-30">
