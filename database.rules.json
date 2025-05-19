@@ -2,6 +2,41 @@
   "rules": {
     ".read": "auth != null",
     ".write": "auth != null",
+    "events": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      "$eventId": {
+        ".read": "auth != null",
+        ".write": "auth != null && (!data.exists() || data.child('ownerUid').val() === auth.uid)",
+        ".validate": "newData.hasChildren(['name', 'startAt', 'endAt', 'ownerUid', 'maxGroupSize'])",
+        "name": { ".validate": "newData.isString() && newData.val().length > 0" },
+        "description": { ".validate": "newData.isString()" },
+        "startAt": { ".validate": "newData.isNumber()" },
+        "endAt": { ".validate": "newData.isNumber()" },
+        "rewardInfo": { ".validate": "newData.isString()" },
+        "notifyMessage": { ".validate": "newData.isString()" },
+        "color": { ".validate": "newData.isString()" },
+        "maxGroupSize": { ".validate": "newData.isNumber() && newData.val() >= 2 && newData.val() <= 8" },
+        "ownerUid": { ".validate": "newData.isString() && newData.val() === auth.uid" },
+        "isEnded": { ".validate": "newData.isBoolean()" },
+        "endedAt": { ".validate": "newData.isNumber() || !newData.exists()" },
+        "participants": {
+          ".read": "auth != null",
+          "$participantId": {
+            ".read": "auth != null",
+            ".write": "auth != null",
+            ".validate": "newData.hasChildren(['joinedAt'])",
+            "joinedAt": { ".validate": "newData.isNumber()" },
+            "characterId": { ".validate": "newData.isString() || !newData.exists()" },
+            "groupId": { ".validate": "newData.isString() || !newData.exists()" },
+            "message": { ".validate": "newData.isString() || !newData.exists()" },
+            "messageUpdatedAt": { ".validate": "newData.isNumber() || !newData.exists()" },
+            "rewardGiven": { ".validate": "newData.isBoolean() || !newData.exists()" },
+            "rewardNote": { ".validate": "newData.isString() || !newData.exists()" }
+          }
+        }
+      }
+    },
     "parties": {
       ".read": true,
       "$partyId": {

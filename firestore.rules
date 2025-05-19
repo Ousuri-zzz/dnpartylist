@@ -2,14 +2,13 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Allow authenticated users to read and write their own data
+    // ผู้ใช้สามารถอ่านและเขียนข้อมูลของตัวเอง
     match /users/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
     
     match /characters/{characterId} {
       allow read, write: if request.auth != null && (
-        // Allow if document belongs to the user
         resource == null || 
         resource.data.userId == request.auth.uid
       );
@@ -30,29 +29,25 @@ service cloud.firestore {
         request.resource.data.userId == request.auth.uid;
     }
     
-    // Allow read access to all documents
+    // ทุกคนอ่านได้หมด
     match /{document=**} {
       allow read: if true;
     }
 
-    // Allow create, update, delete access to events
+    // กิจกรรม
     match /events/{eventId} {
       allow read: if true;
       allow create: if request.auth != null;
-      allow update, delete: if request.auth != null && request.auth.uid == resource.data.ownerUid;
-    }
-
-    // Allow read access to event participants
-    match /events/{eventId}/participants/{userId} {
-      allow read: if true;
-      allow create: if request.auth != null && request.auth.uid == userId;
-      allow delete: if request.auth != null && request.auth.uid == userId;
-      allow update: if request.auth != null && (
-        // Allow if event owner is updating participant
-        (request.auth.uid == get(/databases/$(database)/documents/events/$(eventId)).data.ownerUid) ||
-        // Allow if user is updating their own data
-        (request.auth.uid == userId)
-      );
+      allow update: if request.auth != null;
+      allow delete: if request.auth != null && resource.data.ownerUid == request.auth.uid;
+      
+      // ผู้เข้าร่วมกิจกรรม
+      match /participants/{userId} {
+        allow read: if true;
+        allow create: if request.auth != null;
+        allow delete: if request.auth != null;
+        allow update: if request.auth != null;
+      }
     }
   }
 } 

@@ -32,6 +32,7 @@ interface CreateEventModalProps {
     rewardInfo: string;
     notifyMessage: string;
     color: string;
+    maxGroupSize: number;
   }) => void;
   defaultValues?: {
     name: string;
@@ -41,26 +42,48 @@ interface CreateEventModalProps {
     rewardInfo: string;
     notifyMessage: string;
     color: string;
+    maxGroupSize: number;
   };
   isEdit?: boolean;
 }
 
 export function CreateEventModal({ isOpen, onClose, onSubmit, defaultValues, isEdit }: CreateEventModalProps) {
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [startAt, setStartAt] = useState<Date | undefined>(new Date());
-  const [endAt, setEndAt] = useState<Date | undefined>(new Date());
-  const [rewardInfo, setRewardInfo] = useState('');
-  const [notifyMessage, setNotifyMessage] = useState('');
-  const [color, setColor] = useState('#FFB5E8');
+  const [name, setName] = useState(defaultValues?.name || '');
+  const [description, setDescription] = useState(defaultValues?.description || '');
+  const [startAt, setStartAt] = useState<Date | undefined>(defaultValues?.startAt || new Date());
+  const [endAt, setEndAt] = useState<Date | undefined>(
+    defaultValues?.endAt ||
+    (() => {
+      const d = new Date();
+      d.setHours(d.getHours() + 1, 0, 0, 0);
+      return d;
+    })()
+  );
+  const [rewardInfo, setRewardInfo] = useState(defaultValues?.rewardInfo || '');
+  const [notifyMessage, setNotifyMessage] = useState(defaultValues?.notifyMessage || '');
+  const [color, setColor] = useState(defaultValues?.color || '#FFB5E8');
+  const [maxGroupSize, setMaxGroupSize] = useState(defaultValues?.maxGroupSize && (defaultValues?.maxGroupSize > 0) ? defaultValues?.maxGroupSize : 0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
-  const [time, setTime] = useState<string>('00:00');
-  const [endTime, setEndTime] = useState<string>('00:00');
+  const [time, setTime] = useState<string>(
+    defaultValues?.startAt
+      ? new Date(defaultValues.startAt).toTimeString().slice(0, 5)
+      : new Date().toTimeString().slice(0, 5)
+  );
+  const [endTime, setEndTime] = useState<string>(
+    defaultValues?.endAt
+      ? new Date(defaultValues.endAt).toTimeString().slice(0, 5)
+      : (() => {
+          const d = new Date();
+          d.setHours(d.getHours() + 1, 0, 0, 0);
+          return d.toTimeString().slice(0, 5);
+        })()
+  );
   const [openCalendar, setOpenCalendar] = useState(false);
   const [openEndCalendar, setOpenEndCalendar] = useState(false);
   const router = useRouter();
+  const [groupEnabled, setGroupEnabled] = useState((defaultValues?.maxGroupSize ?? 0) > 0);
 
   const pastelColors = [
     { name: 'พาสเทลพิ้ง', value: '#FFB5E8' },
@@ -82,6 +105,8 @@ export function CreateEventModal({ isOpen, onClose, onSubmit, defaultValues, isE
       setRewardInfo(defaultValues.rewardInfo || '');
       setNotifyMessage(defaultValues.notifyMessage || '');
       setColor(defaultValues.color || '#FFB5E8');
+      setMaxGroupSize(defaultValues.maxGroupSize && (defaultValues.maxGroupSize > 0) ? defaultValues.maxGroupSize : 0);
+      setGroupEnabled((defaultValues.maxGroupSize ?? 0) > 0);
       if (defaultValues.startAt) {
         const d = new Date(defaultValues.startAt);
         setTime(d.toTimeString().slice(0,5));
@@ -94,6 +119,15 @@ export function CreateEventModal({ isOpen, onClose, onSubmit, defaultValues, isE
       } else {
         setEndTime('00:00');
       }
+    } else if (isOpen && !defaultValues) {
+      setStartAt(new Date());
+      setTime(new Date().toTimeString().slice(0, 5));
+      setGroupEnabled(false);
+      setMaxGroupSize(0);
+      const d = new Date();
+      d.setHours(d.getHours() + 1, 0, 0, 0);
+      setEndAt(d);
+      setEndTime(d.toTimeString().slice(0, 5));
     }
   }, [isOpen, defaultValues]);
 
@@ -139,19 +173,6 @@ export function CreateEventModal({ isOpen, onClose, onSubmit, defaultValues, isE
     setLoading(true);
     setError(null);
     try {
-      const eventRef = await addDoc(collection(firestore, 'events'), {
-        name,
-        description,
-        startAt: Timestamp.fromDate(startAt),
-        endAt: Timestamp.fromDate(endAt),
-        rewardInfo,
-        notifyMessage,
-        color,
-        createdAt: serverTimestamp(),
-        createdBy: user?.uid,
-        ownerUid: user?.uid,
-      });
-
       onSubmit({
         name,
         description,
@@ -160,10 +181,9 @@ export function CreateEventModal({ isOpen, onClose, onSubmit, defaultValues, isE
         rewardInfo,
         notifyMessage,
         color,
+        maxGroupSize: groupEnabled ? maxGroupSize : 0,
       });
-
       handleClose();
-      router.push('/events');
     } catch (err: any) {
       setError('เกิดข้อผิดพลาดในการสร้างกิจกรรม');
       console.error(err);
@@ -180,6 +200,8 @@ export function CreateEventModal({ isOpen, onClose, onSubmit, defaultValues, isE
     setRewardInfo('');
     setNotifyMessage('');
     setColor('#FFB5E8');
+    setMaxGroupSize(0);
+    setGroupEnabled(false);
     onClose();
   };
 
@@ -205,11 +227,11 @@ export function CreateEventModal({ isOpen, onClose, onSubmit, defaultValues, isE
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{isEdit ? 'แก้ไขกิจกรรม' : 'สร้างกิจกรรมใหม่'}</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-3">
           <div className="space-y-2">
             <Label htmlFor="name" className="flex items-center gap-2 text-pink-700"><span className="text-lg">📝</span>ชื่อกิจกรรม</Label>
             <Input
@@ -217,7 +239,7 @@ export function CreateEventModal({ isOpen, onClose, onSubmit, defaultValues, isE
               value={name}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
               required
-              className="rounded-lg border-pink-200 focus:ring-2 focus:ring-pink-300"
+              className="w-full rounded-lg border-pink-200 focus:ring-2 focus:ring-pink-300"
             />
           </div>
 
@@ -228,12 +250,45 @@ export function CreateEventModal({ isOpen, onClose, onSubmit, defaultValues, isE
               value={description}
               onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setDescription(e.target.value)}
               required
-              className="rounded-lg border-purple-200 focus:ring-2 focus:ring-purple-300"
+              className="w-full rounded-lg border-purple-200 focus:ring-2 focus:ring-purple-300"
             />
           </div>
 
           <div className="space-y-2">
-            <Label className="flex items-center gap-2 text-blue-700"><span className="text-lg">📅</span>วันเวลาเริ่ม</Label>
+            <Label className="flex items-center gap-2 text-green-700">
+              <span className="text-lg">👥</span>ระบบกลุ่ม
+            </Label>
+            <div className="flex items-center gap-2 mb-1">
+              <Checkbox 
+                id="groupEnabled" 
+                checked={groupEnabled} 
+                onCheckedChange={v => {
+                  setGroupEnabled(!!v);
+                  setMaxGroupSize(!!v ? 4 : 0);
+                }} 
+              />
+              <Label htmlFor="groupEnabled" className="text-green-700 cursor-pointer select-none">เปิดใช้งานระบบกลุ่ม</Label>
+            </div>
+            {groupEnabled && (
+              <div className="flex items-center gap-2">
+                <Input
+                  type="number"
+                  min="2"
+                  max="8"
+                  value={maxGroupSize}
+                  onChange={(e) => setMaxGroupSize(Math.min(8, Math.max(2, parseInt(e.target.value) || 4)))}
+                  className="w-24 rounded-lg border-green-200 focus:ring-2 focus:ring-green-300"
+                />
+                <span className="text-green-500 text-sm">คน (2-8 คน)</span>
+              </div>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2 text-blue-700">
+              <span className="text-lg">📅</span>
+              วันเวลาเริ่ม
+            </Label>
             <div className="flex gap-2 items-center">
               <Popover open={openCalendar} onOpenChange={setOpenCalendar}>
                 <PopoverTrigger asChild>
@@ -310,7 +365,7 @@ export function CreateEventModal({ isOpen, onClose, onSubmit, defaultValues, isE
               id="rewardInfo"
               value={rewardInfo}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRewardInfo(e.target.value)}
-              className="rounded-lg border-yellow-200 focus:ring-2 focus:ring-yellow-300"
+              className="w-full rounded-lg border-yellow-200 focus:ring-2 focus:ring-yellow-300"
             />
           </div>
 
@@ -349,11 +404,13 @@ export function CreateEventModal({ isOpen, onClose, onSubmit, defaultValues, isE
 
           {error && <div className="text-red-600 text-sm mb-2">{error}</div>}
 
-          <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={handleClose}>
+          <div className="flex flex-col sm:flex-row justify-end gap-2 sticky bottom-0 bg-white/90 pt-2 z-10">
+            <Button type="button" variant="outline" onClick={handleClose} className="w-full sm:w-auto">
               ยกเลิก
             </Button>
-            <Button type="submit" disabled={loading}>{loading ? (isEdit ? 'กำลังบันทึก...' : 'กำลังสร้าง...') : (isEdit ? 'บันทึกการแก้ไข' : 'สร้างกิจกรรม')}</Button>
+            <Button type="submit" disabled={loading} className="w-full sm:w-auto">
+              {loading ? (isEdit ? 'กำลังบันทึก...' : 'กำลังสร้าง...') : (isEdit ? 'บันทึกการแก้ไข' : 'สร้างกิจกรรม')}
+            </Button>
           </div>
         </form>
       </DialogContent>

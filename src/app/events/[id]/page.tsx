@@ -75,10 +75,10 @@ function copyToClipboard(text: string) {
 // เพิ่มไอคอนและปรับตำแหน่ง Toast
 function Toast({ message, show }: { message: string, show: boolean }) {
   if (!show) return null;
-  // แยกไอคอนตามข้อความ
   const isSuccess = message.includes('เรียบร้อย') || message.includes('สำเร็จ');
   const isError = message.includes('ผิดพลาด') || message.includes('ล้มเหลว');
-  return (
+  if (typeof window === 'undefined' || !document.body) return null;
+  return createPortal(
     <div style={{ position: 'fixed', top: 32, left: '50%', transform: 'translateX(-50%)', zIndex: 9999 }}>
       <div className={
         `flex items-center gap-3 px-6 py-4 rounded-2xl shadow-xl border-2 text-lg font-semibold min-w-[240px] text-center transition-all animate-fade-in ` +
@@ -89,7 +89,8 @@ function Toast({ message, show }: { message: string, show: boolean }) {
         </span>
         <span>{message}</span>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
@@ -130,9 +131,9 @@ export default function EventDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [joined, setJoined] = useState(false);
-  const [rewardGiven, setRewardGiven] = useState(false); // mock
+  const [rewardGiven, setRewardGiven] = useState(false);
   const [confirmModal, setConfirmModal] = useState<{ open: boolean; type: 'join' | 'leave' | null }>({ open: false, type: null });
-  const [participantUids, setParticipantUids] = useState<Array<{uid: string, joinedAt?: Date, rewardGiven?: boolean, rewardNote?: string, message?: string, messageUpdatedAt?: Date, characterId?: string}>>([]);
+  const [participantUids, setParticipantUids] = useState<Array<{uid: string, joinedAt?: Date, rewardGiven?: boolean, rewardNote?: string, message?: string, messageUpdatedAt?: Date, characterId?: string, groupId?: string}>>([]);
   const { users, isLoading: usersLoading } = useUsers();
   const [announceMsg, setAnnounceMsg] = useState('');
   const [announceSaved, setAnnounceSaved] = useState(false);
@@ -143,12 +144,17 @@ export default function EventDetailPage() {
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [toast, setToast] = useState<{ show: boolean; message: string }>({ show: false, message: '' });
   const [rewardModal, setRewardModal] = useState(false);
-  const [selectedParticipant, setSelectedParticipant] = useState<string>('');
+  const [selectedParticipant, setSelectedParticipant] = useState('');
   const [rewardName, setRewardName] = useState('');
   const [participantMessage, setParticipantMessage] = useState('');
   const [hoveredUid, setHoveredUid] = useState<string | null>(null);
   const [showCharModal, setShowCharModal] = useState(false);
   const [selectedChar, setSelectedChar] = useState<Character | null>(null);
+  // เพิ่ม state สำหรับระบบกลุ่ม
+  const [groupModal, setGroupModal] = useState(false);
+  const [selectedGroupMember, setSelectedGroupMember] = useState<string>('');
+  const [groups, setGroups] = useState<Array<{id: string, members: string[]}>>([]);
+  const [maxGroupSize, setMaxGroupSize] = useState<number>(event?.maxGroupSize || 0); // ใช้ค่าจาก event แทน
 
   // ตรวจสอบสิทธิ์เจ้าของกิจกรรม (owner)
   const justCreated = searchParams.get('justCreated') === '1';
@@ -253,6 +259,7 @@ export default function EventDetailPage() {
         message: doc.data().message || '',
         messageUpdatedAt: doc.data().messageUpdatedAt?.toDate() || null,
         characterId: doc.data().characterId || undefined,
+        groupId: doc.data().groupId || undefined,
       }));
       setParticipantUids(list);
       setJoined(!!list.find(p => p.uid === user.uid));
@@ -285,7 +292,20 @@ export default function EventDetailPage() {
   }, [event]);
 
   const handleJoin = () => setConfirmModal({ open: true, type: 'join' });
-  const handleLeave = () => setConfirmModal({ open: true, type: 'leave' });
+  const handleLeave = async () => {
+    if (!params?.id || !user) return;
+    
+    // ถ้าอยู่ในกลุ่ม ให้ออกจากกลุ่มก่อน
+    const currentParticipant = participantUids.find(p => p.uid === user.uid);
+    if (currentParticipant?.groupId) {
+      await handleLeaveGroup();
+    }
+    
+    // ลบข้อมูลการเข้าร่วม
+    const partRef = doc(firestore, 'events', params.id as string, 'participants', user.uid);
+    await deleteDoc(partRef);
+    setConfirmModal({ open: false, type: null });
+  };
   const handleConfirm = async () => {
     if (!params?.id || !user) return;
     const partRef = doc(firestore, 'events', params.id as string, 'participants', user.uid);
@@ -328,9 +348,9 @@ export default function EventDetailPage() {
   };
 
   // ฟังก์ชันอัปเดตกิจกรรม
-  const handleEditEvent = async (data: { name: string; description: string; startAt: Date; endAt: Date; rewardInfo: string; notifyMessage: string; color: string; }) => {
+  const handleEditEvent = async (data: { name: string; description: string; startAt: Date; endAt: Date; rewardInfo: string; notifyMessage: string; color: string; maxGroupSize: number; }) => {
     if (!user || !event) return;
-    const { name, description, startAt, endAt, rewardInfo, color } = data;
+    const { name, description, startAt, endAt, rewardInfo, color, maxGroupSize } = data;
     await updateDoc(doc(firestore, 'events', event.id), {
       name,
       description,
@@ -338,6 +358,7 @@ export default function EventDetailPage() {
       endAt,
       rewardInfo,
       color,
+      maxGroupSize,
     });
     setIsEditModalOpen(false);
     router.push('/events');
@@ -364,19 +385,30 @@ export default function EventDetailPage() {
     window.location.href = `/events?waitForEnded=${event.id}`;
   };
 
-  // ฟังก์ชันมอบรางวัล
-  const handleGiveReward = async (uid: string, reward: string) => {
-    if (!user || !event || !uid || !reward) return;
-    try {
-      const partRef = doc(firestore, 'events', event.id, 'participants', uid);
+  // ฟังก์ชันมอบรางวัล (รองรับทั้งรายบุคคลและกลุ่ม)
+  const handleGiveReward = async (target: string, reward: string) => {
+    if (!user || !event || !target || !reward) return;
+    if (target.startsWith('group_')) {
+      // มอบรางวัลกลุ่ม: update ให้สมาชิกทุกคนในกลุ่ม
+      const groupMembers = participantUids.filter(p => p.groupId === target);
+      const batch = writeBatch(firestore);
+      groupMembers.forEach(member => {
+        const partRef = doc(firestore, 'events', event.id, 'participants', member.uid);
+        batch.update(partRef, {
+          rewardGiven: true,
+          rewardNote: reward,
+        });
+      });
+      await batch.commit();
+      setToast({ show: true, message: 'มอบรางวัลกลุ่มเรียบร้อย!' });
+    } else {
+      // มอบรางวัลรายบุคคล
+      const partRef = doc(firestore, 'events', event.id, 'participants', target);
       await updateDoc(partRef, {
         rewardGiven: true,
         rewardNote: reward,
       });
       setToast({ show: true, message: 'มอบรางวัลเรียบร้อย!' });
-    } catch (err) {
-      console.error(err);
-      setToast({ show: true, message: 'เกิดข้อผิดพลาดในการมอบรางวัล' });
     }
   };
 
@@ -385,10 +417,80 @@ export default function EventDetailPage() {
     if (!params?.id || !user || !joined) return;
     const partRef = doc(firestore, 'events', params.id as string, 'participants', user.uid);
     await updateDoc(partRef, {
-      message: participantMessage.slice(0, 30), // จำกัดความยาวไม่เกิน 30 ตัวอักษร
+      message: participantMessage.slice(0, 30),
       messageUpdatedAt: serverTimestamp()
     });
     setToast({ show: true, message: 'บันทึกข้อความเรียบร้อย!' });
+  };
+
+  // ฟังก์ชันจัดการกลุ่ม
+  const isValidGroupId = (groupId: any) => typeof groupId === 'string' && groupId.trim() !== '';
+  const handleJoinGroup = async (targetUid: string) => {
+    if (!params?.id || !user || !targetUid) {
+      setToast({ show: true, message: 'ไม่พบข้อมูลสมาชิกเป้าหมาย' });
+      return;
+    }
+    // ดึงข้อมูลล่าสุดของตัวเองจาก Firestore
+    const partRef = doc(firestore, 'events', params.id as string, 'participants', user.uid);
+    const partSnap = await getDoc(partRef);
+    const currentParticipant = partSnap.exists() ? partSnap.data() : null;
+    const targetParticipant = participantUids.find(p => p.uid === targetUid);
+    if (!currentParticipant || !targetParticipant) return;
+    if (isValidGroupId(currentParticipant.groupId)) {
+      setToast({ show: true, message: 'คุณอยู่ในกลุ่มแล้ว ไม่สามารถเข้ากลุ่มอื่นได้' });
+      setGroupModal(false);
+      setSelectedGroupMember('');
+      return;
+    }
+    // ถ้า target มีกลุ่ม ให้ join กลุ่มนั้น
+    if (targetParticipant.groupId) {
+      const groupId = targetParticipant.groupId;
+      const groupMembers = participantUids.filter(p => p.groupId === groupId);
+      if (groupMembers.length >= event.maxGroupSize) {
+        setToast({ show: true, message: `กลุ่มนี้เต็มแล้ว (สูงสุด ${event.maxGroupSize} คน)` });
+        return;
+      }
+      const partRef = doc(firestore, 'events', params.id as string, 'participants', user.uid);
+      await updateDoc(partRef, { groupId });
+      setToast({ show: true, message: 'เข้าร่วมกลุ่มเรียบร้อย!' });
+    } else {
+      // ทั้งสองคนยังไม่มีกลุ่ม สร้างกลุ่มใหม่
+      if (event.maxGroupSize <= 1) {
+        setToast({ show: true, message: 'ไม่สามารถสร้างกลุ่มใหม่ได้ (จำนวนสูงสุดไม่ถูกต้อง)' });
+        setGroupModal(false);
+        setSelectedGroupMember('');
+        return;
+      }
+      const newGroupId = `group_${Date.now()}`;
+      const batch = writeBatch(firestore);
+      const userRef = doc(firestore, 'events', params.id as string, 'participants', user.uid);
+      const targetRef = doc(firestore, 'events', params.id as string, 'participants', targetUid);
+      batch.update(userRef, { groupId: newGroupId });
+      batch.update(targetRef, { groupId: newGroupId });
+      await batch.commit();
+      setToast({ show: true, message: 'สร้างกลุ่มใหม่เรียบร้อย!' });
+    }
+    setGroupModal(false);
+    setSelectedGroupMember('');
+  };
+
+  const handleLeaveGroup = async () => {
+    if (!params?.id || !user) return;
+    
+    const currentParticipant = participantUids.find(p => p.uid === user.uid);
+    if (!currentParticipant?.groupId) return;
+
+    // ตรวจสอบจำนวนสมาชิกในกลุ่ม
+    const groupMembers = participantUids.filter(p => p.groupId === currentParticipant.groupId);
+    const partRef = doc(firestore, 'events', params.id as string, 'participants', user.uid);
+    if (groupMembers.length === 1) {
+      // คนสุดท้ายในกลุ่ม ลบ groupId ตัวเอง (กลุ่มจะหายไป)
+      await updateDoc(partRef, { groupId: null });
+    } else {
+      // มีคนอื่นในกลุ่ม แค่ลบ groupId ตัวเอง
+      await updateDoc(partRef, { groupId: null });
+    }
+    setToast({ show: true, message: 'ออกจากกลุ่มเรียบร้อย!' });
   };
 
   // ซ่อน toast อัตโนมัติ
@@ -398,6 +500,31 @@ export default function EventDetailPage() {
       return () => clearTimeout(timer);
     }
   }, [toast]);
+
+  // --- เพิ่มฟังก์ชันลบรางวัล ---
+  const handleRemoveReward = async (target: string) => {
+    if (!user || !event || !target) return;
+    if (target.startsWith('group_')) {
+      // ลบรางวัลกลุ่ม: update สมาชิกทุกคนในกลุ่ม
+      const groupMembers = participantUids.filter(p => p.groupId === target);
+      const batch = writeBatch(firestore);
+      groupMembers.forEach(member => {
+        const partRef = doc(firestore, 'events', event.id, 'participants', member.uid);
+        batch.update(partRef, {
+          rewardGiven: false,
+          rewardNote: '',
+        });
+      });
+      await batch.commit();
+    } else {
+      // ลบรางวัลรายบุคคล
+      const partRef = doc(firestore, 'events', event.id, 'participants', target);
+      await updateDoc(partRef, {
+        rewardGiven: false,
+        rewardNote: '',
+      });
+    }
+  };
 
   if (loading || usersLoading || authLoading || !user) {
     return <div className="max-w-2xl mx-auto py-8 px-4 text-center text-gray-400">กำลังโหลดกิจกรรม...</div>;
@@ -427,6 +554,13 @@ export default function EventDetailPage() {
     `${descPreview}\n` +
     `🗓️ วันเวลาเริ่ม: ${startDate ? startDate.toLocaleString('th-TH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}\n` +
     `🎁 ของรางวัล: ${event.rewardInfo}`;
+
+  let groupMemberNames: string[] = [];
+  if (selectedParticipant && selectedParticipant.startsWith('group_')) {
+    groupMemberNames = participantUids
+      .filter(p => p.groupId === selectedParticipant)
+      .map(p => users?.[p.uid]?.meta?.discord || p.uid);
+  }
 
   return (
     <React.Fragment>
@@ -589,88 +723,306 @@ export default function EventDetailPage() {
             {participantUsers.length === 0 ? (
               <div className="text-gray-400 flex items-center gap-2"><span>😶‍🌫️</span>ยังไม่มีผู้เข้าร่วม</div>
             ) : (
-              <ul className="divide-y divide-pink-100">
-                {participantUsers.map((u) => {
-                  const participantDoc = participantUids.find(p => p.uid === u.uid);
-                  const characters = Object.values(u.characters || {}) as Character[];
+              <div className="space-y-0">
+                {(() => {
+                  // 1. สร้าง map ของ groupId -> สมาชิก
+                  const groupMap: Record<string, any[]> = {};
+                  let noGroup: any[] = [];
+                  participantUsers.forEach(u => {
+                    const participantDoc = participantUids.find(p => p.uid === u.uid);
+                    const groupId = participantDoc?.groupId;
+                    if (groupId && groupId !== '' && groupId != null) {
+                      if (!groupMap[groupId]) groupMap[groupId] = [];
+                      groupMap[groupId].push({ user: u, participantDoc });
+                    } else {
+                      noGroup.push({ user: u, participantDoc });
+                    }
+                  });
+                  // 2. ถ้ากลุ่มไหนมีสมาชิกแค่ 1 คน ให้นำไปไว้ใน noGroup แทน
+                  Object.entries(groupMap).forEach(([groupId, members]) => {
+                    if (members.length === 1) {
+                      noGroup.push(members[0]);
+                      delete groupMap[groupId];
+                    }
+                  });
+                  // 3. เรียงกลุ่ม: กลุ่มที่มีสมาชิกมากสุดอยู่ล่างสุด
+                  const sortedGroups = Object.entries(groupMap).sort((a, b) => a[1].length - b[1].length);
+                  // 4. แสดงสมาชิกที่ไม่มี groupId (เรียง joinedAt ล่าสุดบนสุด)
+                  const sortedNoGroup = noGroup.slice().sort((a, b) => {
+                    const aJoin = a.participantDoc?.joinedAt?.getTime?.() || 0;
+                    const bJoin = b.participantDoc?.joinedAt?.getTime?.() || 0;
+                    return bJoin - aJoin;
+                  });
                   return (
-                    <li
-                      key={u.uid}
-                      className="flex items-center gap-3 p-3 bg-white/50 rounded-lg shadow-sm hover:shadow-md transition-all relative"
-                    >
-                      <span
-                        className="font-medium text-gray-800 cursor-help relative"
-                        onMouseEnter={() => setHoveredUid(u.uid)}
-                        onMouseLeave={() => setHoveredUid(null)}
-                      >
-                        {(() => {
-                          let char: Character | null = null;
-                          if (participantDoc && (participantDoc as any).characterId) {
-                            const charId = (participantDoc as any).characterId as string | undefined;
-                            if (charId) {
-                              char = u.characters?.[charId] || null;
-                            }
+                    <>
+                      {sortedNoGroup.map((item) => {
+                        const memberUser = item.user;
+                        const participantDoc = item.participantDoc;
+                        let nameBlock;
+                        let char = null;
+                        if (participantDoc && participantDoc.characterId) {
+                          const charId = participantDoc.characterId;
+                          if (charId) {
+                            char = memberUser.characters?.[charId] || null;
                           }
-                          if (char) {
-                            return <span>
-                              <span className="font-semibold text-gray-800">{u.meta?.discord || 'ไม่ทราบชื่อ'}</span>
+                        }
+                        if (char) {
+                          nameBlock = (
+                            <span>
+                              <span className="font-semibold text-gray-800">{memberUser.meta?.discord || 'ไม่ทราบชื่อ'}</span>
                               <span className="mx-1 text-gray-400">/</span>
                               <span className="text-xs font-semibold text-pink-600">{char.name}</span>{' '}
                               <span className="text-xs text-green-600 font-medium">เข้าร่วมกิจกรรม</span>
-                            </span>;
-                          }
-                          return <span className="font-semibold text-gray-800">{u.meta?.discord || 'ไม่ทราบชื่อ'}</span>;
-                        })()}
-                      </span>
-                      {participantDoc?.message && (
-                        <span className="text-xs text-gray-500">
-                          {participantDoc.messageUpdatedAt && (
-                            <span className="text-gray-400">
-                              [{participantDoc.messageUpdatedAt.toLocaleString('th-TH', { 
-                                year: '2-digit',
-                                month: '2-digit',
-                                day: '2-digit',
-                                hour: '2-digit',
-                                minute: '2-digit'
-                              }).replace(' ', ' ')}น.]
+                              {participantDoc?.message && (
+                                <span className="text-xs text-gray-500 ml-2">
+                                  {participantDoc.messageUpdatedAt && (
+                                    <span className="text-gray-400">
+                                      [{participantDoc.messageUpdatedAt.toLocaleString('th-TH', { 
+                                        year: '2-digit',
+                                        month: '2-digit',
+                                        day: '2-digit',
+                                        hour: '2-digit',
+                                        minute: '2-digit'
+                                      }).replace(' ', ' ')}น.]
+                                    </span>
+                                  )}
+                                  — {participantDoc.message}
+                                </span>
+                              )}
                             </span>
-                          )}
-                          — {participantDoc.message}
-                        </span>
-                      )}
-                      <div className="ml-auto flex items-center gap-2">
-                        {isOwner && !participantDoc?.rewardGiven && (
-                          <button
-                            onClick={() => {
-                              setSelectedParticipant(u.uid);
-                              setRewardName("");
-                              setRewardModal(true);
-                            }}
-                            className="flex items-center gap-1 px-3 py-1 rounded-full border border-yellow-200 bg-yellow-50 text-yellow-700 text-sm font-medium shadow hover:bg-yellow-100 transition-colors duration-150"
-                          >
-                            <Gift className="w-3 h-3" />
-                            มอบรางวัล
-                          </button>
-                        )}
-                        {participantDoc?.rewardGiven && (
-                          <span 
-                            onClick={() => {
-                              if (isOwner) {
-                                setSelectedParticipant(u.uid);
-                                setRewardName(participantDoc.rewardNote || "");
-                                setRewardModal(true);
-                              }
-                            }}
-                            className={`text-sm ${isOwner ? 'cursor-pointer hover:text-green-700' : 'text-green-600'}`}
-                          >
-                            ✓ {participantDoc.rewardNote}
-                          </span>
-                        )}
-                      </div>
-                    </li>
+                          );
+                        } else {
+                          nameBlock = (
+                            <span className="font-semibold text-gray-800">{memberUser.meta?.discord || 'ไม่ทราบชื่อ'}
+                              {participantDoc?.message && (
+                                <span className="text-xs text-gray-500 ml-2">
+                                  {participantDoc.messageUpdatedAt && (
+                                    <span className="text-gray-400">
+                                      [{participantDoc.messageUpdatedAt.toLocaleString('th-TH', { 
+                                        year: '2-digit',
+                                        month: '2-digit',
+                                        day: '2-digit',
+                                        hour: '2-digit',
+                                        minute: '2-digit'
+                                      }).replace(' ', ' ')}น.]
+                                    </span>
+                                  )}
+                                  — {participantDoc.message}
+                                </span>
+                              )}
+                            </span>
+                          );
+                        }
+                        return (
+                          <li key={memberUser.uid} className={`flex items-center gap-3 p-3 bg-white/50 rounded-lg shadow-sm hover:shadow-md transition-all relative`}>
+                            <div className="flex w-full items-center">
+                              <div className="flex-1 min-w-0">
+                                <span
+                                  className={`font-medium text-gray-800 ${(user && memberUser.uid !== user.uid && !event.isEnded) ? 'cursor-pointer hover:text-blue-600' : ''} relative`}
+                                  onMouseEnter={() => {
+                                    if (user && memberUser.uid !== user.uid && !event.isEnded) setHoveredUid(memberUser.uid);
+                                  }}
+                                  onMouseLeave={() => {
+                                    if (user && memberUser.uid !== user.uid && !event.isEnded) setHoveredUid(null);
+                                  }}
+                                  onClick={() => {
+                                    if (user && memberUser.uid !== user.uid && !event.isEnded && event.maxGroupSize > 0) {
+                                      setSelectedGroupMember(memberUser.uid);
+                                      setGroupModal(true);
+                                    }
+                                  }}
+                                >
+                                  {nameBlock}
+                                </span>
+                              </div>
+                              {/* ปุ่มมอบรางวัลสำหรับเจ้าของกิจกรรม (noGroup) */}
+                              {isOwner && (
+                                !participantDoc?.rewardGiven ? (
+                                  <button
+                                    onClick={() => {
+                                      setSelectedParticipant(memberUser.uid);
+                                      setRewardName("");
+                                      setRewardModal(true);
+                                    }}
+                                    className="flex items-center gap-1 px-3 py-1 rounded-full border border-yellow-200 bg-yellow-50 text-yellow-700 text-sm font-medium shadow hover:bg-yellow-100 transition-colors duration-150 ml-2"
+                                  >
+                                    <Gift className="w-3 h-3" />
+                                    มอบรางวัล
+                                  </button>
+                                ) : (
+                                  <span 
+                                    onClick={() => {
+                                      setSelectedParticipant(memberUser.uid);
+                                      setRewardName(participantDoc.rewardNote || "");
+                                      setRewardModal(true);
+                                    }}
+                                    className={`text-sm cursor-pointer hover:text-green-700 ml-2`}
+                                  >
+                                    ✓ {participantDoc.rewardNote}
+                                  </span>
+                                )
+                              )}
+                            </div>
+                          </li>
+                        );
+                      })}
+                      {/* 5. แสดงกลุ่ม */}
+                      {sortedGroups.map(([groupId, members]) => {
+                        // สมาชิกในกลุ่มเรียงจาก joinedAt ล่าสุดอยู่บนสุด
+                        const sortedMembers = members.slice().sort((a, b) => {
+                          const aJoin = a.participantDoc?.joinedAt?.getTime?.() || 0;
+                          const bJoin = b.participantDoc?.joinedAt?.getTime?.() || 0;
+                          return bJoin - aJoin;
+                        });
+                        // ตรวจสอบว่าทุกคนในกลุ่มได้รับรางวัลหรือยัง
+                        const allRewarded = members.every((m: any) => m.participantDoc?.rewardGiven);
+                        // หา rewardNote ล่าสุด (ถ้ามี)
+                        const rewardNotes = members.map((m: any) => m.participantDoc?.rewardNote).filter(Boolean);
+                        const lastRewardNote = rewardNotes.length > 0 ? rewardNotes[rewardNotes.length - 1] : '';
+                        return (
+                          <div key={groupId} className="bg-blue-50/50 rounded-lg shadow-md p-3">
+                            <div className="mb-2 flex items-center gap-2 justify-between">
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs font-medium text-blue-600 bg-blue-100 px-2 py-1 rounded-full">
+                                  กลุ่ม {members.length}/{event.maxGroupSize}
+                                </span>
+                                {/* ปุ่มหรือแสดงรางวัลกลุ่ม เฉพาะเจ้าของกิจกรรม */}
+                                {isOwner && (
+                                  allRewarded && lastRewardNote ? (
+                                    <span
+                                      className="text-sm text-green-700 cursor-pointer ml-0"
+                                      onClick={() => {
+                                        setSelectedGroupMember(groupId);
+                                        setSelectedParticipant(groupId);
+                                        setRewardName(lastRewardNote);
+                                        setRewardModal(true);
+                                      }}
+                                    >
+                                      ✓ {lastRewardNote}
+                                    </span>
+                                  ) : (
+                                    <button
+                                      onClick={() => {
+                                        setSelectedGroupMember(groupId);
+                                        setSelectedParticipant(groupId);
+                                        setRewardModal(true);
+                                      }}
+                                      className="flex items-center gap-1 px-3 py-1 rounded-full border border-yellow-200 bg-yellow-50 text-yellow-700 text-sm font-medium shadow hover:bg-yellow-100 transition-colors duration-150"
+                                    >
+                                      <Gift className="w-3 h-3" />
+                                      มอบรางวัลกลุ่ม
+                                    </button>
+                                  )
+                                )}
+                              </div>
+                            </div>
+                            <ul className="divide-y divide-blue-100">
+                              {sortedMembers.map((item) => {
+                                const memberUser = item.user;
+                                const participantDoc = item.participantDoc;
+                                let nameBlock;
+                                let char = null;
+                                if (participantDoc && participantDoc.characterId) {
+                                  const charId = participantDoc.characterId;
+                                  if (charId) {
+                                    char = memberUser.characters?.[charId] || null;
+                                  }
+                                }
+                                if (char) {
+                                  nameBlock = (
+                                    <span>
+                                      <span className="font-semibold text-gray-800">{memberUser.meta?.discord || 'ไม่ทราบชื่อ'}</span>
+                                      <span className="mx-1 text-gray-400">/</span>
+                                      <span className="text-xs font-semibold text-pink-600">{char.name}</span>{' '}
+                                      <span className="text-xs text-green-600 font-medium">เข้าร่วมกิจกรรม</span>
+                                      {participantDoc?.message && (
+                                        <span className="text-xs text-gray-500 ml-2">
+                                          {participantDoc.messageUpdatedAt && (
+                                            <span className="text-gray-400">
+                                              [{participantDoc.messageUpdatedAt.toLocaleString('th-TH', { 
+                                                year: '2-digit',
+                                                month: '2-digit',
+                                                day: '2-digit',
+                                                hour: '2-digit',
+                                                minute: '2-digit'
+                                              }).replace(' ', ' ')}น.]
+                                            </span>
+                                          )}
+                                          — {participantDoc.message}
+                                        </span>
+                                      )}
+                                    </span>
+                                  );
+                                } else {
+                                  nameBlock = (
+                                    <span className="font-semibold text-gray-800">{memberUser.meta?.discord || 'ไม่ทราบชื่อ'}
+                                      {participantDoc?.message && (
+                                        <span className="text-xs text-gray-500 ml-2">
+                                          {participantDoc.messageUpdatedAt && (
+                                            <span className="text-gray-400">
+                                              [{participantDoc.messageUpdatedAt.toLocaleString('th-TH', { 
+                                                year: '2-digit',
+                                                month: '2-digit',
+                                                day: '2-digit',
+                                                hour: '2-digit',
+                                                minute: '2-digit'
+                                              }).replace(' ', ' ')}น.]
+                                            </span>
+                                          )}
+                                          — {participantDoc.message}
+                                        </span>
+                                      )}
+                                    </span>
+                                  );
+                                }
+                                // ก่อน return JSX ของแต่ละสมาชิก
+                                const isInGroup = !!participantDoc?.groupId;
+                                const groupMemberCount = isInGroup ? participantUids.filter(p => p.groupId === participantDoc.groupId).length : 0;
+                                return (
+                                  <li key={memberUser.uid} className={`flex items-center gap-3 p-3 bg-transparent rounded-lg shadow-sm hover:shadow-md transition-all relative`}>
+                                    <div className="flex w-full items-center">
+                                      <div className="flex-1 min-w-0">
+                                        <span
+                                          className={`font-medium text-gray-800 ${(user && memberUser.uid !== user.uid && !event.isEnded) ? 'cursor-pointer hover:text-blue-600' : ''} relative`}
+                                          onMouseEnter={() => {
+                                            if (user && memberUser.uid !== user.uid && !event.isEnded) setHoveredUid(memberUser.uid);
+                                          }}
+                                          onMouseLeave={() => {
+                                            if (user && memberUser.uid !== user.uid && !event.isEnded) setHoveredUid(null);
+                                          }}
+                                          onClick={() => {
+                                            if (user && memberUser.uid !== user.uid && !event.isEnded && event.maxGroupSize > 0) {
+                                              setSelectedGroupMember(memberUser.uid);
+                                              setGroupModal(true);
+                                            }
+                                          }}
+                                        >
+                                          {nameBlock}
+                                        </span>
+                                      </div>
+                                      {/* ปุ่มออกจากกลุ่ม เฉพาะตัวเอง อยู่ในกลุ่ม และกิจกรรมยังไม่จบ */}
+                                      {(memberUser.uid === user?.uid && isInGroup && groupMemberCount > 1 && !event.isEnded) && (
+                                        <div className="flex items-center gap-2 ml-2">
+                                          <button
+                                            onClick={handleLeaveGroup}
+                                            className="flex items-center gap-1 px-3 py-1 rounded-full border border-red-200 bg-red-50 text-red-700 text-sm font-medium shadow hover:bg-red-100 transition-colors duration-150"
+                                          >
+                                            ออกจากกลุ่ม
+                                          </button>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </li>
+                                );
+                              })}
+                            </ul>
+                          </div>
+                        );
+                      })}
+                    </>
                   );
-                })}
-              </ul>
+                })()}
+              </div>
             )}
           </div>
           {/* Modal แก้ไขกิจกรรม */}
@@ -687,6 +1039,7 @@ export default function EventDetailPage() {
                 rewardInfo: event.rewardInfo,
                 notifyMessage: event.notifyMessage || '',
                 color: event.color || '#FFB5E8',
+                maxGroupSize: event.maxGroupSize ?? 0
               }}
               isEdit
             />
@@ -712,7 +1065,7 @@ export default function EventDetailPage() {
           {/* Modal มอบรางวัล */}
           {rewardModal && createPortal(
             <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm">
-              <div className="bg-white rounded-2xl shadow-xl border border-yellow-100 p-8 w-full max-w-lg relative max-h-[90vh] overflow-y-auto">
+              <div className="bg-white rounded-2xl shadow-xl border border-yellow-100 p-8 w-full max-w-lg relative">
                 <h3 className="text-2xl font-bold text-yellow-700 mb-6 flex items-center gap-2">
                   <Gift className="w-6 h-6" />
                   มอบรางวัล
@@ -731,23 +1084,40 @@ export default function EventDetailPage() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">ผู้ได้รับรางวัล</label>
                     <div className="p-3 bg-yellow-50 rounded-lg flex items-center gap-2">
-                      <span className="text-gray-800 font-medium">
-                        {(users?.[user.uid]?.meta?.discord) || user.displayName || user.email}
-                      </span>
-                      {(() => {
-                        const u = participantUsers.find(u => u.uid === selectedParticipant);
-                        return u && u.characters && Object.values(u.characters).length > 0 ? (
-                          <span className="text-gray-500 text-sm">— ตัวละคร: {Object.values(u.characters).map((c: any) => c.name).join(', ')}</span>
-                        ) : null;
-                      })()}
+                      {selectedParticipant && selectedParticipant.startsWith('group_') ? (
+                        groupMemberNames.length > 0
+                          ? groupMemberNames.join(', ')
+                          : 'ไม่มีสมาชิกในกลุ่มนี้'
+                      ) : (
+                        (users?.[selectedParticipant]?.meta?.discord) || selectedParticipant
+                      )}
                     </div>
                   </div>
                 </div>
                 <div className="flex justify-end gap-2 mt-8">
+                  {rewardName && (
+                    <button
+                      onClick={async () => {
+                        if (selectedParticipant) {
+                          await handleRemoveReward(selectedParticipant);
+                          setRewardModal(false);
+                          setSelectedParticipant('');
+                          setSelectedGroupMember('');
+                          setRewardName('');
+                          setToast({ show: true, message: 'ลบรางวัลเรียบร้อย!' });
+                        }
+                      }}
+                      className="px-6 py-2 rounded-lg border border-red-300 text-red-700 hover:bg-red-50"
+                      type="button"
+                    >
+                      ลบรางวัล
+                    </button>
+                  )}
                   <button
                     onClick={() => {
                       setRewardModal(false);
                       setSelectedParticipant('');
+                      setSelectedGroupMember('');
                       setRewardName('');
                       setToast({ show: false, message: '' });
                     }}
@@ -761,6 +1131,7 @@ export default function EventDetailPage() {
                         handleGiveReward(selectedParticipant, rewardName);
                         setRewardModal(false);
                         setSelectedParticipant('');
+                        setSelectedGroupMember('');
                         setRewardName('');
                         setToast({ show: false, message: '' });
                       }
@@ -825,6 +1196,69 @@ export default function EventDetailPage() {
               )}
             </DialogContent>
           </Dialog>
+          {/* Modal ยืนยันการเข้ากลุ่ม */}
+          {groupModal && (typeof window === 'undefined' || !document.body ? null : createPortal(
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm">
+              <div className="bg-white rounded-2xl shadow-xl border border-blue-100 p-0 w-full max-w-lg relative overflow-hidden">
+                {/* Header พาสเทล */}
+                <div className="bg-gradient-to-r from-pink-100 via-purple-100 to-blue-100 px-8 py-6 rounded-t-2xl flex items-center gap-3 border-b border-blue-100">
+                  <span className="text-3xl">👥</span>
+                  <h3 className="text-2xl font-extrabold text-blue-700 drop-shadow-sm">ยืนยันการเข้ากลุ่ม</h3>
+                </div>
+                <div className="space-y-4 px-8 py-6 bg-gradient-to-br from-blue-50 via-pink-50 to-purple-50">
+                  <div className="p-4 rounded-xl bg-white/80 border border-blue-100 flex flex-col gap-2 shadow-sm">
+                    <div className="flex items-center gap-2 text-lg font-semibold text-gray-700">
+                      <span className="text-pink-400 text-2xl">🤝</span>
+                      คุณต้องการเข้ากลุ่มกับ <span className="font-bold text-blue-700">{users[selectedGroupMember]?.meta?.discord || 'ไม่ทราบชื่อ'}</span> ?
+                    </div>
+                    {/* จำนวนสมาชิก/สถานะกลุ่ม */}
+                    {event.maxGroupSize <= 1 ? (
+                      <div className="mt-2 text-base text-blue-400 flex items-center gap-2">
+                        <span className="text-xl">🚫</span> กิจกรรมนี้ไม่ได้เปิดระบบกลุ่ม
+                      </div>
+                    ) : (() => {
+                      const targetParticipant = participantUids.find(p => p.uid === selectedGroupMember);
+                      if (targetParticipant?.groupId) {
+                        const groupMembers = participantUids.filter(p => p.groupId === targetParticipant.groupId);
+                        return (
+                          <div className="mt-2 text-base text-blue-600 flex items-center gap-2">
+                            <span className="text-xl">👤</span> กลุ่มนี้มีสมาชิก <span className="font-bold text-purple-600">{groupMembers.length}/{event.maxGroupSize}</span> คน
+                          </div>
+                        );
+                      }
+                      return (
+                        <div className="mt-2 text-base text-blue-600 flex items-center gap-2">
+                          <span className="text-xl">✨</span> จะสร้างกลุ่มใหม่ <span className="font-bold text-purple-600">(สูงสุด {event.maxGroupSize} คน)</span>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                </div>
+                {/* ปุ่ม action */}
+                {event.maxGroupSize > 1 && (
+                  <div className="flex justify-end gap-2 px-8 py-4 bg-gradient-to-r from-pink-50 via-blue-50 to-purple-50 rounded-b-2xl border-t border-blue-100 sticky bottom-0">
+                    <button
+                      onClick={() => {
+                        setGroupModal(false);
+                        setSelectedGroupMember('');
+                      }}
+                      className="px-6 py-2 rounded-lg border border-gray-300 text-gray-700 bg-white/80 hover:bg-gray-100 transition font-semibold"
+                    >
+                      ยกเลิก
+                    </button>
+                    <button
+                      onClick={() => handleJoinGroup(selectedGroupMember)}
+                      className="px-6 py-2 rounded-lg bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400 text-white font-bold shadow hover:from-pink-500 hover:to-blue-500 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                      disabled={!selectedGroupMember}
+                    >
+                      <span className="mr-1">🎉</span>ยืนยัน
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>,
+            document.body
+          ))}
           {/* Toast แจ้งเตือน */}
           <Toast message={toast.message} show={toast.show} />
         </div>

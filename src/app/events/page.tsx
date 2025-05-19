@@ -7,7 +7,7 @@ import { motion } from 'framer-motion';
 import { Plus, History, Calendar as CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { CreateEventModal } from '@/components/events/CreateEventModal';
-import { collection, query, where, onSnapshot, orderBy } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, orderBy, addDoc, serverTimestamp } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
@@ -90,28 +90,24 @@ export default function EventsPage() {
     }
   }, [justEndedId, router]);
 
-  const handleCreateEvent = async (data: {
-    name: string;
-    description: string;
-    startAt: Date;
-    endAt: Date;
-    rewardInfo: string;
-    notifyMessage: string;
-  }) => {
+  const handleCreateEvent = async (data: { name: string; description: string; startAt: Date; endAt: Date; rewardInfo: string; notifyMessage: string; color: string; maxGroupSize: number; }) => {
     if (!user) return;
-    const { name, description, startAt, endAt, rewardInfo, notifyMessage } = data;
-    const { addDoc, collection, serverTimestamp, Timestamp } = await import('firebase/firestore');
-    await addDoc(collection(firestore, 'events'), {
+    const { name, description, startAt, endAt, rewardInfo, notifyMessage, color, maxGroupSize } = data;
+    const eventData = {
       name,
       description,
-      startAt: Timestamp.fromDate(startAt),
-      endAt: Timestamp.fromDate(endAt),
+      startAt,
+      endAt,
       rewardInfo,
       notifyMessage,
-      isEnded: false,
-      createdAt: serverTimestamp(),
+      color,
       ownerUid: user.uid,
-    });
+      createdAt: serverTimestamp(),
+      isEnded: false,
+      ...(maxGroupSize > 0 ? { maxGroupSize } : {})
+    };
+    await addDoc(collection(firestore, 'events'), eventData);
+    router.push('/events');
   };
 
   // filter กิจกรรมที่เพิ่งจบออก (ถ้ามี justEnded)
