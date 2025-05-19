@@ -29,7 +29,7 @@ const ALLOWED_JOBS = [
   "Alchemist"
 ] as const;
 
-type StatType = 'score' | 'atk' | 'hp' | 'def' | 'cri' | 'ele' | 'fd';
+type StatType = 'score' | 'atk' | 'hp' | 'def' | 'cri' | 'ele' | 'fd' | 'discord';
 
 interface RankedCharacter extends Character {
   score: number;
@@ -158,6 +158,13 @@ export default function RankingPage() {
 
     // Sort by selected stat first
     processed.sort((a, b) => {
+      if (selectedStat === 'discord') {
+        // For Discord name, use string comparison
+        return sortDirection === 'desc' 
+          ? b.discordName.localeCompare(a.discordName)
+          : a.discordName.localeCompare(b.discordName);
+      }
+
       let aValue: number;
       let bValue: number;
 
@@ -168,9 +175,12 @@ export default function RankingPage() {
         // For DEF, use the average of PDEF and MDEF
         aValue = (a.stats.pdef + a.stats.mdef) / 2;
         bValue = (b.stats.pdef + b.stats.mdef) / 2;
+      } else if (selectedStat in a.stats) {
+        // Type guard to ensure the stat exists
+        aValue = a.stats[selectedStat as keyof typeof a.stats] || 0;
+        bValue = b.stats[selectedStat as keyof typeof b.stats] || 0;
       } else {
-        aValue = a.stats[selectedStat];
-        bValue = b.stats[selectedStat];
+        return 0;
       }
 
       return sortDirection === 'desc' ? bValue - aValue : aValue - bValue;
@@ -393,10 +403,16 @@ export default function RankingPage() {
                           <span className="hidden sm:inline">อันดับ</span>
                         </div>
                       </th>
-                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 whitespace-nowrap">
+                      <th 
+                        className="px-4 py-3 text-left text-sm font-medium text-gray-500 cursor-pointer hover:bg-pink-50/50 transition-colors whitespace-nowrap"
+                        onClick={() => handleSort('discord')}
+                      >
                         <div className="flex items-center gap-1">
                           <span>👤</span>
                           <span className="hidden sm:inline">Discord</span>
+                          {selectedStat === 'discord' && (
+                            <span className="text-xs">{sortDirection === 'asc' ? '↑' : '↓'}</span>
+                          )}
                         </div>
                       </th>
                       <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 whitespace-nowrap">

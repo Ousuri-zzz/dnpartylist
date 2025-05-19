@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useGuild } from '@/hooks/useGuild';
 import { useRouter } from 'next/navigation';
@@ -32,6 +32,8 @@ export default function GuildDonateCashPage() {
   const [donorDiscords, setDonorDiscords] = useState<Record<string, string>>({});
   const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(1);
+  const [sortField, setSortField] = useState<'amount' | 'discord' | 'date'>('date');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const perPage = 10;
 
   useEffect(() => {
@@ -52,12 +54,14 @@ export default function GuildDonateCashPage() {
             typeof value.createdAt === 'number' &&
             typeof value.userId === 'string' &&
             value.type === 'cash' &&
-            value.paymentMethod === 'promptpay'
+            value.paymentMethod === 'promptpay' &&
+            value.status !== 'rejected'
           ))
           .map(([id, value]: [string, any]) => ({
             id,
             ...value
-          }));
+          }))
+          .sort((a, b) => b.createdAt - a.createdAt);
         setDonations(donationsList);
       }
     });
@@ -115,7 +119,32 @@ export default function GuildDonateCashPage() {
     toast.success(approve ? 'ยืนยันการบริจาคสำเร็จ' : 'ยกเลิกการบริจาคแล้ว');
   };
 
-  const filteredDonations = donations.filter(donation => {
+  const handleSort = (field: 'amount' | 'discord' | 'date') => {
+    if (sortField === field) {
+      setSortDirection(prev => prev === 'desc' ? 'asc' : 'desc');
+    } else {
+      setSortField(field);
+      setSortDirection('desc');
+    }
+  };
+
+  const sortedDonations = useMemo(() => {
+    return [...donations].sort((a, b) => {
+      if (sortField === 'amount') {
+        return sortDirection === 'desc' ? b.amount - a.amount : a.amount - b.amount;
+      } else if (sortField === 'discord') {
+        const aDiscord = donorDiscords[a.userId] || '';
+        const bDiscord = donorDiscords[b.userId] || '';
+        return sortDirection === 'desc' 
+          ? bDiscord.localeCompare(aDiscord)
+          : aDiscord.localeCompare(bDiscord);
+      } else {
+        return sortDirection === 'desc' ? b.createdAt - a.createdAt : a.createdAt - b.createdAt;
+      }
+    });
+  }, [donations, sortField, sortDirection, donorDiscords]);
+
+  const filteredDonations = sortedDonations.filter(donation => {
     const discordName = donorDiscords[donation.userId] || '';
     return discordName.toLowerCase().includes(searchTerm.toLowerCase());
   });
@@ -185,9 +214,39 @@ export default function GuildDonateCashPage() {
           <table className="w-full">
             <thead>
               <tr className="bg-pink-50">
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">จำนวนเงิน</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Discord</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">วันที่</th>
+                <th 
+                  className="px-4 py-3 text-left text-sm font-semibold text-gray-600 cursor-pointer hover:bg-pink-100"
+                  onClick={() => handleSort('amount')}
+                >
+                  <div className="flex items-center gap-1">
+                    จำนวนเงิน
+                    {sortField === 'amount' && (
+                      <span className="text-xs">{sortDirection === 'desc' ? '↓' : '↑'}</span>
+                    )}
+                  </div>
+                </th>
+                <th 
+                  className="px-4 py-3 text-left text-sm font-semibold text-gray-600 cursor-pointer hover:bg-pink-100"
+                  onClick={() => handleSort('discord')}
+                >
+                  <div className="flex items-center gap-1">
+                    Discord
+                    {sortField === 'discord' && (
+                      <span className="text-xs">{sortDirection === 'desc' ? '↓' : '↑'}</span>
+                    )}
+                  </div>
+                </th>
+                <th 
+                  className="px-4 py-3 text-left text-sm font-semibold text-gray-600 cursor-pointer hover:bg-pink-100"
+                  onClick={() => handleSort('date')}
+                >
+                  <div className="flex items-center gap-1">
+                    วันที่
+                    {sortField === 'date' && (
+                      <span className="text-xs">{sortDirection === 'desc' ? '↓' : '↑'}</span>
+                    )}
+                  </div>
+                </th>
                 <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">สถานะ</th>
               </tr>
             </thead>
