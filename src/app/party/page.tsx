@@ -244,44 +244,48 @@ export default function PartyPage() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.2, delay: 0.3, ease: "easeOut" }}
-            className="flex justify-between items-center gap-2 mt-4 sm:mt-6 overflow-x-auto"
+            className="flex flex-wrap items-center justify-between mt-4 sm:mt-6 gap-2"
           >
-            <div className="flex gap-2 items-center">
-              <Button
-                variant={activeTab === 'all-parties' ? 'default' : 'outline'}
+            <div className="flex gap-2 items-center flex-shrink-0 min-w-0">
+              <button
+                type="button"
                 onClick={() => setActiveTab('all-parties')}
                 className={cn(
-                  "px-3 py-2 sm:px-4 sm:py-2 rounded font-semibold transition-all duration-200 border-b-2 text-sm sm:text-base",
-                  activeTab === 'all-parties' && "border-violet-500 text-violet-700 bg-violet-100"
+                  "px-4 py-2 rounded-xl font-semibold text-base transition-all duration-200 border shadow-sm",
+                  activeTab === 'all-parties'
+                    ? "bg-gradient-to-r from-blue-100 to-purple-100 text-blue-800 border-blue-200 shadow-md"
+                    : "bg-white text-gray-600 border-gray-200 hover:bg-blue-50 hover:text-blue-700"
                 )}
               >
                 ปาร์ตี้ทั้งหมด
-              </Button>
-              <Button
-                variant={activeTab === 'my-parties' ? 'default' : 'outline'}
+              </button>
+              <button
+                type="button"
                 onClick={() => setActiveTab('my-parties')}
                 className={cn(
-                  "px-3 py-2 sm:px-4 sm:py-2 rounded font-semibold transition-all duration-200 border-b-2 text-sm sm:text-base",
-                  activeTab === 'my-parties' && "border-violet-500 text-violet-700 bg-violet-100"
+                  "px-4 py-2 rounded-xl font-semibold text-base transition-all duration-200 border shadow-sm",
+                  activeTab === 'my-parties'
+                    ? "bg-gradient-to-r from-green-100 to-blue-100 text-green-800 border-green-200 shadow-md"
+                    : "bg-white text-gray-600 border-gray-200 hover:bg-green-50 hover:text-green-700"
                 )}
               >
                 ปาร์ตี้ของฉัน
-              </Button>
+              </button>
               <button
                 onClick={() => setIsJobFilterOpen(true)}
                 className={cn(
-                  "px-3 py-2 sm:px-4 sm:py-2 rounded font-semibold transition-all duration-200 border-b-2 text-sm sm:text-base flex items-center gap-2",
+                  "px-4 py-2 rounded-xl font-semibold text-base transition-all duration-200 border shadow-sm flex items-center gap-2",
                   selectedJob === 'all'
-                    ? "border-transparent text-gray-600 hover:bg-gray-100"
+                    ? "bg-white text-gray-600 border-gray-200 hover:bg-gray-100"
                     : selectedJob === 'Sword Master' || selectedJob === 'Mercenary'
-                      ? "border-red-200 text-red-600 bg-red-50 hover:bg-red-100"
+                      ? "bg-gradient-to-r from-red-50 to-rose-100 text-red-700 border-red-200 shadow-md hover:bg-red-100"
                       : selectedJob === 'Bowmaster' || selectedJob === 'Acrobat'
-                        ? "border-emerald-200 text-emerald-600 bg-emerald-50 hover:bg-emerald-100"
+                        ? "bg-gradient-to-r from-emerald-50 to-green-100 text-emerald-700 border-emerald-200 shadow-md hover:bg-emerald-100"
                         : selectedJob === 'Force User' || selectedJob === 'Elemental Lord'
-                          ? "border-purple-200 text-purple-600 bg-purple-50 hover:bg-purple-100"
+                          ? "bg-gradient-to-r from-purple-50 to-violet-100 text-purple-700 border-purple-200 shadow-md hover:bg-purple-100"
                           : selectedJob === 'Paladin' || selectedJob === 'Priest'
-                            ? "border-sky-200 text-sky-600 bg-sky-50 hover:bg-sky-100"
-                            : "border-amber-200 text-amber-600 bg-amber-50 hover:bg-amber-100"
+                            ? "bg-gradient-to-r from-sky-50 to-blue-100 text-sky-700 border-sky-200 shadow-md hover:bg-sky-100"
+                            : "bg-gradient-to-r from-amber-50 to-yellow-100 text-amber-700 border-amber-200 shadow-md hover:bg-amber-100"
                 )}
               >
                 <span className="text-lg">
@@ -296,17 +300,39 @@ export default function PartyPage() {
                   {selectedJob === 'all' ? 'กรองอาชีพ' : `ไม่มี ${selectedJob}`}
                 </span>
               </button>
+              {/* Banner เชิญชวน */}
+              {activeTab !== 'searching' && (
+                <div className="flex items-center gap-2 bg-gradient-to-r from-blue-50 via-pink-50 to-purple-50 border border-blue-200 rounded-xl px-3 py-2 shadow-sm animate-pulse ml-2 flex-1 min-w-0">
+                  <span className="text-xl md:text-2xl">👉</span>
+                  <span className="text-sm md:text-base font-medium text-blue-700">
+                    อยากหาเพื่อนเข้าปาร์ตี้?
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('searching')}
+                    className="mx-1 px-2 py-1 rounded-lg bg-gradient-to-r from-pink-400 to-blue-400 text-white font-bold shadow hover:scale-105 transition-transform text-sm md:text-base border border-pink-200"
+                    tabIndex={0}
+                  >
+                    กำลังหาปาร์ตี้
+                  </button>
+                  <span className="text-sm md:text-base font-medium text-blue-700">
+                    เพื่อดูรายชื่อคนที่รอเข้าปาร์ตี้!
+                  </span>
+                </div>
+              )}
             </div>
-            <Button
-              variant={activeTab === 'searching' ? 'default' : 'outline'}
+            <button
+              type="button"
               onClick={() => setActiveTab('searching')}
               className={cn(
-                "ml-auto px-3 py-2 sm:px-4 sm:py-2 rounded font-semibold transition-all duration-200 border-b-2 text-sm sm:text-base",
-                activeTab === 'searching' && "border-violet-500 text-violet-700 bg-violet-100"
+                "ml-2 px-4 py-2 rounded-xl font-semibold text-base transition-all duration-200 border shadow-sm flex-shrink-0",
+                activeTab === 'searching'
+                  ? "bg-gradient-to-r from-pink-100 to-blue-100 text-pink-800 border-pink-200 shadow-md"
+                  : "bg-white text-gray-600 border-gray-200 hover:bg-pink-50 hover:text-pink-700"
               )}
             >
               กำลังหาปาร์ตี้
-            </Button>
+            </button>
           </motion.div>
         </motion.div>
 
