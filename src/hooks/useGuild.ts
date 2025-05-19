@@ -13,6 +13,7 @@ export function useGuild() {
   useEffect(() => {
     if (!user) {
       setLoading(false);
+      setIsGuildLeader(false);
       return;
     }
 
@@ -21,7 +22,8 @@ export function useGuild() {
       if (snapshot.exists()) {
         const guildData = snapshot.val();
         setGuild(guildData);
-        setIsGuildLeader(guildData.leaders?.[user.uid] === true);
+        const isLeader = guildData.leaders && guildData.leaders[user.uid] === true;
+        setIsGuildLeader(isLeader);
       } else {
         setGuild(null);
         setIsGuildLeader(false);
@@ -29,19 +31,6 @@ export function useGuild() {
       setLoading(false);
     });
 
-    return () => unsubscribe();
-  }, [user]);
-
-  useEffect(() => {
-    if (!user) {
-      setIsGuildLeader(false);
-      return;
-    }
-    const leadersRef = ref(db, 'guild/leaders');
-    const unsubscribe = onValue(leadersRef, (snapshot) => {
-      const leaders = snapshot.val() || {};
-      setIsGuildLeader(!!leaders[user.uid]);
-    });
     return () => unsubscribe();
   }, [user]);
 

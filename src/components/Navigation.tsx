@@ -271,7 +271,7 @@ export default function Navigation() {
                     {isGuildLeader && (
                       <Link href="/guild/settings" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-green-50/50 text-gray-700 relative">
                         <Settings className="w-5 h-5" />
-                        <span className="font-medium">Guild Settings</span>
+                        <span className="font-medium">Guild</span>
                         {(pendingGuildLoanCount > 0 || pendingMerchantCount > 0) && (
                           <div className="absolute top-0 right-0 flex gap-0 z-30">
                             {pendingGuildLoanCount > 0 && (
@@ -593,6 +593,60 @@ export default function Navigation() {
                     )}
                   </motion.div>
                 </Link>
+                {isGuildLeader && (
+                  <Link
+                    href="/guild/settings"
+                    className={cn(
+                      "guild-settings-desktop-right",
+                      "relative group px-3 py-1.5 rounded-lg transition-all duration-300 cursor-pointer flex items-center gap-2",
+                      pathname === "/guild/settings"
+                        ? "bg-gradient-to-r from-green-400 to-green-600 text-white shadow-md shadow-green-500/20"
+                        : "bg-white/60 border border-green-100 shadow-sm hover:bg-green-50/50 hover:shadow-xl hover:scale-105 hover:ring-2 hover:ring-green-300 hover:border-green-400 hover:text-green-600"
+                    )}
+                  >
+                    <Settings className={cn(
+                      "w-4 h-4 transition-colors duration-300",
+                      pathname === "/guild/settings" ? "text-white" : "group-hover:text-green-600 text-green-500"
+                    )} />
+                    <span className={cn(
+                      "text-sm font-medium transition-colors duration-300",
+                      pathname === "/guild/settings" ? "text-white" : "group-hover:text-green-600 text-gray-700"
+                    )}>
+                      Guild
+                    </span>
+                    {(pendingGuildLoanCount > 0 || pendingMerchantCount > 0 || pendingNewMemberCount > 0) && (
+                      <span className="absolute -top-2 -right-2 flex gap-1 z-30">
+                        {pendingNewMemberCount > 0 && (
+                          <span
+                            className="px-1.5 py-0.5 rounded-full bg-blue-400 text-white text-xs font-bold shadow-md border border-blue-200 cursor-pointer hover:bg-blue-300 transition-colors drop-shadow"
+                            title="มีสมาชิกใหม่รออนุมัติ"
+                            style={{ minWidth: 20, textAlign: 'center' }}
+                          >
+                            {pendingNewMemberCount}
+                          </span>
+                        )}
+                        {pendingMerchantCount > 0 && (
+                          <span
+                            className="px-1.5 py-0.5 rounded-full bg-yellow-300 text-yellow-900 text-xs font-bold shadow-md border border-yellow-200 cursor-pointer hover:bg-yellow-200 transition-colors drop-shadow"
+                            title="มีร้านค้ารออนุมัติ"
+                            style={{ minWidth: 20, textAlign: 'center' }}
+                          >
+                            {pendingMerchantCount}
+                          </span>
+                        )}
+                        {pendingGuildLoanCount > 0 && (
+                          <span
+                            className="px-1.5 py-0.5 rounded-full bg-red-500 text-white text-xs font-bold shadow-md border border-red-400 cursor-pointer hover:bg-red-400 transition-colors drop-shadow"
+                            title="มีคำขอกู้ยืมใหม่"
+                            style={{ minWidth: 20, textAlign: 'center' }}
+                          >
+                            {pendingGuildLoanCount}
+                          </span>
+                        )}
+                      </span>
+                    )}
+                  </Link>
+                )}
                 <DiscordDropdown />
               </div>
 
