@@ -46,6 +46,48 @@ const weightConfig = {
   fd: 150         // FD หายากสุดและส่งผลสูงมาก
 };
 
+// เพิ่ม config สำหรับน้ำหนัก ATK ตามอาชีพ
+const atkWeightByClass = {
+  "Sword Master": 1.2,    // อาชีพที่เน้น ATK
+  "Mercenary": 1.2,
+  "Bowmaster": 1.2,
+  "Acrobat": 1.4,
+  "Force User": 0.8,      // อาชีพที่เน้น ELE
+  "Elemental Lord": 0.8,
+  "Paladin": 1.0,         // อาชีพที่สมดุล
+  "Priest": 0.8,
+  "Engineer": 1.0,
+  "Alchemist": 1.0
+} as const;
+
+// เพิ่ม config สำหรับน้ำหนัก DEF ตามอาชีพ
+const defWeightByClass = {
+  "Sword Master": 1.0,
+  "Mercenary": 1.0,
+  "Bowmaster": 1.0,
+  "Acrobat": 1.2,         // Acrobat หา DEF ยากกว่า
+  "Force User": 1.0,
+  "Elemental Lord": 1.0,
+  "Paladin": 1.0,
+  "Priest": 1.0,
+  "Engineer": 1.0,
+  "Alchemist": 1.0
+} as const;
+
+// เพิ่ม config สำหรับน้ำหนัก CRI ตามอาชีพ
+const criWeightByClass = {
+  "Sword Master": 1.0,
+  "Mercenary": 1.0,
+  "Bowmaster": 1.0,
+  "Acrobat": 1.0,
+  "Force User": 1.0,
+  "Elemental Lord": 1.0,
+  "Paladin": 1.0,         // Paladin ไม่ค่อยเน้น CRI
+  "Priest": 1.0,          // Priest ไม่ค่อยเน้น CRI
+  "Engineer": 1.0,
+  "Alchemist": 1.0
+} as const;
+
 const formatNumber = (num: number): string => {
   if (num >= 1000000) {
     return (num / 1000000).toFixed(1) + 'M';
@@ -87,11 +129,15 @@ export default function RankingPage() {
   const calculateScore = (character: Character): number => {
     const stats = character.stats;
     const averageDef = ((stats.pdef || 0) + (stats.mdef || 0)) / 2;
+    const atkWeight = atkWeightByClass[character.class] || 1.0;
+    const defWeight = defWeightByClass[character.class] || 1.0;
+    const criWeight = criWeightByClass[character.class] || 1.0;
+    
     return (
-      (stats.atk || 0) * weightConfig.atk +
+      (stats.atk || 0) * atkWeight +
       (stats.hp || 0) * weightConfig.hp +
-      (averageDef) * weightConfig.def +
-      (stats.cri || 0) * weightConfig.cri +
+      (averageDef) * weightConfig.def * defWeight +
+      (stats.cri || 0) * weightConfig.cri * criWeight +
       (stats.ele || 0) * weightConfig.ele +
       (stats.fd || 0) * weightConfig.fd
     );
