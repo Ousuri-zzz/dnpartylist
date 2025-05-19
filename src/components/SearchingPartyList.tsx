@@ -49,6 +49,13 @@ const CharacterCard = ({ char }: CharacterCardProps) => {
   const nests: string[] = Array.isArray(char.nests) ? char.nests : (char.nests ? char.nests.split(',') : []);
   const { users } = useUsers();
   const discordName = users[char.userId]?.meta?.discord || 'Unknown';
+  const lastUpdate = new Date(char.updatedAt).toLocaleString('th-TH', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
 
   return (
     <div className="p-1">
@@ -63,6 +70,7 @@ const CharacterCard = ({ char }: CharacterCardProps) => {
         <div>
           <h4 className={cn('text-lg font-bold', colors.text)}>{discordName}</h4>
           <p className={cn('text-sm font-medium', colors.text)}>{char.characterName} - {char.characterClass}</p>
+          <p className="text-xs text-gray-500">อัพเดทล่าสุด: {lastUpdate}</p>
         </div>
         <div className="flex flex-col divide-y divide-violet-100">
           <div className="flex flex-wrap gap-1 ml-4 text-xs items-center">
@@ -281,27 +289,36 @@ export function SearchingPartyList({ searchQuery }: SearchingPartyListProps) {
     return true;
   });
 
-  // จัดกลุ่มตัวละครตามดันเจี้ยน (fix: ถ้ามี searchQuery ให้แสดงเฉพาะในกล่องดันเจี้ยนที่ตรงกับ query)
-  const groupedByNest = filteredCharacters.reduce((acc: Record<string, SearchingCharacter[]>, char) => {
-    const query = searchQuery.toLowerCase();
-    const nests = typeof char.nests === 'string' ? char.nests.split(',') : char.nests;
-    nests.forEach((nest: string) => {
-      // ถ้ามี searchQuery ให้แสดงเฉพาะในกล่องที่ตรงกับ query
-      if (!query || nest.toLowerCase().includes(query)) {
-        if (!acc[nest]) {
-          acc[nest] = [];
+  // Group characters by nest and sort by updatedAt
+  const groupedByNest = useMemo(() => {
+    const grouped: { [key: string]: SearchingCharacter[] } = {};
+    
+    searchingCharacters.forEach(char => {
+      const nests = Array.isArray(char.nests) ? char.nests : (char.nests ? char.nests.split(',') : []);
+      nests.forEach(nest => {
+        if (!grouped[nest]) {
+          grouped[nest] = [];
         }
-        acc[nest].push(char);
-      }
+        grouped[nest].push(char);
+      });
     });
-    return acc;
-  }, {});
 
-  const nestsWithChars = ALL_NESTS
-    .filter(nest => (groupedByNest[nest] || []).length > 0)
-    .sort((a, b) => (groupedByNest[b]?.length || 0) - (groupedByNest[a]?.length || 0));
-  const nestsWithoutChars = ALL_NESTS.filter(nest => (groupedByNest[nest] || []).length === 0);
-  const sortedNests = [...nestsWithChars, ...nestsWithoutChars];
+    // Sort characters within each nest by updatedAt (newest first)
+    Object.keys(grouped).forEach(nest => {
+      grouped[nest].sort((a, b) => 
+        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+      );
+    });
+
+    return grouped;
+  }, [searchingCharacters]);
+
+  // Sort nests by number of characters (most first)
+  const sortedNests = useMemo(() => {
+    return Object.keys(groupedByNest).sort((a, b) => {
+      return (groupedByNest[b]?.length || 0) - (groupedByNest[a]?.length || 0);
+    });
+  }, [groupedByNest]);
 
   return (
     <div className="space-y-6">
