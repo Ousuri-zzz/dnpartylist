@@ -898,7 +898,7 @@ export default function PartyPage({ params }: { params: { id: string } }) {
                           onClick={() => setIsInviteOpen(true)}
                         >
                           <UserPlus className="w-4 h-4 mr-2" />
-                          เชิญเพื่อน
+                          คัดลอกลิ้งเชิญ
                         </Button>
                         <Button
                           variant="outline"
@@ -1342,16 +1342,13 @@ export default function PartyPage({ params }: { params: { id: string } }) {
               <div className="bg-white/50 rounded-lg p-4 space-y-2">
                 <h4 className="font-medium text-gray-700">ตัวอย่างข้อความเชิญ:</h4>
                 <pre className="text-sm text-gray-600 whitespace-pre-wrap">
-                  {`📢 นัดหมายปาร์ตี้!
+                  {`📢 ${inviteMsg ? inviteMsg : 'นัดหมายปาร์ตี้!'}
 
 🧩 Party Name: ${party?.name}
 🏰 Nest: ${party?.nest}
 
 👥 รายชื่อสมาชิก:
 ${members.map(m => `- @${m.discordName} (${m.character.class})`).join('\n')}
-
-🕒 ข้อความนัดหมาย:
-"${inviteMsg || 'พร้อมแล้ว! เข้ามาได้เลย!'}"
 
 📎 เข้าร่วมที่นี่:
 ${typeof window !== 'undefined' ? window.location.href : ''}`}
@@ -1369,16 +1366,13 @@ ${typeof window !== 'undefined' ? window.location.href : ''}`}
                   onClick={async () => {
                     try {
                       setIsCopying(true);
-                      const inviteText = `📢 นัดหมายปาร์ตี้!
+                      const inviteText = `📢 ${inviteMsg ? inviteMsg : 'นัดหมายปาร์ตี้!'}
 
 🧩 Party Name: ${party?.name}
 🏰 Nest: ${party?.nest}
 
 👥 รายชื่อสมาชิก:
 ${members.map(m => `- @${m.discordName} (${m.character.class})`).join('\n')}
-
-🕒 ข้อความนัดหมาย:
-"${inviteMsg || 'พร้อมแล้ว! เข้ามาได้เลย!'}"
 
 📎 เข้าร่วมที่นี่:
 ${typeof window !== 'undefined' ? window.location.href : ''}`;
