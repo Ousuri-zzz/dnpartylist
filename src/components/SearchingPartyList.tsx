@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useCharacters } from '../hooks/useCharacters';
 import { useUsers } from '../hooks/useUsers';
+import { useGuild } from '../hooks/useGuild';
 import { Character } from '../types/character';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
 import { Button } from './ui/button';
@@ -48,6 +49,8 @@ const CharacterCard = ({ char }: CharacterCardProps) => {
   const colors = getClassColor(char.characterClass);
   const nests: string[] = Array.isArray(char.nests) ? char.nests : (char.nests ? char.nests.split(',') : []);
   const { users } = useUsers();
+  const { isGuildLeader } = useGuild();
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const discordName = users[char.userId]?.meta?.discord || 'Unknown';
   const lastUpdate = new Date(char.updatedAt).toLocaleString('th-TH', {
     year: 'numeric',
@@ -57,10 +60,21 @@ const CharacterCard = ({ char }: CharacterCardProps) => {
     minute: '2-digit'
   });
 
+  const handleRemoveCharacter = async () => {
+    try {
+      await remove(ref(db, `searchingParties/${char.characterId}`));
+      toast.success('ลบตัวละครสำเร็จ');
+      setIsDeleteDialogOpen(false);
+    } catch (error) {
+      console.error('Error removing character:', error);
+      toast.error('เกิดข้อผิดพลาดในการลบตัวละคร');
+    }
+  };
+
   return (
     <div className="p-1">
       {/* ไอคอน + ชื่อ + อาชีพ + stat + ข้อความ */}
-      <div className="flex flex-wrap items-center gap-3 mb-1">
+      <div className="flex items-center gap-3 mb-1">
         <div className={cn(
           'w-10 h-10 flex items-center justify-center',
           colors.border
@@ -93,6 +107,45 @@ const CharacterCard = ({ char }: CharacterCardProps) => {
             )}
           </div>
         </div>
+        {isGuildLeader && (
+          <>
+            <button
+              onClick={() => setIsDeleteDialogOpen(true)}
+              className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors ml-auto"
+              title="ลบตัวละครออกจากรายการที่กำลังหาปาร์ตี้"
+            >
+              <Trash2 className="w-5 h-5" />
+            </button>
+            <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+              <DialogContent className="sm:max-w-md bg-white/95 backdrop-blur-sm">
+                <DialogHeader>
+                  <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-pink-600 to-indigo-600 bg-clip-text text-transparent">
+                    ยืนยันการลบตัวละคร
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="p-4">
+                  <p className="text-gray-600 mb-4">
+                    คุณต้องการลบตัวละคร <span className="font-bold text-violet-700">{char.characterName}</span> ของ <span className="font-bold text-violet-700">{discordName}</span> ออกจากรายการที่กำลังหาปาร์ตี้ใช่หรือไม่?
+                  </p>
+                  <div className="flex gap-2 justify-end">
+                    <Button
+                      variant="outline"
+                      onClick={() => setIsDeleteDialogOpen(false)}
+                    >
+                      ยกเลิก
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      onClick={handleRemoveCharacter}
+                    >
+                      ลบตัวละคร
+                    </Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </>
+        )}
       </div>
     </div>
   );
