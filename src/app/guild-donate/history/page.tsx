@@ -42,7 +42,7 @@ interface MemberDonation {
   }>;
 }
 
-const BADGE_CONTAINER_WIDTH = 350; // px
+const BADGE_CONTAINER_WIDTH = 250; // Reduced from 350px to 250px
 
 export default function GuildDonateHistoryPage() {
   const { user } = useAuth();
@@ -275,7 +275,7 @@ export default function GuildDonateHistoryPage() {
             <thead>
               <tr className="bg-pink-50">
                 <th 
-                  className="px-4 py-3 text-center text-sm font-semibold text-gray-600 cursor-pointer hover:bg-pink-100 w-24"
+                  className="px-3 py-3 text-center text-sm font-semibold text-gray-600 cursor-pointer hover:bg-pink-100 w-16"
                   onClick={() => handleSort('donationCount')}
                 >
                   <div className="flex items-center justify-center gap-1">
@@ -286,9 +286,9 @@ export default function GuildDonateHistoryPage() {
                     )}
                   </div>
                 </th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600 w-24">รายชื่อสมาชิก</th>
+                <th className="px-3 py-3 text-left text-sm font-semibold text-gray-600 w-64">รายชื่อสมาชิก</th>
                 <th 
-                  className="px-4 py-3 text-center text-sm font-semibold text-gray-600 cursor-pointer hover:bg-pink-100 w-44 whitespace-nowrap"
+                  className="px-3 py-3 text-center text-sm font-semibold text-gray-600 cursor-pointer hover:bg-pink-100 w-36 whitespace-nowrap"
                   onClick={() => handleSort('lastDonation')}
                 >
                   <div className="flex items-center gap-1 justify-center">
@@ -300,7 +300,7 @@ export default function GuildDonateHistoryPage() {
                   </div>
                 </th>
                 <th 
-                  className="px-4 py-3 text-center text-sm font-semibold text-gray-600 cursor-pointer hover:bg-pink-100 w-40 whitespace-nowrap"
+                  className="px-3 py-3 text-center text-sm font-semibold text-gray-600 cursor-pointer hover:bg-pink-100 w-32 whitespace-nowrap"
                   onClick={() => handleSort('lastDonationAmount')}
                 >
                   <div className="flex items-center gap-1 justify-center">
@@ -312,7 +312,7 @@ export default function GuildDonateHistoryPage() {
                   </div>
                 </th>
                 <th 
-                  className="px-4 py-3 text-left text-sm font-semibold text-gray-600 cursor-pointer hover:bg-pink-100 w-40 whitespace-nowrap"
+                  className="px-3 py-3 text-left text-sm font-semibold text-gray-600 cursor-pointer hover:bg-pink-100 w-32 whitespace-nowrap"
                   onClick={() => handleSort('totalDonations')}
                 >
                   <div className="flex items-center gap-1 justify-center">
@@ -328,7 +328,7 @@ export default function GuildDonateHistoryPage() {
             <tbody className="divide-y divide-pink-100">
               {filteredDonations.map((member) => (
                 <tr key={member.userId} className="hover:bg-pink-50/50">
-                  <td className="px-4 py-3 text-center">
+                  <td className="px-3 py-3 text-center">
                     <span className={cn(
                       "font-medium",
                       member.donationCount > 0 ? "text-blue-600" : "text-gray-400"
@@ -336,9 +336,9 @@ export default function GuildDonateHistoryPage() {
                       {member.donationCount}
                     </span>
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-3 py-3">
                     <div className="flex items-center gap-2 flex-nowrap">
-                      <span className="font-medium text-gray-700 flex-shrink min-w-0 whitespace-nowrap">
+                      <span className="font-medium text-gray-700 flex-shrink min-w-0 whitespace-nowrap max-w-[120px] truncate" title={member.discordName}>
                         {member.discordName}
                       </span>
                       <div
@@ -415,7 +415,7 @@ export default function GuildDonateHistoryPage() {
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-3 w-44 whitespace-nowrap text-center">
+                  <td className="px-3 py-3 w-36 whitespace-nowrap text-center">
                     {member.lastDonation ? (
                       <span className={cn(
                         "text-gray-600",
@@ -431,7 +431,7 @@ export default function GuildDonateHistoryPage() {
                       <span className="text-gray-400">ยังไม่เคยบริจาค</span>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-center w-40">
+                  <td className="px-3 py-3 text-center w-32">
                     {member.lastDonationAmount ? (
                       <span className="font-medium text-green-600">
                         {member.lastDonationAmount.toLocaleString()}G
@@ -440,7 +440,7 @@ export default function GuildDonateHistoryPage() {
                       <span className="text-gray-400">-</span>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-center w-40 whitespace-nowrap">
+                  <td className="px-3 py-3 text-center w-32 whitespace-nowrap">
                     <span className={cn(
                       "font-medium",
                       member.totalDonations > 0 ? "text-green-600" : "text-gray-400"
