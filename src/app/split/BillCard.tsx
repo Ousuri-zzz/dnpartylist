@@ -40,9 +40,14 @@ export function BillCard({ bill }: BillCardProps) {
   const [focusedInput, setFocusedInput] = useState<number | null>(null);
   const [focusedServiceFee, setFocusedServiceFee] = useState(false);
   const items = editItems;
-  const participants = Object.values(bill.participants || {});
+  const ownerCharacterId = bill.ownerCharacterId;
+  const participantsList = Object.values(bill.participants || {});
+  const sortedParticipants = [
+    ...participantsList.filter(p => p.characterId === ownerCharacterId),
+    ...participantsList.filter(p => p.characterId !== ownerCharacterId),
+  ];
   const totalPrice = items.reduce((sum, item) => sum + (Number(item.price) || 0), 0);
-  const splitAmount = calculateSplit(items, editServiceFee, participants.length);
+  const splitAmount = calculateSplit(items, editServiceFee, sortedParticipants.length);
   const { days, hours, minutes } = getTimeRemaining(bill.expiresAt);
   const isExpiring = isExpiringSoon(bill.expiresAt);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -374,8 +379,8 @@ export function BillCard({ bill }: BillCardProps) {
           </>
         )}
         <div className="flex flex-col gap-2 mt-4">
-          {participants.map((participant) => {
-            const isOwnerCharacter = Object.keys(bill.participants)[0] === participant.characterId;
+          {sortedParticipants.map((participant) => {
+            const isOwnerCharacter = bill.ownerCharacterId && participant.characterId === bill.ownerCharacterId;
             const isTraded = participant.paid || false;
             return (
               <div key={participant.characterId} className="flex items-center">

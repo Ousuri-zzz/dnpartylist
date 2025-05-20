@@ -22,6 +22,7 @@ export interface Bill {
   title: string;
   serviceFee: number;
   ownerUid: string;
+  ownerCharacterId?: string;
   createdAt: number;
   expiresAt: number;
   participants: Record<string, Participant>;

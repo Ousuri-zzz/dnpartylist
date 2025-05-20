@@ -101,6 +101,7 @@ export function CreateBillModal({ isOpen, onClose }: CreateBillModalProps) {
         title,
         serviceFee: 0,
         ownerUid: user.uid,
+        ownerCharacterId: selectedCharacter.id,
         createdAt: now,
         expiresAt,
         participants: {
