@@ -305,11 +305,6 @@ export function BillCard({ bill }: BillCardProps) {
       {/* กล่องสรุป */}
       <div className="mb-4 grid grid-cols-1 md:grid-cols-3 gap-2">
         <div className="rounded-lg bg-yellow-50 shadow-sm flex flex-col items-center py-2 px-1 min-w-[80px]">
-          <span className="flex items-center gap-1 text-[11px] text-gray-500 mb-0.5"><BanknotesIcon className="w-4 h-4 text-yellow-400" /> ราคารวม</span>
-          <span className="text-xl font-bold text-yellow-800">{formatGold(totalPrice)}</span>
-          <span className="text-[11px] text-gray-400 mt-0.5">Gold</span>
-        </div>
-        <div className="rounded-lg bg-yellow-50 shadow-sm flex flex-col items-center py-2 px-1 min-w-[80px]">
           <span className="flex items-center gap-1 text-[11px] text-gray-500 mb-0.5"><Cog6ToothIcon className="w-4 h-4 text-yellow-400" /> ค่าบริการ</span>
           <span className="text-xl font-bold text-yellow-800">{formatGold(editServiceFee)}</span>
           <span className="text-[11px] text-gray-400 mt-0.5">Gold</span>
@@ -319,12 +314,17 @@ export function BillCard({ bill }: BillCardProps) {
           <span className="text-xl font-extrabold text-yellow-500 drop-shadow">{formatGold(splitAmount)}</span>
           <span className="text-[11px] text-gray-400 mt-0.5">Gold</span>
         </div>
+        <div className="rounded-lg bg-yellow-50 shadow-sm flex flex-col items-center py-2 px-1 min-w-[80px]">
+          <span className="flex items-center gap-1 text-[11px] text-gray-500 mb-0.5"><BanknotesIcon className="w-4 h-4 text-yellow-400" /> ราคารวม</span>
+          <span className="text-xl font-bold text-yellow-800">{formatGold(totalPrice)}</span>
+          <span className="text-[11px] text-gray-400 mt-0.5">Gold</span>
+        </div>
       </div>
 
       {/* รายชื่อผู้ร่วมบิล */}
-      {isOwner && (
-        <>
-          <div className="mb-2">
+      <div className="mb-2">
+        {isOwner && (
+          <>
             <label className="block text-sm font-medium text-gray-700 mb-1">ค้นหาตัวละครเพื่อเพิ่มผู้ร่วมบิล</label>
             <div className="flex gap-2">
               <input
@@ -371,32 +371,55 @@ export function BillCard({ bill }: BillCardProps) {
                 เพิ่ม "{searchQuery}" เป็นผู้ร่วมบิล
               </button>
             )}
-          </div>
-          <div className="flex flex-col gap-2">
-            {participants.map((participant) => {
-              const isOwnerCharacter = Object.keys(bill.participants)[0] === participant.characterId && bill.ownerUid === user?.uid;
-              const isTraded = participant.paid || false;
-              return (
-                <div key={participant.characterId} className="flex items-center">
-                  <span className="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium shadow w-full bg-yellow-100 text-yellow-800">
-                    <UserIcon className="w-4 h-4 mr-1 text-yellow-500" />
-                    {participant.name}
-                    {isTraded && <span className="ml-2 text-xs text-green-700 font-semibold">เทรดแล้ว</span>}
-                    {isOwner && !isOwnerCharacter && (
-                      <button
-                        onClick={() => handleRemoveParticipant(participant.characterId)}
-                        className="ml-2 text-red-400 hover:text-red-600 p-1 rounded-full hover:bg-red-50 transition"
-                      >
-                        <XMarkIcon className="w-4 h-4" />
-                      </button>
-                    )}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        </>
-      )}
+          </>
+        )}
+        <div className="flex flex-col gap-2 mt-4">
+          {participants.map((participant) => {
+            const isOwnerCharacter = Object.keys(bill.participants)[0] === participant.characterId;
+            const isTraded = participant.paid || false;
+            return (
+              <div key={participant.characterId} className="flex items-center">
+                <span className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium shadow w-full ${
+                  isOwnerCharacter 
+                    ? 'bg-orange-100 text-orange-800' 
+                    : isTraded 
+                      ? 'bg-green-100 text-green-800' 
+                      : 'bg-yellow-100 text-yellow-800'
+                }`}>
+                  {isOwner && !isOwnerCharacter && (
+                    <button
+                      onClick={() => handleTogglePaid(participant.characterId, !isTraded)}
+                      className={`p-1 rounded-full transition ${isTraded ? 'bg-green-200 hover:bg-green-300' : 'bg-yellow-200 hover:bg-yellow-300'}`}
+                    >
+                      <svg className={`w-4 h-4 ${isTraded ? 'text-green-600' : 'text-yellow-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                      </svg>
+                    </button>
+                  )}
+                  <UserIcon className={`w-4 h-4 mx-1 ${
+                    isOwnerCharacter 
+                      ? 'text-orange-500' 
+                      : isTraded 
+                        ? 'text-green-500' 
+                        : 'text-yellow-500'
+                  }`} />
+                  {participant.name}
+                  {isOwnerCharacter && <span className="ml-2 text-xs text-orange-700 font-semibold">เจ้าของบิล</span>}
+                  {isTraded && !isOwnerCharacter && <span className="ml-2 text-xs text-green-700 font-semibold">เทรดแล้ว</span>}
+                  {isOwner && !isOwnerCharacter && (
+                    <button
+                      onClick={() => handleRemoveParticipant(participant.characterId)}
+                      className="ml-auto text-red-400 hover:text-red-600 p-1 rounded-full hover:bg-red-50 transition"
+                    >
+                      <XMarkIcon className="w-4 h-4" />
+                    </button>
+                  )}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
 
       {/* เวลาคงเหลือ */}
       <div className="text-sm text-gray-500 flex items-center gap-2 mt-2">
