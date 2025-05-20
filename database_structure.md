@@ -181,4 +181,96 @@ Cloud Firestore uses a Collection/Document model.
 -   *Everyone can read participant documents.*
 -   *Logged-in users can create their own participant document (`request.auth.uid == userId`) to join an event.*
 -   *Logged-in users can delete their own participant document (`request.auth.uid == userId`) to leave an event.*
--   *Logged-in users can update their own participant document, or the event owner (`ownerUid`) can also update participant documents (e.g., for recording rewards or participation status).* 
+-   *Logged-in users can update their own participant document, or the event owner (`ownerUid`) can also update participant documents (e.g., for recording rewards or participation status).*
+
+### `/searchingParties`
+
+Stores information about characters looking for parties.
+-   **Read access**: Requires authentication.
+-   **Write access**: Requires authentication.
+-   **Key**: `$characterId`
+    -   **Validation**: Must have `characterId`, `characterName`, `characterClass`, `message`, `nests`, `stats`, `updatedAt` as children.
+    -   **Data**:
+        -   `characterId`: (string) ID of the character.
+            -   **Validation**: Must be a non-empty string.
+        -   `characterName`: (string) Name of the character.
+            -   **Validation**: Must be a non-empty string.
+        -   `characterClass`: (string) Class of the character.
+            -   **Validation**: Must be a non-empty string.
+        -   `message`: (string) Message from the character.
+            -   **Validation**: Must be a string.
+        -   `nests`: (string) Preferred nests.
+            -   **Validation**: Must be a string.
+        -   `stats`: (map/object) Character stats.
+            -   **Validation**: Must have `atk`, `hp`, `pdef`, `mdef`, `cri`, `ele`, `fd` as children.
+            -   **Data**:
+                -   `atk`: (number) Attack stat.
+                    -   **Validation**: Must be a number >= 0.
+                -   `hp`: (number) HP stat.
+                    -   **Validation**: Must be a number >= 0.
+                -   `pdef`: (number) Physical Defense stat.
+                    -   **Validation**: Must be a number >= 0.
+                -   `mdef`: (number) Magical Defense stat.
+                    -   **Validation**: Must be a number >= 0.
+                -   `cri`: (number) Critical stat.
+                    -   **Validation**: Must be a number >= 0.
+                -   `ele`: (number) Elemental Attack stat.
+                    -   **Validation**: Must be a number >= 0.
+                -   `fd`: (number) Final Damage stat.
+                    -   **Validation**: Must be a number >= 0.
+        -   `updatedAt`: (string) Last update timestamp.
+            -   **Validation**: Must be a string.
+
+### `/events`
+
+Stores information about events.
+-   **Read access**: Requires authentication.
+-   **Write access**: Requires authentication.
+-   **Key**: `$eventId`
+    -   **Read access**: Requires authentication.
+    -   **Write access**: Requires authentication AND (the event doesn't exist OR the authenticated user is the owner).
+    -   **Validation**: Must have `name`, `startAt`, `endAt`, `ownerUid`, `maxGroupSize` as children.
+    -   **Data**:
+        -   `name`: (string) Event name.
+            -   **Validation**: Must be a non-empty string.
+        -   `description`: (string) Event description.
+            -   **Validation**: Must be a string.
+        -   `startAt`: (number) Start timestamp.
+            -   **Validation**: Must be a number.
+        -   `endAt`: (number) End timestamp.
+            -   **Validation**: Must be a number.
+        -   `rewardInfo`: (string) Information about rewards.
+            -   **Validation**: Must be a string.
+        -   `notifyMessage`: (string) Notification message.
+            -   **Validation**: Must be a string.
+        -   `color`: (string) Event color.
+            -   **Validation**: Must be a string.
+        -   `maxGroupSize`: (number) Maximum group size.
+            -   **Validation**: Must be a number between 2 and 8.
+        -   `ownerUid`: (string) UID of the event owner.
+            -   **Validation**: Must be the UID of the authenticated user.
+        -   `isEnded`: (boolean) Whether the event has ended.
+            -   **Validation**: Must be a boolean.
+        -   `endedAt`: (number) End timestamp.
+            -   **Validation**: Must be a number or not exist.
+        -   `participants`: (map/object) Event participants.
+            -   **Read access**: Requires authentication.
+            -   **Key**: `$participantId`
+                -   **Read access**: Requires authentication.
+                -   **Write access**: Requires authentication.
+                -   **Validation**: Must have `joinedAt` as a child.
+                -   **Data**:
+                    -   `joinedAt`: (number) Join timestamp.
+                        -   **Validation**: Must be a number.
+                    -   `characterId`: (string) Character ID.
+                        -   **Validation**: Must be a string or not exist.
+                    -   `groupId`: (string) Group ID.
+                        -   **Validation**: Must be a string or not exist.
+                    -   `message`: (string) Participant message.
+                        -   **Validation**: Must be a string or not exist.
+                    -   `messageUpdatedAt`: (number) Message update timestamp.
+                        -   **Validation**: Must be a number or not exist.
+                    -   `rewardGiven`: (boolean) Whether reward was given.
+                        -   **Validation**: Must be a boolean or not exist.
+                    -   `rewardNote`: (string) Note about the reward.
+                        -   **Validation**: Must be a string or not exist. 

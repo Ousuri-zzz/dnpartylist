@@ -1,0 +1,425 @@
+import { Bill } from './useSplitBills';
+import { calculateSplit, formatGold, getTimeRemaining, isExpiringSoon } from './splitUtils';
+import { useAuth } from '@/hooks/useAuth';
+import { db } from '@/lib/firebase';
+import { ref, remove, update, get } from 'firebase/database';
+import { toast } from 'react-hot-toast';
+import { useState, useEffect } from 'react';
+import {
+  TrashIcon, UserIcon, XMarkIcon, BanknotesIcon, Cog6ToothIcon, UserGroupIcon, ClockIcon, GiftIcon, CubeIcon
+} from '@heroicons/react/24/solid';
+
+interface Character {
+  id: string;
+  name: string;
+  level: number;
+  class: string;
+}
+
+interface Participant {
+  characterId: string;
+  name: string;
+  level: number;
+  class: string;
+  paid?: boolean;
+}
+
+interface BillCardProps {
+  bill: Bill;
+}
+
+export function BillCard({ bill }: BillCardProps) {
+  const { user } = useAuth();
+  const isOwner = user?.uid === bill.ownerUid;
+  const [editItems, setEditItems] = useState(() => Object.entries(bill.items || {}).map(([id, item]) => ({ id, ...item })));
+  const [editServiceFee, setEditServiceFee] = useState(bill.serviceFee || 0);
+  const [saving, setSaving] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<Character[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [focusedInput, setFocusedInput] = useState<number | null>(null);
+  const [focusedServiceFee, setFocusedServiceFee] = useState(false);
+  const items = editItems;
+  const participants = Object.values(bill.participants || {});
+  const totalPrice = items.reduce((sum, item) => sum + (Number(item.price) || 0), 0);
+  const splitAmount = calculateSplit(items, editServiceFee, participants.length);
+  const { days, hours, minutes } = getTimeRemaining(bill.expiresAt);
+  const isExpiring = isExpiringSoon(bill.expiresAt);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  const handleDelete = async () => {
+    if (!isOwner) return;
+    try {
+      await remove(ref(db, `splitBills/${bill.id}`));
+      toast.success('ลบบิลสำเร็จ');
+    } catch (error) {
+      toast.error('เกิดข้อผิดพลาดในการลบบิล');
+    }
+  };
+
+  const handleItemPriceChange = (index: number, value: string) => {
+    const newItems = [...editItems];
+    newItems[index].price = parseInt(value) || 0;
+    setEditItems(newItems);
+  };
+
+  const handleServiceFeeChange = (value: string) => {
+    setEditServiceFee(parseInt(value) || 0);
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const itemsObj = editItems.reduce((acc, item) => {
+        acc[item.id] = { name: item.name, price: Number(item.price) || 0 };
+        return acc;
+      }, {} as Record<string, { name: string; price: number }>);
+      await update(ref(db, `splitBills/${bill.id}`), {
+        items: itemsObj,
+        serviceFee: editServiceFee,
+      });
+      toast.success('บันทึกราคาสำเร็จ');
+    } catch (error) {
+      toast.error('เกิดข้อผิดพลาดในการบันทึก');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSearch = async () => {
+    if (!searchQuery.trim()) {
+      setSearchResults([]);
+      return;
+    }
+
+    setIsSearching(true);
+    try {
+      const usersRef = ref(db, 'users');
+      const snapshot = await get(usersRef);
+      const results: Character[] = [];
+
+      snapshot.forEach((userSnapshot) => {
+        const charactersRef = ref(db, `users/${userSnapshot.key}/characters`);
+        userSnapshot.child('characters').forEach((charSnapshot) => {
+          const char = charSnapshot.val();
+          if (char.name.toLowerCase().includes(searchQuery.toLowerCase())) {
+            results.push({
+              id: charSnapshot.key,
+              name: char.name,
+              level: char.level,
+              class: char.class,
+            });
+          }
+        });
+      });
+
+      setSearchResults(results);
+    } catch (error) {
+      toast.error('เกิดข้อผิดพลาดในการค้นหา');
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const handleAddParticipant = async (character: Character) => {
+    if (!isOwner) return;
+    try {
+      const newParticipants = {
+        ...bill.participants,
+        [character.id]: {
+          characterId: character.id,
+          name: character.name,
+          level: character.level,
+          class: character.class,
+        },
+      };
+      await update(ref(db, `splitBills/${bill.id}`), {
+        participants: newParticipants,
+      });
+      toast.success('เพิ่มผู้ร่วมบิลสำเร็จ');
+      setSearchQuery('');
+      setSearchResults([]);
+    } catch (error) {
+      toast.error('เกิดข้อผิดพลาดในการเพิ่มผู้ร่วมบิล');
+    }
+  };
+
+  const handleRemoveParticipant = async (characterId: string) => {
+    if (!isOwner) return;
+    try {
+      const newParticipants = { ...(bill.participants || {}) };
+      if (newParticipants[characterId]) {
+        delete newParticipants[characterId];
+        const updateData: any = {};
+        if (Object.keys(newParticipants).length === 0) {
+          updateData['participants'] = null;
+        } else {
+          updateData['participants'] = newParticipants;
+        }
+        await update(ref(db, `splitBills/${bill.id}`), updateData);
+        toast.success('ลบผู้ร่วมบิลสำเร็จ');
+      } else {
+        toast.error('ไม่พบผู้ร่วมบิลนี้');
+      }
+    } catch (error: any) {
+      toast.error('เกิดข้อผิดพลาดในการลบผู้ร่วมบิล: ' + (error?.message || ''));
+    }
+  };
+
+  const handleAddCustomParticipant = async (name: string) => {
+    if (!isOwner) return;
+    try {
+      const customId = `custom_${Date.now()}`;
+      const newParticipants = {
+        ...bill.participants,
+        [customId]: {
+          characterId: customId,
+          name,
+          level: 0,
+          class: '',
+        },
+      };
+      await update(ref(db, `splitBills/${bill.id}`), {
+        participants: newParticipants,
+      });
+      toast.success('เพิ่มผู้ร่วมบิลสำเร็จ');
+      setSearchQuery('');
+      setSearchResults([]);
+    } catch (error) {
+      toast.error('เกิดข้อผิดพลาดในการเพิ่มผู้ร่วมบิล');
+    }
+  };
+
+  const handleTogglePaid = async (characterId: string, paid: boolean) => {
+    if (!isOwner) return;
+    try {
+      const newParticipants = { ...(bill.participants || {}) };
+      if (newParticipants[characterId]) {
+        newParticipants[characterId].paid = paid;
+        await update(ref(db, `splitBills/${bill.id}`), {
+          participants: newParticipants,
+        });
+        toast.success('อัปเดตสถานะเทรดเงินแล้ว');
+      }
+    } catch (error) {
+      toast.error('เกิดข้อผิดพลาดในการอัปเดตสถานะ');
+    }
+  };
+
+  const handleDeleteClick = () => setShowDeleteConfirm(true);
+  const handleDeleteConfirm = async () => {
+    setShowDeleteConfirm(false);
+    await handleDelete();
+  };
+  const handleDeleteCancel = () => setShowDeleteConfirm(false);
+
+  return (
+    <div className="rounded-2xl border border-yellow-100 bg-white p-6 shadow-xl hover:shadow-2xl transition-all">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <GiftIcon className="w-6 h-6 text-yellow-400" />
+          <h3 className="text-2xl font-bold text-yellow-700">{bill.title}</h3>
+        </div>
+        {isOwner && (
+          <button onClick={handleDeleteClick} className="text-red-400 hover:text-red-600 transition p-2 rounded-full hover:bg-red-50">
+            <TrashIcon className="w-6 h-6" />
+          </button>
+        )}
+      </div>
+
+      {/* ตารางไอเทม */}
+      <table className="w-full text-sm mb-4 border-collapse">
+        <thead>
+          <tr className="text-left text-yellow-700 bg-yellow-50">
+            <th className="py-2">
+              <span className="flex items-center gap-1"><CubeIcon className="w-4 h-4 text-yellow-400" /> ชื่อไอเทม</span>
+            </th>
+            <th className="py-2 w-32">
+              <span className="flex items-center gap-1"><BanknotesIcon className="w-4 h-4 text-yellow-400" /> ราคา (Gold)</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {items.map((item, idx) => (
+            <tr
+              key={item.id}
+              className={`bg-white ${idx !== items.length - 1 ? 'border-b-2 border-gray-200' : ''}`}
+            >
+              <td className="py-1 px-2">{item.name}</td>
+              <td className="py-1 px-2 text-center">
+                {isOwner ? (
+                  <input
+                    type="number"
+                    min="0"
+                    value={focusedInput === idx && (item.price === 0 || item.price === undefined) ? "" : item.price ?? 0}
+                    onFocus={() => setFocusedInput(idx)}
+                    onBlur={e => {
+                      setFocusedInput(null);
+                      if (e.target.value === "" || isNaN(Number(e.target.value))) {
+                        handleItemPriceChange(idx, "0");
+                      }
+                    }}
+                    onChange={e => handleItemPriceChange(idx, e.target.value)}
+                    className="w-24 rounded-md border border-gray-300 px-2 py-1 text-center focus:ring-2 focus:ring-yellow-400 transition"
+                  />
+                ) : (
+                  <span>{formatGold(item.price ?? 0)}</span>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {/* input+ปุ่มบันทึกราคาค่าบริการ เฉพาะเจ้าของบิล */}
+      {isOwner && (
+        <div className="flex items-center gap-2 mb-2 justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-700">ค่าบริการ:</span>
+            <input
+              type="number"
+              min="0"
+              value={focusedServiceFee && (editServiceFee === 0 || editServiceFee === undefined) ? "" : editServiceFee}
+              onFocus={() => setFocusedServiceFee(true)}
+              onBlur={e => {
+                setFocusedServiceFee(false);
+                if (e.target.value === "" || isNaN(Number(e.target.value))) {
+                  handleServiceFeeChange("0");
+                }
+              }}
+              onChange={e => handleServiceFeeChange(e.target.value)}
+              className="w-24 rounded-md border border-gray-300 px-2 py-1 text-center focus:ring-2 focus:ring-yellow-400 transition"
+            />
+            <span className="text-sm text-gray-500 ml-1">Gold</span>
+          </div>
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="rounded-lg bg-gradient-to-r from-yellow-400 to-yellow-600 px-4 py-1.5 text-white font-bold hover:scale-105 hover:bg-yellow-500 transition text-sm shadow disabled:opacity-50"
+          >
+            {saving ? 'กำลังบันทึก...' : 'บันทึกราคา'}
+          </button>
+        </div>
+      )}
+
+      {/* กล่องสรุป */}
+      <div className="mb-4 grid grid-cols-1 md:grid-cols-3 gap-2">
+        <div className="rounded-lg bg-yellow-50 shadow-sm flex flex-col items-center py-2 px-1 min-w-[80px]">
+          <span className="flex items-center gap-1 text-[11px] text-gray-500 mb-0.5"><BanknotesIcon className="w-4 h-4 text-yellow-400" /> ราคารวม</span>
+          <span className="text-xl font-bold text-yellow-800">{formatGold(totalPrice)}</span>
+          <span className="text-[11px] text-gray-400 mt-0.5">Gold</span>
+        </div>
+        <div className="rounded-lg bg-yellow-50 shadow-sm flex flex-col items-center py-2 px-1 min-w-[80px]">
+          <span className="flex items-center gap-1 text-[11px] text-gray-500 mb-0.5"><Cog6ToothIcon className="w-4 h-4 text-yellow-400" /> ค่าบริการ</span>
+          <span className="text-xl font-bold text-yellow-800">{formatGold(editServiceFee)}</span>
+          <span className="text-[11px] text-gray-400 mt-0.5">Gold</span>
+        </div>
+        <div className="rounded-lg bg-yellow-50 shadow-sm flex flex-col items-center py-2 px-1 min-w-[80px]">
+          <span className="flex items-center gap-1 text-[11px] text-gray-500 mb-0.5"><UserGroupIcon className="w-4 h-4 text-yellow-400" /> เงินต่อคน</span>
+          <span className="text-xl font-extrabold text-yellow-500 drop-shadow">{formatGold(splitAmount)}</span>
+          <span className="text-[11px] text-gray-400 mt-0.5">Gold</span>
+        </div>
+      </div>
+
+      {/* รายชื่อผู้ร่วมบิล */}
+      {isOwner && (
+        <>
+          <div className="mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">ค้นหาตัวละครเพื่อเพิ่มผู้ร่วมบิล</label>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') handleSearch(); }}
+                placeholder="ค้นหาชื่อตัวละคร"
+                className="flex-1 rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-yellow-400 transition shadow-sm bg-white"
+              />
+              <button
+                onClick={handleSearch}
+                disabled={isSearching || !searchQuery.trim()}
+                className="rounded-lg bg-gradient-to-r from-yellow-400 to-yellow-600 px-4 py-2 text-white font-bold shadow hover:scale-105 hover:bg-yellow-500 transition disabled:opacity-50"
+              >
+                {isSearching ? 'ค้นหา...' : 'ค้นหา'}
+              </button>
+            </div>
+            {/* แสดงผลลัพธ์ */}
+            {searchResults.length > 0 && (
+              <div className="mt-2 bg-yellow-50 rounded-lg p-2 shadow animate-fadeIn">
+                {searchResults.map(char => (
+                  <div key={char.id} className="flex items-center justify-between py-1 px-2 hover:bg-yellow-100 rounded transition">
+                    <span className="font-medium text-yellow-800 flex items-center gap-2">
+                      <UserIcon className="w-4 h-4 text-yellow-500" />
+                      {char.name}
+                    </span>
+                    <button
+                      onClick={() => handleAddParticipant(char)}
+                      className="ml-2 px-3 py-1 rounded bg-gradient-to-r from-yellow-400 to-yellow-600 text-white font-bold hover:scale-105 hover:bg-yellow-500 transition shadow"
+                    >
+                      เพิ่ม
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            {/* ปุ่มเพิ่มชื่อที่ค้นหา */}
+            {searchQuery && searchResults.length === 0 && !isSearching && (
+              <button
+                onClick={() => handleAddCustomParticipant(searchQuery)}
+                className="mt-2 px-3 py-1 rounded bg-gray-200 text-gray-700 font-bold hover:bg-gray-300 transition shadow"
+              >
+                เพิ่ม "{searchQuery}" เป็นผู้ร่วมบิล
+              </button>
+            )}
+          </div>
+          <div className="flex flex-col gap-2">
+            {participants.map((participant) => {
+              const isOwnerCharacter = Object.keys(bill.participants)[0] === participant.characterId && bill.ownerUid === user?.uid;
+              const isTraded = participant.paid || false;
+              return (
+                <div key={participant.characterId} className="flex items-center">
+                  <span className="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium shadow w-full bg-yellow-100 text-yellow-800">
+                    <UserIcon className="w-4 h-4 mr-1 text-yellow-500" />
+                    {participant.name}
+                    {isTraded && <span className="ml-2 text-xs text-green-700 font-semibold">เทรดแล้ว</span>}
+                    {isOwner && !isOwnerCharacter && (
+                      <button
+                        onClick={() => handleRemoveParticipant(participant.characterId)}
+                        className="ml-2 text-red-400 hover:text-red-600 p-1 rounded-full hover:bg-red-50 transition"
+                      >
+                        <XMarkIcon className="w-4 h-4" />
+                      </button>
+                    )}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
+
+      {/* เวลาคงเหลือ */}
+      <div className="text-sm text-gray-500 flex items-center gap-2 mt-2">
+        <ClockIcon className="w-4 h-4 text-yellow-400" />
+        <span className="inline-block bg-gray-100 rounded px-2 py-1">
+          เหลือเวลา: {days} วัน {hours} ชั่วโมง {minutes} นาที
+        </span>
+        {isExpiring && <span className="inline-block bg-red-100 text-red-600 rounded px-2 py-1 ml-2 animate-pulse">ใกล้หมดอายุ</span>}
+      </div>
+
+      {/* Modal ยืนยันการลบบิล */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-white rounded-lg p-6 shadow-lg max-w-xs w-full">
+            <h3 className="text-lg font-bold mb-4 text-red-600">ยืนยันการลบบิล</h3>
+            <p className="mb-6 text-gray-700">คุณต้องการลบบิลนี้จริงหรือไม่? ข้อมูลจะไม่สามารถกู้คืนได้</p>
+            <div className="flex justify-end gap-2">
+              <button onClick={handleDeleteCancel} className="px-4 py-2 rounded border border-gray-300 text-gray-700 hover:bg-gray-50">ยกเลิก</button>
+              <button onClick={handleDeleteConfirm} className="px-4 py-2 rounded bg-red-500 text-white hover:bg-red-600">ยืนยัน</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+} 

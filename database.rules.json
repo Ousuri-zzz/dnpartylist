@@ -185,6 +185,32 @@
         },
         "updatedAt": { ".validate": "newData.isString()" }
       }
+    },
+    "splitBills": {
+      "$billId": {
+        ".read": "auth != null && data.child('participants').child(auth.uid).exists()",
+        ".write": "auth != null && (!data.exists() || data.child('ownerUid').val() === auth.uid)",
+        ".validate": "newData.hasChildren(['title', 'serviceFee', 'ownerUid', 'createdAt', 'expiresAt', 'participants', 'items'])",
+        "title": { ".validate": "newData.isString() && newData.val().length > 0" },
+        "serviceFee": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+        "ownerUid": { ".validate": "newData.isString() && newData.val() === auth.uid" },
+        "createdAt": { ".validate": "newData.isNumber()" },
+        "expiresAt": { ".validate": "newData.isNumber()" },
+        "participants": {
+          "$participantId": {
+            ".validate": "newData.hasChildren(['name', 'characterId'])",
+            "name": { ".validate": "newData.isString() && newData.val().length > 0" },
+            "characterId": { ".validate": "newData.isString() && newData.val().length > 0" }
+          }
+        },
+        "items": {
+          "$itemId": {
+            ".validate": "newData.hasChildren(['name', 'price'])",
+            "name": { ".validate": "newData.isString() && newData.val().length > 0" },
+            "price": { ".validate": "newData.isNumber() && newData.val() >= 0" }
+          }
+        }
+      }
     }
   }
 }

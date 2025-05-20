@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { cn } from '../lib/utils';
 import { DiscordDropdown } from './DiscordDropdown';
 import { motion } from 'framer-motion';
-import { Home, Users, BarChart2, Calendar, ShoppingCart, PiggyBank, Settings, Crown, LogOut, CreditCard, MessageSquare } from 'lucide-react';
+import { Home, Users, BarChart2, Calendar, ShoppingCart, PiggyBank, Settings, Crown, LogOut, CreditCard, MessageSquare, SplitSquareHorizontal } from 'lucide-react';
 import { useGuild } from '@/hooks/useGuild';
 import { useAuth } from '@/hooks/useAuth';
 import { ref, onValue } from 'firebase/database';
@@ -13,7 +13,7 @@ import { db } from '@/lib/firebase';
 import React, { useState } from 'react';
 import { useGuildLoanNotification } from '@/hooks/useGuildLoanNotification';
 import ReactDOM from 'react-dom';
-import { FaCat } from 'react-icons/fa';
+import { FaCat, FaCoins } from 'react-icons/fa';
 import { toast } from 'sonner';
 
 export default function Navigation() {
@@ -231,6 +231,17 @@ export default function Navigation() {
                       <BarChart2 className="w-5 h-5" />
                       <span className="font-medium">Ranking</span>
                     </Link>
+                    <Link
+                      href="/split"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className={cn(
+                        "flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-pink-50/50 text-gray-700",
+                        pathname === "/split" && "bg-pink-50"
+                      )}
+                    >
+                      <FaCoins className="w-5 h-5 text-yellow-500" />
+                      <span className="font-medium">Loot</span>
+                    </Link>
                     <Link href="/trade" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-pink-50/50 text-gray-700">
                       <ShoppingCart className="w-5 h-5" />
                       <span className="font-medium">Trade</span>
@@ -434,6 +445,41 @@ export default function Navigation() {
                     <motion.div
                       layoutId="activeNav"
                       className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-lg -z-10"
+                      transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                    />
+                  )}
+                </Link>
+
+                <Link
+                  href="/split"
+                  className={cn(
+                    "relative group px-3 py-1.5 rounded-lg transition-all duration-300 cursor-pointer",
+                    pathname === "/split"
+                      ? "bg-gradient-to-r from-amber-400 to-yellow-500 text-white shadow-md shadow-amber-500/20"
+                      : "bg-white/60 border border-amber-100 shadow-sm hover:bg-amber-50/50 hover:shadow-xl hover:scale-105 hover:ring-2 hover:ring-amber-300 hover:border-amber-400 hover:text-amber-600"
+                  )}
+                >
+                  <motion.div
+                    className="flex items-center gap-1.5"
+                    whileHover={{ scale: 1.05, y: -1 }}
+                    whileTap={{ scale: 0.98 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                  >
+                    <FaCoins className={cn(
+                      "w-5 h-5 text-yellow-500 transition-colors duration-300",
+                      pathname === "/split" ? "text-white" : "group-hover:text-amber-600 text-amber-500"
+                    )} />
+                    <span className={cn(
+                      "text-sm font-medium transition-colors duration-300",
+                      pathname === "/split" ? "text-white" : "group-hover:text-amber-600 text-gray-700"
+                    )}>
+                      Loot
+                    </span>
+                  </motion.div>
+                  {pathname === "/split" && (
+                    <motion.div
+                      layoutId="activeNav"
+                      className="absolute inset-0 bg-gradient-to-r from-amber-400 to-yellow-500 rounded-lg -z-10"
                       transition={{ type: "spring", stiffness: 400, damping: 30 }}
                     />
                   )}
