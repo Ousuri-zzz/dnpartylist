@@ -186,15 +186,17 @@ export default function EventsPage() {
             <Calendar
               onChange={setDate}
               value={date}
-              className="border-none rounded-2xl shadow-lg bg-gradient-to-br from-pink-50 via-purple-50 to-white p-2 calendar-pastel"
+              className="border-none rounded-2xl shadow-lg bg-gradient-to-br from-pink-50 via-purple-50 to-white p-2 calendar-pastel calendar-pink-labels"
               locale="th-TH"
               tileContent={({ date: tileDate }: { date: Date }) => {
                 const key = getLocalDateKey(tileDate);
                 const events = eventsRangeByDate[key] || [];
                 if (events.length > 0) {
                   return (
-                    <div className="absolute -top-1 -right-1 bg-pink-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                      {events.length}
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+                      <span className="w-6 h-6 bg-pink-300 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-md">
+                        {tileDate.getDate()}
+                      </span>
                     </div>
                   );
                 }
@@ -354,6 +356,34 @@ export default function EventsPage() {
         onClose={() => setIsCreateModalOpen(false)}
         onSubmit={handleCreateEvent}
       />
+      <style jsx global>{`
+        /* เดือนและปีด้านบน */
+        .calendar-pink-labels .react-calendar__navigation__label {
+          color: #ec4899 !important; /* pink-500 */
+          font-weight: bold;
+        }
+        /* ปุ่มเดือนก่อน/ถัดไป */
+        .calendar-pink-labels .react-calendar__navigation button {
+          color: #ec4899 !important;
+        }
+        /* ชื่อวัน (จ, อ, พ, ... ) */
+        .calendar-pink-labels .react-calendar__month-view__weekdays__weekday {
+          color: #ec4899 !important;
+          font-weight: bold;
+        }
+        /* ตัวเลขวันที่ทั้งหมดเป็นสีดำ */
+        .calendar-pink-labels .react-calendar__tile {
+          color: #111 !important;
+        }
+        /* เสาร์-อาทิตย์ ให้เป็นสีดำเหมือนวันปกติ */
+        .calendar-pink-labels .react-calendar__month-view__days__day--weekend {
+          color: #111 !important;
+        }
+        /* วันที่ที่ไม่ใช่เดือนปัจจุบัน (จาง) */
+        .calendar-pink-labels .react-calendar__month-view__days__day--neighboringMonth {
+          color: #d1d5db !important; /* gray-300 */
+        }
+      `}</style>
     </div>
   );
 } 
