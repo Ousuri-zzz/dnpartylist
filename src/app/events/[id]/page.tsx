@@ -136,7 +136,7 @@ export default function EventDetailPage() {
   const [joined, setJoined] = useState(false);
   const [rewardGiven, setRewardGiven] = useState(false);
   const [confirmModal, setConfirmModal] = useState<{ open: boolean; type: 'join' | 'leave' | null }>({ open: false, type: null });
-  const [participantUids, setParticipantUids] = useState<Array<{uid: string, joinedAt?: Date, rewardGiven?: boolean, rewardNote?: string, message?: string, messageUpdatedAt?: Date, characterId?: string, groupId?: string}>>([]);
+  const [participantUids, setParticipantUids] = useState<Array<{uid: string, joinedAt?: Date, rewardGiven?: boolean, rewardNote?: string, message?: string, messageUpdatedAt?: Date, characterId?: string, groupId?: string, groupName?: string}>>([]);
   const { users, isLoading: usersLoading } = useUsers();
   const [announceMsg, setAnnounceMsg] = useState('');
   const [announceSaved, setAnnounceSaved] = useState(false);
@@ -158,6 +158,10 @@ export default function EventDetailPage() {
   const [selectedGroupMember, setSelectedGroupMember] = useState<string>('');
   const [groups, setGroups] = useState<Array<{id: string, members: string[]}>>([]);
   const [maxGroupSize, setMaxGroupSize] = useState<number>(event?.maxGroupSize || 0); // ใช้ค่าจาก event แทน
+  // เพิ่ม state สำหรับ modal กรอกชื่อกลุ่ม
+  const [groupNameModalOpen, setGroupNameModalOpen] = useState(false);
+  const [groupNameInput, setGroupNameInput] = useState('');
+  const [groupNameEditingGroupId, setGroupNameEditingGroupId] = useState<string | null>(null);
 
   // ตรวจสอบสิทธิ์เจ้าของกิจกรรม (owner)
   const justCreated = searchParams.get('justCreated') === '1';
@@ -263,6 +267,7 @@ export default function EventDetailPage() {
         messageUpdatedAt: doc.data().messageUpdatedAt?.toDate() || null,
         characterId: doc.data().characterId || undefined,
         groupId: doc.data().groupId || undefined,
+        groupName: doc.data().groupName || '',
       }));
       setParticipantUids(list);
       setJoined(!!list.find(p => p.uid === user.uid));
@@ -427,7 +432,7 @@ export default function EventDetailPage() {
   };
 
   // ฟังก์ชันจัดการกลุ่ม
-  const isValidGroupId = (groupId: any) => typeof groupId === 'string' && groupId.trim() !== '';
+  const isValidGroupId = (groupId: any) => !!groupId && typeof groupId === 'string' && groupId.trim() !== '';
   const handleJoinGroup = async (targetUid: string) => {
     if (!params?.id || !user || !targetUid) {
       setToast({ show: true, message: 'ไม่พบข้อมูลสมาชิกเป้าหมาย' });
@@ -487,8 +492,8 @@ export default function EventDetailPage() {
     const groupMembers = participantUids.filter(p => p.groupId === currentParticipant.groupId);
     const partRef = doc(firestore, 'events', params.id as string, 'participants', user.uid);
     if (groupMembers.length === 1) {
-      // คนสุดท้ายในกลุ่ม ลบ groupId ตัวเอง (กลุ่มจะหายไป)
-      await updateDoc(partRef, { groupId: null });
+      // คนสุดท้ายในกลุ่ม ลบ groupId และ groupName ตัวเอง (กลุ่มจะหายไป)
+      await updateDoc(partRef, { groupId: null, groupName: null });
     } else {
       // มีคนอื่นในกลุ่ม แค่ลบ groupId ตัวเอง
       await updateDoc(partRef, { groupId: null });
@@ -527,6 +532,24 @@ export default function EventDetailPage() {
         rewardNote: '',
       });
     }
+  };
+
+  // Add this function after handleLeaveGroup
+  const handleUpdateGroupName = async (groupId: string, newName: string) => {
+    if (!params?.id || !user) return;
+    
+    // Get all members in the group
+    const groupMembers = participantUids.filter(p => p.groupId === groupId);
+    
+    // Update group name for all members
+    const batch = writeBatch(firestore);
+    groupMembers.forEach(member => {
+      const partRef = doc(firestore, 'events', params.id as string, 'participants', member.uid);
+      batch.update(partRef, { groupName: newName });
+    });
+    
+    await batch.commit();
+    setToast({ show: true, message: 'อัปเดตชื่อกลุ่มเรียบร้อย!' });
   };
 
   if (loading || usersLoading || authLoading || !user) {
@@ -882,13 +905,29 @@ export default function EventDetailPage() {
                         // หา rewardNote ล่าสุด (ถ้ามี)
                         const rewardNotes = members.map((m: any) => m.participantDoc?.rewardNote).filter(Boolean);
                         const lastRewardNote = rewardNotes.length > 0 ? rewardNotes[rewardNotes.length - 1] : '';
+                        // Get group name from first member
+                        const groupName = members[0]?.participantDoc?.groupName || '';
+                        
                         return (
                           <div key={groupId} className="bg-blue-50/50 rounded-lg shadow-md p-3">
                             <div className="mb-2 flex items-center gap-2 justify-between">
                               <div className="flex items-center gap-2">
                                 <span className="text-xs font-medium text-blue-600 bg-blue-100 px-2 py-1 rounded-full">
-                                  กลุ่ม {members.length}/{event.maxGroupSize}
+                                  {groupName ? `${groupName} (${members.length}/${event.maxGroupSize})` : `กลุ่ม ${members.length}/${event.maxGroupSize}`}
                                 </span>
+                                {/* Add group name edit button for group members */}
+                                {members.some(m => m.user.uid === user?.uid) && !event.isEnded && (
+                                  <button
+                                    onClick={() => {
+                                      setGroupNameInput(groupName);
+                                      setGroupNameEditingGroupId(groupId);
+                                      setGroupNameModalOpen(true);
+                                    }}
+                                    className="text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                                  >
+                                    ✏️
+                                  </button>
+                                )}
                                 {/* ปุ่มหรือแสดงรางวัลกลุ่ม เฉพาะเจ้าของกิจกรรม */}
                                 {isOwner && (
                                   allRewarded && lastRewardNote ? (
@@ -1264,6 +1303,52 @@ export default function EventDetailPage() {
           ))}
           {/* Toast แจ้งเตือน */}
           <Toast message={toast.message} show={toast.show} />
+          {/* Modal เพิ่มชื่อกลุ่ม */}
+          <Dialog open={groupNameModalOpen} onOpenChange={setGroupNameModalOpen}>
+            <DialogContent className="max-w-sm p-0 rounded-2xl overflow-hidden border-2 border-blue-100 shadow-xl bg-gradient-to-br from-blue-50 via-pink-50 to-white">
+              <DialogHeader>
+                <div className="flex items-center gap-2 px-6 pt-6 pb-2">
+                  <span className="text-2xl">🎨</span>
+                  <DialogTitle className="text-xl font-extrabold text-blue-700 drop-shadow">ตั้งชื่อกลุ่ม</DialogTitle>
+                </div>
+              </DialogHeader>
+              <div className="flex flex-col gap-4 px-6 pb-6 pt-2">
+                <div className="text-blue-500 text-sm mb-1 text-center">ตั้งชื่อกลุ่มให้ดูเท่ หรือเว้นว่างหากไม่ต้องการชื่อกลุ่ม</div>
+                <input
+                  type="text"
+                  className="w-full rounded-xl border-2 border-blue-200 p-3 focus:ring-2 focus:ring-blue-300 text-center text-lg font-bold bg-white/80 shadow-inner placeholder:text-blue-200"
+                  placeholder="ใส่ชื่อกลุ่ม (เว้นว่างเพื่อลบชื่อ)"
+                  value={groupNameInput}
+                  maxLength={30}
+                  onChange={e => setGroupNameInput(e.target.value)}
+                  autoFocus
+                  style={{ letterSpacing: '0.5px' }}
+                />
+                <div className="flex gap-2 justify-end mt-2">
+                  <Button
+                    variant="outline"
+                    className="border-gray-300 text-gray-500 bg-white/80 hover:bg-gray-100 rounded-lg px-5 py-2 font-semibold"
+                    onClick={() => {
+                      setGroupNameModalOpen(false);
+                      setGroupNameEditingGroupId(null);
+                      setGroupNameInput('');
+                    }}
+                  >ยกเลิก</Button>
+                  <Button
+                    className="bg-gradient-to-r from-blue-400 to-pink-400 text-white font-bold rounded-lg px-5 py-2 shadow hover:from-blue-500 hover:to-pink-500 transition-all"
+                    onClick={async () => {
+                      if (groupNameEditingGroupId) {
+                        await handleUpdateGroupName(groupNameEditingGroupId, groupNameInput.trim());
+                        setGroupNameModalOpen(false);
+                        setGroupNameEditingGroupId(null);
+                        setGroupNameInput('');
+                      }
+                    }}
+                  >บันทึก</Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
     </React.Fragment>
