@@ -30,7 +30,7 @@ export default function SplitPage() {
     <div className="min-h-screen bg-gradient-to-br from-yellow-50 to-white py-8">
       <div className="max-w-4xl mx-auto px-4">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
-          <h1 className="text-3xl font-bold text-yellow-700 drop-shadow text-center md:text-left">จัดสรรทรัพยากรปาร์ตี้</h1>
+          <h1 className="text-3xl font-bold text-yellow-700 drop-shadow text-center md:text-left">จัดสรรแบ่ง Gold ปาร์ตี้</h1>
           <button
             onClick={() => setModalOpen(true)}
             className="rounded-lg bg-gradient-to-r from-yellow-400 to-yellow-600 px-6 py-2 text-white font-bold shadow hover:scale-105 transition text-lg"
