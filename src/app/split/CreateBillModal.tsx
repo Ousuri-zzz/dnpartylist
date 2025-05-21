@@ -3,7 +3,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { db } from '@/lib/firebase';
 import { ref, push, set, get } from 'firebase/database';
 import { toast } from 'react-hot-toast';
-import { UserIcon, PlusIcon, XMarkIcon } from '@heroicons/react/24/solid';
+import { UserIcon, PlusIcon, XMarkIcon, DocumentTextIcon, CubeIcon, ClipboardDocumentListIcon } from '@heroicons/react/24/solid';
 
 interface CreateBillModalProps {
   isOpen: boolean;
@@ -133,20 +133,28 @@ export function CreateBillModal({ isOpen, onClose }: CreateBillModalProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
       <div className="w-full max-w-lg rounded-2xl bg-white p-8 shadow-2xl relative animate-fadeIn">
-        <h2 className="mb-6 text-2xl font-bold text-yellow-700 text-center">สร้างบิลใหม่</h2>
+        <div className="flex flex-col items-center mb-6">
+          <ClipboardDocumentListIcon className="w-10 h-10 text-yellow-400 mb-2" />
+          <h2 className="text-2xl font-extrabold text-yellow-700 text-center tracking-tight">สร้างบิลใหม่</h2>
+        </div>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">ชื่อบิล</label>
+            <label className="mb-1 block text-sm font-medium text-gray-700 flex items-center gap-2">
+              <DocumentTextIcon className="w-5 h-5 text-yellow-400" /> ชื่อบิล
+            </label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-yellow-400 transition"
+              className="w-full rounded-lg border border-yellow-200 px-3 py-2 focus:ring-2 focus:ring-yellow-400 transition bg-white text-gray-700 placeholder-gray-400"
+              placeholder="กรอกชื่อบิล"
               required
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">เลือกตัวละคร</label>
+            <label className="mb-1 block text-sm font-medium text-gray-700 flex items-center gap-2">
+              <UserIcon className="w-5 h-5 text-yellow-400" /> เลือกตัวละคร
+            </label>
             <div className="relative">
               <select
                 value={selectedCharacter?.id || ''}
@@ -154,18 +162,20 @@ export function CreateBillModal({ isOpen, onClose }: CreateBillModalProps) {
                   const char = characters.find(c => c.id === e.target.value);
                   if (char) setSelectedCharacter(char);
                 }}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-yellow-400 transition appearance-none"
+                className="w-full rounded-lg border border-yellow-200 px-3 py-2 focus:ring-2 focus:ring-yellow-400 transition appearance-none bg-white text-gray-700 placeholder-gray-400"
                 required
               >
                 {characters.map((char) => (
                   <option key={char.id} value={char.id}>{char.name}</option>
                 ))}
               </select>
-              <UserIcon className="w-5 h-5 text-yellow-500 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <UserIcon className="w-5 h-5 text-yellow-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
             </div>
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">รายการไอเทม</label>
+            <label className="mb-1 block text-sm font-medium text-gray-700 flex items-center gap-2">
+              <CubeIcon className="w-5 h-5 text-yellow-400" /> รายการไอเทม
+            </label>
             {items.map((item, index) => (
               <div key={index} className="mb-2 flex gap-2 items-center">
                 <input
@@ -173,7 +183,7 @@ export function CreateBillModal({ isOpen, onClose }: CreateBillModalProps) {
                   value={item.name}
                   onChange={(e) => handleItemChange(index, e.target.value)}
                   placeholder="ชื่อไอเทม"
-                  className="flex-1 rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-yellow-400 transition"
+                  className="flex-1 rounded-lg border border-yellow-200 px-3 py-2 focus:ring-2 focus:ring-yellow-400 transition bg-white text-gray-700 placeholder-gray-400"
                 />
                 {items.length > 1 && (
                   <button

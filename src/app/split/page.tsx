@@ -102,7 +102,7 @@ export default function SplitPage() {
                       type="number"
                       value={cash}
                       placeholder="กรอกจำนวน Cash"
-                      className="w-full rounded-xl border border-yellow-200 px-4 py-2 focus:ring-2 focus:ring-yellow-100 transition bg-white/80 text-yellow-700 placeholder-yellow-300"
+                      className="w-full rounded-xl border border-yellow-200 px-4 py-2 focus:ring-2 focus:ring-yellow-100 transition bg-white text-gray-700 placeholder-gray-400"
                       onChange={e => {
                         setCash(e.target.value);
                         handleCalculate(e.target.value, goldRate, goldInput);
@@ -116,7 +116,7 @@ export default function SplitPage() {
                       type="number"
                       value={goldRate}
                       placeholder="กรอกเรท Gold"
-                      className="w-full rounded-xl border border-yellow-200 px-4 py-2 focus:ring-2 focus:ring-yellow-100 transition bg-white/80 text-yellow-700 placeholder-yellow-300"
+                      className="w-full rounded-xl border border-yellow-200 px-4 py-2 focus:ring-2 focus:ring-yellow-100 transition bg-white text-gray-700 placeholder-gray-400"
                       onChange={e => {
                         setGoldRate(e.target.value);
                         handleCalculate(cash, e.target.value, goldInput);
@@ -130,7 +130,7 @@ export default function SplitPage() {
                       type="number"
                       value={goldInput}
                       placeholder="กรอกจำนวน Gold"
-                      className="w-full rounded-xl border border-yellow-200 px-4 py-2 focus:ring-2 focus:ring-yellow-100 transition bg-white/80 text-yellow-700 placeholder-yellow-300"
+                      className="w-full rounded-xl border border-yellow-200 px-4 py-2 focus:ring-2 focus:ring-yellow-100 transition bg-white text-gray-700 placeholder-gray-400"
                       onChange={e => {
                         setGoldInput(e.target.value);
                         handleCalculate(cash, goldRate, e.target.value);
@@ -147,21 +147,24 @@ export default function SplitPage() {
                       <SparklesIcon className="w-6 h-6 text-yellow-400" />
                       ผลลัพธ์การคำนวณ
                     </div>
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-yellow-50 to-emerald-50 border border-yellow-100 shadow-sm">
-                        <CurrencyDollarIcon className="w-5 h-5 text-yellow-400" />
-                        <span className="text-yellow-700 font-semibold flex-1">Cash นี้มีมูลค่า (บาท)</span>
-                        <span className="font-bold text-yellow-700 text-lg">{baht}</span>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 p-3 rounded-xl bg-gradient-to-r from-yellow-50 to-white border border-yellow-100 mb-2">
+                        <CurrencyDollarIcon className="w-4 h-4 text-yellow-400" />
+                        <span className="text-yellow-700 font-semibold flex-1 text-left">Cash นี้มีมูลค่า</span>
+                        <span className="font-extrabold text-yellow-600 text-xl text-center min-w-[80px] drop-shadow mx-auto">{baht}</span>
+                        <span className="text-yellow-700 font-semibold text-right min-w-[40px]">บาท</span>
                       </div>
-                      <div className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-yellow-50 to-emerald-50 border border-yellow-100 shadow-sm">
-                        <SparklesIcon className="w-5 h-5 text-yellow-400" />
-                        <span className="text-yellow-700 font-semibold flex-1">Cash นี้แลกได้ (Gold)</span>
-                        <span className="font-bold text-yellow-700 text-lg">{gold}</span>
+                      <div className="flex items-center gap-2 p-3 rounded-xl bg-gradient-to-r from-yellow-50 to-white border border-yellow-100 mb-2">
+                        <SparklesIcon className="w-4 h-4 text-yellow-400" />
+                        <span className="text-yellow-700 font-semibold flex-1 text-left">Cash นี้แลกได้</span>
+                        <span className="font-extrabold text-yellow-600 text-xl text-center min-w-[80px] drop-shadow mx-auto">{gold}</span>
+                        <span className="text-yellow-700 font-semibold text-right min-w-[40px]">Gold</span>
                       </div>
-                      <div className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-yellow-50 to-emerald-50 border border-yellow-100 shadow-sm">
-                        <BanknotesIcon className="w-5 h-5 text-yellow-400" />
-                        <span className="text-yellow-700 font-semibold flex-1">Gold นี้มีมูลค่า (บาท)</span>
-                        <span className="font-bold text-yellow-700 text-lg">{goldInput && goldRate ? goldToBaht : ''}</span>
+                      <div className="flex items-center gap-2 p-3 rounded-xl bg-gradient-to-r from-yellow-50 to-white border border-yellow-100">
+                        <BanknotesIcon className="w-4 h-4 text-yellow-400" />
+                        <span className="text-yellow-700 font-semibold flex-1 text-left">Gold นี้มีมูลค่า</span>
+                        <span className="font-extrabold text-yellow-600 text-xl text-center min-w-[80px] drop-shadow mx-auto">{goldInput && goldRate && goldToBaht ? goldToBaht : ''}</span>
+                        <span className="text-yellow-700 font-semibold text-right min-w-[40px]">บาท</span>
                       </div>
                     </div>
                   </div>
