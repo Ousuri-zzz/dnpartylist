@@ -29,13 +29,16 @@ function CountdownTimer({ targetDate }: { targetDate: Date | null }) {
 
   if (!targetDate) return null;
   let absTime = Math.abs(timeLeft);
-  const hours = Math.floor(absTime / (1000 * 60 * 60));
+  const days = Math.floor(absTime / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((absTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
   const minutes = Math.floor((absTime % (1000 * 60 * 60)) / (1000 * 60));
   const seconds = Math.floor((absTime % (1000 * 60)) / 1000);
   return (
     <div className={"mt-2 text-sm font-semibold " + (isStarted ? 'text-green-600' : 'text-red-500')}>
       {isStarted ? 'กำลังดำเนิน: ' : 'นับถอยหลัง: '}
-      {hours.toString().padStart(2, '0')}:{minutes.toString().padStart(2, '0')}:{seconds.toString().padStart(2, '0')}
+      {days > 0
+        ? `${days} วัน ${hours} ชั่วโมง`
+        : `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`}
     </div>
   );
 }

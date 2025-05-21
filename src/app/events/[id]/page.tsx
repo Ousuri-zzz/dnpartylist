@@ -32,13 +32,16 @@ function CountdownTimer({ targetDate, className = "" }: { targetDate: Date | nul
 
   if (!targetDate) return null;
   let absTime = Math.abs(timeLeft);
-  const hours = Math.floor(absTime / (1000 * 60 * 60));
+  const days = Math.floor(absTime / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((absTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
   const minutes = Math.floor((absTime % (1000 * 60 * 60)) / (1000 * 60));
   const seconds = Math.floor((absTime % (1000 * 60)) / 1000);
   return (
     <span className={className + ' ' + (isStarted ? 'text-green-600' : 'text-red-500') + ' font-semibold'}>
       {isStarted ? 'กำลังดำเนิน: ' : 'นับถอยหลัง: '}
-      {hours.toString().padStart(2, '0')}:{minutes.toString().padStart(2, '0')}:{seconds.toString().padStart(2, '0')}
+      {days > 0
+        ? `${days} วัน ${hours} ชั่วโมง`
+        : `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`}
     </span>
   );
 }
