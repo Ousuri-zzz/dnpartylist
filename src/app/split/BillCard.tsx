@@ -219,12 +219,15 @@ export function BillCard({ bill }: BillCardProps) {
   const handleDeleteCancel = () => setShowDeleteConfirm(false);
 
   return (
-    <div className="rounded-2xl border border-yellow-100 bg-white p-6 shadow-xl hover:shadow-2xl transition-all">
+    <div className="rounded-3xl border border-emerald-100 bg-white/80 p-6 shadow-xl hover:shadow-2xl transition-all">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-4 bg-gradient-to-r from-white via-blue-50 to-emerald-50 rounded-2xl px-4 py-3 shadow-sm">
         <div className="flex items-center gap-2">
-          <GiftIcon className="w-6 h-6 text-yellow-400" />
-          <h3 className="text-2xl font-bold text-yellow-700">{bill.title}</h3>
+          <GiftIcon className="w-7 h-7 text-yellow-300 drop-shadow" />
+          <h3 className="text-2xl font-bold text-emerald-600 flex items-center gap-2">
+            {bill.title}
+            <BanknotesIcon className="w-5 h-5 text-emerald-200" />
+          </h3>
         </div>
         {isOwner && (
           <button onClick={handleDeleteClick} className="text-red-400 hover:text-red-600 transition p-2 rounded-full hover:bg-red-50">
@@ -234,14 +237,14 @@ export function BillCard({ bill }: BillCardProps) {
       </div>
 
       {/* ตารางไอเทม */}
-      <table className="w-full text-sm mb-4 border-collapse">
+      <table className="w-full text-sm mb-4 border-collapse rounded-2xl overflow-hidden shadow-sm">
         <thead>
-          <tr className="text-left text-yellow-700 bg-yellow-50">
-            <th className="py-2">
-              <span className="flex items-center gap-1"><CubeIcon className="w-4 h-4 text-yellow-400" /> ชื่อไอเทม</span>
+          <tr className="text-left text-emerald-600 bg-gradient-to-r from-white via-emerald-50 to-blue-50">
+            <th className="py-2 rounded-tl-2xl">
+              <span className="flex items-center gap-1"><CubeIcon className="w-4 h-4 text-yellow-300" /> ชื่อไอเทม</span>
             </th>
-            <th className="py-2 w-32">
-              <span className="flex items-center gap-1"><BanknotesIcon className="w-4 h-4 text-yellow-400" /> ราคา (Gold)</span>
+            <th className="py-2 w-32 rounded-tr-2xl">
+              <span className="flex items-center gap-1"><BanknotesIcon className="w-4 h-4 text-yellow-300" /> ราคา (Gold)</span>
             </th>
           </tr>
         </thead>
@@ -249,9 +252,11 @@ export function BillCard({ bill }: BillCardProps) {
           {items.map((item, idx) => (
             <tr
               key={item.id}
-              className={`bg-white ${idx !== items.length - 1 ? 'border-b-2 border-gray-200' : ''}`}
+              className={`bg-white/90 ${idx !== items.length - 1 ? 'border-b border-emerald-50' : ''}`}
             >
-              <td className="py-1 px-2">{item.name}</td>
+              <td className="py-1 px-2">
+                {item.name}
+              </td>
               <td className="py-1 px-2 text-center">
                 {isOwner ? (
                   <input
@@ -266,7 +271,7 @@ export function BillCard({ bill }: BillCardProps) {
                       }
                     }}
                     onChange={e => handleItemPriceChange(idx, e.target.value)}
-                    className="w-24 rounded-md border border-gray-300 px-2 py-1 text-center focus:ring-2 focus:ring-yellow-400 transition"
+                    className="w-24 rounded-full border border-emerald-100 px-2 py-1 text-center focus:ring-2 focus:ring-emerald-100 transition bg-emerald-50 text-emerald-700 placeholder-emerald-300 shadow-sm"
                   />
                 ) : (
                   <span>{formatGold(item.price ?? 0)}</span>
@@ -280,7 +285,7 @@ export function BillCard({ bill }: BillCardProps) {
       {isOwner && (
         <div className="flex items-center gap-2 mb-2 justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-700">ค่าบริการ:</span>
+            <span className="text-sm text-emerald-600">ค่าบริการ:</span>
             <input
               type="number"
               min="0"
@@ -293,14 +298,14 @@ export function BillCard({ bill }: BillCardProps) {
                 }
               }}
               onChange={e => handleServiceFeeChange(e.target.value)}
-              className="w-24 rounded-md border border-gray-300 px-2 py-1 text-center focus:ring-2 focus:ring-yellow-400 transition"
+              className="w-24 rounded-full border border-emerald-100 px-2 py-1 text-center focus:ring-2 focus:ring-emerald-100 transition bg-emerald-50 text-emerald-700 placeholder-emerald-300 shadow-sm"
             />
-            <span className="text-sm text-gray-500 ml-1">Gold</span>
+            <span className="text-sm text-emerald-300 ml-1">Gold</span>
           </div>
           <button
             onClick={handleSave}
             disabled={saving}
-            className="rounded-lg bg-gradient-to-r from-yellow-400 to-yellow-600 px-4 py-1.5 text-white font-bold hover:scale-105 hover:bg-yellow-500 transition text-sm shadow disabled:opacity-50"
+            className="rounded-full bg-gradient-to-r from-emerald-50 to-blue-50 px-5 py-2 text-emerald-700 font-bold shadow hover:shadow-md hover:bg-gradient-to-r hover:from-emerald-100 hover:to-blue-100 transition disabled:opacity-50"
           >
             {saving ? 'กำลังบันทึก...' : 'บันทึกราคา'}
           </button>
@@ -309,20 +314,20 @@ export function BillCard({ bill }: BillCardProps) {
 
       {/* กล่องสรุป */}
       <div className="mb-4 grid grid-cols-1 md:grid-cols-3 gap-2">
-        <div className="rounded-lg bg-yellow-50 shadow-sm flex flex-col items-center py-2 px-1 min-w-[80px]">
-          <span className="flex items-center gap-1 text-[11px] text-gray-500 mb-0.5"><Cog6ToothIcon className="w-4 h-4 text-yellow-400" /> ค่าบริการ</span>
-          <span className="text-xl font-bold text-yellow-800">{formatGold(editServiceFee)}</span>
-          <span className="text-[11px] text-gray-400 mt-0.5">Gold</span>
+        <div className="rounded-xl bg-white/80 shadow flex flex-col items-center py-2 px-1 min-w-[80px] border border-emerald-50">
+          <span className="flex items-center gap-1 text-[11px] text-emerald-400 mb-0.5"><Cog6ToothIcon className="w-4 h-4 text-yellow-300" /> ค่าบริการ</span>
+          <span className="text-xl font-bold text-emerald-600">{formatGold(editServiceFee)}</span>
+          <span className="text-[11px] text-emerald-200 mt-0.5">Gold</span>
         </div>
-        <div className="rounded-lg bg-yellow-50 shadow-sm flex flex-col items-center py-2 px-1 min-w-[80px]">
-          <span className="flex items-center gap-1 text-[11px] text-gray-500 mb-0.5"><UserGroupIcon className="w-4 h-4 text-yellow-400" /> เงินต่อคน</span>
-          <span className="text-xl font-extrabold text-yellow-500 drop-shadow">{formatGold(splitAmount)}</span>
-          <span className="text-[11px] text-gray-400 mt-0.5">Gold</span>
+        <div className="rounded-xl bg-white/80 shadow flex flex-col items-center py-2 px-1 min-w-[80px] border border-emerald-50">
+          <span className="flex items-center gap-1 text-[11px] text-emerald-400 mb-0.5"><UserGroupIcon className="w-4 h-4 text-yellow-300" /> เงินต่อคน</span>
+          <span className="text-xl font-extrabold text-yellow-400 drop-shadow">{formatGold(splitAmount)}</span>
+          <span className="text-[11px] text-emerald-200 mt-0.5">Gold</span>
         </div>
-        <div className="rounded-lg bg-yellow-50 shadow-sm flex flex-col items-center py-2 px-1 min-w-[80px]">
-          <span className="flex items-center gap-1 text-[11px] text-gray-500 mb-0.5"><BanknotesIcon className="w-4 h-4 text-yellow-400" /> ราคารวม</span>
-          <span className="text-xl font-bold text-yellow-800">{formatGold(totalPrice)}</span>
-          <span className="text-[11px] text-gray-400 mt-0.5">Gold</span>
+        <div className="rounded-xl bg-white/80 shadow flex flex-col items-center py-2 px-1 min-w-[80px] border border-emerald-50">
+          <span className="flex items-center gap-1 text-[11px] text-emerald-400 mb-0.5"><BanknotesIcon className="w-4 h-4 text-yellow-300" /> ราคารวม</span>
+          <span className="text-xl font-bold text-emerald-600">{formatGold(totalPrice)}</span>
+          <span className="text-[11px] text-emerald-200 mt-0.5">Gold</span>
         </div>
       </div>
 
@@ -330,7 +335,7 @@ export function BillCard({ bill }: BillCardProps) {
       <div className="mb-2">
         {isOwner && (
           <>
-            <label className="block text-sm font-medium text-gray-700 mb-1">ค้นหาตัวละครเพื่อเพิ่มผู้ร่วมบิล</label>
+            <label className="block text-sm font-medium text-emerald-600 mb-1">ค้นหาตัวละครเพื่อเพิ่มผู้ร่วมบิล</label>
             <div className="flex gap-2">
               <input
                 type="text"
@@ -338,28 +343,29 @@ export function BillCard({ bill }: BillCardProps) {
                 onChange={e => setSearchQuery(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter') handleSearch(); }}
                 placeholder="ค้นหาชื่อตัวละคร"
-                className="flex-1 rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-yellow-400 transition shadow-sm bg-white"
+                className="flex-1 rounded-full border border-emerald-100 px-4 py-2 focus:ring-2 focus:ring-emerald-100 transition shadow-sm bg-emerald-50 text-emerald-700 placeholder-emerald-300"
               />
               <button
                 onClick={handleSearch}
                 disabled={isSearching || !searchQuery.trim()}
-                className="rounded-lg bg-gradient-to-r from-yellow-400 to-yellow-600 px-4 py-2 text-white font-bold shadow hover:scale-105 hover:bg-yellow-500 transition disabled:opacity-50"
+                className="rounded-full bg-gradient-to-r from-emerald-50 to-blue-50 text-emerald-700 font-bold px-5 py-2 shadow hover:shadow-md hover:bg-gradient-to-r hover:from-emerald-100 hover:to-blue-100 transition disabled:opacity-50 flex items-center gap-2 border border-emerald-100"
               >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z" /></svg>
                 {isSearching ? 'ค้นหา...' : 'ค้นหา'}
               </button>
             </div>
             {/* แสดงผลลัพธ์ */}
             {searchResults.length > 0 && (
-              <div className="mt-2 bg-yellow-50 rounded-lg p-2 shadow animate-fadeIn">
+              <div className="mt-2 bg-gradient-to-r from-emerald-50 via-blue-50 to-emerald-100 rounded-2xl p-2 shadow animate-fadeIn border border-emerald-100">
                 {searchResults.map(char => (
-                  <div key={char.id} className="flex items-center justify-between py-1 px-2 hover:bg-yellow-100 rounded transition">
-                    <span className="font-medium text-yellow-800 flex items-center gap-2">
-                      <UserIcon className="w-4 h-4 text-yellow-500" />
+                  <div key={char.id} className="flex items-center justify-between py-1 px-3 hover:bg-emerald-50 rounded-xl transition">
+                    <span className="font-medium text-emerald-700 flex items-center gap-2">
+                      <UserIcon className="w-4 h-4 text-emerald-400" />
                       {char.name}
                     </span>
                     <button
                       onClick={() => handleAddParticipant(char)}
-                      className="ml-2 px-3 py-1 rounded bg-gradient-to-r from-yellow-400 to-yellow-600 text-white font-bold hover:scale-105 hover:bg-yellow-500 transition shadow"
+                      className="ml-2 px-3 py-1 rounded-full bg-gradient-to-r from-yellow-200 to-green-200 text-emerald-700 font-bold hover:scale-105 hover:from-yellow-300 hover:to-green-300 transition shadow border border-emerald-100"
                     >
                       เพิ่ม
                     </button>
@@ -371,7 +377,7 @@ export function BillCard({ bill }: BillCardProps) {
             {searchQuery && searchResults.length === 0 && !isSearching && (
               <button
                 onClick={() => handleAddCustomParticipant(searchQuery)}
-                className="mt-2 px-3 py-1 rounded bg-gray-200 text-gray-700 font-bold hover:bg-gray-300 transition shadow"
+                className="mt-2 px-3 py-1 rounded-full bg-blue-100 text-emerald-700 font-bold hover:bg-blue-200 transition shadow border border-emerald-100"
               >
                 เพิ่ม "{searchQuery}" เป็นผู้ร่วมบิล
               </button>
@@ -427,9 +433,9 @@ export function BillCard({ bill }: BillCardProps) {
       </div>
 
       {/* เวลาคงเหลือ */}
-      <div className="text-sm text-gray-500 flex items-center gap-2 mt-2">
-        <ClockIcon className="w-4 h-4 text-yellow-400" />
-        <span className="inline-block bg-gray-100 rounded px-2 py-1">
+      <div className="text-sm text-emerald-400 flex items-center gap-2 mt-2">
+        <ClockIcon className="w-4 h-4 text-yellow-300" />
+        <span className="inline-block bg-gradient-to-r from-white via-blue-50 to-emerald-50 rounded px-2 py-1 border border-emerald-50">
           เหลือเวลา: {days} วัน {hours} ชั่วโมง {minutes} นาที
         </span>
         {isExpiring && <span className="inline-block bg-red-100 text-red-600 rounded px-2 py-1 ml-2 animate-pulse">ใกล้หมดอายุ</span>}
@@ -438,12 +444,12 @@ export function BillCard({ bill }: BillCardProps) {
       {/* Modal ยืนยันการลบบิล */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-          <div className="bg-white rounded-lg p-6 shadow-lg max-w-xs w-full">
+          <div className="bg-gradient-to-br from-white via-blue-50 to-emerald-50 rounded-2xl p-6 shadow-lg max-w-xs w-full border border-emerald-50">
             <h3 className="text-lg font-bold mb-4 text-red-600">ยืนยันการลบบิล</h3>
-            <p className="mb-6 text-gray-700">คุณต้องการลบบิลนี้จริงหรือไม่? ข้อมูลจะไม่สามารถกู้คืนได้</p>
+            <p className="mb-6 text-emerald-600">คุณต้องการลบบิลนี้จริงหรือไม่? ข้อมูลจะไม่สามารถกู้คืนได้</p>
             <div className="flex justify-end gap-2">
-              <button onClick={handleDeleteCancel} className="px-4 py-2 rounded border border-gray-300 text-gray-700 hover:bg-gray-50">ยกเลิก</button>
-              <button onClick={handleDeleteConfirm} className="px-4 py-2 rounded bg-red-500 text-white hover:bg-red-600">ยืนยัน</button>
+              <button onClick={handleDeleteCancel} className="px-4 py-2 rounded-full border border-emerald-100 text-emerald-600 hover:bg-emerald-50 font-semibold transition">ยกเลิก</button>
+              <button onClick={handleDeleteConfirm} className="px-4 py-2 rounded-full bg-red-400 text-white hover:bg-red-500 font-semibold transition">ยืนยัน</button>
             </div>
           </div>
         </div>
