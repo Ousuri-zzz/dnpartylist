@@ -6,7 +6,7 @@ import { ref, remove, update, get } from 'firebase/database';
 import { toast } from 'react-hot-toast';
 import { useState, useEffect } from 'react';
 import {
-  TrashIcon, UserIcon, XMarkIcon, BanknotesIcon, Cog6ToothIcon, UserGroupIcon, ClockIcon, GiftIcon, CubeIcon
+  TrashIcon, UserIcon, XMarkIcon, BanknotesIcon, Cog6ToothIcon, UserGroupIcon, ClockIcon, GiftIcon, CubeIcon, PlusIcon, CheckCircleIcon
 } from '@heroicons/react/24/solid';
 
 interface Character {
@@ -41,16 +41,31 @@ export function BillCard({ bill }: BillCardProps) {
   const [focusedServiceFee, setFocusedServiceFee] = useState(false);
   const items = editItems;
   const ownerCharacterId = bill.ownerCharacterId;
-  const participantsList = Object.values(bill.participants || {});
-  const sortedParticipants = [
-    ...participantsList.filter(p => p.characterId === ownerCharacterId),
-    ...participantsList.filter(p => p.characterId !== ownerCharacterId),
-  ];
+  const sortedParticipants = bill.participants
+    ? (() => {
+        const entries = Object.entries(bill.participants);
+        const owner = entries.find(([, p]) => p.characterId === ownerCharacterId);
+        const others = entries.filter(([, p]) => p.characterId !== ownerCharacterId);
+        return [
+          ...(owner ? [owner[1]] : []),
+          ...others.map(([, p]) => p)
+        ];
+      })()
+    : [];
   const totalPrice = items.reduce((sum, item) => sum + (Number(item.price) || 0), 0);
   const splitAmount = calculateSplit(items, editServiceFee, sortedParticipants.length);
   const { days, hours, minutes } = getTimeRemaining(bill.expiresAt);
   const isExpiring = isExpiringSoon(bill.expiresAt);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  useEffect(() => {
+    if (!document.getElementById('billcard-marquee-style')) {
+      const style = document.createElement('style');
+      style.id = 'billcard-marquee-style';
+      style.innerHTML = `@keyframes billcard-marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }`;
+      document.head.appendChild(style);
+    }
+  }, []);
 
   const handleDelete = async () => {
     if (!isOwner) return;
@@ -219,15 +234,25 @@ export function BillCard({ bill }: BillCardProps) {
   const handleDeleteCancel = () => setShowDeleteConfirm(false);
 
   return (
-    <div className="max-w-md w-full mx-auto rounded-3xl border border-emerald-100 bg-white/80 p-6 shadow-xl hover:shadow-2xl transition-all">
+    <div className="max-w-md w-full mx-auto rounded-3xl border border-emerald-100 bg-white/80 p-6 shadow-xl hover:shadow-2xl transition-all sm:max-w-md sm:p-6 px-2 py-2">
       {/* Header */}
       <div className="flex items-center justify-between mb-4 bg-gradient-to-r from-white via-blue-50 to-emerald-50 rounded-2xl px-4 py-3 shadow-sm">
         <div className="flex items-center gap-2">
           <GiftIcon className="w-7 h-7 text-yellow-300 drop-shadow" />
-          <h3 className="text-2xl font-bold text-emerald-600 flex items-center gap-2">
-            {bill.title}
-            <BanknotesIcon className="w-5 h-5 text-emerald-200" />
-          </h3>
+          <div className="max-w-[180px] md:max-w-[260px] overflow-hidden relative" title={bill.title}>
+            <div
+              className="inline-block whitespace-nowrap"
+              style={{
+                animation: bill.title.length > 18 ? 'billcard-marquee 14s linear infinite' : undefined,
+                minWidth: bill.title.length > 18 ? '120%' : '100%',
+              }}
+            >
+              <h3 className="text-xl md:text-2xl font-bold text-emerald-600 flex items-center gap-2">
+                {bill.title}
+                <BanknotesIcon className="w-5 h-5 text-emerald-200 flex-shrink-0" />
+              </h3>
+            </div>
+          </div>
         </div>
         {isOwner && (
           <button onClick={handleDeleteClick} className="text-red-400 hover:text-red-600 transition p-2 rounded-full hover:bg-red-50">
@@ -283,31 +308,31 @@ export function BillCard({ bill }: BillCardProps) {
       </table>
       {/* input+ปุ่มบันทึกราคาค่าบริการ เฉพาะเจ้าของบิล */}
       {isOwner && (
-        <div className="flex items-center gap-2 mb-2 justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-emerald-600">ค่าบริการ:</span>
-            <input
-              type="number"
-              min="0"
-              value={focusedServiceFee && (editServiceFee === 0 || editServiceFee === undefined) ? "" : editServiceFee}
-              onFocus={() => setFocusedServiceFee(true)}
-              onBlur={e => {
-                setFocusedServiceFee(false);
-                if (e.target.value === "" || isNaN(Number(e.target.value))) {
-                  handleServiceFeeChange("0");
-                }
-              }}
-              onChange={e => handleServiceFeeChange(e.target.value)}
-              className="w-24 rounded-full border border-yellow-200 px-2 py-1 text-center focus:ring-2 focus:ring-yellow-200 transition bg-yellow-50 text-yellow-700 font-bold text-base placeholder-yellow-300 shadow-sm"
-            />
-            <span className="text-sm text-emerald-300 ml-1">Gold</span>
-          </div>
+        <div className="flex items-center gap-2 mb-2">
+          <span className="text-sm text-emerald-600">ค่าบริการ:</span>
+          <input
+            type="number"
+            min="0"
+            value={focusedServiceFee && (editServiceFee === 0 || editServiceFee === undefined) ? "" : editServiceFee}
+            onFocus={() => setFocusedServiceFee(true)}
+            onBlur={e => {
+              setFocusedServiceFee(false);
+              if (e.target.value === "" || isNaN(Number(e.target.value))) {
+                handleServiceFeeChange("0");
+              }
+            }}
+            onChange={e => handleServiceFeeChange(e.target.value)}
+            className="w-24 rounded-full border border-yellow-200 px-2 py-1 text-center focus:ring-2 focus:ring-yellow-200 transition bg-yellow-50 text-yellow-700 font-bold text-base placeholder-yellow-300 shadow-sm"
+          />
+          <span className="text-sm text-emerald-300 ml-1">Gold</span>
+          <div className="flex-1" />
           <button
             onClick={handleSave}
             disabled={saving}
-            className="rounded-full bg-gradient-to-r from-yellow-50 to-yellow-100 px-5 py-2 text-yellow-700 font-bold shadow hover:shadow-md hover:bg-gradient-to-r hover:from-yellow-100 hover:to-yellow-200 transition disabled:opacity-50 border border-yellow-100"
+            className="rounded-full bg-emerald-500 border border-emerald-600 px-3 py-1.5 text-sm text-white font-medium shadow-sm hover:bg-emerald-600 transition disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-emerald-200 flex items-center gap-1 w-full max-w-[140px] mx-auto sm:w-auto sm:max-w-none"
           >
-            {saving ? 'กำลังบันทึก...' : 'บันทึกราคา'}
+            <CheckCircleIcon className="w-4 h-4 text-white" />
+            {saving ? 'กำลังบันทึก...' : 'บันทึก'}
           </button>
         </div>
       )}
@@ -343,7 +368,7 @@ export function BillCard({ bill }: BillCardProps) {
                 onChange={e => setSearchQuery(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter') handleSearch(); }}
                 placeholder="ค้นหาชื่อตัวละคร"
-                className="flex-1 rounded-full border border-emerald-100 px-4 py-2 focus:ring-2 focus:ring-emerald-100 transition shadow-sm bg-emerald-50 text-emerald-700 placeholder-emerald-300"
+                className="flex-1 rounded-full border border-gray-200 px-4 py-2 focus:ring-2 focus:ring-gray-200 transition shadow-sm bg-gray-50 text-gray-500 placeholder-gray-400"
               />
               <button
                 onClick={handleSearch}
@@ -365,9 +390,10 @@ export function BillCard({ bill }: BillCardProps) {
                     </span>
                     <button
                       onClick={() => handleAddParticipant(char)}
-                      className="ml-2 px-3 py-1 rounded-full bg-gradient-to-r from-yellow-200 to-green-200 text-emerald-700 font-bold hover:scale-105 hover:from-yellow-300 hover:to-green-300 transition shadow border border-emerald-100"
+                      className="ml-2 p-2 rounded-full bg-blue-100 border border-blue-200 hover:bg-blue-200 transition shadow-sm flex items-center justify-center"
+                      title="เพิ่มผู้ร่วมบิล"
                     >
-                      เพิ่ม
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
                     </button>
                   </div>
                 ))}

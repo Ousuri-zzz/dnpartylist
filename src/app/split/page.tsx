@@ -83,7 +83,7 @@ export default function SplitPage() {
 
       {/* Main Content */}
       <div className="py-8">
-        <div className="max-w-5xl mx-auto px-2 sm:px-4">
+        <div className="max-w-4xl mx-auto px-2 sm:px-4 w-full">
           {/* ส่วนคำนวณราคา */}
           <div className="mb-8 bg-white/80 rounded-3xl p-6 shadow-lg border border-yellow-100">
             <h2 className="text-2xl font-bold text-yellow-600 mb-4 flex items-center gap-2">
@@ -179,19 +179,18 @@ export default function SplitPage() {
           </div>
 
           {/* ปุ่มสร้างบิลใหม่ ตรงกลาง ใต้แบนเนอร์ */}
-          <div className="flex justify-center mb-10">
+          <div className="flex justify-center mb-2 sm:mb-4">
             <button
               onClick={() => setModalOpen(true)}
-              className="relative flex items-center gap-2 px-8 py-3 rounded-full bg-gradient-to-r from-yellow-100 via-white to-emerald-50 border border-yellow-200 text-yellow-700 font-semibold shadow-sm hover:bg-yellow-50 hover:shadow-md transition-all duration-200 text-lg focus:outline-none focus:ring-2 focus:ring-yellow-100 focus:ring-offset-2"
+              className="flex items-center justify-center gap-2 px-6 py-2 rounded-full bg-gradient-to-r from-yellow-50 to-emerald-50 border border-yellow-200 text-yellow-600 font-semibold text-lg shadow-sm hover:bg-yellow-100 hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-yellow-100 focus:ring-offset-2"
+              style={{ minWidth: 220 }}
             >
-              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-yellow-100 mr-2 shadow-none">
-                {/* ไอคอนเหรียญทองและเครื่องหมาย + */}
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8" /><text x="10" y="14" textAnchor="middle" fontSize="12" fill="#fff">+</text></svg>
+              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-yellow-100 shadow-none">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8" /><text x="10" y="14" textAnchor="middle" fontSize="12" fill="#fff">+</text></svg>
               </span>
-              สร้างบิลใหม่
-              <span className="ml-1">
-                {/* ไอคอนกระเป๋าสตางค์ */}
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-emerald-200" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="3" y="7" width="18" height="10" rx="2" fill="#FEF9C3" stroke="#FDE68A" strokeWidth="2"/><circle cx="17" cy="12" r="1.5" fill="#FDE68A"/></svg>
+              <span>สร้างบิลใหม่</span>
+              <span className="flex items-center ml-1">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="3" y="7" width="18" height="10" rx="2" fill="#FEF9C3" stroke="#FDE68A" strokeWidth="2"/><circle cx="17" cy="12" r="1.5" fill="#FDE68A"/></svg>
               </span>
             </button>
           </div>
@@ -207,7 +206,7 @@ export default function SplitPage() {
               <div className="text-center text-emerald-400 text-lg font-medium">ยังไม่มีบิล</div>
             </div>
           ) : (
-            <div className="grid gap-6 items-start" style={{gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))'}}>
+            <div className="grid gap-2 sm:gap-4 items-start justify-center py-2 sm:py-4" style={{gridTemplateColumns: 'repeat(auto-fit, minmax(90vw, 1fr))', ...((window.innerWidth >= 640) ? {gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))'} : {})}}>
               {bills.map(bill => (
                 <BillCard key={bill.id} bill={bill} />
               ))}

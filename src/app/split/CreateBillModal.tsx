@@ -132,12 +132,12 @@ export function CreateBillModal({ isOpen, onClose }: CreateBillModalProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-      <div className="w-full max-w-lg rounded-2xl bg-white p-8 shadow-2xl relative animate-fadeIn">
+      <div className="w-full max-w-lg rounded-2xl bg-gradient-to-b from-yellow-50 to-white p-4 sm:p-8 shadow-2xl relative animate-fadeIn mx-2 flex flex-col items-center gap-4">
         <div className="flex flex-col items-center mb-6">
-          <ClipboardDocumentListIcon className="w-10 h-10 text-yellow-400 mb-2" />
-          <h2 className="text-2xl font-extrabold text-yellow-700 text-center tracking-tight">สร้างบิลใหม่</h2>
+          <ClipboardDocumentListIcon className="w-10 h-10 text-yellow-500 mb-2" />
+          <h2 className="text-2xl font-extrabold text-yellow-600 text-center tracking-tight">สร้างบิลใหม่</h2>
         </div>
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6 w-full">
           <div>
             <label className="mb-1 block text-sm font-medium text-gray-700 flex items-center gap-2">
               <DocumentTextIcon className="w-5 h-5 text-yellow-400" /> ชื่อบิล
@@ -146,7 +146,7 @@ export function CreateBillModal({ isOpen, onClose }: CreateBillModalProps) {
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full rounded-lg border border-yellow-200 px-3 py-2 focus:ring-2 focus:ring-yellow-400 transition bg-white text-gray-700 placeholder-gray-400"
+              className="w-full rounded-xl border border-yellow-300 px-3 py-2 text-base focus:ring-2 focus:ring-yellow-200 transition bg-white text-gray-700 placeholder-gray-400 shadow-sm"
               placeholder="กรอกชื่อบิล"
               required
             />
@@ -162,7 +162,7 @@ export function CreateBillModal({ isOpen, onClose }: CreateBillModalProps) {
                   const char = characters.find(c => c.id === e.target.value);
                   if (char) setSelectedCharacter(char);
                 }}
-                className="w-full rounded-lg border border-yellow-200 px-3 py-2 focus:ring-2 focus:ring-yellow-400 transition appearance-none bg-white text-gray-700 placeholder-gray-400"
+                className="w-full rounded-xl border border-yellow-300 px-3 py-2 text-base focus:ring-2 focus:ring-yellow-200 transition appearance-none bg-white text-gray-700 placeholder-gray-400 shadow-sm"
                 required
               >
                 {characters.map((char) => (
@@ -183,7 +183,7 @@ export function CreateBillModal({ isOpen, onClose }: CreateBillModalProps) {
                   value={item.name}
                   onChange={(e) => handleItemChange(index, e.target.value)}
                   placeholder="ชื่อไอเทม"
-                  className="flex-1 rounded-lg border border-yellow-200 px-3 py-2 focus:ring-2 focus:ring-yellow-400 transition bg-white text-gray-700 placeholder-gray-400"
+                  className="flex-1 rounded-xl border border-yellow-300 px-3 py-2 text-base focus:ring-2 focus:ring-yellow-200 transition bg-white text-gray-700 placeholder-gray-400 shadow-sm"
                 />
                 {items.length > 1 && (
                   <button
@@ -199,7 +199,7 @@ export function CreateBillModal({ isOpen, onClose }: CreateBillModalProps) {
             <button
               type="button"
               onClick={handleAddItem}
-              className="mt-2 rounded-lg bg-gradient-to-r from-yellow-400 to-yellow-600 px-4 py-2 text-white font-bold shadow hover:scale-105 hover:bg-yellow-500 transition flex items-center gap-2"
+              className="mt-2 rounded-xl bg-gradient-to-r from-yellow-200 to-emerald-200 px-3 py-2 text-base text-emerald-700 font-bold shadow hover:from-yellow-300 hover:to-emerald-300 transition flex items-center gap-2 w-full max-w-xs mx-auto"
             >
               <PlusIcon className="w-5 h-5" /> เพิ่มไอเทม
             </button>
@@ -208,14 +208,14 @@ export function CreateBillModal({ isOpen, onClose }: CreateBillModalProps) {
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg border border-gray-300 px-5 py-2 text-gray-700 hover:bg-gray-50 font-semibold transition"
+              className="rounded-xl border border-emerald-200 px-3 py-2 text-base text-emerald-500 hover:bg-emerald-50 font-semibold transition w-full max-w-xs mx-auto"
             >
               ยกเลิก
             </button>
             <button
               type="submit"
               disabled={loading || !selectedCharacter}
-              className="rounded-lg bg-gradient-to-r from-yellow-400 to-yellow-600 px-6 py-2 text-white font-bold shadow hover:scale-105 hover:bg-yellow-500 transition disabled:opacity-50"
+              className="rounded-xl bg-gradient-to-r from-yellow-300 to-emerald-400 px-3 py-2 text-base text-white font-bold shadow hover:from-yellow-400 hover:to-emerald-500 transition disabled:opacity-50 w-full max-w-xs mx-auto"
             >
               {loading ? 'กำลังสร้าง...' : 'สร้างบิล'}
             </button>
