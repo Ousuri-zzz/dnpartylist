@@ -271,7 +271,7 @@ export function BillCard({ bill }: BillCardProps) {
                       }
                     }}
                     onChange={e => handleItemPriceChange(idx, e.target.value)}
-                    className="w-24 rounded-full border border-emerald-100 px-2 py-1 text-center focus:ring-2 focus:ring-emerald-100 transition bg-emerald-50 text-emerald-700 placeholder-emerald-300 shadow-sm"
+                    className="w-24 rounded-full border border-yellow-200 px-2 py-1 text-center focus:ring-2 focus:ring-yellow-200 transition bg-yellow-50 text-yellow-700 font-bold text-base placeholder-yellow-300 shadow-sm"
                   />
                 ) : (
                   <span>{formatGold(item.price ?? 0)}</span>
@@ -298,14 +298,14 @@ export function BillCard({ bill }: BillCardProps) {
                 }
               }}
               onChange={e => handleServiceFeeChange(e.target.value)}
-              className="w-24 rounded-full border border-emerald-100 px-2 py-1 text-center focus:ring-2 focus:ring-emerald-100 transition bg-emerald-50 text-emerald-700 placeholder-emerald-300 shadow-sm"
+              className="w-24 rounded-full border border-yellow-200 px-2 py-1 text-center focus:ring-2 focus:ring-yellow-200 transition bg-yellow-50 text-yellow-700 font-bold text-base placeholder-yellow-300 shadow-sm"
             />
             <span className="text-sm text-emerald-300 ml-1">Gold</span>
           </div>
           <button
             onClick={handleSave}
             disabled={saving}
-            className="rounded-full bg-gradient-to-r from-emerald-50 to-blue-50 px-5 py-2 text-emerald-700 font-bold shadow hover:shadow-md hover:bg-gradient-to-r hover:from-emerald-100 hover:to-blue-100 transition disabled:opacity-50"
+            className="rounded-full bg-gradient-to-r from-yellow-50 to-yellow-100 px-5 py-2 text-yellow-700 font-bold shadow hover:shadow-md hover:bg-gradient-to-r hover:from-yellow-100 hover:to-yellow-200 transition disabled:opacity-50 border border-yellow-100"
           >
             {saving ? 'กำลังบันทึก...' : 'บันทึกราคา'}
           </button>

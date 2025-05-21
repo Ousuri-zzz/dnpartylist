@@ -6,11 +6,47 @@ import { useSplitBills } from './useSplitBills';
 import { BillCard } from './BillCard';
 import { CreateBillModal } from './CreateBillModal';
 import { toast } from 'react-hot-toast';
+import { BanknotesIcon, CurrencyDollarIcon, SparklesIcon } from '@heroicons/react/24/solid';
 
 export default function SplitPage() {
   const { user } = useAuth();
   const { bills, loading, error } = useSplitBills();
   const [modalOpen, setModalOpen] = useState(false);
+
+  // State สำหรับ input และผลลัพธ์
+  const [cash, setCash] = useState('');
+  const [goldRate, setGoldRate] = useState('');
+  const [baht, setBaht] = useState('');
+  const [gold, setGold] = useState('');
+  const [goldInput, setGoldInput] = useState('');
+  const [goldToBaht, setGoldToBaht] = useState('');
+
+  // ฟังก์ชันคำนวณ
+  const handleCalculate = (cashValue: string, goldRateValue: string, goldValue?: string) => {
+    const cashNum = parseFloat(cashValue) || 0;
+    const goldRateNum = parseFloat(goldRateValue) || 0;
+    const goldNum = parseFloat(goldValue || '') || 0;
+    if (!cashNum) {
+      setBaht('');
+      setGold('');
+    } else {
+      const bahtValue = cashNum / 39;
+      setBaht(bahtValue ? bahtValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '');
+      if (goldRateNum) {
+        const goldValueCalc = bahtValue / goldRateNum;
+        setGold(goldValueCalc ? goldValueCalc.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '');
+      } else {
+        setGold('');
+      }
+    }
+    // Gold to Baht
+    if (!goldNum || !goldRateNum) {
+      setGoldToBaht('');
+    } else {
+      const bahtFromGold = goldNum * goldRateNum;
+      setGoldToBaht(bahtFromGold ? bahtFromGold.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '');
+    }
+  };
 
   useEffect(() => {
     if (error) {
@@ -48,6 +84,97 @@ export default function SplitPage() {
       {/* Main Content */}
       <div className="py-8">
         <div className="max-w-5xl mx-auto px-2 sm:px-4">
+          {/* ส่วนคำนวณราคา */}
+          <div className="mb-8 bg-white/80 rounded-3xl p-6 shadow-lg border border-yellow-100">
+            <h2 className="text-2xl font-bold text-yellow-600 mb-4 flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              เครื่องมือคำนวณราคา
+            </h2>
+            <div className="bg-gradient-to-br from-yellow-50 to-emerald-50 rounded-2xl p-4 border border-yellow-100">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* ด้านซ้าย - ช่องกรอกข้อมูล */}
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-yellow-600 mb-1">จำนวน Cash</label>
+                    <input
+                      type="number"
+                      value={cash}
+                      placeholder="กรอกจำนวน Cash"
+                      className="w-full rounded-xl border border-yellow-200 px-4 py-2 focus:ring-2 focus:ring-yellow-100 transition bg-white/80 text-yellow-700 placeholder-yellow-300"
+                      onChange={e => {
+                        setCash(e.target.value);
+                        handleCalculate(e.target.value, goldRate, goldInput);
+                      }}
+                    />
+                    <div className="text-xs text-yellow-600 mt-1">* 39 Cash = 1 บาท (อัตราคงที่)</div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-yellow-600 mb-1">เรท Gold (บาทต่อ 1 Gold)</label>
+                    <input
+                      type="number"
+                      value={goldRate}
+                      placeholder="กรอกเรท Gold"
+                      className="w-full rounded-xl border border-yellow-200 px-4 py-2 focus:ring-2 focus:ring-yellow-100 transition bg-white/80 text-yellow-700 placeholder-yellow-300"
+                      onChange={e => {
+                        setGoldRate(e.target.value);
+                        handleCalculate(cash, e.target.value, goldInput);
+                      }}
+                    />
+                    <div className="text-xs text-yellow-600 mt-1">* เช่น 0.6 บาท = 1 Gold</div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-yellow-600 mb-1">จำนวน Gold</label>
+                    <input
+                      type="number"
+                      value={goldInput}
+                      placeholder="กรอกจำนวน Gold"
+                      className="w-full rounded-xl border border-yellow-200 px-4 py-2 focus:ring-2 focus:ring-yellow-100 transition bg-white/80 text-yellow-700 placeholder-yellow-300"
+                      onChange={e => {
+                        setGoldInput(e.target.value);
+                        handleCalculate(cash, goldRate, e.target.value);
+                      }}
+                    />
+                    <div className="text-xs text-yellow-600 mt-1">* ใช้คำนวณเงินบาทจาก Gold ที่มี (ต้องกรอกเรท Gold ด้วย)</div>
+                  </div>
+                </div>
+
+                {/* ด้านขวา - แสดงผลลัพธ์ */}
+                <div className="bg-white/90 rounded-xl p-4 border border-yellow-100 flex flex-col justify-center space-y-4">
+                  <div>
+                    <div className="text-lg font-extrabold text-yellow-700 mb-4 flex items-center gap-2">
+                      <SparklesIcon className="w-6 h-6 text-yellow-400" />
+                      ผลลัพธ์การคำนวณ
+                    </div>
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-yellow-50 to-emerald-50 border border-yellow-100 shadow-sm">
+                        <CurrencyDollarIcon className="w-5 h-5 text-yellow-400" />
+                        <span className="text-yellow-700 font-semibold flex-1">Cash นี้มีมูลค่า (บาท)</span>
+                        <span className="font-bold text-yellow-700 text-lg">{baht}</span>
+                      </div>
+                      <div className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-yellow-50 to-emerald-50 border border-yellow-100 shadow-sm">
+                        <SparklesIcon className="w-5 h-5 text-yellow-400" />
+                        <span className="text-yellow-700 font-semibold flex-1">Cash นี้แลกได้ (Gold)</span>
+                        <span className="font-bold text-yellow-700 text-lg">{gold}</span>
+                      </div>
+                      <div className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-yellow-50 to-emerald-50 border border-yellow-100 shadow-sm">
+                        <BanknotesIcon className="w-5 h-5 text-yellow-400" />
+                        <span className="text-yellow-700 font-semibold flex-1">Gold นี้มีมูลค่า (บาท)</span>
+                        <span className="font-bold text-yellow-700 text-lg">{goldInput && goldRate ? goldToBaht : ''}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-xs text-yellow-600 mt-2 leading-relaxed">
+                    <span className="inline-block mb-1">- กรอก Cash เพื่อคำนวณเป็นเงินบาทและ Gold</span><br/>
+                    <span className="inline-block mb-1">- กรอก Gold เพื่อคำนวณเป็นเงินบาท (ต้องกรอกเรท Gold ด้วย)</span><br/>
+                    <span className="inline-block">- เรท Gold คือจำนวนบาทที่ใช้แลก 1 Gold เช่น 0.6 บาท = 1 Gold</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* ปุ่มสร้างบิลใหม่ ตรงกลาง ใต้แบนเนอร์ */}
           <div className="flex justify-center mb-10">
             <button
