@@ -219,7 +219,7 @@ export function BillCard({ bill }: BillCardProps) {
   const handleDeleteCancel = () => setShowDeleteConfirm(false);
 
   return (
-    <div className="rounded-3xl border border-emerald-100 bg-white/80 p-6 shadow-xl hover:shadow-2xl transition-all">
+    <div className="max-w-md w-full mx-auto rounded-3xl border border-emerald-100 bg-white/80 p-6 shadow-xl hover:shadow-2xl transition-all">
       {/* Header */}
       <div className="flex items-center justify-between mb-4 bg-gradient-to-r from-white via-blue-50 to-emerald-50 rounded-2xl px-4 py-3 shadow-sm">
         <div className="flex items-center gap-2">
