@@ -3,12 +3,18 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
-import { collection, query, where, onSnapshot, orderBy, doc, getDoc } from 'firebase/firestore';
-import { firestore } from '@/lib/firebase';
+import { getDatabase, ref as dbRef, get as dbGet, onValue, off } from 'firebase/database';
 import { Plus } from 'lucide-react';
 import { CreateTournamentModal } from '@/components/tournament/CreateTournamentModal';
 import { JoinTournamentModal } from '@/components/tournament/JoinTournamentModal';
 import { TournamentBracket } from '@/components/tournament/TournamentBracket';
+
+interface TournamentParticipant {
+  uid: string;
+  characterId: string;
+  characterName: string;
+  class: string;
+}
 
 interface Tournament {
   id: string;
@@ -16,15 +22,16 @@ interface Tournament {
   description: string;
   status: 'pending' | 'active' | 'ended';
   ownerUid: string;
-  createdAt: any;
-  participants: {
-    uid: string;
-    characterId: string;
-    characterName: string;
-    class: string;
-  }[];
+  createdAt: number;
+  participants: Record<string, TournamentParticipant>;
   maxParticipants: number;
-  matches?: any[];
+  matches?: Array<{
+    round: number;
+    matchNumber: number;
+    player1?: string;
+    player2?: string;
+    winner?: string;
+  }>;
   currentRound?: number;
 }
 
@@ -43,11 +50,13 @@ export default function TournamentPage() {
       if (!user) return;
       
       try {
-        const userDoc = await getDoc(doc(firestore, 'users', user.uid));
-        const userData = userDoc.data();
-        setIsGuildLeader(userData?.isGuildLeader || false);
+        const db = getDatabase();
+        const leaderRef = dbRef(db, `guild/leaders/${user.uid}`);
+        const snap = await dbGet(leaderRef);
+        setIsGuildLeader(!!snap.val());
       } catch (err) {
         console.error('Error checking guild leader status:', err);
+        setError('ไม่สามารถตรวจสอบสิทธิ์หัวกิลด์ได้');
       }
     }
 
@@ -59,28 +68,46 @@ export default function TournamentPage() {
     if (!user) return;
 
     setLoading(true);
-    const q = query(
-      collection(firestore, 'tournaments'),
-      orderBy('createdAt', 'desc')
-    );
-
-    const unsub = onSnapshot(q, (snapshot) => {
-      const tournaments = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as Tournament[];
-      setTournaments(tournaments);
-      setLoading(false);
+    const db = getDatabase();
+    const tournamentsRef = dbRef(db, 'tournaments');
+    
+    const handle = onValue(tournamentsRef, (snapshot) => {
+      try {
+        const data = snapshot.val() || {};
+        // แปลง object เป็น array พร้อม id
+        const tournaments = Object.entries(data)
+          .map(([id, value]) => {
+            const tournamentData = value as Omit<Tournament, 'id'>;
+            return { 
+              id, 
+              ...tournamentData,
+              participants: tournamentData.participants || {}
+            };
+          })
+          .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+        setTournaments(tournaments);
+        setError(null);
+      } catch (err) {
+        console.error('Error processing tournament data:', err);
+        setError('เกิดข้อผิดพลาดในการประมวลผลข้อมูลทัวร์นาเมนต์');
+      } finally {
+        setLoading(false);
+      }
     }, (err) => {
+      console.error('Error loading tournaments:', err);
       setError('เกิดข้อผิดพลาดในการโหลดข้อมูลทัวร์นาเมนต์');
       setLoading(false);
     });
 
-    return () => unsub();
+    return () => off(tournamentsRef, 'value', handle);
   }, [user]);
 
   const handleJoinClick = (tournamentId: string) => {
     setSelectedTournamentId(tournamentId);
+  };
+
+  const getParticipantCount = (participants: Record<string, TournamentParticipant>) => {
+    return Object.keys(participants).length;
   };
 
   return (
@@ -132,13 +159,13 @@ export default function TournamentPage() {
                             สถานะ: {tournament.status === 'pending' ? 'รอเริ่ม' : tournament.status === 'active' ? 'กำลังดำเนินการ' : 'จบแล้ว'}
                           </div>
                           <div className="text-sm text-gray-600">
-                            ผู้เข้าร่วม: {tournament.participants?.length || 0}/{tournament.maxParticipants} คน
+                            ผู้เข้าร่วม: {getParticipantCount(tournament.participants)}/{tournament.maxParticipants} คน
                           </div>
-                          {tournament.participants && tournament.participants.length > 0 && (
+                          {Object.keys(tournament.participants).length > 0 && (
                             <div className="mt-2">
                               <div className="text-sm font-medium text-gray-700 mb-1">รายชื่อผู้เข้าร่วม:</div>
                               <div className="grid grid-cols-2 gap-2">
-                                {tournament.participants.map((participant, index) => (
+                                {Object.values(tournament.participants).map((participant, index) => (
                                   <div key={index} className="text-sm text-gray-600">
                                     {participant.characterName} ({participant.class})
                                   </div>
@@ -148,7 +175,7 @@ export default function TournamentPage() {
                           )}
                         </div>
                       </div>
-                      {tournament.status === 'pending' && (
+                      {tournament.status === 'pending' && !tournament.participants[user?.uid || ''] && (
                         <motion.button
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
@@ -164,20 +191,9 @@ export default function TournamentPage() {
                     {tournament.status === 'active' && (
                       <TournamentBracket
                         tournamentId={tournament.id}
-                        participants={tournament.participants || []}
+                        participants={Object.values(tournament.participants)}
                         isGuildLeader={isGuildLeader}
-                        onUpdate={() => {
-                          // รีโหลดข้อมูลทัวร์นาเมนต์
-                          const tournamentDoc = getDoc(doc(firestore, 'tournaments', tournament.id));
-                          tournamentDoc.then(doc => {
-                            if (doc.exists()) {
-                              const updatedTournament = { id: doc.id, ...doc.data() } as Tournament;
-                              setTournaments(prev => 
-                                prev.map(t => t.id === tournament.id ? updatedTournament : t)
-                              );
-                            }
-                          });
-                        }}
+                        onUpdate={() => { /* ไม่ต้องทำอะไร เพราะ subscribe อยู่แล้ว */ }}
                       />
                     )}
                   </div>

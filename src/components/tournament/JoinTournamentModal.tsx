@@ -3,8 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
-import { doc, updateDoc, arrayUnion, getDoc } from 'firebase/firestore';
-import { firestore } from '@/lib/firebase';
+import { getDatabase, ref, get, update } from 'firebase/database';
 import { useAuth } from '@/hooks/useAuth';
 
 interface JoinTournamentModalProps {
@@ -33,11 +32,12 @@ export function JoinTournamentModal({ isOpen, onClose, onSubmit, tournamentId }:
       if (!user) return;
       
       try {
-        const userDoc = await getDoc(doc(firestore, 'users', user.uid));
-        const userData = userDoc.data();
-        if (userData?.characters) {
-          setCharacters(userData.characters);
-        }
+        const db = getDatabase();
+        const userRef = ref(db, `users/${user.uid}/characters`);
+        const snap = await get(userRef);
+        const charsObj = snap.val() || {};
+        const charsArr = Object.entries(charsObj).map(([id, value]: any) => ({ id, ...value }));
+        setCharacters(charsArr);
       } catch (err) {
         console.error('Error loading characters:', err);
         setError('เกิดข้อผิดพลาดในการโหลดข้อมูลตัวละคร');
@@ -61,24 +61,26 @@ export function JoinTournamentModal({ isOpen, onClose, onSubmit, tournamentId }:
       if (!character) throw new Error('ไม่พบข้อมูลตัวละคร');
 
       // ตรวจสอบว่าทัวร์นาเมนต์ยังเปิดรับผู้เข้าร่วมอยู่หรือไม่
-      const tournamentDoc = await getDoc(doc(firestore, 'tournaments', tournamentId));
-      const tournamentData = tournamentDoc.data();
-      
+      const db = getDatabase();
+      const tournamentRef = ref(db, `tournaments/${tournamentId}`);
+      const snap = await get(tournamentRef);
+      const tournamentData = snap.val();
       if (!tournamentData) throw new Error('ไม่พบข้อมูลทัวร์นาเมนต์');
       if (tournamentData.status !== 'pending') throw new Error('ทัวร์นาเมนต์นี้ไม่เปิดรับผู้เข้าร่วมแล้ว');
-      if (tournamentData.participants?.length >= tournamentData.maxParticipants) {
+      if ((tournamentData.participants?.length || 0) >= tournamentData.maxParticipants) {
         throw new Error('ทัวร์นาเมนต์นี้เต็มแล้ว');
       }
-
-      // เพิ่มผู้เข้าร่วม
-      await updateDoc(doc(firestore, 'tournaments', tournamentId), {
-        participants: arrayUnion({
-          uid: user.uid,
-          characterId: character.id,
-          characterName: character.name,
-          class: character.class
-        })
-      });
+      // เพิ่มผู้เข้าร่วม (object โดยใช้ uid เป็น key)
+      const newParticipant = {
+        uid: user.uid,
+        characterId: character.id,
+        characterName: character.name,
+        class: character.class
+      };
+      const participants = tournamentData.participants && typeof tournamentData.participants === 'object' ? { ...tournamentData.participants } : {};
+      if (participants[user.uid]) throw new Error('คุณเข้าร่วมทัวร์นาเมนต์นี้แล้ว');
+      participants[user.uid] = newParticipant;
+      await update(tournamentRef, { participants });
 
       onSubmit();
       onClose();

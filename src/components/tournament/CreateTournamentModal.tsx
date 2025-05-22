@@ -3,8 +3,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
-import { firestore } from '@/lib/firebase';
+import { getDatabase, ref, push, serverTimestamp, set } from 'firebase/database';
 import { useAuth } from '@/hooks/useAuth';
 
 interface CreateTournamentModalProps {
@@ -28,16 +27,17 @@ export function CreateTournamentModal({ isOpen, onClose, onSubmit }: CreateTourn
     setError(null);
 
     try {
-      await addDoc(collection(firestore, 'tournaments'), {
+      const db = getDatabase();
+      const tournamentsRef = ref(db, 'tournaments');
+      const newTournamentRef = push(tournamentsRef);
+      await set(newTournamentRef, {
         name,
         description,
         status: 'pending',
         ownerUid: user.uid,
-        createdAt: serverTimestamp(),
-        participants: [],
-        brackets: [],
-        currentRound: 0,
-        maxParticipants: 32, // เริ่มต้นที่ 32 คน
+        createdAt: Date.now(),
+        participants: {},
+        maxParticipants: 32,
       });
 
       onSubmit();

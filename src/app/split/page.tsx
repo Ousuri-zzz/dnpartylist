@@ -65,7 +65,7 @@ export default function SplitPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-yellow-50 to-blue-50">
       {/* Decorative Banner */}
-      <div className="relative bg-gradient-to-r from-yellow-100 via-white to-emerald-50 py-14 overflow-hidden rounded-b-3xl shadow-sm">
+      <div className="relative bg-gradient-to-r from-yellow-100 via-white to-emerald-50 py-6 overflow-hidden rounded-b-3xl shadow-sm">
         <div className="absolute inset-0 flex justify-end items-end opacity-15 pointer-events-none select-none">
           {/* ไอคอนเงินขนาดใหญ่เป็นลาย background */}
           <svg width="180" height="180" fill="none" viewBox="0 0 24 24"><circle cx="90" cy="90" r="80" fill="#FEF9C3" /><rect x="120" y="60" width="40" height="20" rx="6" fill="#D1FAE5" /><circle cx="150" cy="70" r="6" fill="#FDE68A" /></svg>
@@ -78,31 +78,29 @@ export default function SplitPage() {
           <p className="text-emerald-500 text-lg md:text-xl max-w-2xl mx-auto font-medium">
             แบ่งปันค่าใช้จ่ายในปาร์ตี้ของคุณอย่างยุติธรรมและโปร่งใส
           </p>
+          <div className="flex justify-center mt-6">
+            <button
+              onClick={() => setModalOpen(true)}
+              className="flex items-center justify-center gap-2 px-6 py-2 rounded-full bg-gradient-to-r from-yellow-50 to-emerald-50 border border-yellow-200 text-yellow-600 font-semibold text-lg shadow-sm hover:bg-yellow-100 hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-yellow-100 focus:ring-offset-2"
+              style={{ minWidth: 220 }}
+            >
+              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-yellow-100 shadow-none">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8" /><text x="10" y="14" textAnchor="middle" fontSize="12" fill="#fff">+</text></svg>
+              </span>
+              <span>สร้างบิลใหม่</span>
+              <span className="flex items-center ml-1">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="3" y="7" width="18" height="10" rx="2" fill="#FEF9C3" stroke="#FDE68A" strokeWidth="2"/><circle cx="17" cy="12" r="1.5" fill="#FDE68A"/></svg>
+              </span>
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* ปุ่มสร้างบิลใหม่ ตรงกลาง ใต้แบนเนอร์ */}
-      <div className="flex justify-center mt-4 mb-0">
-        <button
-          onClick={() => setModalOpen(true)}
-          className="flex items-center justify-center gap-2 px-6 py-2 rounded-full bg-gradient-to-r from-yellow-50 to-emerald-50 border border-yellow-200 text-yellow-600 font-semibold text-lg shadow-sm hover:bg-yellow-100 hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-yellow-100 focus:ring-offset-2"
-          style={{ minWidth: 220 }}
-        >
-          <span className="flex items-center justify-center w-8 h-8 rounded-full bg-yellow-100 shadow-none">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8" /><text x="10" y="14" textAnchor="middle" fontSize="12" fill="#fff">+</text></svg>
-          </span>
-          <span>สร้างบิลใหม่</span>
-          <span className="flex items-center ml-1">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="3" y="7" width="18" height="10" rx="2" fill="#FEF9C3" stroke="#FDE68A" strokeWidth="2"/><circle cx="17" cy="12" r="1.5" fill="#FDE68A"/></svg>
-          </span>
-        </button>
-      </div>
-
       {/* Main Content */}
-      <div className="py-8">
+      <div className="py-4">
         <div className="max-w-4xl mx-auto px-2 sm:px-4 w-full">
           {/* ส่วนคำนวณราคา */}
-          <div className="mb-8 bg-white/80 rounded-3xl p-6 shadow-lg border border-yellow-100">
+          <div className="mb-4 bg-white/80 rounded-3xl p-6 shadow-lg border border-yellow-100">
             <h2 className="text-2xl font-bold text-yellow-600 mb-4 flex items-center gap-2">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
