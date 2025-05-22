@@ -260,6 +260,7 @@ export default function EventsPage() {
                 <span className="text-3xl">🎉</span>
                 กิจกรรม
               </h2>
+              <div className="flex gap-2">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -269,6 +270,16 @@ export default function EventsPage() {
                 <Plus className="w-4 h-4" />
                 <span>สร้างกิจกรรม</span>
               </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="flex items-center gap-2 bg-gradient-to-r from-purple-500 to-blue-500 text-white px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all"
+                  onClick={() => router.push('/tournament')}
+                >
+                  <span className="text-lg">🏆</span>
+                  <span>ทัวร์นาเมนต์</span>
+                </motion.button>
+              </div>
             </div>
 
             {/* Events List */}

@@ -81,6 +81,23 @@ export default function SplitPage() {
         </div>
       </div>
 
+      {/* ปุ่มสร้างบิลใหม่ ตรงกลาง ใต้แบนเนอร์ */}
+      <div className="flex justify-center mt-4 mb-0">
+        <button
+          onClick={() => setModalOpen(true)}
+          className="flex items-center justify-center gap-2 px-6 py-2 rounded-full bg-gradient-to-r from-yellow-50 to-emerald-50 border border-yellow-200 text-yellow-600 font-semibold text-lg shadow-sm hover:bg-yellow-100 hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-yellow-100 focus:ring-offset-2"
+          style={{ minWidth: 220 }}
+        >
+          <span className="flex items-center justify-center w-8 h-8 rounded-full bg-yellow-100 shadow-none">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8" /><text x="10" y="14" textAnchor="middle" fontSize="12" fill="#fff">+</text></svg>
+          </span>
+          <span>สร้างบิลใหม่</span>
+          <span className="flex items-center ml-1">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="3" y="7" width="18" height="10" rx="2" fill="#FEF9C3" stroke="#FDE68A" strokeWidth="2"/><circle cx="17" cy="12" r="1.5" fill="#FDE68A"/></svg>
+          </span>
+        </button>
+      </div>
+
       {/* Main Content */}
       <div className="py-8">
         <div className="max-w-4xl mx-auto px-2 sm:px-4 w-full">
@@ -178,22 +195,6 @@ export default function SplitPage() {
             </div>
           </div>
 
-          {/* ปุ่มสร้างบิลใหม่ ตรงกลาง ใต้แบนเนอร์ */}
-          <div className="flex justify-center mb-2 sm:mb-4">
-            <button
-              onClick={() => setModalOpen(true)}
-              className="flex items-center justify-center gap-2 px-6 py-2 rounded-full bg-gradient-to-r from-yellow-50 to-emerald-50 border border-yellow-200 text-yellow-600 font-semibold text-lg shadow-sm hover:bg-yellow-100 hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-yellow-100 focus:ring-offset-2"
-              style={{ minWidth: 220 }}
-            >
-              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-yellow-100 shadow-none">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8" /><text x="10" y="14" textAnchor="middle" fontSize="12" fill="#fff">+</text></svg>
-              </span>
-              <span>สร้างบิลใหม่</span>
-              <span className="flex items-center ml-1">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="3" y="7" width="18" height="10" rx="2" fill="#FEF9C3" stroke="#FDE68A" strokeWidth="2"/><circle cx="17" cy="12" r="1.5" fill="#FDE68A"/></svg>
-              </span>
-            </button>
-          </div>
           {/* จบปุ่มสร้างบิลใหม่ */}
           {loading ? (
             <div className="flex flex-col items-center justify-center h-40">
