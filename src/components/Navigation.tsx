@@ -185,7 +185,7 @@ export default function Navigation() {
               {/* Mobile Menu Button */}
               <button
                 onClick={() => setIsMobileMenuOpen(true)}
-                className="lg:hidden mr-2 p-2 rounded-lg hover:bg-pink-50/50 transition-all duration-300 hover:scale-105"
+                className="lg:hidden mr-2 p-2 rounded-lg hover:bg-pink-50/50 transition-all duration-300 hover:scale-105 relative"
               >
                 <svg
                   className="w-6 h-6 text-gray-600"
@@ -198,6 +198,12 @@ export default function Navigation() {
                 >
                   <path d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
+                {(pendingCount > 0 || (isGuildLeader && (pendingDonationCount > 0 || pendingCashDonationCount > 0 || pendingGuildLoanCount > 0 || pendingMerchantCount > 0 || pendingNewMemberCount > 0))) && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 min-w-4 min-h-4 p-0 flex justify-center items-center rounded-full bg-red-500 text-white text-xs font-bold shadow select-none z-30"
+                    style={{ boxSizing: 'border-box' }}>
+                    {pendingCount + (isGuildLeader ? (pendingDonationCount + pendingCashDonationCount + pendingGuildLoanCount + pendingMerchantCount + pendingNewMemberCount) : 0)}
+                  </span>
+                )}
               </button>
 
               {/* Mobile Navigation Modal Overlay using React Portal */}
@@ -215,88 +221,119 @@ export default function Navigation() {
                     </button>
                   </div>
                   <nav className="flex-1 flex flex-col gap-2 p-4 overflow-y-auto">
-                    <Link href="/mypage" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-pink-50/50 text-gray-700">
-                      <Home className="w-5 h-5" />
-                      <span className="font-medium">My Character</span>
+                    <Link href="/mypage" onClick={() => setIsMobileMenuOpen(false)} className={cn(
+                      "flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-pink-50/50",
+                      pathname === "/mypage" ? "bg-pink-50" : "text-gray-700"
+                    )}>
+                      <Home className={cn("w-5 h-5", pathname === "/mypage" ? "text-blue-600" : "text-blue-400")} />
+                      <span className={cn("font-medium", pathname === "/mypage" ? "text-blue-600" : undefined)}>My Character</span>
                     </Link>
-                    <Link href="/party" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-purple-50/50 text-gray-700">
-                      <Users className="w-5 h-5" />
-                      <span className="font-medium">Party List</span>
+                    <Link href="/party" onClick={() => setIsMobileMenuOpen(false)} className={cn(
+                      "flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-purple-50/50",
+                      pathname === "/party" ? "bg-purple-50" : "text-gray-700"
+                    )}>
+                      <Users className={cn("w-5 h-5", pathname === "/party" ? "text-purple-600" : "text-purple-400")} />
+                      <span className={cn("font-medium", pathname === "/party" ? "text-purple-600" : undefined)}>Party List</span>
                     </Link>
-                    <Link href="/events" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-indigo-50/50 text-gray-700">
-                      <Calendar className="w-5 h-5" />
-                      <span className="font-medium">Event</span>
+                    <Link href="/events" onClick={() => setIsMobileMenuOpen(false)} className={cn(
+                      "flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-indigo-50/50",
+                      pathname === "/events" ? "bg-indigo-50" : "text-gray-700"
+                    )}>
+                      <Calendar className={cn("w-5 h-5", pathname === "/events" ? "text-indigo-600" : "text-indigo-400")} />
+                      <span className={cn("font-medium", pathname === "/events" ? "text-indigo-600" : undefined)}>Event</span>
                     </Link>
-                    <Link href="/ranking" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-blue-50/50 text-gray-700">
-                      <BarChart2 className="w-5 h-5" />
-                      <span className="font-medium">Ranking</span>
+                    <Link href="/ranking" onClick={() => setIsMobileMenuOpen(false)} className={cn(
+                      "flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-blue-50/50",
+                      pathname.startsWith("/ranking") ? "bg-blue-50" : "text-gray-700"
+                    )}>
+                      <BarChart2 className={cn("w-5 h-5", pathname.startsWith("/ranking") ? "text-green-600" : "text-green-400")} />
+                      <span className={cn("font-medium", pathname.startsWith("/ranking") ? "text-green-600" : undefined)}>Ranking</span>
                     </Link>
                     <Link
                       href="/split"
                       onClick={() => setIsMobileMenuOpen(false)}
                       className={cn(
-                        "flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-pink-50/50 text-gray-700",
-                        pathname === "/split" && "bg-pink-50"
+                        "flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-pink-50/50",
+                        pathname === "/split" ? "bg-yellow-50" : "text-gray-700"
                       )}
                     >
-                      <FaCoins className="w-5 h-5 text-yellow-500" />
-                      <span className="font-medium">Loot</span>
+                      <FaCoins className={cn("w-5 h-5", pathname === "/split" ? "text-yellow-500" : "text-yellow-400")} />
+                      <span className={cn("font-medium", pathname === "/split" ? "text-yellow-600" : undefined)}>Loot</span>
                     </Link>
-                    <Link href="/trade" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-pink-50/50 text-gray-700">
-                      <ShoppingCart className="w-5 h-5" />
-                      <span className="font-medium">Trade</span>
+                    <Link href="/trade" onClick={() => setIsMobileMenuOpen(false)} className={cn(
+                      "flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-pink-50/50",
+                      pathname === "/trade" ? "bg-pink-50" : "text-gray-700"
+                    )}>
+                      <ShoppingCart className={cn("w-5 h-5", pathname === "/trade" ? "text-pink-600" : "text-pink-400")} />
+                      <span className={cn("font-medium", pathname === "/trade" ? "text-pink-600" : undefined)}>Trade</span>
                       {pendingCount > 0 && (
                         <span className="ml-auto px-2 py-0.5 rounded-full bg-yellow-300 text-yellow-900 text-xs font-bold shadow">
                           {pendingCount}
                         </span>
                       )}
                     </Link>
-                    <Link href="/guild-donate/history" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-pink-50/50 text-gray-700">
-                      <Crown className="w-5 h-5" />
-                      <span className="font-medium whitespace-nowrap flex items-center">บริจาคกิลด์</span>
-                      {(isGuildLeader && (pendingDonationCount > 0 || pendingCashDonationCount > 0)) && (
-                        <span className="ml-auto px-2 py-0.5 rounded-full bg-red-500 text-white text-xs font-bold shadow">
-                          {pendingDonationCount + pendingCashDonationCount}
-                        </span>
-                      )}
+                    <Link href="/guild-donate/history" onClick={() => setIsMobileMenuOpen(false)} className={cn(
+                      "relative flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-pink-50/50",
+                      pathname === "/guild-donate/history" ? "bg-yellow-50" : "text-gray-700"
+                    )}>
+                      <Crown className={cn("w-5 h-5", pathname === "/guild-donate/history" ? "text-yellow-600" : "text-yellow-400")} />
+                      <span className={cn("font-medium whitespace-nowrap flex items-center", pathname === "/guild-donate/history" ? "text-yellow-600" : undefined)}>
+                        บริจาคกิลด์
+                        {(isGuildLeader && (pendingDonationCount > 0 || pendingCashDonationCount > 0)) && (
+                          <span className="absolute -top-2 -right-2 w-4 h-4 min-w-4 min-h-4 p-0 flex justify-center items-center rounded-full bg-red-500 text-white text-xs font-bold shadow select-none z-30"
+                            style={{ boxSizing: 'border-box' }}>
+                            {pendingDonationCount + pendingCashDonationCount}
+                          </span>
+                        )}
+                      </span>
                     </Link>
                     <a
                       href="https://discord.com/users/1163943838826631258"
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={() => setIsMobileMenuOpen(false)}
-                      className="flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-sky-50/50 text-gray-700"
+                      className={cn(
+                        "flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-sky-50/50",
+                        pathname === "/contact-guild-leader" ? "bg-sky-50" : "text-gray-700"
+                      )}
                     >
-                      <MessageSquare className="w-5 h-5" />
-                      <span className="font-medium">ติดต่อหัวกิลด์</span>
+                      <MessageSquare className={cn("w-5 h-5", pathname === "/contact-guild-leader" ? "text-sky-600" : "text-sky-400")} />
+                      <span className={cn("font-medium", pathname === "/contact-guild-leader" ? "text-sky-600" : undefined)}>ติดต่อหัวกิลด์</span>
                     </a>
                     {isGuildLeader && (
-                      <Link href="/guild/settings" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-green-50/50 text-gray-700 relative">
-                        <Settings className="w-5 h-5" />
-                        <span className="font-medium whitespace-nowrap flex items-center">จัดการกิลด์</span>
-                        {(pendingGuildLoanCount > 0 || pendingMerchantCount > 0) && (
-                          <div className="absolute top-0 right-0 flex gap-0 z-30">
-                            {pendingGuildLoanCount > 0 && (
-                              <Link
-                                href="/guildloan"
-                                className="px-1.5 py-0.5 rounded-full bg-red-500 text-white text-xs font-bold shadow-md border border-red-400 cursor-pointer hover:bg-red-400 transition-colors drop-shadow"
-                                style={{ minWidth: 20, textAlign: 'center' }}
-                                title="มีคำขอกู้ยืมใหม่"
+                      <Link href="/guild/settings" onClick={() => setIsMobileMenuOpen(false)} className={cn(
+                        "flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-green-50/50 relative",
+                        pathname === "/guild/settings" ? "bg-emerald-50" : "text-gray-700"
+                      )}>
+                        <Settings className={cn("w-5 h-5", pathname === "/guild/settings" ? "text-emerald-600" : "text-emerald-400")} />
+                        <span className={cn("font-medium whitespace-nowrap flex items-center", pathname === "/guild/settings" ? "text-emerald-600" : undefined)}>จัดการกิลด์</span>
+                        {(pendingGuildLoanCount > 0 || pendingMerchantCount > 0 || pendingNewMemberCount > 0) && (
+                          <span className="absolute -top-2 -right-2 flex gap-1 z-30">
+                            {pendingNewMemberCount > 0 && (
+                              <span
+                                className="w-4 h-4 min-w-4 min-h-4 p-0 flex justify-center items-center rounded-full bg-blue-400 text-white text-xs font-bold shadow-md border border-blue-200 cursor-pointer hover:bg-blue-300 transition-colors drop-shadow z-30"
+                                title="มีสมาชิกใหม่รออนุมัติ"
                               >
-                                {pendingGuildLoanCount}
-                              </Link>
+                                {pendingNewMemberCount}
+                              </span>
                             )}
                             {pendingMerchantCount > 0 && (
-                              <Link
-                                href="/guild/settings"
-                                className="px-1.5 py-0.5 rounded-full bg-yellow-300 text-yellow-900 text-xs font-bold shadow-md border border-yellow-200 cursor-pointer hover:bg-yellow-200 transition-colors drop-shadow -ml-[6px]"
-                                style={{ minWidth: 20, textAlign: 'center' }}
+                              <span
+                                className="w-4 h-4 min-w-4 min-h-4 p-0 flex justify-center items-center rounded-full bg-yellow-300 text-yellow-900 text-xs font-bold shadow-md border border-yellow-200 cursor-pointer hover:bg-yellow-200 transition-colors drop-shadow z-30"
                                 title="มีร้านค้ารออนุมัติ"
                               >
                                 {pendingMerchantCount}
-                              </Link>
+                              </span>
                             )}
-                          </div>
+                            {pendingGuildLoanCount > 0 && (
+                              <span
+                                className="w-4 h-4 min-w-4 min-h-4 p-0 flex justify-center items-center rounded-full bg-red-500 text-white text-xs font-bold shadow-md border border-red-400 cursor-pointer hover:bg-red-400 transition-colors drop-shadow z-30"
+                                title="มีคำขอกู้ยืมใหม่"
+                              >
+                                {pendingGuildLoanCount}
+                              </span>
+                            )}
+                          </span>
                         )}
                       </Link>
                     )}
@@ -419,7 +456,7 @@ export default function Navigation() {
                   href="/ranking"
                   className={cn(
                     "relative group px-3 py-1.5 rounded-lg transition-all duration-300 cursor-pointer",
-                    pathname === "/ranking"
+                    pathname.startsWith("/ranking")
                       ? "bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-md shadow-blue-500/20"
                       : "bg-white/60 border border-blue-100 shadow-sm hover:bg-blue-50/50 hover:shadow-xl hover:scale-105 hover:ring-2 hover:ring-blue-300 hover:border-blue-400 hover:text-blue-600"
                   )}
@@ -432,16 +469,16 @@ export default function Navigation() {
                   >
                     <BarChart2 className={cn(
                       "w-3.5 h-3.5 transition-colors duration-300",
-                      pathname === "/ranking" ? "text-white" : "group-hover:text-blue-600 text-blue-500"
+                      pathname.startsWith("/ranking") ? "text-white" : "group-hover:text-blue-600 text-blue-500"
                     )} />
                     <span className={cn(
                       "text-sm font-medium transition-colors duration-300",
-                      pathname === "/ranking" ? "text-white" : "group-hover:text-blue-600 text-gray-700"
+                      pathname.startsWith("/ranking") ? "text-white" : "group-hover:text-blue-600 text-gray-700"
                     )}>
                       Ranking
                     </span>
                   </motion.div>
-                  {pathname === "/ranking" && (
+                  {pathname.startsWith("/ranking") && (
                     <motion.div
                       layoutId="activeNav"
                       className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-lg -z-10"
@@ -570,7 +607,7 @@ export default function Navigation() {
                   href="/guild-donate/history"
                   className={cn(
                     "relative group px-3 py-1.5 rounded-lg transition-all duration-300 cursor-pointer",
-                    pathname === "/guild-donate/history"
+                    pathname.startsWith("/guild-donate/history")
                       ? "bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-md shadow-pink-500/20"
                       : "bg-white/60 border border-pink-100 shadow-sm hover:bg-pink-50/50 hover:shadow-xl hover:scale-105 hover:ring-2 hover:ring-pink-300 hover:border-pink-400 hover:text-pink-600"
                   )}
@@ -583,20 +620,21 @@ export default function Navigation() {
                   >
                     <Crown className={cn(
                       "w-3.5 h-3.5 transition-colors duration-300",
-                      pathname === "/guild-donate/history" ? "text-white" : "group-hover:text-pink-600 text-pink-500"
+                      pathname.startsWith("/guild-donate/history") ? "text-white" : "group-hover:text-pink-600 text-pink-500"
                     )} />
                     <span className={cn(
                       "text-sm font-medium transition-colors duration-300 whitespace-nowrap flex items-center",
-                      pathname === "/guild-donate/history" ? "text-white" : "group-hover:text-pink-600 text-gray-700"
+                      pathname.startsWith("/guild-donate/history") ? "text-white" : "group-hover:text-pink-600 text-gray-700"
                     )}>
                       บริจาคกิลด์
                     </span>
-                    {isGuildLeader && (pendingDonationCount > 0 || pendingCashDonationCount > 0) && (
-                      <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-                        {pendingDonationCount + pendingCashDonationCount}
-                      </span>
-                    )}
                   </motion.div>
+                  {isGuildLeader && (pendingDonationCount > 0 || pendingCashDonationCount > 0) && (
+                    <span className="absolute -top-2 -right-2 w-4 h-4 min-w-4 min-h-4 p-0 flex justify-center items-center rounded-full bg-red-500 text-white text-xs font-bold shadow select-none z-30"
+                      style={{ boxSizing: 'border-box' }}>
+                      {pendingDonationCount + pendingCashDonationCount}
+                    </span>
+                  )}
                 </Link>
                 {isGuildLeader && (
                   <Link
@@ -623,27 +661,24 @@ export default function Navigation() {
                       <span className="absolute -top-2 -right-2 flex gap-1 z-30">
                         {pendingNewMemberCount > 0 && (
                           <span
-                            className="px-1.5 py-0.5 rounded-full bg-blue-400 text-white text-xs font-bold shadow-md border border-blue-200 cursor-pointer hover:bg-blue-300 transition-colors drop-shadow"
+                            className="w-4 h-4 min-w-4 min-h-4 p-0 flex justify-center items-center rounded-full bg-blue-400 text-white text-xs font-bold shadow-md border border-blue-200 cursor-pointer hover:bg-blue-300 transition-colors drop-shadow z-30"
                             title="มีสมาชิกใหม่รออนุมัติ"
-                            style={{ minWidth: 20, textAlign: 'center' }}
                           >
                             {pendingNewMemberCount}
                           </span>
                         )}
                         {pendingMerchantCount > 0 && (
                           <span
-                            className="px-1.5 py-0.5 rounded-full bg-yellow-300 text-yellow-900 text-xs font-bold shadow-md border border-yellow-200 cursor-pointer hover:bg-yellow-200 transition-colors drop-shadow"
+                            className="w-4 h-4 min-w-4 min-h-4 p-0 flex justify-center items-center rounded-full bg-yellow-300 text-yellow-900 text-xs font-bold shadow-md border border-yellow-200 cursor-pointer hover:bg-yellow-200 transition-colors drop-shadow z-30"
                             title="มีร้านค้ารออนุมัติ"
-                            style={{ minWidth: 20, textAlign: 'center' }}
                           >
                             {pendingMerchantCount}
                           </span>
                         )}
                         {pendingGuildLoanCount > 0 && (
                           <span
-                            className="px-1.5 py-0.5 rounded-full bg-red-500 text-white text-xs font-bold shadow-md border border-red-400 cursor-pointer hover:bg-red-400 transition-colors drop-shadow"
+                            className="w-4 h-4 min-w-4 min-h-4 p-0 flex justify-center items-center rounded-full bg-red-500 text-white text-xs font-bold shadow-md border border-red-400 cursor-pointer hover:bg-red-400 transition-colors drop-shadow z-30"
                             title="มีคำขอกู้ยืมใหม่"
-                            style={{ minWidth: 20, textAlign: 'center' }}
                           >
                             {pendingGuildLoanCount}
                           </span>

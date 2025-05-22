@@ -71,7 +71,7 @@ export default function EventsPage() {
     const q = query(
       collection(firestore, 'events'),
       where('isEnded', '==', false),
-      orderBy('startAt', 'asc')
+      orderBy('startAt', 'desc')
     );
     const unsub = onSnapshot(q, (snapshot) => {
       const events = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
