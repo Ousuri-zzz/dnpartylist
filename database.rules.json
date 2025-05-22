@@ -45,9 +45,9 @@
         "members": {
           ".write": "auth != null && (!data.exists() || !data.child(newData.child('userId').val()).exists())",
           "$memberId": {
-            ".validate": "newData.hasChildren(['userId', 'joinedAt']) && newData.child('userId').val() === auth.uid && newData.child('joinedAt').isString()",
+            ".validate": "newData.hasChildren(['userId', 'joinedAt']) && (newData.child('userId').val() === auth.uid || root.child('guild/leaders/' + auth.uid).val() === true || root.child('parties').child($partyId).child('leader').val() === auth.uid) && newData.child('joinedAt').isString()",
             "userId": {
-              ".validate": "newData.val() === auth.uid"
+              ".validate": "newData.val() === auth.uid || root.child('guild/leaders/' + auth.uid).val() === true || root.child('parties').child($partyId).child('leader').val() === auth.uid"
             },
             "joinedAt": {
               ".validate": "newData.isString() && newData.val().matches(/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.*Z$/)"
@@ -80,6 +80,7 @@
         "characters": {
           ".read": "auth != null",
           ".write": "auth.uid === $uid || root.child('guild/leaders/' + auth.uid).val() === true",
+          ".indexOn": ["name"],
           "$characterId": {
             ".validate": "newData.hasChildren(['name', 'class', 'mainClass', 'stats']) && (newData.child('lastResetDay').isNumber() || !newData.child('lastResetDay').exists()) && (newData.child('lastResetWeek').isNumber() || !newData.child('lastResetWeek').exists())",
             "name": { ".validate": "newData.isString() && newData.val().length > 0" },

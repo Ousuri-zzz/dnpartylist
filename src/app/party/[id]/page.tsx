@@ -23,11 +23,12 @@ import { PartyStats } from '../../../components/PartyStats';
 import { cn } from '../../../lib/utils';
 import { CharacterChecklist } from '../../../components/CharacterChecklist';
 import type { CharacterChecklist as CharacterChecklistType } from '../../../types/character';
-import { Pencil, LogOut, UserMinus, Sparkles, UserPlus, Sword, Target, Heart, Zap, Camera } from 'lucide-react';
+import { Pencil, LogOut, UserMinus, Sparkles, UserPlus, Sword, Target, Heart, Zap, Camera, Search } from 'lucide-react';
 import { CLASS_TO_ROLE, getClassColors } from '@/config/theme';
 import { CharacterClass, Role } from '@/types/character';
 import { toBlob } from 'html-to-image';
 import { DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { useDebounce } from '@/hooks/useDebounce';
 
 interface PartyMember {
   character: Character;
@@ -92,6 +93,12 @@ export default function PartyPage({ params }: { params: { id: string } }) {
   const [isSavingDiscordLink, setIsSavingDiscordLink] = useState(false);
   const [partyDiscordLink, setPartyDiscordLink] = useState('');
   const { id } = params;
+
+  // เพิ่ม state สำหรับการค้นหา
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<Character[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const debouncedSearch = useDebounce(searchQuery, 300);
 
   useEffect(() => {
     if (!partiesLoading && !charactersLoading && !usersLoading) {
@@ -541,6 +548,94 @@ export default function PartyPage({ params }: { params: { id: string } }) {
     }
   };
 
+  // เพิ่มฟังก์ชันค้นหาตัวละคร
+  const searchCharacters = async (query: string) => {
+    if (!query.trim()) {
+      setSearchResults([]);
+      return;
+    }
+
+    setIsSearching(true);
+    try {
+      const charactersRef = ref(db, 'users');
+      const snapshot = await get(charactersRef);
+      const users = snapshot.val() as Record<string, { characters?: Record<string, Character> }>;
+      
+      // สร้าง set ของ userId ที่อยู่ในปาร์ตี้แล้ว
+      const existingMemberUserIds = new Set<string>();
+      if (party?.members) {
+        Object.entries(party.members).forEach(([charId, memberData]) => {
+          const userId = typeof memberData === 'boolean' 
+            ? Object.entries(users).find(([, userData]) => userData.characters?.[charId])?.[0]
+            : (memberData as { userId: string }).userId;
+          if (userId) {
+            existingMemberUserIds.add(userId);
+          }
+        });
+      }
+      
+      const results: Character[] = [];
+      
+      Object.entries(users).forEach(([userId, userData]) => {
+        // ข้ามถ้าเป็นสมาชิกที่อยู่ในปาร์ตี้แล้ว
+        if (existingMemberUserIds.has(userId)) {
+          return;
+        }
+
+        if (userData.characters) {
+          Object.entries(userData.characters).forEach(([charId, charData]) => {
+            if (charData.name.toLowerCase().includes(query.toLowerCase())) {
+              // ตรวจสอบว่าตัวละครนี้ยังไม่ได้อยู่ในปาร์ตี้
+              if (!party?.members?.[charId]) {
+                results.push({
+                  ...charData,
+                  id: charId,
+                  userId
+                });
+              }
+            }
+          });
+        }
+      });
+      
+      setSearchResults(results);
+    } catch (error) {
+      console.error('Error searching characters:', error);
+      toast.error('เกิดข้อผิดพลาดในการค้นหาตัวละคร');
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  // เพิ่มฟังก์ชันเพิ่มตัวละครเข้าปาร์ตี้
+  const handleAddCharacter = async (character: Character) => {
+    if (!party || !user) return;
+    
+    try {
+      await set(ref(db, `parties/${party.id}/members/${character.id}`), {
+        userId: character.userId,
+        joinedAt: new Date().toISOString()
+      });
+      
+      toast.success('เพิ่มตัวละครเข้าปาร์ตี้สำเร็จ');
+      setSearchQuery('');
+      setSearchResults([]);
+      router.refresh();
+    } catch (error) {
+      console.error('Error adding character:', error);
+      toast.error('เกิดข้อผิดพลาดในการเพิ่มตัวละคร');
+    }
+  };
+
+  // ใช้ useEffect สำหรับการค้นหา
+  useEffect(() => {
+    if (debouncedSearch) {
+      searchCharacters(debouncedSearch);
+    } else {
+      setSearchResults([]);
+    }
+  }, [debouncedSearch]);
+
   if (authLoading || loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-pink-50 to-indigo-50 p-6 flex items-center justify-center">
@@ -687,65 +782,102 @@ export default function PartyPage({ params }: { params: { id: string } }) {
                       </div>
                       
                       <div className="p-3 rounded-lg bg-gradient-to-r from-pink-50 to-purple-50 border border-pink-100/30">
-                        <div className="flex items-center mb-2 gap-2">
-                          <h4 className="font-semibold text-sm md:text-base text-gray-800 tracking-wide">Status แนะนำ</h4>
-                          { (user?.uid === party.leader || isGuildLeader) && (
-                            <Dialog open={isGoalDialogOpen} onOpenChange={setIsGoalDialogOpen}>
-                              <DialogTrigger asChild>
-                                <button className="p-1 rounded-full hover:bg-violet-100 transition" title="แก้ไข Status แนะนำ">
-                                  <Sparkles className="w-4 h-4 text-violet-500" />
-                                </button>
-                              </DialogTrigger>
-                              <DialogContent>
-                                <DialogHeader>
-                                  <DialogTitle>Status แนะนำ</DialogTitle>
-                                </DialogHeader>
-                                <div className="grid gap-4 py-4">
-                                  <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                      <Label htmlFor="atk">⚔️ ATK</Label>
-                                      <Input
-                                        id="atk"
-                                        type="number"
-                                        value={goals.atk || ''}
-                                        onChange={(e) => setGoals({ ...goals, atk: Number(e.target.value) })}
-                                      />
-                                    </div>
-                                    <div className="space-y-2">
-                                      <Label htmlFor="hp">❤️ HP</Label>
-                                      <Input
-                                        id="hp"
-                                        type="number"
-                                        value={goals.hp || ''}
-                                        onChange={(e) => setGoals({ ...goals, hp: Number(e.target.value) })}
-                                      />
-                                    </div>
-                                  </div>
-                                  <Button onClick={handleSetGoals}>บันทึก</Button>
-                                </div>
-                              </DialogContent>
-                            </Dialog>
+                        <div className="flex items-center mb-3 gap-2">
+                          <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-pink-500 to-purple-500 flex items-center justify-center">
+                              <Search className="w-4 h-4 text-white" />
+                            </div>
+                            <h4 className="font-semibold text-sm md:text-base text-gray-800 tracking-wide">ค้นหาตัวละคร</h4>
+                          </div>
+                          {(user?.uid === party.leader || isGuildLeader) && !isFull && (
+                            <span className="text-xs px-2 py-1 rounded-full bg-pink-100 text-pink-600 border border-pink-200">
+                              สามารถเพิ่มตัวละครเข้าปาร์ตี้ได้
+                            </span>
                           )}
                         </div>
-                        <div className="grid grid-cols-2 gap-3">
-                          <div className="flex items-center justify-between p-1.5 rounded-lg bg-white/50">
-                            <div className="flex items-center gap-1.5">
-                              <span className="text-pink-600 text-base">⚔️</span>
-                              <span className="font-medium text-sm">ATK:</span>
+                        <div className="space-y-3">
+                          <div className="relative group">
+                            <Input
+                              type="text"
+                              placeholder="พิมพ์ชื่อตัวละครที่ต้องการค้นหา..."
+                              value={searchQuery}
+                              onChange={(e) => setSearchQuery(e.target.value)}
+                              className="pl-12 pr-4 py-2.5 rounded-xl border-gray-200/50 bg-white/80 backdrop-blur-sm focus:bg-white transition-all duration-300 focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500/50"
+                              disabled={!(user?.uid === party.leader || isGuildLeader) || isFull}
+                            />
+                            <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                              <Search className="w-4 h-4 text-gray-400 group-focus-within:text-pink-500 transition-colors duration-300" />
                             </div>
-                            <span className="font-semibold text-pink-600 text-sm">
-                              {party.goals?.atk ? formatStat(party.goals.atk) : "-"}
-                            </span>
+                            {(user?.uid === party.leader || isGuildLeader) && !isFull && searchQuery && (
+                              <button
+                                onClick={() => setSearchQuery('')}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-gray-100 transition-colors duration-200"
+                              >
+                                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                              </button>
+                            )}
                           </div>
-                          <div className="flex items-center justify-between p-1.5 rounded-lg bg-white/50">
-                            <div className="flex items-center gap-1.5">
-                              <span className="text-red-600 text-base">❤️</span>
-                              <span className="font-medium text-sm">HP:</span>
-                            </div>
-                            <span className="font-semibold text-red-600 text-sm">
-                              {party.goals?.hp ? formatStat(party.goals.hp) : "-"}
-                            </span>
-                          </div>
+                          {(user?.uid === party.leader || isGuildLeader) && !isFull && (
+                            <>
+                              {isSearching && (
+                                <div className="flex justify-center py-3">
+                                  <motion.div
+                                    animate={{ rotate: 360 }}
+                                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                                    className="w-6 h-6 border-2 border-pink-500 border-t-transparent rounded-full"
+                                  />
+                                </div>
+                              )}
+                              {searchResults.length > 0 && (
+                                <div className="space-y-2 max-h-[200px] overflow-y-auto pr-1">
+                                  {searchResults.map((char) => {
+                                    const colors = getClassColor(char.class);
+                                    return (
+                                      <motion.button
+                                        key={char.id}
+                                        onClick={() => handleAddCharacter(char)}
+                                        className={`w-full p-3 rounded-xl ${colors.bg} border ${colors.border} hover:shadow-md transition-all duration-200 text-left group relative overflow-hidden`}
+                                        whileHover={{ scale: 1.01 }}
+                                        whileTap={{ scale: 0.99 }}
+                                      >
+                                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
+                                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                                        </div>
+                                        <div className="relative z-10 flex items-center gap-3">
+                                          <div className={`w-10 h-10 rounded-lg ${colors.bg} border ${colors.border} flex items-center justify-center shadow-inner`}>
+                                            <span className="text-xl">{colors.icon}</span>
+                                          </div>
+                                          <div className="flex-1">
+                                            <h4 className="font-medium text-gray-900">{char.name}</h4>
+                                            <p className="text-sm text-gray-600">{char.class}</p>
+                                          </div>
+                                          <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                            <div className="px-3 py-1.5 rounded-lg bg-white/90 border border-pink-200 text-pink-600 text-sm font-medium">
+                                              เพิ่มเข้าปาร์ตี้
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </motion.button>
+                                    );
+                                  })}
+                                </div>
+                              )}
+                              {!isSearching && searchQuery && searchResults.length === 0 && (
+                                <div className="text-center py-6">
+                                  <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gray-100 flex items-center justify-center">
+                                    <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                  </div>
+                                  <p className="text-gray-500 text-sm">
+                                    ไม่พบตัวละครที่ค้นหา
+                                  </p>
+                                </div>
+                              )}
+                            </>
+                          )}
                         </div>
                       </div>
                     </div>
