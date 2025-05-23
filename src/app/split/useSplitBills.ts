@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
-import { ref, onValue, off, get } from 'firebase/database';
+import { ref, onValue, off, get, remove } from 'firebase/database';
 import { useAuth } from '@/hooks/useAuth';
 import { calculateSplit } from './splitUtils';
 
@@ -67,13 +67,14 @@ export function useSplitBills() {
     const billsRef = ref(db, 'splitBills');
     const unsubscribe = onValue(
       billsRef,
-      (snapshot) => {
+      async (snapshot) => {
         try {
           const data = snapshot.val();
           if (!data) {
             setBills([]);
             return;
           }
+          const now = Date.now();
           const billsArray = Object.entries(data)
             .map(([id, bill]: [string, any]) => ({
               id,
@@ -84,7 +85,20 @@ export function useSplitBills() {
               (bill.participants &&
                 Object.keys(bill.participants).some(pid => characterIds.includes(pid)))
             );
-          setBills(billsArray);
+
+          // ลบบิลที่หมดอายุ (เฉพาะที่เป็นเจ้าของบิล)
+          for (const bill of billsArray) {
+            if (bill.ownerUid === user.uid && bill.expiresAt < now) {
+              try {
+                await remove(ref(db, `splitBills/${bill.id}`));
+              } catch (e) {
+                // ไม่ต้องแจ้ง error เพื่อไม่รบกวนผู้ใช้
+              }
+            }
+          }
+
+          // กรองบิลที่ยังไม่หมดอายุเท่านั้น
+          setBills(billsArray.filter(bill => bill.expiresAt >= now));
           setError(null);
         } catch (err) {
           setError(err instanceof Error ? err : new Error('Unknown error'));
