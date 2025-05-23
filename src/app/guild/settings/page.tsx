@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
-import { ref, get, remove, update, onValue, query, orderByChild, equalTo, set } from 'firebase/database';
+import { ref, get, remove, update, onValue, query, orderByChild, equalTo, set, push } from 'firebase/database';
 import { db } from '@/lib/firebase';
 import { toast } from 'sonner';
 import { Settings, UserPlus, KeyRound, X, Check, Ban, DollarSign, Clock, CheckCircle2, XCircle, Crown, ChevronDown, ChevronUp, Bell, Users, Store, Building2, Shield, AlertCircle, Search, RefreshCw, PiggyBank } from 'lucide-react';
@@ -13,6 +13,41 @@ import { GuildService } from '@/lib/guildService';
 import React from 'react';
 import ConfirmModalPortal from '@/components/ConfirmModalPortal';
 import Link from 'next/link';
+
+const CLASS_TO_MAIN_CLASS: Record<string, string> = {
+  'Sword Master': 'Warrior',
+  'Mercenary': 'Warrior',
+  'Bowmaster': 'Archer',
+  'Acrobat': 'Archer',
+  'Force User': 'Sorceress',
+  'Elemental Lord': 'Sorceress',
+  'Paladin': 'Cleric',
+  'Priest': 'Cleric',
+  'Engineer': 'Academic',
+  'Alchemist': 'Academic'
+};
+
+const classColors: Record<string, { text: string; bg: string; border: string }> = {
+  'Warrior': { text: 'text-rose-600', bg: 'bg-rose-100', border: 'border-rose-300' },
+  'Archer': { text: 'text-emerald-600', bg: 'bg-emerald-100', border: 'border-emerald-300' },
+  'Sorceress': { text: 'text-indigo-600', bg: 'bg-indigo-100', border: 'border-indigo-300' },
+  'Cleric': { text: 'text-violet-600', bg: 'bg-violet-100', border: 'border-violet-300' },
+  'Academic': { text: 'text-amber-600', bg: 'bg-amber-100', border: 'border-amber-300' }
+};
+
+const getMainClass = (char: any): string => char.mainClass || CLASS_TO_MAIN_CLASS[char.class] || 'Warrior';
+const getColors = (mainClass: string): { text: string; bg: string; border: string } => classColors[mainClass] || { text: 'text-gray-700', bg: 'bg-gray-100', border: 'border-gray-300' };
+const getClassIcon = (subClass: string) => {
+  const mainClass = CLASS_TO_MAIN_CLASS[subClass] || subClass;
+  switch (mainClass) {
+    case 'Warrior': return '⚔️';
+    case 'Archer': return '🏹';
+    case 'Sorceress': return '🔮';
+    case 'Cleric': return '✨';
+    case 'Academic': return '🔧';
+    default: return '👤';
+  }
+};
 
 interface Merchant {
   uid: string;
@@ -76,6 +111,7 @@ export default function GuildSettingsPage() {
   const [userCharacters, setUserCharacters] = useState<any[]>([]);
   const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(null);
   const [pendingMembers, setPendingMembers] = useState<any[]>([]);
+  const [donationAmount, setDonationAmount] = useState<number>(0);
 
   const [debouncedMerchantSearch, setDebouncedMerchantSearch] = useState('');
   const [debouncedMemberSearch, setDebouncedMemberSearch] = useState('');
@@ -268,16 +304,18 @@ export default function GuildSettingsPage() {
     const searchTerm = debouncedMemberSearch.toLowerCase();
     return Object.entries(guild?.members || {})
       .filter(([uid, member]) => {
+        if (!searchTerm) return true; // Show all members when no search term
+        
         const name = member.discordName ? member.discordName.toLowerCase() : '';
-        const memberMatch =
-          searchTerm === 'ไม่ทราบ'
-            ? !member.discordName || member.discordName.trim() === ''
-            : name.includes(searchTerm) || (uid.toLowerCase() || '').includes(searchTerm);
+        const memberMatch = name.includes(searchTerm) || uid.toLowerCase().includes(searchTerm);
+        
+        // Check if any character matches the search
         const characters = memberCharacters[uid] || [];
         const hasMatchingCharacter = characters.some(char =>
-          char.name?.toLowerCase().includes(searchTerm)
+          char.name?.toLowerCase().includes(searchTerm) ||
+          char.class?.toLowerCase().includes(searchTerm)
         );
-        if (!searchTerm) return true;
+
         return memberMatch || hasMatchingCharacter;
       })
       .sort((a, b) => parseJoinedAt(b[1].joinedAt) - parseJoinedAt(a[1].joinedAt));
@@ -566,6 +604,75 @@ export default function GuildSettingsPage() {
     }
   };
 
+  const handleDonation = async () => {
+    if (!memberSearch || !donationAmount || !selectedMember || !selectedCharacterId) {
+      toast.error('กรุณากรอกข้อมูลให้ครบถ้วน');
+      return;
+    }
+
+    try {
+      // Record donation with active status (already approved)
+      const donationRef = ref(db, 'guilddonate');
+      const newDonationRef = push(donationRef);
+      
+      const selectedChar = memberCharacters[selectedMember]?.find(char => char.characterId === selectedCharacterId);
+      const donateData = {
+        userId: selectedMember,
+        discordName: guild?.members[selectedMember]?.discordName || 'ไม่ทราบ',
+        amount: donationAmount,
+        status: 'active',
+        createdAt: Date.now(),
+        approvedAt: Date.now(),
+        approvedBy: user?.uid,
+        characters: [{
+          id: selectedCharacterId,
+          name: selectedChar?.name || 'ไม่ทราบ',
+          class: selectedChar?.class || 'ไม่ทราบ'
+        }]
+      };
+      
+      await set(newDonationRef, donateData);
+
+      // Add to global feed
+      await push(ref(db, 'feed/all'), {
+        type: 'donate',
+        subType: 'active',
+        text: `@${donateData.discordName} บริจาค ${donationAmount}G ให้กิลด์ GalaxyCat สำเร็จ ✅`,
+        userId: selectedMember,
+        discordName: donateData.discordName,
+        amount: donationAmount,
+        characters: donateData.characters,
+        status: 'active',
+        timestamp: Date.now()
+      });
+
+      // Add to member's personal feed
+      await push(ref(db, `feed/${selectedMember}`), {
+        type: 'donate',
+        subType: 'active',
+        text: `คุณบริจาค ${donationAmount}G ให้กิลด์ GalaxyCat สำเร็จ ✅`,
+        userId: selectedMember,
+        discordName: donateData.discordName,
+        amount: donationAmount,
+        characters: donateData.characters,
+        status: 'active',
+        timestamp: Date.now()
+      });
+
+      toast.success('บันทึกการบริจาคสำเร็จ');
+      
+      // Reset form
+      setMemberSearch('');
+      setDonationAmount(0);
+      setSelectedMember('');
+      setSelectedCharacterId(null);
+      setUserCharacters([]);
+    } catch (error) {
+      console.error('Error recording donation:', error);
+      toast.error('ไม่สามารถบันทึกการบริจาคได้');
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -740,6 +847,116 @@ export default function GuildSettingsPage() {
               </div>
             </div>
 
+            {/* Guild Donation Section */}
+            <div className="mb-6 md:mb-10">
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-4 md:mb-6 gap-2 md:gap-0">
+                <div className="flex items-center gap-2 md:gap-3">
+                  <div className="p-1.5 md:p-2 bg-green-100 rounded-lg">
+                    <DollarSign className="w-5 h-5 text-green-600" />
+                  </div>
+                  <h2 className="text-lg md:text-xl font-semibold text-gray-800">บริจาคกิลด์</h2>
+                </div>
+                <Link
+                  href="/guild-donate"
+                  className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors shadow-sm"
+                >
+                  <DollarSign className="w-5 h-5" />
+                  <span>จัดการบริจาค</span>
+                </Link>
+              </div>
+              <div className="bg-white rounded-xl p-6 border border-green-100 shadow-sm">
+                <div className="space-y-4">
+                  {/* Search, Gold Input, and Donate Button Row */}
+                  <div className="flex flex-col md:flex-row gap-4">
+                    {/* Search Input */}
+                    <div className="relative flex-1">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <Search className="w-4 h-4 text-gray-400" />
+                      </div>
+                      <input
+                        type="text"
+                        placeholder="ค้นหาชื่อ Discord หรือชื่อตัวละคร..."
+                        value={memberSearch}
+                        onChange={(e) => {
+                          setMemberSearch(e.target.value);
+                          setSelectedMember('');
+                          setSelectedCharacterId(null);
+                          setUserCharacters([]);
+                        }}
+                        className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      />
+                    </div>
+
+                    {/* Gold Amount Input */}
+                    <div className="w-full md:w-48">
+                      <input
+                        type="number"
+                        min="0"
+                        placeholder="จำนวน Gold"
+                        className="w-full border border-gray-200 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        value={donationAmount || ''}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          // Remove leading zeros and convert to number
+                          const cleanValue = value.replace(/^0+/, '') || '0';
+                          const numValue = parseInt(cleanValue);
+                          setDonationAmount(numValue || 0);
+                        }}
+                      />
+                    </div>
+
+                    {/* Submit Button */}
+                    <button
+                      onClick={handleDonation}
+                      disabled={!selectedMember || !selectedCharacterId || !donationAmount}
+                      className="w-full md:w-auto flex items-center justify-center gap-2 px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+                    >
+                      <DollarSign className="w-5 h-5" />
+                      <span>บริจาค</span>
+                    </button>
+                  </div>
+
+                  {/* Character Selection */}
+                  {memberSearch && (
+                    <div className="mt-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {filteredMembers.map(([uid, member]) => {
+                          const characters = memberCharacters[uid] || [];
+                          return characters.map((char) => {
+                            const mainClass = getMainClass(char);
+                            const colors = getColors(mainClass);
+                            return (
+                              <div
+                                key={`${uid}-${char.characterId}`}
+                                className={`flex items-center gap-4 p-4 rounded-lg border cursor-pointer transition-colors ${
+                                  selectedMember === uid && selectedCharacterId === char.characterId
+                                    ? `${colors.bg} border-opacity-50`
+                                    : `${colors.bg} bg-opacity-10 hover:bg-opacity-20 border-opacity-30`
+                                }`}
+                                onClick={() => {
+                                  setSelectedMember(uid);
+                                  setSelectedCharacterId(char.characterId);
+                                }}
+                              >
+                                <div className={`p-2 ${colors.bg} bg-opacity-20 rounded-lg`}>
+                                  <span className="text-lg">{getClassIcon(char.class)}</span>
+                                </div>
+                                <div className="flex-1">
+                                  <p className="font-medium text-gray-800">{member.discordName || 'ไม่ทราบ'}</p>
+                                  <p className={`text-sm ${colors.text}`}>{char.name}</p>
+                                  <p className={`text-xs ${colors.text} opacity-75`}>{char.class}</p>
+                                </div>
+                              </div>
+                            );
+                          });
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
             {/* Pending Members Section */}
             <div className="mb-6 md:mb-10">
               <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-4 md:mb-6 gap-2 md:gap-0">
@@ -754,12 +971,27 @@ export default function GuildSettingsPage() {
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
-                {pendingMembers.map((member) => (
-                  <div key={member.uid} className="bg-white rounded-xl p-4 md:p-6 border border-red-100 shadow-sm hover:shadow-md transition-shadow">
-                    <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-0">
-                      <div>
-                        <div className="font-semibold text-red-600">{member.discord}</div>
-                        <div className="text-sm text-gray-500">UID: {member.uid}</div>
+                {pendingMembers.length === 0 ? (
+                  <div className="col-span-2 flex items-center justify-center p-8 bg-red-50 rounded-xl border border-red-100">
+                    <div className="text-center">
+                      <UserPlus className="w-8 h-8 text-red-400 mx-auto mb-2" />
+                      <p className="text-sm text-gray-500">ไม่มีสมาชิกใหม่ที่รออนุมัติ</p>
+                    </div>
+                  </div>
+                ) : (
+                  pendingMembers.map((member) => (
+                    <div
+                      key={member.uid}
+                      className="flex flex-col md:flex-row md:items-center md:justify-between p-4 bg-white rounded-xl border border-red-100 shadow-sm hover:shadow-md transition-shadow gap-2 md:gap-0"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="p-2 bg-red-100 rounded-lg">
+                          <Users className="w-5 h-5 text-red-600" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-800">{member.discord || 'ไม่ทราบ'}</p>
+                          <p className="text-sm text-gray-500">UID: {member.uid}</p>
+                        </div>
                       </div>
                       <div className="w-full md:w-auto flex flex-row gap-x-2 md:gap-2">
                         <button
@@ -772,21 +1004,13 @@ export default function GuildSettingsPage() {
                         <button
                           onClick={() => handleRejectMember(member.uid)}
                           className="flex-1 md:w-auto p-2 rounded-r-lg md:rounded-lg bg-red-100 text-red-600 hover:bg-red-200 transition-colors"
-                          title="ยกเลิกและลบ"
+                          title="ปฏิเสธ"
                         >
                           <X className="w-5 h-5" />
                         </button>
                       </div>
                     </div>
-                  </div>
-                ))}
-                {pendingMembers.length === 0 && (
-                  <div className="col-span-2 flex items-center justify-center p-8 bg-red-50 rounded-xl border border-red-100">
-                    <div className="text-center">
-                      <UserPlus className="w-8 h-8 text-red-400 mx-auto mb-2" />
-                      <p className="text-sm text-gray-500">ไม่มีสมาชิกใหม่ที่รออนุมัติ</p>
-                    </div>
-                  </div>
+                  ))
                 )}
               </div>
             </div>
@@ -933,7 +1157,7 @@ export default function GuildSettingsPage() {
               <div className="p-1.5 md:p-2 bg-blue-100 rounded-lg">
                 <Users className="w-5 h-5 text-blue-600" />
               </div>
-              <h2 className="text-lg md:text-xl font-semibold text-gray-800">รายชื่อสมาชิก ({filteredMembers.length})</h2>
+              <h2 className="text-lg md:text-xl font-semibold text-gray-800">รายชื่อสมาชิก ({Object.keys(guild?.members || {}).length} คน)</h2>
             </div>
             <div className="relative w-full md:w-[420px] mt-2 md:mt-0">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -941,7 +1165,7 @@ export default function GuildSettingsPage() {
               </div>
               <input
                 type="text"
-                placeholder="ค้นหาตัวละคร หรือ Discord..."
+                placeholder="ค้นหาชื่อ Discord หรือชื่อตัวละคร..."
                 value={memberSearch}
                 onChange={(e) => setMemberSearch(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-xs md:text-base"
@@ -962,19 +1186,18 @@ export default function GuildSettingsPage() {
               filteredMembers.map(([uid, member]) => (
                 <div
                   key={uid}
-                  className="flex flex-col md:flex-row md:items-center md:justify-between p-4 md:p-4 bg-blue-50 rounded-xl border border-blue-100 hover:bg-blue-100/50 transition-colors gap-2 md:gap-0"
+                  className="flex flex-col md:flex-row md:items-center md:justify-between p-4 bg-white rounded-xl border border-blue-100 shadow-sm hover:shadow-md transition-shadow gap-2 md:gap-0"
                 >
                   <div className="flex items-center gap-4">
                     <div className="p-2 bg-blue-100 rounded-lg">
-                      <UserPlus className="w-5 h-5 text-blue-600" />
+                      <Users className="w-5 h-5 text-blue-600" />
                     </div>
                     <div>
-                      <p className="font-medium text-gray-800">{member.discordName ? member.discordName : 'ไม่ทราบ'}</p>
-                      <p className="text-sm text-gray-500">UID: {uid}</p>
-                      <p className="text-xs text-gray-400 mt-1">เข้าร่วมเมื่อ {new Date(member.joinedAt).toLocaleDateString()}</p>
+                      <p className="font-medium text-gray-800">{member.discordName || 'ไม่ทราบ'}</p>
+                      <p className="text-sm text-gray-500">เข้าร่วมเมื่อ: {new Date(parseJoinedAt(member.joinedAt)).toLocaleDateString('th-TH')}</p>
                     </div>
                   </div>
-                  {uid !== user?.uid && !guild?.leaders?.[uid] && (
+                  {uid !== user?.uid && (
                     <div className="w-full md:w-auto flex flex-row gap-x-2 md:gap-2">
                       <button
                         onClick={() => handleRemoveMember(uid)}

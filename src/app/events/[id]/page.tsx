@@ -915,6 +915,7 @@ export default function EventDetailPage() {
                                 <span className="text-xs font-medium bg-gradient-to-br from-violet-100 via-fuchsia-100 to-pink-100 px-2.5 py-1 rounded-lg border border-violet-200/60 shadow-sm flex items-center gap-1.5 relative overflow-hidden group hover:shadow-md transition-all duration-300">
                                   <span className="absolute inset-0 bg-gradient-to-r from-violet-200/0 via-violet-200/20 to-violet-200/0 animate-shimmer"></span>
                                   <span className="text-violet-600 relative">✨</span>
+                                  <span className="text-[10px] font-bold uppercase tracking-wider text-violet-500/80 relative">Team</span>
                                   <span className="text-violet-800 font-semibold relative">{groupName ? groupName : 'กลุ่มใหม่'}</span>
                                   <span className="text-[10px] font-medium bg-white/90 px-1.5 py-0.5 rounded-md text-violet-700 border border-violet-200/60 relative backdrop-blur-sm">
                                     {members.length}/{event.maxGroupSize}
