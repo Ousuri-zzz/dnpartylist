@@ -72,43 +72,40 @@ const CharacterCard = ({ char }: CharacterCardProps) => {
   };
 
   return (
-    <div className="p-1">
-      {/* ไอคอน + ชื่อ + อาชีพ + stat + ข้อความ */}
-      <div className="flex items-center gap-3 mb-1">
-        <div className={cn(
-          'w-10 h-10 flex items-center justify-center',
-          colors.border
-        )}>
-          <span className="text-xl">{colors.icon}</span>
-        </div>
-        <div>
-          <h4 className={cn('text-lg font-bold', colors.text)}>{discordName}</h4>
-          <p className={cn('text-sm font-medium', colors.text)}>{char.characterName} - {char.characterClass}</p>
-          <p className="text-xs text-gray-500">อัพเดทล่าสุด: {lastUpdate}</p>
-        </div>
-        <div className="flex flex-col divide-y divide-violet-100">
-          <div className="flex flex-wrap gap-1 ml-4 text-xs items-center">
-            <span className="bg-pink-100 text-pink-700 px-2 py-0.5 rounded">⚔️ ATK: <span className="font-bold">{char.stats.atk}</span></span>
-            <span className="bg-red-100 text-red-700 px-2 py-0.5 rounded">❤️ HP: <span className="font-bold">{char.stats.hp}</span></span>
-            <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded">🛡️ P.DEF: <span className="font-bold">{char.stats.pdef}%</span></span>
-            <span className="bg-purple-100 text-purple-700 px-2 py-0.5 rounded">🛡️ M.DEF: <span className="font-bold">{char.stats.mdef}%</span></span>
-            <span className="bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded">💥 CRI: <span className="font-bold">{char.stats.cri}%</span></span>
-            <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded">✨ ELE: <span className="font-bold">{char.stats.ele}%</span></span>
-            <span className="bg-orange-100 text-orange-700 px-2 py-0.5 rounded">💥 FD: <span className="font-bold">{char.stats.fd}%</span></span>
-            {char.message && (
-              <div className="ml-2 max-w-xl">
-                <div className="relative bg-white/90 border border-violet-200 rounded-2xl px-4 py-2 text-base text-gray-800 shadow flex items-center gap-2">
-                  <span className="text-violet-400">
-                    <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path d="M7 8h10M7 12h6m-6 4h8M21 12c0 4.418-4.03 8-9 8a9.77 9.77 0 0 1-4-.8L3 20l.8-3.2A7.96 7.96 0 0 1 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                  </span>
-                  <span className="whitespace-pre-line">{char.message}</span>
-                </div>
-              </div>
-            )}
+    <>
+      {/* มือถือ: กล่องขาว มุมโค้ง เงา padding */}
+      <div className="block sm:hidden">
+        <div className="p-3 bg-white/90 rounded-xl shadow-lg max-w-full">
+          <div className="flex items-start gap-3 mb-2">
+            <div className={cn('w-12 h-12 flex items-center justify-center', colors.border)}>
+              <span className="text-2xl">{colors.icon}</span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <h4 className={cn('text-base font-bold', colors.text)}>{discordName}</h4>
+              <p className={cn('text-sm font-medium', colors.text)}>{char.characterName} - {char.characterClass}</p>
+              <p className="text-xs text-gray-500">อัพเดทล่าสุด: {lastUpdate}</p>
+            </div>
           </div>
-        </div>
-        {isGuildLeader && (
-          <>
+          <div className="flex flex-wrap gap-2 text-sm items-center w-full mb-2">
+            <span className="bg-pink-100 text-pink-700 px-3 py-1 rounded font-medium">⚔️ ATK: <span className="font-bold">{char.stats.atk}</span></span>
+            <span className="bg-red-100 text-red-700 px-3 py-1 rounded font-medium">❤️ HP: <span className="font-bold">{char.stats.hp}</span></span>
+            <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded font-medium">🛡️ P.DEF: <span className="font-bold">{char.stats.pdef}%</span></span>
+            <span className="bg-purple-100 text-purple-700 px-3 py-1 rounded font-medium">🛡️ M.DEF: <span className="font-bold">{char.stats.mdef}%</span></span>
+            <span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded font-medium">💥 CRI: <span className="font-bold">{char.stats.cri}%</span></span>
+            <span className="bg-green-100 text-green-700 px-3 py-1 rounded font-medium">✨ ELE: <span className="font-bold">{char.stats.ele}%</span></span>
+            <span className="bg-orange-100 text-orange-700 px-3 py-1 rounded font-medium">💥 FD: <span className="font-bold">{char.stats.fd}%</span></span>
+          </div>
+          {char.message && (
+            <div className="w-full mb-2">
+              <div className="relative bg-white border border-violet-200 rounded-2xl px-4 py-3 text-base text-gray-800 shadow-md flex items-center gap-2">
+                <span className="text-violet-400">
+                  <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path d="M7 8h10M7 12h6m-6 4h8M21 12c0 4.418-4.03 8-9 8a9.77 9.77 0 0 1-4-.8L3 20l.8-3.2A7.96 7.96 0 0 1 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                </span>
+                <span className="whitespace-pre-line break-words">{char.message}</span>
+              </div>
+            </div>
+          )}
+          {isGuildLeader && (
             <button
               onClick={() => setIsDeleteDialogOpen(true)}
               className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors ml-auto"
@@ -116,38 +113,78 @@ const CharacterCard = ({ char }: CharacterCardProps) => {
             >
               <Trash2 className="w-5 h-5" />
             </button>
-            <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-              <DialogContent className="sm:max-w-md bg-white/95 backdrop-blur-sm">
-                <DialogHeader>
-                  <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-pink-600 to-indigo-600 bg-clip-text text-transparent">
-                    ยืนยันการลบตัวละคร
-                  </DialogTitle>
-                </DialogHeader>
-                <div className="p-4">
-                  <p className="text-gray-600 mb-4">
-                    คุณต้องการลบตัวละคร <span className="font-bold text-violet-700">{char.characterName}</span> ของ <span className="font-bold text-violet-700">{discordName}</span> ออกจากรายการที่กำลังหาปาร์ตี้ใช่หรือไม่?
-                  </p>
-                  <div className="flex gap-2 justify-end">
-                    <Button
-                      variant="outline"
-                      onClick={() => setIsDeleteDialogOpen(false)}
-                    >
-                      ยกเลิก
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      onClick={handleRemoveCharacter}
-                    >
-                      ลบตัวละคร
-                    </Button>
-                  </div>
-                </div>
-              </DialogContent>
-            </Dialog>
-          </>
+          )}
+        </div>
+      </div>
+      {/* PC: flex-row ไม่มี bg ไม่มี shadow ไม่มี rounded ไม่มี padding */}
+      <div className="hidden sm:flex items-center gap-3 mb-1 w-full">
+        <div className={cn('w-10 h-10 flex items-center justify-center', colors.border)}>
+          <span className="text-xl">{colors.icon}</span>
+        </div>
+        <div>
+          <h4 className={cn('text-lg font-bold', colors.text)}>{discordName}</h4>
+          <p className={cn('text-sm font-medium', colors.text)}>{char.characterName} - {char.characterClass}</p>
+          <p className="text-xs text-gray-500">อัพเดทล่าสุด: {lastUpdate}</p>
+        </div>
+        <div className="flex flex-wrap gap-1 ml-4 text-xs items-center">
+          <span className="bg-pink-100 text-pink-700 px-2 py-0.5 rounded">⚔️ ATK: <span className="font-bold">{char.stats.atk}</span></span>
+          <span className="bg-red-100 text-red-700 px-2 py-0.5 rounded">❤️ HP: <span className="font-bold">{char.stats.hp}</span></span>
+          <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded">🛡️ P.DEF: <span className="font-bold">{char.stats.pdef}%</span></span>
+          <span className="bg-purple-100 text-purple-700 px-2 py-0.5 rounded">🛡️ M.DEF: <span className="font-bold">{char.stats.mdef}%</span></span>
+          <span className="bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded">💥 CRI: <span className="font-bold">{char.stats.cri}%</span></span>
+          <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded">✨ ELE: <span className="font-bold">{char.stats.ele}%</span></span>
+          <span className="bg-orange-100 text-orange-700 px-2 py-0.5 rounded">💥 FD: <span className="font-bold">{char.stats.fd}%</span></span>
+        </div>
+        {char.message && (
+          <div className="ml-4 max-w-xl">
+            <div className="relative bg-white/90 border border-violet-200 rounded-2xl px-4 py-2 text-base text-gray-800 shadow flex items-center gap-2">
+              <span className="text-violet-400">
+                <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path d="M7 8h10M7 12h6m-6 4h8M21 12c0 4.418-4.03 8-9 8a9.77 9.77 0 0 1-4-.8L3 20l.8-3.2A7.96 7.96 0 0 1 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              </span>
+              <span className="whitespace-pre-line">{char.message}</span>
+            </div>
+          </div>
+        )}
+        {isGuildLeader && (
+          <button
+            onClick={() => setIsDeleteDialogOpen(true)}
+            className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors ml-auto"
+            title="ลบตัวละครออกจากรายการที่กำลังหาปาร์ตี้"
+          >
+            <Trash2 className="w-5 h-5" />
+          </button>
         )}
       </div>
-    </div>
+      {/* Dialog ลบ (ใช้ร่วมกัน) */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent className="sm:max-w-md bg-white/95 backdrop-blur-sm">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-pink-600 to-indigo-600 bg-clip-text text-transparent">
+              ยืนยันการลบตัวละคร
+            </DialogTitle>
+          </DialogHeader>
+          <div className="p-4">
+            <p className="text-gray-600 mb-4">
+              คุณต้องการลบตัวละคร <span className="font-bold text-violet-700">{char.characterName}</span> ของ <span className="font-bold text-violet-700">{discordName}</span> ออกจากรายการที่กำลังหาปาร์ตี้ใช่หรือไม่?
+            </p>
+            <div className="flex gap-2 justify-end">
+              <Button
+                variant="outline"
+                onClick={() => setIsDeleteDialogOpen(false)}
+              >
+                ยกเลิก
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={handleRemoveCharacter}
+              >
+                ลบตัวละคร
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 
