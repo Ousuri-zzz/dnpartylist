@@ -14,6 +14,7 @@ interface Character {
   name: string;
   level: number;
   class: string;
+  discordName?: string;
 }
 
 interface Participant {
@@ -22,6 +23,7 @@ interface Participant {
   level: number;
   class: string;
   paid?: boolean;
+  discordName?: string;
 }
 
 interface BillCardProps {
@@ -72,19 +74,60 @@ export function BillCard({ bill }: BillCardProps) {
   }, []);
 
   useEffect(() => {
-    // Listen for bill updates
+    // Listen for bill updates and update Discord names
     const billRef = ref(db, `splitBills/${bill.id}`);
-    const unsubscribe = onValue(billRef, (snapshot) => {
+    const unsubscribe = onValue(billRef, async (snapshot) => {
       const updatedBill = snapshot.val();
-      if (updatedBill) {
+      if (updatedBill && updatedBill.participants) {
         // Update items
         const newItems = Object.entries(updatedBill.items || {}).map(([id, item]) => ({ 
           id, 
           ...(item as Item) 
         }));
         setEditItems(newItems);
+        
         // Update service fee
         setEditServiceFee(updatedBill.serviceFee || 0);
+
+        // Update participants' Discord names
+        const participants = { ...updatedBill.participants };
+        let hasUpdates = false;
+
+        // ดึงข้อมูล Discord name สำหรับผู้เข้าร่วมทุกคน
+        for (const [characterId, participant] of Object.entries(participants)) {
+          const typedParticipant = participant as Participant;
+          if (!typedParticipant.discordName) {
+            try {
+              const userSnap = await get(ref(db, 'users'));
+              userSnap.forEach((userSnapshot) => {
+                const chars = userSnapshot.child('characters').val();
+                if (chars && chars[characterId]) {
+                  const discordName = userSnapshot.child('meta/discord').val();
+                  if (discordName) {
+                    participants[characterId] = {
+                      ...typedParticipant,
+                      discordName
+                    };
+                    hasUpdates = true;
+                  }
+                }
+              });
+            } catch (error) {
+              console.error('Error updating Discord name:', error);
+            }
+          }
+        }
+
+        // อัปเดตข้อมูลในฐานข้อมูลถ้ามีการเปลี่ยนแปลง
+        if (hasUpdates) {
+          try {
+            await update(ref(db, `splitBills/${bill.id}`), {
+              participants
+            });
+          } catch (error) {
+            console.error('Error saving updated participants:', error);
+          }
+        }
       }
     });
 
@@ -144,7 +187,9 @@ export function BillCard({ bill }: BillCardProps) {
       const results: Character[] = [];
 
       snapshot.forEach((userSnapshot) => {
-        const charactersRef = ref(db, `users/${userSnapshot.key}/characters`);
+        // ดึงข้อมูล Discord จาก meta
+        const discordName = userSnapshot.child('meta/discord').val() || '';
+        
         userSnapshot.child('characters').forEach((charSnapshot) => {
           const char = charSnapshot.val();
           if (char.name.toLowerCase().includes(searchQuery.toLowerCase())) {
@@ -153,6 +198,7 @@ export function BillCard({ bill }: BillCardProps) {
               name: char.name,
               level: char.level,
               class: char.class,
+              discordName: discordName, // ใช้ Discord name จาก meta
             });
           }
         });
@@ -176,6 +222,7 @@ export function BillCard({ bill }: BillCardProps) {
           name: character.name,
           level: character.level,
           class: character.class,
+          discordName: character.discordName,
         },
       };
       await update(ref(db, `splitBills/${bill.id}`), {
@@ -222,6 +269,7 @@ export function BillCard({ bill }: BillCardProps) {
           name,
           level: 0,
           class: '',
+          discordName: '',
         },
       };
       await update(ref(db, `splitBills/${bill.id}`), {
@@ -621,7 +669,16 @@ export function BillCard({ bill }: BillCardProps) {
                         ? 'text-green-500' 
                         : 'text-yellow-500'
                   }`} />
-                  {participant.name}
+                  <div className="flex items-center gap-1">
+                    {participant.discordName ? (
+                      <>
+                        <span className="font-medium">{participant.discordName}</span>
+                        <span className="opacity-50">[{participant.name}]</span>
+                      </>
+                    ) : (
+                      <span>{participant.name}</span>
+                    )}
+                  </div>
                   {isOwnerCharacter && <span className="ml-2 text-xs text-orange-700 font-semibold">เจ้าของบิล</span>}
                   {isTraded && !isOwnerCharacter && <span className="ml-2 text-xs text-green-700 font-semibold">เทรดแล้ว</span>}
                   {isOwner && !isOwnerCharacter && (
