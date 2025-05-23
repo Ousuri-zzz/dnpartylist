@@ -1,4 +1,4 @@
-import { Bill } from './useSplitBills';
+import { Bill, Item } from './useSplitBills';
 import { calculateSplit, formatGold, getTimeRemaining, isExpiringSoon } from './splitUtils';
 import { useAuth } from '@/hooks/useAuth';
 import { db } from '@/lib/firebase';
@@ -78,7 +78,10 @@ export function BillCard({ bill }: BillCardProps) {
       const updatedBill = snapshot.val();
       if (updatedBill) {
         // Update items
-        const newItems = Object.entries(updatedBill.items || {}).map(([id, item]) => ({ id, ...item }));
+        const newItems = Object.entries(updatedBill.items || {}).map(([id, item]) => ({ 
+          id, 
+          ...(item as Item) 
+        }));
         setEditItems(newItems);
         // Update service fee
         setEditServiceFee(updatedBill.serviceFee || 0);
