@@ -2,11 +2,11 @@ import { Bill } from './useSplitBills';
 import { calculateSplit, formatGold, getTimeRemaining, isExpiringSoon } from './splitUtils';
 import { useAuth } from '@/hooks/useAuth';
 import { db } from '@/lib/firebase';
-import { ref, remove, update, get } from 'firebase/database';
+import { ref, remove, update, get, onValue } from 'firebase/database';
 import { toast } from 'react-hot-toast';
 import { useState, useEffect } from 'react';
 import {
-  TrashIcon, UserIcon, XMarkIcon, BanknotesIcon, Cog6ToothIcon, UserGroupIcon, ClockIcon, GiftIcon, CubeIcon, PlusIcon, CheckCircleIcon
+  TrashIcon, UserIcon, XMarkIcon, BanknotesIcon, Cog6ToothIcon, UserGroupIcon, ClockIcon, GiftIcon, CubeIcon, PlusIcon, CheckCircleIcon, PencilIcon
 } from '@heroicons/react/24/solid';
 
 interface Character {
@@ -39,6 +39,10 @@ export function BillCard({ bill }: BillCardProps) {
   const [isSearching, setIsSearching] = useState(false);
   const [focusedInput, setFocusedInput] = useState<number | null>(null);
   const [focusedServiceFee, setFocusedServiceFee] = useState(false);
+  const [newItemName, setNewItemName] = useState('');
+  const [showAddItemInput, setShowAddItemInput] = useState(false);
+  const [editingItemId, setEditingItemId] = useState<string | null>(null);
+  const [editingItemName, setEditingItemName] = useState('');
   const items = editItems;
   const ownerCharacterId = bill.ownerCharacterId;
   const sortedParticipants = bill.participants
@@ -66,6 +70,24 @@ export function BillCard({ bill }: BillCardProps) {
       document.head.appendChild(style);
     }
   }, []);
+
+  useEffect(() => {
+    // Listen for bill updates
+    const billRef = ref(db, `splitBills/${bill.id}`);
+    const unsubscribe = onValue(billRef, (snapshot) => {
+      const updatedBill = snapshot.val();
+      if (updatedBill) {
+        // Update items
+        const newItems = Object.entries(updatedBill.items || {}).map(([id, item]) => ({ id, ...item }));
+        setEditItems(newItems);
+        // Update service fee
+        setEditServiceFee(updatedBill.serviceFee || 0);
+      }
+    });
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
+  }, [bill.id]);
 
   const handleDelete = async () => {
     if (!isOwner) return;
@@ -233,6 +255,57 @@ export function BillCard({ bill }: BillCardProps) {
   };
   const handleDeleteCancel = () => setShowDeleteConfirm(false);
 
+  const handleAddItem = async () => {
+    if (!isOwner || !newItemName.trim()) return;
+    try {
+      const newItemId = `item_${Date.now()}`;
+      const newItems = [...editItems, { id: newItemId, name: newItemName.trim(), price: 0 }];
+      setEditItems(newItems);
+      
+      // Update Firebase immediately
+      const itemsObj = newItems.reduce((acc, item) => {
+        acc[item.id] = { name: item.name, price: Number(item.price) || 0 };
+        return acc;
+      }, {} as Record<string, { name: string; price: number }>);
+      
+      await update(ref(db, `splitBills/${bill.id}`), {
+        items: itemsObj
+      });
+      
+      setNewItemName('');
+      setShowAddItemInput(false);
+      toast.success('เพิ่มไอเทมสำเร็จ');
+    } catch (error) {
+      toast.error('เกิดข้อผิดพลาดในการเพิ่มไอเทม');
+    }
+  };
+
+  const handleEditItemName = async (itemId: string, newName: string) => {
+    if (!isOwner || !newName.trim()) return;
+    try {
+      const newItems = editItems.map(item => 
+        item.id === itemId ? { ...item, name: newName.trim() } : item
+      );
+      setEditItems(newItems);
+      
+      // Update Firebase immediately
+      const itemsObj = newItems.reduce((acc, item) => {
+        acc[item.id] = { name: item.name, price: Number(item.price) || 0 };
+        return acc;
+      }, {} as Record<string, { name: string; price: number }>);
+      
+      await update(ref(db, `splitBills/${bill.id}`), {
+        items: itemsObj
+      });
+      
+      setEditingItemId(null);
+      setEditingItemName('');
+      toast.success('แก้ไขชื่อไอเทมสำเร็จ');
+    } catch (error) {
+      toast.error('เกิดข้อผิดพลาดในการแก้ไขชื่อไอเทม');
+    }
+  };
+
   return (
     <div className="max-w-md w-full mx-auto rounded-3xl border border-emerald-100 bg-white/80 p-6 shadow-xl hover:shadow-2xl transition-all sm:max-w-md sm:p-6 px-2 py-2">
       {/* Header */}
@@ -266,7 +339,18 @@ export function BillCard({ bill }: BillCardProps) {
         <thead>
           <tr className="text-left text-emerald-600 bg-gradient-to-r from-white via-emerald-50 to-blue-50">
             <th className="py-2 rounded-tl-2xl">
-              <span className="flex items-center gap-1"><CubeIcon className="w-4 h-4 text-yellow-300" /> ชื่อไอเทม</span>
+              <div className="flex items-center gap-1">
+                <CubeIcon className="w-4 h-4 text-yellow-300" /> ชื่อไอเทม
+                {isOwner && (
+                  <button
+                    onClick={() => setShowAddItemInput(true)}
+                    className="ml-1 p-1 rounded-full hover:bg-emerald-100 transition-colors"
+                    title="เพิ่มไอเทมใหม่"
+                  >
+                    <PlusIcon className="w-4 h-4 text-emerald-500" />
+                  </button>
+                )}
+              </div>
             </th>
             <th className="py-2 w-32 rounded-tr-2xl">
               <span className="flex items-center gap-1"><BanknotesIcon className="w-4 h-4 text-yellow-300" /> ราคา (Gold)</span>
@@ -274,13 +358,107 @@ export function BillCard({ bill }: BillCardProps) {
           </tr>
         </thead>
         <tbody>
+          {showAddItemInput && isOwner && (
+            <tr className="bg-emerald-50/50 border-b border-emerald-50">
+              <td className="py-1 px-2">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={newItemName}
+                    onChange={(e) => setNewItemName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        handleAddItem();
+                      } else if (e.key === 'Escape') {
+                        setShowAddItemInput(false);
+                        setNewItemName('');
+                      }
+                    }}
+                    placeholder="ชื่อไอเทมใหม่"
+                    className="flex-1 rounded-full border border-emerald-200 px-3 py-1 text-sm focus:ring-2 focus:ring-emerald-200 transition bg-white text-emerald-700 placeholder-emerald-300"
+                    autoFocus
+                  />
+                  <button
+                    onClick={handleAddItem}
+                    disabled={!newItemName.trim()}
+                    className="p-1 rounded-full bg-emerald-100 hover:bg-emerald-200 transition-colors disabled:opacity-50"
+                  >
+                    <CheckCircleIcon className="w-4 h-4 text-emerald-600" />
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowAddItemInput(false);
+                      setNewItemName('');
+                    }}
+                    className="p-1 rounded-full bg-red-100 hover:bg-red-200 transition-colors"
+                  >
+                    <XMarkIcon className="w-4 h-4 text-red-600" />
+                  </button>
+                </div>
+              </td>
+              <td className="py-1 px-2 text-center">
+                <span className="text-emerald-400">0</span>
+              </td>
+            </tr>
+          )}
           {items.map((item, idx) => (
             <tr
               key={item.id}
               className={`bg-white/90 ${idx !== items.length - 1 ? 'border-b border-emerald-50' : ''}`}
             >
               <td className="py-1 px-2">
-                {item.name}
+                {editingItemId === item.id ? (
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={editingItemName}
+                      onChange={(e) => setEditingItemName(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          handleEditItemName(item.id, editingItemName);
+                        } else if (e.key === 'Escape') {
+                          setEditingItemId(null);
+                          setEditingItemName('');
+                        }
+                      }}
+                      placeholder="ชื่อไอเทม"
+                      className="flex-1 rounded-full border border-emerald-200 px-3 py-1 text-sm focus:ring-2 focus:ring-emerald-200 transition bg-white text-emerald-700 placeholder-emerald-300"
+                      autoFocus
+                    />
+                    <button
+                      onClick={() => handleEditItemName(item.id, editingItemName)}
+                      disabled={!editingItemName.trim()}
+                      className="p-1 rounded-full bg-emerald-100 hover:bg-emerald-200 transition-colors disabled:opacity-50"
+                    >
+                      <CheckCircleIcon className="w-4 h-4 text-emerald-600" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setEditingItemId(null);
+                        setEditingItemName('');
+                      }}
+                      className="p-1 rounded-full bg-red-100 hover:bg-red-200 transition-colors"
+                    >
+                      <XMarkIcon className="w-4 h-4 text-red-600" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    {isOwner && (
+                      <button
+                        onClick={() => {
+                          setEditingItemId(item.id);
+                          setEditingItemName(item.name);
+                        }}
+                        className="p-1 rounded-full hover:bg-emerald-50 transition-colors"
+                        title="แก้ไขชื่อไอเทม"
+                      >
+                        <PencilIcon className="w-4 h-4 text-emerald-500" />
+                      </button>
+                    )}
+                    <span className="flex-1">{item.name}</span>
+                  </div>
+                )}
               </td>
               <td className="py-1 px-2 text-center">
                 {isOwner ? (
