@@ -1308,7 +1308,7 @@ export default function PartyPage({ params }: { params: { id: string } }) {
         </Dialog>
 
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogContent className="max-w-md overflow-y-auto p-0 bg-transparent border-none">
+          <DialogContent className="max-w-md w-[95vw] sm:w-[85vw] md:w-[500px] max-h-[90vh] overflow-y-auto p-0 bg-transparent border-none">
             <AnimatePresence mode="wait">
               {selectedMember && (
                 <motion.div
@@ -1329,70 +1329,66 @@ export default function PartyPage({ params }: { params: { id: string } }) {
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.3 }}
                   />
-                  <div className="relative">
+                  <div className={cn(
+                    "relative overflow-hidden rounded-xl border-2 transition-all duration-300",
+                    "bg-gradient-to-br from-white/90 to-white/70",
+                    "shadow-[0_8px_32px_0_rgba(31,38,135,0.1)]",
+                    getClassColors(CLASS_TO_ROLE[selectedMember.character.class]).border,
+                    "hover:shadow-lg p-4 sm:p-6 pb-4"
+                  )}>
+                    {/* Decorative corner elements */}
                     <div className={cn(
-                      "relative overflow-hidden rounded-xl border-2 transition-all duration-300",
-                      "bg-gradient-to-br from-white/90 to-white/70",
-                      "shadow-[0_8px_32px_0_rgba(31,38,135,0.1)]",
-                      getClassColor(selectedMember.character.class).border,
-                      "hover:shadow-lg"
-                    )}>
-                      {/* Decorative corner elements */}
-                      <div className={cn(
-                        "absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 rounded-tl-lg",
-                        getClassColor(selectedMember.character.class).border
-                      )} />
-                      <div className={cn(
-                        "absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 rounded-tr-lg",
-                        getClassColor(selectedMember.character.class).border
-                      )} />
-                      <div className={cn(
-                        "absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 rounded-bl-lg",
-                        getClassColor(selectedMember.character.class).border
-                      )} />
-                      <div className={cn(
-                        "absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 rounded-br-lg",
-                        getClassColor(selectedMember.character.class).border
-                      )} />
+                      "absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 rounded-tl-lg",
+                      getClassColors(CLASS_TO_ROLE[selectedMember.character.class]).border
+                    )} />
+                    <div className={cn(
+                      "absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 rounded-tr-lg",
+                      getClassColors(CLASS_TO_ROLE[selectedMember.character.class]).border
+                    )} />
+                    <div className={cn(
+                      "absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 rounded-bl-lg",
+                      getClassColors(CLASS_TO_ROLE[selectedMember.character.class]).border
+                    )} />
+                    <div className={cn(
+                      "absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 rounded-br-lg",
+                      getClassColors(CLASS_TO_ROLE[selectedMember.character.class]).border
+                    )} />
 
-                      <div className="p-4">
-                        <div className="flex items-center gap-3 mb-4">
-                          <div className={cn(
-                            "w-12 h-12 rounded-lg flex items-center justify-center",
-                            "bg-gradient-to-br from-pink-200 to-purple-200 border shadow-inner",
-                            getClassColor(selectedMember.character.class).border
-                          )}>
-                            <span className="text-2xl">
-                              {getClassColor(selectedMember.character.class).icon}
-                            </span>
-                          </div>
-                          <div>
-                            <h3 className={cn(
-                              "text-xl font-bold",
-                              getClassColor(selectedMember.character.class).text
-                            )}>
-                              {selectedMember.character.name}
-                            </h3>
-                            <p className={cn(
-                              "text-sm font-medium",
-                              getClassColor(selectedMember.character.class).text
-                            )}>
-                              {selectedMember.character.class}
-                            </p>
-                            <p className="text-sm text-gray-600 mt-1">
-                              {selectedMember.discordName}
-                            </p>
-                          </div>
-                        </div>
-
-                        <CharacterChecklist
-                          checklist={selectedMember.character.checklist}
-                          onChange={handleChecklistChange}
-                          accentColor={getClassColor(selectedMember.character.class).text}
-                          readOnly={true}
-                        />
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className={cn(
+                        "w-12 h-12 rounded-lg flex items-center justify-center",
+                        "bg-gradient-to-br from-pink-200 to-purple-200 border shadow-inner",
+                        getClassColors(CLASS_TO_ROLE[selectedMember.character.class]).border
+                      )}>
+                        <span className="text-2xl">
+                          {getClassColors(CLASS_TO_ROLE[selectedMember.character.class]).icon}
+                        </span>
+                      </div>
+                      <div>
+                        <h3 className={cn(
+                          "text-xl font-bold",
+                          getClassColors(CLASS_TO_ROLE[selectedMember.character.class]).text
+                        )}>
+                          {selectedMember.character.name}
+                        </h3>
+                        <p className={cn(
+                          "text-sm font-medium",
+                          getClassColors(CLASS_TO_ROLE[selectedMember.character.class]).text
+                        )}>
+                          {selectedMember.character.class}
+                        </p>
+                        <p className="text-sm text-gray-600 mt-1">
+                          {selectedMember.discordName}
+                        </p>
                       </div>
                     </div>
+
+                    <CharacterChecklist
+                      checklist={selectedMember.character.checklist}
+                      onChange={handleChecklistChange}
+                      accentColor={getClassColors(CLASS_TO_ROLE[selectedMember.character.class]).text}
+                      readOnly={true}
+                    />
                   </div>
                 </motion.div>
               )}
