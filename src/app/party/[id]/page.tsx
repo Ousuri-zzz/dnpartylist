@@ -92,6 +92,9 @@ export default function PartyPage({ params }: { params: { id: string } }) {
   const [discordLink, setDiscordLink] = useState('');
   const [isSavingDiscordLink, setIsSavingDiscordLink] = useState(false);
   const [partyDiscordLink, setPartyDiscordLink] = useState('');
+  const [isAddCharacterConfirmOpen, setIsAddCharacterConfirmOpen] = useState(false);
+  const [selectedCharacterToAdd, setSelectedCharacterToAdd] = useState<Character | null>(null);
+  const [existingPartyInfo, setExistingPartyInfo] = useState<{name: string, id: string} | null>(null);
   const { id } = params;
 
   // เพิ่ม state สำหรับการค้นหา
@@ -609,6 +612,38 @@ export default function PartyPage({ params }: { params: { id: string } }) {
 
   // เพิ่มฟังก์ชันเพิ่มตัวละครเข้าปาร์ตี้
   const handleAddCharacter = async (character: Character) => {
+    if (!party || !user) return;
+    
+    try {
+      // ตรวจสอบว่าตัวละครอยู่ในปาร์ตี้เนสเดียวกันหรือไม่
+      const partiesRef = ref(db, 'parties');
+      const snapshot = await get(partiesRef);
+      const parties = snapshot.val() as Record<string, Party>;
+      
+      let existingParty = null;
+      if (parties) {
+        Object.entries(parties).forEach(([partyId, partyData]) => {
+          if (partyData.nest === party.nest && partyData.members?.[character.id]) {
+            existingParty = {
+              name: partyData.name,
+              id: partyId
+            };
+          }
+        });
+      }
+
+      // แสดง dialog ยืนยันทุกครั้ง
+      setExistingPartyInfo(existingParty);
+      setSelectedCharacterToAdd(character);
+      setIsAddCharacterConfirmOpen(true);
+    } catch (error) {
+      console.error('Error adding character:', error);
+      toast.error('เกิดข้อผิดพลาดในการเพิ่มตัวละคร');
+    }
+  };
+
+  // ฟังก์ชันสำหรับเพิ่มตัวละครเข้าปาร์ตี้จริงๆ
+  const doAddCharacter = async (character: Character) => {
     if (!party || !user) return;
     
     try {
@@ -1553,6 +1588,79 @@ ${typeof window !== 'undefined' ? window.location.href : ''}`;
               </Button>
               <Button onClick={handleSaveDiscordLink} disabled={isSavingDiscordLink}>
                 {isSavingDiscordLink ? 'กำลังบันทึก...' : 'บันทึก'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Dialog ยืนยันการเพิ่มตัวละคร */}
+        <Dialog open={isAddCharacterConfirmOpen} onOpenChange={setIsAddCharacterConfirmOpen}>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>ยืนยันการเพิ่มตัวละคร</DialogTitle>
+              <DialogDescription>
+                {existingPartyInfo ? (
+                  <div className="space-y-2">
+                    <p>ตัวละครนี้อยู่ในปาร์ตี้เนสเดียวกันอยู่แล้ว:</p>
+                    <div className="p-3 rounded-lg bg-red-50 border border-red-200">
+                      <p className="font-medium text-red-700">{existingPartyInfo.name}</p>
+                    </div>
+                    <p>คุณต้องการลบตัวละครออกจากปาร์ตี้เดิมและเพิ่มเข้าปาร์ตี้นี้หรือไม่?</p>
+                  </div>
+                ) : (
+                  <p>คุณต้องการเพิ่มตัวละครนี้เข้าปาร์ตี้หรือไม่?</p>
+                )}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              {selectedCharacterToAdd && (
+                <div className="p-4 rounded-lg bg-gradient-to-r from-pink-50 to-purple-50 border border-pink-100/30">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-12 h-12 rounded-lg ${getClassColor(selectedCharacterToAdd.class).bg} border ${getClassColor(selectedCharacterToAdd.class).border} flex items-center justify-center shadow-inner`}>
+                      <span className="text-2xl">{getClassColor(selectedCharacterToAdd.class).icon}</span>
+                    </div>
+                    <div>
+                      <h3 className={cn(
+                        "text-lg font-bold",
+                        getClassColor(selectedCharacterToAdd.class).text
+                      )}>
+                        {selectedCharacterToAdd.name}
+                      </h3>
+                      <p className={cn(
+                        "text-sm font-medium",
+                        getClassColor(selectedCharacterToAdd.class).text
+                      )}>
+                        {selectedCharacterToAdd.class}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => {
+                setIsAddCharacterConfirmOpen(false);
+                setSelectedCharacterToAdd(null);
+                setExistingPartyInfo(null);
+              }}>
+                ยกเลิก
+              </Button>
+              <Button 
+                onClick={async () => {
+                  if (selectedCharacterToAdd) {
+                    if (existingPartyInfo) {
+                      // ลบออกจากปาร์ตี้เดิมก่อน
+                      await set(ref(db, `parties/${existingPartyInfo.id}/members/${selectedCharacterToAdd.id}`), null);
+                    }
+                    await doAddCharacter(selectedCharacterToAdd);
+                  }
+                  setIsAddCharacterConfirmOpen(false);
+                  setSelectedCharacterToAdd(null);
+                  setExistingPartyInfo(null);
+                }}
+                className="bg-gradient-to-r from-pink-500 to-purple-500 text-white hover:from-pink-600 hover:to-purple-600"
+              >
+                ยืนยัน
               </Button>
             </DialogFooter>
           </DialogContent>
