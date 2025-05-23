@@ -15,6 +15,7 @@ export interface Participant {
   level: number;
   class: string;
   paid?: boolean;
+  discordName?: string;
 }
 
 export interface Bill {

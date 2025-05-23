@@ -184,27 +184,45 @@ export function BillCard({ bill }: BillCardProps) {
     try {
       const usersRef = ref(db, 'users');
       const snapshot = await get(usersRef);
-      const results: Character[] = [];
+      const resultsMap = new Map<string, Character>();
+      const searchLower = searchQuery.toLowerCase();
 
       snapshot.forEach((userSnapshot) => {
         // ดึงข้อมูล Discord จาก meta
         const discordName = userSnapshot.child('meta/discord').val() || '';
-        
-        userSnapshot.child('characters').forEach((charSnapshot) => {
-          const char = charSnapshot.val();
-          if (char.name.toLowerCase().includes(searchQuery.toLowerCase())) {
-            results.push({
+        const discordLower = discordName.toLowerCase();
+        const chars = userSnapshot.child('characters');
+
+        // ถ้าค้นหาตรงกับชื่อ Discord ให้ดึงตัวละครทั้งหมดของ user นี้
+        if (discordLower && discordLower.includes(searchLower)) {
+          chars.forEach((charSnapshot) => {
+            const char = charSnapshot.val();
+            resultsMap.set(charSnapshot.key, {
               id: charSnapshot.key,
               name: char.name,
               level: char.level,
               class: char.class,
-              discordName: discordName, // ใช้ Discord name จาก meta
+              discordName: discordName,
             });
-          }
-        });
+          });
+        } else {
+          // ถ้าค้นหาตรงกับชื่อ character
+          chars.forEach((charSnapshot) => {
+            const char = charSnapshot.val();
+            if (char.name.toLowerCase().includes(searchLower)) {
+              resultsMap.set(charSnapshot.key, {
+                id: charSnapshot.key,
+                name: char.name,
+                level: char.level,
+                class: char.class,
+                discordName: discordName,
+              });
+            }
+          });
+        }
       });
 
-      setSearchResults(results);
+      setSearchResults(Array.from(resultsMap.values()));
     } catch (error) {
       toast.error('เกิดข้อผิดพลาดในการค้นหา');
     } finally {
@@ -596,7 +614,7 @@ export function BillCard({ bill }: BillCardProps) {
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter') handleSearch(); }}
-                placeholder="ค้นหาชื่อตัวละคร"
+                placeholder="ค้นหาชื่อตัวละคร หรือชื่อ Discord"
                 className="flex-1 rounded-full border border-gray-200 px-4 py-2 focus:ring-2 focus:ring-gray-200 transition shadow-sm bg-gray-50 text-gray-500 placeholder-gray-400"
               />
               <button
