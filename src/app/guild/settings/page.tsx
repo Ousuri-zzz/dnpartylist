@@ -942,7 +942,7 @@ export default function GuildSettingsPage() {
                                   <span className="text-lg">{getClassIcon(char.class)}</span>
                                 </div>
                                 <div className="flex-1">
-                                  <p className="font-medium text-gray-800">{member.discord || 'ไม่ทราบ'}</p>
+                                  <p className="font-medium text-gray-800">{member.discordName || 'ไม่ทราบ'}</p>
                                   <p className={`text-xs ${colors.text} opacity-75`}>{char.name}</p>
                                   <p className={`text-xs ${colors.text} opacity-75`}>{char.class}</p>
                                 </div>
