@@ -315,16 +315,16 @@ const TradeDashboardPage = () => {
                     const priceB = merchantLatestTrade[b.id]?.pricePer100 ? merchantLatestTrade[b.id].pricePer100 / 100 : Infinity;
 
                     // เรียงหลัก: ราคา Gold (น้อย -> มาก)
-                    const priceComparison = priceA - priceB;
+                    // ถ้า priceA < priceB -> a ขึ้นก่อน (-1)
+                    // ถ้า priceA > priceB -> b ขึ้นก่อน (1)
+                    // ถ้า priceA === priceB ให้ไปเรียงรอง
+                    if (priceA < priceB) return -1;
+                    if (priceA > priceB) return 1;
 
-                    // ถ้า ราคา Gold เท่ากัน ให้เรียงตามจำนวนไอเทม (มาก -> น้อย)
-                    if (priceComparison === 0) {
-                      const itemsA = merchantItems[a.id]?.length || 0;
-                      const itemsB = merchantItems[b.id]?.length || 0;
-                      return itemsB - itemsA; // มาก -> น้อย
-                    }
-
-                    return priceComparison;
+                    // ถ้า ราคา Gold เท่ากัน (หรือเป็น Infinity ทั้งคู่) ให้เรียงตามจำนวนไอเทม (มาก -> น้อย)
+                    const itemsA = merchantItems[a.id]?.length || 0;
+                    const itemsB = merchantItems[b.id]?.length || 0;
+                    return itemsB - itemsA; // มาก -> น้อย
                   })
                   .map((merchant, index) => (
                     <Link
