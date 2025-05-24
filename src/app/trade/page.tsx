@@ -313,7 +313,18 @@ const TradeDashboardPage = () => {
                   .sort((a, b) => {
                     const priceA = merchantLatestTrade[a.id]?.pricePer100 ? merchantLatestTrade[a.id].pricePer100 / 100 : Infinity;
                     const priceB = merchantLatestTrade[b.id]?.pricePer100 ? merchantLatestTrade[b.id].pricePer100 / 100 : Infinity;
-                    return priceA - priceB;
+
+                    // เรียงหลัก: ราคา Gold (น้อย -> มาก)
+                    const priceComparison = priceA - priceB;
+
+                    // ถ้า ราคา Gold เท่ากัน ให้เรียงตามจำนวนไอเทม (มาก -> น้อย)
+                    if (priceComparison === 0) {
+                      const itemsA = merchantItems[a.id]?.length || 0;
+                      const itemsB = merchantItems[b.id]?.length || 0;
+                      return itemsB - itemsA; // มาก -> น้อย
+                    }
+
+                    return priceComparison;
                   })
                   .map((merchant, index) => (
                     <Link
