@@ -1204,7 +1204,7 @@ export default function GuildSettingsPage() {
                       <Users className="w-5 h-5 text-blue-600" />
                     </div>
                     <div>
-                      <p className="font-medium text-gray-800">{member.discord || 'ไม่ทราบ'}</p>
+                      <p className="font-medium text-gray-800">{member.discordName || 'ไม่ทราบ'}</p>
                       <p className="text-sm text-gray-500">เข้าร่วมเมื่อ: {new Date(parseJoinedAt(member.joinedAt)).toLocaleDateString('th-TH')}</p>
                       <p className="text-xs text-gray-400">UID: {uid}</p>
                       {Array.isArray(memberCharacters[uid]) && memberCharacters[uid].length > 0 && (
