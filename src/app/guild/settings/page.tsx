@@ -943,7 +943,7 @@ export default function GuildSettingsPage() {
                                 </div>
                                 <div className="flex-1">
                                   <p className="font-medium text-gray-800">{member.discordName || 'ไม่ทราบ'}</p>
-                                  <p className={`text-sm ${colors.text}`}>{char.name}</p>
+                                  <p className={`text-xs ${colors.text} opacity-75`}>{char.name}</p>
                                   <p className={`text-xs ${colors.text} opacity-75`}>{char.class}</p>
                                 </div>
                               </div>
@@ -989,8 +989,19 @@ export default function GuildSettingsPage() {
                           <Users className="w-5 h-5 text-red-600" />
                         </div>
                         <div>
-                          <p className="font-medium text-gray-800">{member.discord || 'ไม่ทราบ'}</p>
-                          <p className="text-sm text-gray-500">UID: {member.uid}</p>
+                          <p className="font-medium text-gray-800">{member.discordName || 'ไม่ทราบ'}</p>
+                          <p className="text-sm text-gray-500">เข้าร่วมเมื่อ: {new Date(parseJoinedAt(member.joinedAt)).toLocaleDateString('th-TH')}</p>
+                          <p className="text-xs text-gray-400">UID: {member.uid}</p>
+                          {Array.isArray(memberCharacters[member.uid]) && memberCharacters[member.uid].length > 0 && (
+                            <div className="mt-1 space-y-0.5">
+                              {memberCharacters[member.uid].map((char, idx) => (
+                                <div key={char.characterId || idx} className="text-xs text-gray-500 flex gap-1 items-center">
+                                  <span>{char.name}</span>
+                                  {char.class && <span className="text-gray-400">({char.class})</span>}
+                                </div>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       </div>
                       <div className="w-full md:w-auto flex flex-row gap-x-2 md:gap-2">
@@ -1195,6 +1206,17 @@ export default function GuildSettingsPage() {
                     <div>
                       <p className="font-medium text-gray-800">{member.discordName || 'ไม่ทราบ'}</p>
                       <p className="text-sm text-gray-500">เข้าร่วมเมื่อ: {new Date(parseJoinedAt(member.joinedAt)).toLocaleDateString('th-TH')}</p>
+                      <p className="text-xs text-gray-400">UID: {uid}</p>
+                      {Array.isArray(memberCharacters[uid]) && memberCharacters[uid].length > 0 && (
+                        <div className="mt-1 space-y-0.5">
+                          {memberCharacters[uid].map((char, idx) => (
+                            <div key={char.characterId || idx} className="text-xs text-gray-500 flex gap-1 items-center">
+                              <span>{char.name}</span>
+                              {char.class && <span className="text-gray-400">({char.class})</span>}
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
                   {uid !== user?.uid && (

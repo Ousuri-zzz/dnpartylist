@@ -264,13 +264,23 @@ export default function MerchantShopPage({ params }: { params: { merchantId: str
                 <div className="flex items-center gap-2 mb-2">
                   <ShoppingBag className="w-5 h-5 text-pink-400" />
                   <h3 className="text-lg font-semibold text-green-600 flex-1">{item.itemName}</h3>
-                  <span className={`px-2 py-1 text-sm rounded-full ${item.status === 'sold' ? 'bg-gray-100 text-gray-600' : 'bg-pink-100 text-pink-600'}`}>{item.price}G</span>
+                  <span className={`px-2 py-1 text-sm rounded-full ${item.status === 'available' ? 'bg-green-100 text-green-700' : item.status === 'sold' ? 'bg-gray-100 text-gray-600' : item.status === 'queue_full' ? 'bg-yellow-100 text-yellow-700' : item.status === 'sold_out' ? 'bg-red-100 text-red-700' : 'bg-pink-100 text-pink-600'}`}>{item.price}G</span>
+                  {/* Badge สถานะ */}
+                  {item.status === 'available' && (
+                    <span className="px-2 py-1 text-sm rounded-full bg-green-100 text-green-700 font-bold">พร้อมขาย</span>
+                  )}
                   {item.status === 'sold' && (
-                    <span className="px-2 py-1 text-sm rounded-full bg-gray-100 text-gray-800">ติดจอง</span>
+                    <span className="px-2 py-1 text-sm rounded-full bg-gray-200 text-gray-800 font-bold">ติดจอง</span>
+                  )}
+                  {item.status === 'queue_full' && (
+                    <span className="px-2 py-1 text-sm rounded-full bg-yellow-100 text-yellow-700 font-bold">คิวเต็ม</span>
+                  )}
+                  {item.status === 'sold_out' && (
+                    <span className="px-2 py-1 text-sm rounded-full bg-red-100 text-red-700 font-bold">ขายแล้ว</span>
                   )}
                 </div>
                 {item.description && (
-                  <p className="text-gray-600 mb-2">{item.description}</p>
+                  <p className="text-gray-600 mb-2 whitespace-pre-line">{item.description}</p>
                 )}
                 {item.status === 'available' && (
                   <div className="flex justify-end">

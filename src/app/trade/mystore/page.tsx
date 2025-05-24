@@ -246,11 +246,26 @@ export default function MyStorePage() {
     }
   };
 
-  const handleUpdateItemStatus = async (itemId: string, newStatus: 'available' | 'sold') => {
+  const handleUpdateItemStatus = async (itemId: string, newStatus: 'available' | 'sold' | 'sold_out' | 'queue_full') => {
     try {
       const itemRef = ref(db, `tradeItems/${itemId}`);
       await update(itemRef, { status: newStatus });
-      toast.success(`อัปเดตสถานะไอเทมเป็น ${newStatus === 'sold' ? 'ขายแล้ว' : 'พร้อมขาย'}`);
+      let statusText = '';
+      switch (newStatus) {
+        case 'available':
+          statusText = 'พร้อมขาย';
+          break;
+        case 'sold':
+          statusText = 'ติดจอง';
+          break;
+        case 'sold_out':
+          statusText = 'ขายแล้ว';
+          break;
+        case 'queue_full':
+          statusText = 'คิวเต็ม';
+          break;
+      }
+      toast.success(`อัปเดตสถานะไอเทมเป็น ${statusText}`);
     } catch (error) {
       toast.error('เกิดข้อผิดพลาดในการอัปเดตสถานะ');
     }
@@ -271,6 +286,21 @@ export default function MyStorePage() {
       toast.success('แก้ไขรายการขายสำเร็จ');
     } catch (error) {
       toast.error('เกิดข้อผิดพลาดในการแก้ไขรายการขาย');
+    }
+  };
+
+  // เพิ่มฟังก์ชันสำหรับหาสถานะถัดไป
+  const getNextItemStatus = (current: 'available' | 'sold' | 'queue_full' | 'sold_out') => {
+    switch (current) {
+      case 'available':
+        return 'sold';
+      case 'sold':
+        return 'queue_full';
+      case 'queue_full':
+        return 'sold_out';
+      case 'sold_out':
+      default:
+        return 'available';
     }
   };
 
@@ -943,23 +973,28 @@ export default function MyStorePage() {
                       </div>
                     </div>
                     <div className="flex flex-col gap-2 items-end justify-start flex-shrink-0 ml-4">
-                      {item.status === 'sold' ? (
-                        <button
-                          onClick={() => handleUpdateItemStatus(item.id, 'available')}
-                          className="flex items-center gap-1 px-4 py-1 rounded-full bg-gray-200 text-gray-700 text-sm font-bold hover:bg-green-100 hover:text-green-700 transition-colors cursor-pointer"
-                          title="กดเพื่อเปลี่ยนเป็นพร้อมขาย"
-                        >
-                          <XCircle className="w-4 h-4 text-gray-500" /> ติดจอง
-                        </button>
-                      ) : (
-                        <button
-                          onClick={() => handleUpdateItemStatus(item.id, 'sold')}
-                          className="flex items-center gap-1 px-4 py-1 rounded-full bg-green-100 text-green-700 text-sm font-bold hover:bg-gray-200 hover:text-gray-700 transition-colors cursor-pointer"
-                          title="กดเพื่อเปลี่ยนเป็นติดจอง"
-                        >
-                          <CheckCircle2 className="w-4 h-4 text-green-500" /> พร้อมขาย
-                        </button>
-                      )}
+                      <button
+                        onClick={() => handleUpdateItemStatus(item.id, getNextItemStatus(item.status))}
+                        className={
+                          item.status === 'available'
+                            ? 'flex items-center gap-1 px-4 py-1 rounded-full bg-green-100 text-green-700 text-sm font-bold hover:bg-green-200 transition-colors cursor-pointer'
+                            : item.status === 'sold'
+                            ? 'flex items-center gap-1 px-4 py-1 rounded-full bg-gray-200 text-gray-700 text-sm font-bold hover:bg-gray-300 transition-colors cursor-pointer'
+                            : item.status === 'queue_full'
+                            ? 'flex items-center gap-1 px-4 py-1 rounded-full bg-yellow-100 text-yellow-700 text-sm font-bold hover:bg-yellow-200 transition-colors cursor-pointer'
+                            : 'flex items-center gap-1 px-4 py-1 rounded-full bg-red-100 text-red-700 text-sm font-bold hover:bg-red-200 transition-colors cursor-pointer'
+                        }
+                        title="คลิกเพื่อเปลี่ยนสถานะ"
+                      >
+                        {item.status === 'available' && <CheckCircle2 className="w-4 h-4 text-green-500" />}
+                        {item.status === 'sold' && <XCircle className="w-4 h-4 text-gray-500" />}
+                        {item.status === 'queue_full' && <Clock className="w-4 h-4 text-yellow-500" />}
+                        {item.status === 'sold_out' && <CheckCircle2 className="w-4 h-4 text-red-500" />}
+                        {item.status === 'available' && 'พร้อมขาย'}
+                        {item.status === 'sold' && 'ติดจอง'}
+                        {item.status === 'queue_full' && 'คิวเต็ม'}
+                        {item.status === 'sold_out' && 'ขายแล้ว'}
+                      </button>
                       <button
                         onClick={() => { setItemToDelete(item); setShowDeleteItemModal(true); }}
                         className="h-10 min-h-0 px-4 py-0 rounded-full bg-red-100 text-red-700 text-sm hover:bg-red-200 transition-colors flex items-center gap-1 shadow"

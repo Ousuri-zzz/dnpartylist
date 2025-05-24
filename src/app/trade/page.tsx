@@ -442,11 +442,21 @@ const TradeDashboardPage = () => {
                           <div className="flex items-center gap-1 mb-1">
                             <ShoppingBag className="w-4 h-4 text-emerald-500" />
                             <h3 className="text-sm font-bold text-emerald-600 flex-1 line-clamp-2 break-all">{item.itemName}</h3>
-                            <span className={`px-2 py-0.5 text-xs rounded-full ${item.status === 'sold' ? 'bg-gray-100 text-gray-600' : 'bg-pink-100 text-pink-600'} font-bold shadow`}>
+                            <span className={`px-2 py-0.5 text-xs rounded-full ${item.status === 'available' ? 'bg-green-100 text-green-700' : item.status === 'sold' ? 'bg-gray-100 text-gray-600' : item.status === 'queue_full' ? 'bg-yellow-100 text-yellow-700' : item.status === 'sold_out' ? 'bg-red-100 text-red-700' : 'bg-pink-100 text-pink-600'} font-bold shadow`}>
                               {item.price}G
                             </span>
+                            {/* Badge สถานะ */}
+                            {item.status === 'available' && (
+                              <span className="px-2 py-0.5 text-xs rounded-full bg-green-100 text-green-700 font-bold shadow">พร้อมขาย</span>
+                            )}
                             {item.status === 'sold' && (
                               <span className="px-2 py-0.5 text-xs rounded-full bg-gray-200 text-gray-800 font-bold shadow">ติดจอง</span>
+                            )}
+                            {item.status === 'queue_full' && (
+                              <span className="px-2 py-0.5 text-xs rounded-full bg-yellow-100 text-yellow-700 font-bold shadow">คิวเต็ม</span>
+                            )}
+                            {item.status === 'sold_out' && (
+                              <span className="px-2 py-0.5 text-xs rounded-full bg-red-100 text-red-700 font-bold shadow">ขายแล้ว</span>
                             )}
                             {item.createdAt && Date.now() - item.createdAt < 1000 * 60 * 60 * 3 && (
                               <span className="ml-2 px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700 text-xs font-bold">ใหม่</span>
