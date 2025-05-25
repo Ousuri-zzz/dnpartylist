@@ -462,11 +462,17 @@ const TradeDashboardPage = () => {
                           initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: index * 0.05 }}
-                          className={`bg-white rounded-lg p-3 shadow-md border-2 ${item.status === 'sold' ? 'border-gray-200' : 'border-pink-200'} hover:shadow-lg transition-all flex flex-col cursor-pointer`}
+                          className={`bg-white rounded-lg p-3 shadow-md border-2 ${
+                            item.status === 'available' ? 'border-green-200' :
+                            item.status === 'sold' ? 'border-gray-200' :
+                            item.status === 'queue_full' ? 'border-yellow-200' :
+                            item.status === 'sold_out' ? 'border-red-200' :
+                            'border-pink-200'
+                          } hover:shadow-lg transition-all flex flex-col cursor-pointer`}
                         >
                           <div className="flex items-center gap-1 mb-1">
                             <ShoppingBag className="w-4 h-4 text-emerald-500 flex-shrink-0" />
-                            <h3 className="text-sm font-bold text-emerald-600 flex-1 line-clamp-2 break-all">{item.itemName}</h3>
+                            <h3 className="text-sm font-bold text-blue-600 flex-1 line-clamp-2 break-all">{item.itemName}</h3>
                             <span className={`px-2 py-0.5 text-xs rounded-full ${item.status === 'available' ? 'bg-green-100 text-green-700' : item.status === 'sold' ? 'bg-gray-100 text-gray-600' : item.status === 'queue_full' ? 'bg-yellow-100 text-yellow-700' : item.status === 'sold_out' ? 'bg-red-100 text-red-700' : 'bg-pink-100 text-pink-600'} font-bold shadow flex-shrink-0`}>
                               {item.price}G
                             </span>
