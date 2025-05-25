@@ -190,8 +190,17 @@ export default function MerchantShopPage({ params }: { params: { merchantId: str
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div className="flex items-center gap-4">
               <span className="inline-flex items-center justify-center bg-[#5865F2] text-white rounded-full w-12 h-12 shadow-md">
-                {merchant?.photoURL ? (
-                  <img src={merchant.photoURL} alt={merchant.discordName || 'Merchant'} className="w-12 h-12 rounded-full" />
+                {users[params.merchantId]?.photoURL ? (
+                  <img
+                    src={users[params.merchantId].photoURL}
+                    alt={
+                      users[params.merchantId]?.displayName ||
+                      users[params.merchantId]?.meta?.discord ||
+                      merchant?.discordName ||
+                      'Merchant'
+                    }
+                    className="w-12 h-12 rounded-full"
+                  />
                 ) : (
                   <FaDiscord className="w-7 h-7" />
                 )}

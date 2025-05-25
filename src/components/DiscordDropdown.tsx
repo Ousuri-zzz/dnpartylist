@@ -8,6 +8,7 @@ import { Dialog } from './ui/dialog';
 import { FaDiscord } from 'react-icons/fa';
 import { cn } from '@/lib/utils';
 import { createPortal } from 'react-dom';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 export function DiscordDropdown({ inMobileMenu = false }: { inMobileMenu?: boolean }) {
   const { user, discordName, logout, approved, updateDiscordName } = useAuth();
@@ -70,24 +71,32 @@ export function DiscordDropdown({ inMobileMenu = false }: { inMobileMenu?: boole
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          "flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all duration-200",
+          "flex items-center gap-2 rounded-lg transition-all duration-200",
           inMobileMenu
-            ? "w-full justify-between text-gray-700 hover:bg-gray-100"
-            : "bg-white/60 border border-pink-100 shadow-sm hover:bg-pink-50/50 hover:shadow-xl hover:scale-105 hover:ring-2 hover:ring-pink-300 hover:border-pink-400 hover:text-pink-600"
+            ? "justify-between text-gray-700 hover:bg-gray-100 px-2 py-1"
+            : "bg-white/60 border border-pink-100 shadow-sm hover:bg-pink-50/50 hover:shadow-xl hover:scale-105 hover:ring-2 hover:ring-pink-300 hover:border-pink-400 hover:text-pink-600 px-3 py-1.5"
         )}
       >
-        <div className="flex items-center gap-2">
-          <FaDiscord className="w-4 h-4 text-[#5865F2]" />
-          <span className="text-sm font-medium">{discordName || 'กรุณาตั้งชื่อ Discord'}</span>
+        <div className="flex items-center gap-2 flex-1 min-w-0">
+          <Avatar className="h-6 w-6 flex-shrink-0">
+            <AvatarImage src={user.photoURL || ''} alt={user.displayName || user.email || 'User'} />
+            <AvatarFallback>{user.displayName?.[0] || discordName?.[0] || 'U'}</AvatarFallback>
+          </Avatar>
+          <span className="text-sm font-medium flex-1 text-left whitespace-nowrap overflow-hidden text-ellipsis">
+            {discordName || user.displayName || 'กรุณาตั้งชื่อ'}
+          </span>
         </div>
         <ChevronDown className={cn(
-          "w-4 h-4 transition-transform duration-200",
+          "w-4 h-4 transition-transform duration-200 flex-shrink-0",
           isOpen && "transform rotate-180"
         )} />
       </button>
 
       {isOpen && (
-        <div className={`absolute right-0 ${openUpwards ? 'bottom-12 mb-2' : 'mt-2 top-full'} w-60 bg-[#23272A] rounded-2xl shadow-2xl py-2 z-[10000] border border-[#5865F2]/30 backdrop-blur-sm max-h-72 overflow-y-auto animate-fade-in`}>
+        <div className={cn(
+          "absolute right-0 w-60 bg-[#23272A] rounded-2xl shadow-2xl py-2 z-[10000] border border-[#5865F2]/30 backdrop-blur-sm max-h-72 overflow-y-auto animate-fade-in",
+          openUpwards ? 'bottom-12 mb-2' : 'mt-2 top-full'
+        )}>
           {discordName && (
             <button
               className="w-full flex items-center gap-2 px-4 py-3 text-left text-sm text-white hover:bg-[#5865F2]/30 hover:text-[#5865F2] transition-all duration-200 rounded-xl"

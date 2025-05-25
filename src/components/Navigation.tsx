@@ -691,23 +691,7 @@ export default function Navigation() {
               </div>
 
               {/* Mobile Right Side */}
-              <div className="flex lg:hidden items-center gap-2 ml-auto">
-                <Link
-                  href="/trade"
-                  className={cn(
-                    "relative group px-3 py-1.5 rounded-lg transition-all duration-200",
-                    pathname === "/trade"
-                      ? "bg-gradient-to-r from-pink-200 via-yellow-100 to-purple-200 text-pink-700"
-                      : "bg-white/60 border border-pink-100 shadow-sm hover:bg-pink-50/50"
-                  )}
-                >
-                  <ShoppingCart className="w-5 h-5" />
-                  {pendingCount > 0 && (
-                    <span className="absolute -top-2 -right-2 px-1.5 py-0.5 rounded-full bg-yellow-300 text-yellow-900 text-xs font-bold">
-                      {pendingCount}
-                    </span>
-                  )}
-                </Link>
+              <div className="flex lg:hidden items-center ml-auto">
                 <DiscordDropdown />
               </div>
             </>

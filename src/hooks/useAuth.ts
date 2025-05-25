@@ -60,6 +60,18 @@ const setupAuthListener = () => {
         // สร้างข้อมูล User เริ่มต้น
         await GuildService.initializeUser(user.uid, user);
         
+        // ตรวจสอบและอัปเดต photoURL ใน Database หากไม่มี
+        const userDbRef = ref(db, `users/${user.uid}`);
+        const userSnapshot = await get(userDbRef);
+        if (user.photoURL && (!userSnapshot.exists() || !userSnapshot.val().photoURL)) {
+          try {
+            await update(userDbRef, { photoURL: user.photoURL });
+            console.log(`Updated photoURL for user ${user.uid}`);
+          } catch (dbError) {
+            console.error('Error updating photoURL in database:', dbError);
+          }
+        }
+        
         // ดึงข้อมูล Discord name และ approved
         const userMetaRef = ref(db, `users/${user.uid}/meta`);
         const snapshot = await get(userMetaRef);
