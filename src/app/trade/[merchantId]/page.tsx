@@ -192,7 +192,7 @@ export default function MerchantShopPage({ params }: { params: { merchantId: str
               <span className="inline-flex items-center justify-center bg-[#5865F2] text-white rounded-full w-12 h-12 shadow-md">
                 {users[params.merchantId]?.photoURL ? (
                   <img
-                    src={users[params.merchantId].photoURL}
+                    src={users[params.merchantId].photoURL!}
                     alt={
                       users[params.merchantId]?.displayName ||
                       users[params.merchantId]?.meta?.discord ||
