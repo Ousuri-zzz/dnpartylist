@@ -434,8 +434,22 @@ const TradeDashboardPage = () => {
                       (item.itemName || '').toLowerCase().includes(itemSearch.trim().toLowerCase())
                     )
                     .sort((a, b) => {
-                      if (a.status === 'sold' && b.status !== 'sold') return 1;
-                      if (a.status !== 'sold' && b.status === 'sold') return -1;
+                      // First sort by status
+                      const statusOrder: Record<string, number> = {
+                        'available': 0,
+                        'sold': 1,
+                        'queue_full': 2,
+                        'sold_out': 3
+                      };
+                      
+                      const statusA = statusOrder[a.status as keyof typeof statusOrder] || 0;
+                      const statusB = statusOrder[b.status as keyof typeof statusOrder] || 0;
+                      
+                      if (statusA !== statusB) {
+                        return statusA - statusB;
+                      }
+                      
+                      // If status is the same, sort by time (newest first)
                       return b.createdAt - a.createdAt;
                     })
                     .map((item, index) => (
