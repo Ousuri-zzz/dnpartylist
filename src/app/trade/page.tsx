@@ -350,9 +350,19 @@ const TradeDashboardPage = () => {
                         className="bg-white rounded-xl p-6 shadow-md border-2 border-pink-200 hover:border-pink-400 hover:shadow-xl transition-all cursor-pointer"
                       >
                         <div className="flex items-center justify-between mb-1">
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 flex-wrap">
                             <Store className="w-5 h-5 text-blue-500" />
                             <h3 className="text-xl font-bold text-blue-600">{merchant.discord || '-'}</h3>
+                            {/* Display Average Rating */}
+                            {allMerchantRatings[merchant.id] && Object.values(allMerchantRatings[merchant.id]).length > 0 && (
+                              <div className="flex items-center gap-1 ml-2">
+                                <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                                <span className="text-sm font-semibold text-gray-700">
+                                  {(Object.values(allMerchantRatings[merchant.id]).reduce((sum, rating) => sum + rating, 0) / Object.values(allMerchantRatings[merchant.id]).length).toFixed(1)}
+                                </span>
+                                 <span className="text-xs text-gray-500">({Object.values(allMerchantRatings[merchant.id]).length})</span>
+                              </div>
+                            )}
                             {merchant.createdAt && Date.now() - merchant.createdAt < 1000 * 60 * 60 * 24 * 7 && (
                               <span className="ml-2 px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-xs font-bold">ร้านใหม่</span>
                             )}
@@ -369,16 +379,6 @@ const TradeDashboardPage = () => {
                             <span className="font-medium text-sm">DM</span>
                           </a>
                         </div>
-                        {/* Display Average Rating */}
-                        {allMerchantRatings[merchant.id] && Object.values(allMerchantRatings[merchant.id]).length > 0 && (
-                          <div className="flex items-center gap-1 mb-2">
-                            <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                            <span className="text-sm font-semibold text-gray-700">
-                              {(Object.values(allMerchantRatings[merchant.id]).reduce((sum, rating) => sum + rating, 0) / Object.values(allMerchantRatings[merchant.id]).length).toFixed(1)}
-                            </span>
-                             <span className="text-xs text-gray-500">({Object.values(allMerchantRatings[merchant.id]).length})</span>
-                          </div>
-                        )}
                         {merchantLatestTrade[merchant.id]?.advertisement && (
                           <div className="mt-2 mb-3">
                             <p className="text-sm text-gray-600 italic flex items-start gap-2 break-words whitespace-pre-line sm:text-sm text-xs">
