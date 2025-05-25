@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useUsers } from '@/hooks/useUsers';
 import { useRouter } from 'next/navigation';
 import { ref, get, remove, update, onValue, query, orderByChild, equalTo, set, push } from 'firebase/database';
 import { db } from '@/lib/firebase';
@@ -13,6 +14,7 @@ import { GuildService } from '@/lib/guildService';
 import React from 'react';
 import ConfirmModalPortal from '@/components/ConfirmModalPortal';
 import Link from 'next/link';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 const CLASS_TO_MAIN_CLASS: Record<string, string> = {
   'Sword Master': 'Warrior',
@@ -80,6 +82,7 @@ function parseJoinedAt(joinedAt: any): number {
 
 export default function GuildSettingsPage() {
   const { user } = useAuth();
+  const { users } = useUsers();
   const router = useRouter();
   const [guild, setGuild] = useState<GuildSettings | null>(null);
   const [loading, setLoading] = useState(true);
@@ -985,9 +988,12 @@ export default function GuildSettingsPage() {
                       className="flex flex-col md:flex-row md:items-center md:justify-between p-4 bg-white rounded-xl border border-red-100 shadow-sm hover:shadow-md transition-shadow gap-2 md:gap-0"
                     >
                       <div className="flex items-center gap-4">
-                        <div className="p-2 bg-red-100 rounded-lg">
-                          <Users className="w-5 h-5 text-red-600" />
-                        </div>
+                        <Avatar className="h-9 w-9">
+                          <AvatarImage src={users[member.uid]?.photoURL!} alt={member.discord || 'New Member'} />
+                          <AvatarFallback className="bg-red-200 text-red-800 text-sm font-semibold">
+                            {member.discord ? member.discord.charAt(0).toUpperCase() : 'N'}
+                          </AvatarFallback>
+                        </Avatar>
                         <div>
                           <p className="font-medium text-gray-800">{member.discord || 'ไม่ทราบ'}</p>
                           <p className="text-sm text-gray-500">เข้าร่วมเมื่อ: {new Date(parseJoinedAt(member.joinedAt)).toLocaleDateString('th-TH')}</p>
@@ -1200,9 +1206,12 @@ export default function GuildSettingsPage() {
                   className="flex flex-col md:flex-row md:items-center md:justify-between p-4 bg-white rounded-xl border border-blue-100 shadow-sm hover:shadow-md transition-shadow gap-2 md:gap-0"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="p-2 bg-blue-100 rounded-lg">
-                      <Users className="w-5 h-5 text-blue-600" />
-                    </div>
+                    <Avatar className="h-9 w-9">
+                      <AvatarImage src={users[uid]?.photoURL!} alt={member.discordName || 'Member'} />
+                      <AvatarFallback className="bg-blue-200 text-blue-800 text-sm font-semibold">
+                        {member.discordName ? member.discordName.charAt(0).toUpperCase() : 'M'}
+                      </AvatarFallback>
+                    </Avatar>
                     <div>
                       <p className="font-medium text-gray-800">{member.discordName || 'ไม่ทราบ'}</p>
                       <p className="text-sm text-gray-500">เข้าร่วมเมื่อ: {new Date(parseJoinedAt(member.joinedAt)).toLocaleDateString('th-TH')}</p>
