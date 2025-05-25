@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
-import { MessageSquare, Copy, History, Store, Users, User, PiggyBank, ShoppingBag, Package, Heart } from 'lucide-react';
+import { MessageSquare, Copy, History, Store, Users, User, PiggyBank, ShoppingBag, Package, Heart, Star } from 'lucide-react';
 import { toast } from 'sonner';
 import { db } from '@/lib/firebase';
 import { ref, onValue, get } from 'firebase/database';
@@ -29,6 +29,7 @@ const TradeDashboardPage = () => {
   const [merchantLatestTrade, setMerchantLatestTrade] = useState<Record<string, any>>({});
   const [merchantSearch, setMerchantSearch] = useState('');
   const [itemSearch, setItemSearch] = useState('');
+  const [allMerchantRatings, setAllMerchantRatings] = useState<Record<string, Record<string, number>>>({});
 
   useEffect(() => {
     if (!user) {
@@ -96,11 +97,20 @@ const TradeDashboardPage = () => {
             if (!latestTrade[trade.merchantId] || trade.createdAt > latestTrade[trade.merchantId].createdAt) {
               latestTrade[trade.merchantId] = { id, ...trade };
             }
+          } else if (trade.status === 'return_pending' && trade.buyerId === user?.uid) {
+            setPendingReturnCount(prev => prev + 1);
           }
         });
       }
       setMerchantGoldLeft(goldLeft);
       setMerchantLatestTrade(latestTrade);
+    });
+
+    // ดึงข้อมูลคะแนนร้านค้าทั้งหมด
+    const allRatingsRef = ref(db, 'merchantRatings');
+    const unsubscribeAllRatings = onValue(allRatingsRef, (snapshot) => {
+      const data = snapshot.val();
+      setAllMerchantRatings(data || {});
     });
 
     // ตรวจสอบการลงทะเบียน
@@ -122,7 +132,8 @@ const TradeDashboardPage = () => {
       unsubscribeMerchants,
       unsubscribeFeed,
       unsubscribeItems,
-      unsubscribeTrades
+      unsubscribeTrades,
+      unsubscribeAllRatings
     ];
 
     setLoading(false);
@@ -358,6 +369,16 @@ const TradeDashboardPage = () => {
                             <span className="font-medium text-sm">DM</span>
                           </a>
                         </div>
+                        {/* Display Average Rating */}
+                        {allMerchantRatings[merchant.id] && Object.values(allMerchantRatings[merchant.id]).length > 0 && (
+                          <div className="flex items-center gap-1 mb-2">
+                            <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                            <span className="text-sm font-semibold text-gray-700">
+                              {(Object.values(allMerchantRatings[merchant.id]).reduce((sum, rating) => sum + rating, 0) / Object.values(allMerchantRatings[merchant.id]).length).toFixed(1)}
+                            </span>
+                             <span className="text-xs text-gray-500">({Object.values(allMerchantRatings[merchant.id]).length})</span>
+                          </div>
+                        )}
                         {merchantLatestTrade[merchant.id]?.advertisement && (
                           <div className="mt-2 mb-3">
                             <p className="text-sm text-gray-600 italic flex items-start gap-2 break-words whitespace-pre-line sm:text-sm text-xs">

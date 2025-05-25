@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
-import { MessageSquare, Copy, ShoppingCart, History, DollarSign, ShoppingBag, Store, Coins, Banknote, XCircle } from 'lucide-react';
+import { MessageSquare, Copy, ShoppingCart, History, DollarSign, ShoppingBag, Store, Coins, Banknote, XCircle, Star } from 'lucide-react';
 import { toast } from 'sonner';
 import { db } from '@/lib/firebase';
 import { ref, onValue, push, set, update, remove } from 'firebase/database';
@@ -30,11 +30,15 @@ export default function MerchantShopPage({ params }: { params: { merchantId: str
   const [isLoaning, setIsLoaning] = useState(false);
   const searchParams = useSearchParams();
   const [pendingBuy, setPendingBuy] = useState<any | null>(null);
+  const [ratings, setRatings] = useState<Record<string, number>>({});
+  const [userRating, setUserRating] = useState<number | null>(null);
+  const [hoverRating, setHoverRating] = useState<number>(0);
 
   useEffect(() => {
     const merchantRef = ref(db, `tradeMerchants/${params.merchantId}`);
     const tradesRef = ref(db, 'trade');
     const itemsRef = ref(db, 'tradeItems');
+    const ratingsRef = ref(db, `merchantRatings/${params.merchantId}`);
 
     const unsubscribeMerchant = onValue(merchantRef, (snapshot) => {
       const data = snapshot.val();
@@ -68,12 +72,30 @@ export default function MerchantShopPage({ params }: { params: { merchantId: str
       setItems(itemsList);
     });
 
+    const unsubscribeRatings = onValue(ratingsRef, (snapshot) => {
+      const data = snapshot.val();
+      setRatings(data || {});
+    });
+
+    let unsubscribeUserRating: () => void;
+    if (user) {
+      const userRatingRef = ref(db, `merchantRatings/${params.merchantId}/${user.uid}`);
+      unsubscribeUserRating = onValue(userRatingRef, (snapshot) => {
+        const rating = snapshot.val();
+        setUserRating(rating);
+      });
+    }
+
     return () => {
       unsubscribeMerchant();
       unsubscribeTrades();
       unsubscribeItems();
+      unsubscribeRatings();
+      if (unsubscribeUserRating) {
+        unsubscribeUserRating();
+      }
     };
-  }, [params.merchantId]);
+  }, [params.merchantId, user]);
 
   useEffect(() => {
     const buyId = searchParams.get('buy');
@@ -87,10 +109,8 @@ export default function MerchantShopPage({ params }: { params: { merchantId: str
     }
   }, [searchParams, trades]);
 
-  // Subscribe pending buy confirm ของ user ปัจจุบัน
   useEffect(() => {
-    if (!user) return;
-    // subscribe ทุก trade ของร้านนี้
+    if (!user || !trades.length) return;
     const unsubscribes: (() => void)[] = [];
     trades.forEach(trade => {
       const confirmsRef = ref(db, `trade/${trade.id}/confirms`);
@@ -105,25 +125,44 @@ export default function MerchantShopPage({ params }: { params: { merchantId: str
             createdAt: data[user.uid].confirmedAt,
             status: data[user.uid].status
           });
-        } else {
+        } else if (pendingBuy && pendingBuy.tradeId === trade.id) {
           setPendingBuy(null);
         }
       });
       unsubscribes.push(unsubscribe);
     });
     return () => { unsubscribes.forEach(unsub => unsub()); };
-  }, [user, trades, merchant]);
+  }, [user, trades, merchant, pendingBuy]);
 
-  // ฟังก์ชันยกเลิกการซื้อ
   const handleCancelBuy = async () => {
     if (!pendingBuy || !user) return;
     try {
       const confirmRef = ref(db, `trade/${pendingBuy.tradeId}/confirms/${user.uid}`);
       await remove(confirmRef);
       toast.success('ยกเลิกรายการซื้อแล้ว');
-      setPendingBuy(null);
     } catch (e) {
       toast.error('เกิดข้อผิดพลาดในการยกเลิก');
+    }
+  };
+
+  const averageRating = Object.values(ratings).length > 0
+    ? (Object.values(ratings).reduce((sum, rating) => sum + rating, 0) / Object.values(ratings).length).toFixed(1)
+    : 'ยังไม่มีคะแนน';
+
+  const handleRating = async (star: number) => {
+    if (!user) {
+      toast.info('กรุณาเข้าสู่ระบบเพื่อให้คะแนน');
+      return;
+    }
+    if (!merchant) return;
+
+    try {
+      const userRatingRef = ref(db, `merchantRatings/${params.merchantId}/${user.uid}`);
+      await set(userRatingRef, star);
+      toast.success(`ให้คะแนน ${star} ดาวแล้ว`);
+    } catch (error) {
+      console.error('Error setting rating:', error);
+      toast.error('เกิดข้อผิดพลาดในการให้คะแนน');
     }
   };
 
@@ -141,7 +180,6 @@ export default function MerchantShopPage({ params }: { params: { merchantId: str
   return (
     <div className="min-h-screen bg-gradient-to-b from-pink-50 to-purple-50">
       <div className="container mx-auto px-4 py-8">
-        {/* Merchant Info Section */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -152,9 +190,33 @@ export default function MerchantShopPage({ params }: { params: { merchantId: str
               <span className="inline-flex items-center justify-center bg-[#5865F2] text-white rounded-full w-12 h-12 shadow-md">
                 <FaDiscord className="w-7 h-7" />
               </span>
-              <h1 className="text-3xl font-extrabold text-[#5865F2] drop-shadow-sm tracking-wide">
-                {merchant.discordName || merchant.discord_name || merchant.discord || merchant.name || merchant.displayName || 'ไม่พบชื่อ Discord'}
-              </h1>
+              <div className="flex flex-col">
+                <h1 className="text-3xl font-extrabold text-[#5865F2] drop-shadow-sm tracking-wide">
+                  {merchant.discordName || merchant.discord_name || merchant.discord || merchant.name || merchant.displayName || 'ไม่พบชื่อ Discord'}
+                </h1>
+                <div className="flex items-center gap-1 mt-1">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Star
+                      key={star}
+                      size={20}
+                      className={cn(
+                        'cursor-pointer transition-colors duration-200',
+                        (hoverRating || userRating || 0) >= star ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300 fill-gray-300/50',
+                        !user && 'cursor-not-allowed opacity-75'
+                      )}
+                      onMouseEnter={() => user && setHoverRating(star)}
+                      onMouseLeave={() => user && setHoverRating(0)}
+                      onClick={() => user && handleRating(star)}
+                    />
+                  ))}
+                  <span className="ml-2 text-lg font-semibold text-gray-700">
+                    {averageRating}
+                  </span>
+                  {Object.values(ratings).length > 0 && (
+                     <span className="text-sm text-gray-500">({Object.values(ratings).length} คะแนน)</span>
+                  )}
+                </div>
+              </div>
             </div>
             <div className="flex gap-2 mt-4 md:mt-0">
               <a
@@ -192,7 +254,6 @@ export default function MerchantShopPage({ params }: { params: { merchantId: str
           </div>
         </motion.div>
 
-        {/* Gold ที่ขาย */}
         <div className="mb-8">
           <div className="flex items-center gap-2 mb-4">
             <Coins className="w-6 h-6 text-yellow-500" />
@@ -236,7 +297,6 @@ export default function MerchantShopPage({ params }: { params: { merchantId: str
           </div>
         </div>
 
-        {/* ไอเทมที่ขาย */}
         <div>
           <div className="flex items-center gap-2 mb-4">
             <ShoppingBag className="w-6 h-6 text-purple-500" />
@@ -246,7 +306,6 @@ export default function MerchantShopPage({ params }: { params: { merchantId: str
             {items.length > 0 ? items
               .slice()
               .sort((a, b) => {
-                // First sort by status
                 const statusOrder: Record<string, number> = {
                   'available': 0,
                   'sold': 1,
@@ -261,7 +320,6 @@ export default function MerchantShopPage({ params }: { params: { merchantId: str
                   return statusA - statusB;
                 }
                 
-                // If status is the same, sort by time (newest first)
                 return b.createdAt - a.createdAt;
               })
               .map((item, index) => (
@@ -283,7 +341,6 @@ export default function MerchantShopPage({ params }: { params: { merchantId: str
                   <ShoppingBag className="w-5 h-5 text-purple-500 flex-shrink-0" />
                   <h3 className="text-lg font-semibold text-blue-600 flex-1">{item.itemName}</h3>
                   <span className={`px-2 py-1 text-sm rounded-full ${item.status === 'available' ? 'bg-green-100 text-green-700' : item.status === 'sold' ? 'bg-gray-100 text-gray-600' : item.status === 'queue_full' ? 'bg-yellow-100 text-yellow-700' : item.status === 'sold_out' ? 'bg-red-100 text-red-700' : 'bg-pink-100 text-pink-600'} flex-shrink-0`}>{item.price}G</span>
-                  {/* Badge สถานะ */}
                   {item.status === 'available' && (
                     <span className="px-2 py-1 text-sm rounded-full bg-green-100 text-green-700 font-bold flex-shrink-0">พร้อมขาย</span>
                   )}
@@ -321,7 +378,6 @@ export default function MerchantShopPage({ params }: { params: { merchantId: str
           </div>
         </div>
 
-        {/* Dialog popup ยืนยันการซื้อ Gold */}
         <Dialog open={showBuyDialog} onOpenChange={setShowBuyDialog}>
           <DialogContent className="bg-white/90 rounded-2xl shadow-2xl border border-pink-100 max-w-md">
             <DialogHeader>
@@ -382,7 +438,6 @@ export default function MerchantShopPage({ params }: { params: { merchantId: str
                   }
                   setIsBuying(true);
                   try {
-                    // Create confirmation
                     const confirmsRef = ref(db, `trade/${buyingTrade.id}/confirms`);
                     const newConfirmRef = push(confirmsRef);
                     await set(newConfirmRef, {
@@ -394,7 +449,6 @@ export default function MerchantShopPage({ params }: { params: { merchantId: str
                       buyerDiscord: discordName || ''
                     });
 
-                    // Create feed notification for merchant
                     await FeedService.addTradeFeed(
                       buyingTrade.merchantId,
                       discordName || '',
@@ -426,7 +480,6 @@ export default function MerchantShopPage({ params }: { params: { merchantId: str
           </DialogContent>
         </Dialog>
 
-        {/* Dialog popup ยืนยันการกู้ยืม Gold */}
         <Dialog open={showLoanDialog} onOpenChange={setShowLoanDialog}>
           <DialogContent className="bg-white/90 rounded-2xl shadow-2xl border border-yellow-100 max-w-md">
             <DialogHeader>
@@ -521,7 +574,6 @@ export default function MerchantShopPage({ params }: { params: { merchantId: str
           </DialogContent>
         </Dialog>
 
-        {/* Overlay รายการซื้อที่รอยืนยัน */}
         {pendingBuy && (
           <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 bg-yellow-50 border border-yellow-300 rounded-xl shadow-lg px-6 py-4 flex items-center gap-4 animate-fade-in">
             <Coins className="w-7 h-7 text-yellow-400" />
