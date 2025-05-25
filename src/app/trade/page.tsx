@@ -462,33 +462,33 @@ const TradeDashboardPage = () => {
                           initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: index * 0.05 }}
-                          className={`bg-white rounded-lg p-3 shadow-md border-2 ${item.status === 'sold' ? 'border-gray-200' : 'border-pink-200'} hover:shadow-lg transition-all h-full cursor-pointer`}
+                          className={`bg-white rounded-lg p-3 shadow-md border-2 ${item.status === 'sold' ? 'border-gray-200' : 'border-pink-200'} hover:shadow-lg transition-all flex flex-col cursor-pointer`}
                         >
                           <div className="flex items-center gap-1 mb-1">
-                            <ShoppingBag className="w-4 h-4 text-emerald-500" />
+                            <ShoppingBag className="w-4 h-4 text-emerald-500 flex-shrink-0" />
                             <h3 className="text-sm font-bold text-emerald-600 flex-1 line-clamp-2 break-all">{item.itemName}</h3>
-                            <span className={`px-2 py-0.5 text-xs rounded-full ${item.status === 'available' ? 'bg-green-100 text-green-700' : item.status === 'sold' ? 'bg-gray-100 text-gray-600' : item.status === 'queue_full' ? 'bg-yellow-100 text-yellow-700' : item.status === 'sold_out' ? 'bg-red-100 text-red-700' : 'bg-pink-100 text-pink-600'} font-bold shadow`}>
+                            <span className={`px-2 py-0.5 text-xs rounded-full ${item.status === 'available' ? 'bg-green-100 text-green-700' : item.status === 'sold' ? 'bg-gray-100 text-gray-600' : item.status === 'queue_full' ? 'bg-yellow-100 text-yellow-700' : item.status === 'sold_out' ? 'bg-red-100 text-red-700' : 'bg-pink-100 text-pink-600'} font-bold shadow flex-shrink-0`}>
                               {item.price}G
                             </span>
                             {/* Badge สถานะ */}
                             {item.status === 'available' && (
-                              <span className="px-2 py-0.5 text-xs rounded-full bg-green-100 text-green-700 font-bold shadow">พร้อมขาย</span>
+                              <span className="px-2 py-0.5 text-xs rounded-full bg-green-100 text-green-700 font-bold shadow flex-shrink-0">พร้อมขาย</span>
                             )}
                             {item.status === 'sold' && (
-                              <span className="px-2 py-0.5 text-xs rounded-full bg-gray-200 text-gray-800 font-bold shadow">ติดจอง</span>
+                              <span className="px-2 py-0.5 text-xs rounded-full bg-gray-200 text-gray-800 font-bold shadow flex-shrink-0">ติดจอง</span>
                             )}
                             {item.status === 'queue_full' && (
-                              <span className="px-2 py-0.5 text-xs rounded-full bg-yellow-100 text-yellow-700 font-bold shadow">คิวเต็ม</span>
+                              <span className="px-2 py-0.5 text-xs rounded-full bg-yellow-100 text-yellow-700 font-bold shadow flex-shrink-0">คิวเต็ม</span>
                             )}
                             {item.status === 'sold_out' && (
-                              <span className="px-2 py-0.5 text-xs rounded-full bg-red-100 text-red-700 font-bold shadow">ขายแล้ว</span>
+                              <span className="px-2 py-0.5 text-xs rounded-full bg-red-100 text-red-700 font-bold shadow flex-shrink-0">ขายแล้ว</span>
                             )}
                             {item.createdAt && Date.now() - item.createdAt < 1000 * 60 * 60 * 3 && (
-                              <span className="ml-2 px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700 text-xs font-bold">ใหม่</span>
+                              <span className="ml-2 px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700 text-xs font-bold flex-shrink-0">ใหม่</span>
                             )}
                           </div>
-                          <p className="text-gray-600 whitespace-pre-line break-words mb-2" style={{ minHeight: '2.5em', fontSize: '13px' }}>{item.description}</p>
-                          <div className="flex justify-end">
+                          <p className="text-gray-600 whitespace-pre-line break-words mb-2 line-clamp-5" style={{ fontSize: '13px' }}>{item.description}</p>
+                          <div className="flex justify-end mt-auto">
                             <a
                               href={`https://discord.com/users/${merchants.find(m => m.id === item.merchantId)?.discordId}`}
                               target="_blank"
