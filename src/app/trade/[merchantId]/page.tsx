@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
+import { useUsers } from '@/hooks/useUsers';
 import { cn } from '@/lib/utils';
 import { MessageSquare, Copy, ShoppingCart, History, DollarSign, ShoppingBag, Store, Coins, Banknote, XCircle, Star } from 'lucide-react';
 import { toast } from 'sonner';
@@ -16,6 +17,7 @@ import { FeedService } from '@/lib/feedService';
 
 export default function MerchantShopPage({ params }: { params: { merchantId: string } }) {
   const { user, discordName } = useAuth();
+  const { users } = useUsers();
   const [merchant, setMerchant] = useState<any>(null);
   const [trades, setTrades] = useState<any[]>([]);
   const [items, setItems] = useState<any[]>([]);
@@ -188,7 +190,11 @@ export default function MerchantShopPage({ params }: { params: { merchantId: str
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div className="flex items-center gap-4">
               <span className="inline-flex items-center justify-center bg-[#5865F2] text-white rounded-full w-12 h-12 shadow-md">
-                <FaDiscord className="w-7 h-7" />
+                {merchant?.photoURL ? (
+                  <img src={merchant.photoURL} alt={merchant.discordName || 'Merchant'} className="w-12 h-12 rounded-full" />
+                ) : (
+                  <FaDiscord className="w-7 h-7" />
+                )}
               </span>
               <div className="flex flex-col">
                 <h1 className="text-3xl font-extrabold text-[#5865F2] drop-shadow-sm tracking-wide">
