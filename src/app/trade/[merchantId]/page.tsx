@@ -246,8 +246,22 @@ export default function MerchantShopPage({ params }: { params: { merchantId: str
             {items.length > 0 ? items
               .slice()
               .sort((a, b) => {
-                if (a.status === 'sold' && b.status !== 'sold') return 1;
-                if (a.status !== 'sold' && b.status === 'sold') return -1;
+                // First sort by status
+                const statusOrder: Record<string, number> = {
+                  'available': 0,
+                  'sold': 1,
+                  'queue_full': 2,
+                  'sold_out': 3
+                };
+                
+                const statusA = statusOrder[a.status as keyof typeof statusOrder] || 0;
+                const statusB = statusOrder[b.status as keyof typeof statusOrder] || 0;
+                
+                if (statusA !== statusB) {
+                  return statusA - statusB;
+                }
+                
+                // If status is the same, sort by time (newest first)
                 return b.createdAt - a.createdAt;
               })
               .map((item, index) => (
@@ -258,25 +272,29 @@ export default function MerchantShopPage({ params }: { params: { merchantId: str
                 transition={{ delay: index * 0.1 }}
                 className={cn(
                   "bg-white rounded-xl p-6 shadow-sm border flex flex-col gap-2",
-                  item.status === 'sold' ? 'border-gray-200' : 'border-pink-100'
+                  item.status === 'available' ? 'border-green-200' :
+                  item.status === 'sold' ? 'border-gray-200' :
+                  item.status === 'queue_full' ? 'border-yellow-200' :
+                  item.status === 'sold_out' ? 'border-red-200' :
+                  'border-pink-100'
                 )}
               >
                 <div className="flex items-center gap-2 mb-2">
-                  <ShoppingBag className="w-5 h-5 text-pink-400" />
-                  <h3 className="text-lg font-semibold text-green-600 flex-1">{item.itemName}</h3>
-                  <span className={`px-2 py-1 text-sm rounded-full ${item.status === 'available' ? 'bg-green-100 text-green-700' : item.status === 'sold' ? 'bg-gray-100 text-gray-600' : item.status === 'queue_full' ? 'bg-yellow-100 text-yellow-700' : item.status === 'sold_out' ? 'bg-red-100 text-red-700' : 'bg-pink-100 text-pink-600'}`}>{item.price}G</span>
+                  <ShoppingBag className="w-5 h-5 text-purple-500 flex-shrink-0" />
+                  <h3 className="text-lg font-semibold text-blue-600 flex-1">{item.itemName}</h3>
+                  <span className={`px-2 py-1 text-sm rounded-full ${item.status === 'available' ? 'bg-green-100 text-green-700' : item.status === 'sold' ? 'bg-gray-100 text-gray-600' : item.status === 'queue_full' ? 'bg-yellow-100 text-yellow-700' : item.status === 'sold_out' ? 'bg-red-100 text-red-700' : 'bg-pink-100 text-pink-600'} flex-shrink-0`}>{item.price}G</span>
                   {/* Badge สถานะ */}
                   {item.status === 'available' && (
-                    <span className="px-2 py-1 text-sm rounded-full bg-green-100 text-green-700 font-bold">พร้อมขาย</span>
+                    <span className="px-2 py-1 text-sm rounded-full bg-green-100 text-green-700 font-bold flex-shrink-0">พร้อมขาย</span>
                   )}
                   {item.status === 'sold' && (
-                    <span className="px-2 py-1 text-sm rounded-full bg-gray-200 text-gray-800 font-bold">ติดจอง</span>
+                    <span className="px-2 py-1 text-sm rounded-full bg-gray-200 text-gray-800 font-bold flex-shrink-0">ติดจอง</span>
                   )}
                   {item.status === 'queue_full' && (
-                    <span className="px-2 py-1 text-sm rounded-full bg-yellow-100 text-yellow-700 font-bold">คิวเต็ม</span>
+                    <span className="px-2 py-1 text-sm rounded-full bg-yellow-100 text-yellow-700 font-bold flex-shrink-0">คิวเต็ม</span>
                   )}
                   {item.status === 'sold_out' && (
-                    <span className="px-2 py-1 text-sm rounded-full bg-red-100 text-red-700 font-bold">ขายแล้ว</span>
+                    <span className="px-2 py-1 text-sm rounded-full bg-red-100 text-red-700 font-bold flex-shrink-0">ขายแล้ว</span>
                   )}
                 </div>
                 {item.description && (
