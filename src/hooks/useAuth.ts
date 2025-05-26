@@ -60,10 +60,10 @@ const setupAuthListener = () => {
         // สร้างข้อมูล User เริ่มต้น
         await GuildService.initializeUser(user.uid, user);
         
-        // ตรวจสอบและอัปเดต photoURL ใน Database หากไม่มี
+        // อัปเดต photoURL ใน Database ทุกครั้งที่มีการเปลี่ยนแปลง
         const userDbRef = ref(db, `users/${user.uid}`);
         const userSnapshot = await get(userDbRef);
-        if (user.photoURL && (!userSnapshot.exists() || !userSnapshot.val().photoURL)) {
+        if (user.photoURL) {
           try {
             await update(userDbRef, { photoURL: user.photoURL });
             console.log(`Updated photoURL for user ${user.uid}`);

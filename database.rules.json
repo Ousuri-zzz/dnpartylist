@@ -215,26 +215,16 @@
     },
     "tournaments": {
       ".read": "auth != null",
+      ".write": "auth != null",
       "$tournamentId": {
-        ".write": "auth != null && ( (!data.exists() && newData.exists() && newData.child('ownerUid').val() === auth.uid) || root.child('guild/leaders/' + auth.uid).val() === true || (data.child('ownerUid').val() === auth.uid) )",
-        ".validate": "newData.hasChildren(['name', 'status', 'ownerUid', 'createdAt', 'participants', 'maxParticipants', 'description'])",
-        "name": { ".validate": "newData.isString() && newData.val().length > 0" },
-        "description": { ".validate": "newData.isString()" },
-        "status": { ".validate": "newData.isString() && (newData.val() === 'pending' || newData.val() === 'active' || newData.val() === 'ended')" },
-        "ownerUid": { ".validate": "newData.isString() && newData.val() === auth.uid" },
-        "createdAt": { ".validate": "newData.isNumber()" },
+        ".read": "auth != null",
+        ".write": "auth != null",
         "participants": {
+          ".read": "auth != null",
+          ".write": "auth != null",
           "$participantId": {
-            ".validate": "newData.hasChildren(['uid', 'characterId', 'characterName', 'class'])",
-            "uid": { ".validate": "newData.isString()" },
-            "characterId": { ".validate": "newData.isString()" },
-            "characterName": { ".validate": "newData.isString()" },
-            "class": { ".validate": "newData.isString()" }
+            ".validate": "true"
           }
-        },
-        "maxParticipants": { ".validate": "newData.isNumber() && newData.val() > 0" },
-        "$other": {
-          ".validate": "true"
         }
       }
     }

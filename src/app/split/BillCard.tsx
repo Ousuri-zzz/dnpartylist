@@ -579,7 +579,7 @@ export function BillCard({ bill }: BillCardProps) {
             className="rounded-full bg-emerald-500 border border-emerald-600 px-3 py-1.5 text-sm text-white font-medium shadow-sm hover:bg-emerald-600 transition disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-emerald-200 flex items-center gap-1 w-full max-w-[140px] mx-auto sm:w-auto sm:max-w-none"
           >
             <CheckCircleIcon className="w-4 h-4 text-white" />
-            {saving ? 'กำลังบันทึก...' : 'บันทึก'}
+            {saving ? 'กำลังบันทึก...' : 'อัพเดท'}
           </button>
         </div>
       )}
