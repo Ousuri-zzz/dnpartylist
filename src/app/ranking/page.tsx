@@ -44,56 +44,118 @@ interface RankedCharacter extends Character {
   rank: number;
 }
 
-const weightConfig = {
-  atk: 1.0,       // ตรงกับดาเมจจริง
-  hp: 0.1,        // คงเดิมไม่ให้ล้น
-  def: 50,        // เพิ่มพอประมาณเพราะหาของง่าย
-  cri: 75,        // คริหาของยากขึ้น
-  ele: 100,       // ธาตุหาของยากมากขึ้น
-  fd: 150         // FD หายากสุดและส่งผลสูงมาก
+interface RoleConstants {
+  baseScore: number;    // คะแนนพื้นฐานตามบทบาท
+  statWeights: {        // น้ำหนักสเตตัส (ปรับตามความยากในการสะสม)
+    atk?: number;
+    hp?: number;
+    fd?: number;
+    cri?: number;
+    ele?: number;
+    pdef?: number;
+    mdef?: number;
+  };
+  // เพิ่มตัวคูณสำหรับลดการเติบโตของสเตตัส
+  statScaling?: {
+    hp?: number;    // ใช้เลขชี้กำลังลดการเติบโตของ HP
+    atk?: number;   // ใช้เลขชี้กำลังลดการเติบโตของ ATK
+    def?: number;   // เพิ่มการเติบโตช้าของ DEF
+  };
+  skillMultiplier: number;
+}
+
+const ROLE_BALANCE: Record<string, RoleConstants> = {
+  // DPS อาชีพ
+  ElementalLord: {
+    baseScore: 3000,
+    statWeights: { atk: 1.1, fd: 1.5, ele: 1.3, cri: 1.3 },
+    statScaling: { hp: 0.5, atk: 0.9 },
+    skillMultiplier: 1.1
+  },
+  ForceUser: {
+    baseScore: 3000,
+    statWeights: { atk: 1.1, fd: 1.5, ele: 1.3, cri: 1.3 },
+    statScaling: { hp: 0.5, atk: 0.9 },
+    skillMultiplier: 1.05
+  },
+  SwordMaster: {
+    baseScore: 2800,
+    statWeights: { atk: 1.2, fd: 1.4, cri: 1.5 },
+    statScaling: { hp: 0.5, atk: 0.9 },
+    skillMultiplier: 1.25
+  },
+  Mercenary: {
+    baseScore: 2700,
+    statWeights: { atk: 1.2, hp: 0.9, fd: 1.1, cri: 1.0 },
+    statScaling: { hp: 0.6, atk: 0.9 },
+    skillMultiplier: 1.25
+  },
+  Bowmaster: {
+    baseScore: 2700,
+    statWeights: { atk: 1.2, hp: 0.9, fd: 1.1, cri: 1.0 },
+    statScaling: { hp: 0.6, atk: 0.9 },
+    skillMultiplier: 1.15
+  },
+  Acrobat: {
+    baseScore: 2700,
+    statWeights: { atk: 1.2, hp: 0.9, fd: 1.1, cri: 1.0 },
+    statScaling: { hp: 0.6, atk: 0.9 },
+    skillMultiplier: 1.15
+  },
+
+  // Tank/Support
+  Paladin: {
+    baseScore: 2750,
+    statWeights: { 
+      hp: 0.6,           
+      pdef: 0.8,         
+      mdef: 0.8,         
+      fd: 1.0,           
+      atk: 1.1           
+    },
+    statScaling: { 
+      hp: 0.9,           
+      atk: 0.9,          
+      def: 0.95          
+    },
+    skillMultiplier: 1.15
+  },
+  Priest: {
+    baseScore: 2700,
+    statWeights: { 
+      hp: 0.5,           
+      pdef: 0.7,         
+      mdef: 0.7,         
+      atk: 1.1,           
+      ele: 1.1           
+    },
+    statScaling: { 
+      hp: 0.9,           
+      atk: 0.9,          
+      def: 0.95          
+    },
+    skillMultiplier: 1.05
+  },
+
+  // อาชีพสมดุล
+  Engineer: {
+    baseScore: 2700,
+    statWeights: { atk: 1.2, hp: 0.9, fd: 1.1, cri: 1.0 },
+    statScaling: { hp: 0.6, atk: 0.9 },
+    skillMultiplier: 1.15
+  },
+  Alchemist: {
+    baseScore: 2700,
+    statWeights: { atk: 1.1, hp: 0.9, fd: 1.1, cri: 1.0 },
+    statScaling: { hp: 0.6, atk: 0.9 },
+    skillMultiplier: 1.05
+  }
 };
 
-// เพิ่ม config สำหรับน้ำหนัก ATK ตามอาชีพ
-const atkWeightByClass = {
-  "Sword Master": 1.2,    // อาชีพที่เน้น ATK
-  "Mercenary": 1.2,
-  "Bowmaster": 1.2,
-  "Acrobat": 1.4,
-  "Force User": 0.8,      // อาชีพที่เน้น ELE
-  "Elemental Lord": 0.8,
-  "Paladin": 1.0,         // อาชีพที่สมดุล
-  "Priest": 0.8,
-  "Engineer": 1.0,
-  "Alchemist": 1.0
-} as const;
-
-// เพิ่ม config สำหรับน้ำหนัก DEF ตามอาชีพ
-const defWeightByClass = {
-  "Sword Master": 1.0,
-  "Mercenary": 1.0,
-  "Bowmaster": 1.0,
-  "Acrobat": 1.2,         // Acrobat หา DEF ยากกว่า
-  "Force User": 1.0,
-  "Elemental Lord": 1.0,
-  "Paladin": 1.0,
-  "Priest": 1.0,
-  "Engineer": 1.0,
-  "Alchemist": 1.0
-} as const;
-
-// เพิ่ม config สำหรับน้ำหนัก CRI ตามอาชีพ
-const criWeightByClass = {
-  "Sword Master": 1.0,
-  "Mercenary": 1.0,
-  "Bowmaster": 1.0,
-  "Acrobat": 1.0,
-  "Force User": 1.0,
-  "Elemental Lord": 1.0,
-  "Paladin": 1.0,         // Paladin ไม่ค่อยเน้น CRI
-  "Priest": 1.0,          // Priest ไม่ค่อยเน้น CRI
-  "Engineer": 1.0,
-  "Alchemist": 1.0
-} as const;
+// Helper function to format numbers with commas
+const formatNumberWithComma = (num: number): string => {
+  return num.toLocaleString('en-US');
+};
 
 const formatNumber = (num: number): string => {
   if (num >= 1000000) {
@@ -132,6 +194,39 @@ function sortCharacters(characters: RankedCharacter[], stat: SortType, direction
   });
 }
 
+const calculateScore = (character: Character): number => {
+  const stats = character.stats;
+  // Cap FD ตามเลเวล
+  const fdCap = character.level && character.level >= 50 ? 1290 : 850;
+  const fdPercent = Math.min(stats.fd, fdCap) / fdCap;
+
+  // Critical calculation (cap cri at 89%)
+  const critChance = Math.min((stats.cri || 0) / 100, 0.89);
+  const critDmg = critChance; // ใช้ cri เป็น crit damage เช่นเดียวกับ crit rate
+  const critMultiplier = critDmg * critChance + (1 - critChance);
+
+  // Get role balance for this character
+  const roleBalance = ROLE_BALANCE[character.class] || { skillMultiplier: 1.0 };
+
+  // Damage output formula (Dragon Nest style + skill multiplier)
+  const effectiveAtk =
+    (stats.atk || 0) *
+    (1 + fdPercent) *
+    (1 + (stats.ele || 0) / 100) *
+    critMultiplier *
+    (roleBalance.skillMultiplier || 1.0);
+
+  // Survival bonus (เพิ่มน้ำหนัก HP ลดน้ำหนัก DEF ทุกอาชีพ)
+  const hpWeight = 0.4;
+  const defWeight = 0.1;
+  const survivalScore =
+    ((stats.hp || 0) / 1000) * hpWeight +
+    (((stats.pdef || 0) + (stats.mdef || 0)) / 2) * defWeight;
+
+  // คะแนนรวม (ขยายผลลัพธ์ให้เป็นหลักพัน-หมื่น)
+  return Math.round((effectiveAtk / 10 + survivalScore * 10) * 10);
+};
+
 export default function RankingPage() {
   const { characters, loading: charactersLoading } = useAllCharacters();
   const { user } = useAuth();
@@ -159,23 +254,6 @@ export default function RankingPage() {
       setSelectedStat(stat);
       setSortDirection('desc');
     }
-  };
-
-  const calculateScore = (character: Character): number => {
-    const stats = character.stats;
-    const averageDef = ((stats.pdef || 0) + (stats.mdef || 0)) / 2;
-    const atkWeight = atkWeightByClass[character.class] || 1.0;
-    const defWeight = defWeightByClass[character.class] || 1.0;
-    const criWeight = criWeightByClass[character.class] || 1.0;
-    
-    return (
-      (stats.atk || 0) * atkWeight +
-      (stats.hp || 0) * weightConfig.hp +
-      (averageDef) * weightConfig.def * defWeight +
-      (stats.cri || 0) * weightConfig.cri * criWeight +
-      (stats.ele || 0) * weightConfig.ele +
-      (stats.fd || 0) * weightConfig.fd
-    );
   };
 
   // Filter and sort characters
@@ -547,7 +625,7 @@ export default function RankingPage() {
                         <td className="px-4 py-3 text-sm text-purple-500 font-medium group-hover:text-purple-600 whitespace-nowrap">{character.stats.ele}%</td>
                         <td className="px-4 py-3 text-sm text-orange-500 font-medium group-hover:text-orange-600 whitespace-nowrap">{character.stats.fd}%</td>
                         <td className="px-4 py-3 text-sm text-green-500 font-medium group-hover:text-green-600 whitespace-nowrap">
-                          {formatNumber(character.score)}
+                          {formatNumberWithComma(character.score)}
                         </td>
                       </tr>
                     ))}
