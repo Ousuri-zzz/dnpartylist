@@ -60,57 +60,54 @@ interface RoleConstants {
     atk?: number;   // ใช้เลขชี้กำลังลดการเติบโตของ ATK
     def?: number;   // เพิ่มการเติบโตช้าของ DEF
   };
-  skillMultiplier: number;
+  skillMultiplier?: number; // ทำให้เป็น optional
 }
 
 const ROLE_BALANCE: Record<string, RoleConstants> = {
   // DPS อาชีพ
   ElementalLord: {
     statWeights: { atk: 1.1, fd: 1.5, ele: 1.3, cri: 1.3 },
-    statScaling: { hp: 0.5, atk: 0.9 },
-    skillMultiplier: 1.1
+    statScaling: { hp: 0.5, atk: 0.9 }
   },
   ForceUser: {
     statWeights: { atk: 1.1, fd: 1.5, ele: 1.3, cri: 1.3 },
-    statScaling: { hp: 0.5, atk: 0.9 },
-    skillMultiplier: 1.05
+    statScaling: { hp: 0.5, atk: 0.9 }
   },
   SwordMaster: {
-    statWeights: { atk: 1.2, fd: 1.4, cri: 1.5 },
-    statScaling: { hp: 0.5, atk: 0.9 },
-    skillMultiplier: 1.25
+    statWeights: { atk: 1.35, fd: 1.25, cri: 1.2, hp: 0.2 },
+    statScaling: { hp: 0.5, atk: 0.95 }
+  },
+  "Sword Master": {
+    statWeights: { atk: 1.35, fd: 1.25, cri: 1.2, hp: 0.2 },
+    statScaling: { hp: 0.5, atk: 0.95 }
   },
   Mercenary: {
     statWeights: { atk: 1.2, hp: 0.9, fd: 1.1, cri: 1.0 },
-    statScaling: { hp: 0.6, atk: 0.9 },
-    skillMultiplier: 1.25
+    statScaling: { hp: 0.6, atk: 0.9 }
   },
   Bowmaster: {
     statWeights: { atk: 1.2, hp: 0.9, fd: 1.1, cri: 1.0 },
-    statScaling: { hp: 0.6, atk: 0.9 },
-    skillMultiplier: 1.15
+    statScaling: { hp: 0.6, atk: 0.9 }
   },
   Acrobat: {
     statWeights: { atk: 1.2, hp: 0.9, fd: 1.1, cri: 1.0 },
-    statScaling: { hp: 0.6, atk: 0.9 },
-    skillMultiplier: 1.15
+    statScaling: { hp: 0.6, atk: 0.9 }
   },
 
   // Tank/Support
   Paladin: {
     statWeights: { 
-      hp: 0.6,           
-      pdef: 0.8,         
-      mdef: 0.8,         
-      fd: 1.0,           
-      atk: 1.1           
+      hp: 0.8,           
+      pdef: 1.2,         
+      mdef: 1.2,         
+      fd: 1.1,           
+      atk: 1.2           
     },
     statScaling: { 
-      hp: 0.9,           
-      atk: 0.9,          
-      def: 0.95          
-    },
-    skillMultiplier: 1.15
+      hp: 0.95,          
+      atk: 0.95,         
+      def: 1.0           
+    }
   },
   Priest: {
     statWeights: { 
@@ -124,20 +121,17 @@ const ROLE_BALANCE: Record<string, RoleConstants> = {
       hp: 0.9,           
       atk: 0.9,          
       def: 0.95          
-    },
-    skillMultiplier: 1.05
+    }
   },
 
   // อาชีพสมดุล
   Engineer: {
     statWeights: { atk: 1.2, hp: 0.9, fd: 1.1, cri: 1.0 },
-    statScaling: { hp: 0.6, atk: 0.9 },
-    skillMultiplier: 1.15
+    statScaling: { hp: 0.6, atk: 0.9 }
   },
   Alchemist: {
     statWeights: { atk: 1.1, hp: 0.9, fd: 1.1, cri: 1.0 },
-    statScaling: { hp: 0.6, atk: 0.9 },
-    skillMultiplier: 1.05
+    statScaling: { hp: 0.6, atk: 0.9 }
   }
 };
 
