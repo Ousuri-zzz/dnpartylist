@@ -185,28 +185,25 @@ function sortCharacters(characters: RankedCharacter[], stat: SortType, direction
 
 const calculateScore = (character: Character): number => {
   const stats = character.stats;
+  const roleWeights = ROLE_BALANCE[character.class]?.statWeights || {};
   // ไม่ต้อง cap FD
-  const fdPercent = (stats.fd || 0) / 100;
+  const fdPercent = ((stats.fd || 0) * (roleWeights.fd ?? 1.0)) / 100;
 
   // ไม่ต้อง cap CRI
-  const critChance = (stats.cri || 0) / 100;
-  const critDmg = critChance; // ใช้ cri เป็น crit damage เช่นเดียวกับ crit rate
+  const critChance = ((stats.cri || 0) * (roleWeights.cri ?? 1.0)) / 100;
+  const critDmg = critChance;
   const critMultiplier = critDmg * critChance + (1 - critChance);
 
-  // Get role balance for this character
-  const roleBalance = ROLE_BALANCE[character.class] || { skillMultiplier: 1.0 };
-
-  // Damage output formula (Dragon Nest style + skill multiplier)
+  // Damage output formula (ใช้ statWeights แทน skillMultiplier)
   const effectiveAtk =
-    (stats.atk || 0) *
+    (stats.atk || 0) * (roleWeights.atk ?? 1.0) *
     (1 + fdPercent) *
-    (1 + (stats.ele || 0) / 100) *
-    critMultiplier *
-    (roleBalance.skillMultiplier || 1.0);
+    (1 + ((stats.ele || 0) * (roleWeights.ele ?? 1.0)) / 100) *
+    critMultiplier;
 
-  // Survival bonus (บาลานซ์มากขึ้น)
-  const hpWeight = 1.0;
-  const defWeight = 0.25;
+  // Survival bonus (บาลานซ์มากขึ้น, ใช้ statWeights)
+  const hpWeight = roleWeights.hp ?? 1.0;
+  const defWeight = ((roleWeights.pdef ?? 1.0) + (roleWeights.mdef ?? 1.0)) / 2;
   const survivalScore =
     ((stats.hp || 0) / 1000) * hpWeight +
     (((stats.pdef || 0) + (stats.mdef || 0)) / 2) * defWeight;
@@ -214,7 +211,7 @@ const calculateScore = (character: Character): number => {
   // คะแนนรวม (บาลานซ์ damage/survival)
   const damagePart = effectiveAtk / 10;
   const survivalPart = survivalScore * 10;
-  return Math.round((damagePart * 0.65 + survivalPart * 0.35) * 30);
+  return Math.round((damagePart * 0.6 + survivalPart * 0.4) * 30);
 };
 
 export default function RankingPage() {
