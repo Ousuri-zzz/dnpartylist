@@ -66,12 +66,20 @@ interface RoleConstants {
 const ROLE_BALANCE: Record<string, RoleConstants> = {
   // DPS อาชีพ
   ElementalLord: {
-    statWeights: { atk: 1.1, fd: 1.5, ele: 1.3, cri: 1.3 },
-    statScaling: { hp: 0.5, atk: 0.9 }
+    statWeights: { atk: 1.0, fd: 1.25, ele: 1.0, cri: 1.3 },
+    statScaling: { hp: 0.55, atk: 0.9 }
+  },
+  "Elemental Lord": {
+    statWeights: { atk: 1.0, fd: 1.25, ele: 1.0, cri: 1.3 },
+    statScaling: { hp: 0.55, atk: 0.9 }
   },
   ForceUser: {
-    statWeights: { atk: 1.1, fd: 1.5, ele: 1.3, cri: 1.3 },
-    statScaling: { hp: 0.5, atk: 0.9 }
+    statWeights: { atk: 1.15, fd: 1.25, ele: 1.0, cri: 1.3 },
+    statScaling: { hp: 0.55, atk: 0.9 }
+  },
+  "Force User": {
+    statWeights: { atk: 1.15, fd: 1.25, ele: 1.0, cri: 1.3 },
+    statScaling: { hp: 0.55, atk: 0.9 }
   },
   SwordMaster: {
     statWeights: { atk: 1.35, fd: 1.25, cri: 1.2, hp: 0.2 },
