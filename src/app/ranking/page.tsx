@@ -45,7 +45,6 @@ interface RankedCharacter extends Character {
 }
 
 interface RoleConstants {
-  baseScore: number;    // คะแนนพื้นฐานตามบทบาท
   statWeights: {        // น้ำหนักสเตตัส (ปรับตามความยากในการสะสม)
     atk?: number;
     hp?: number;
@@ -67,37 +66,31 @@ interface RoleConstants {
 const ROLE_BALANCE: Record<string, RoleConstants> = {
   // DPS อาชีพ
   ElementalLord: {
-    baseScore: 3000,
     statWeights: { atk: 1.1, fd: 1.5, ele: 1.3, cri: 1.3 },
     statScaling: { hp: 0.5, atk: 0.9 },
     skillMultiplier: 1.1
   },
   ForceUser: {
-    baseScore: 3000,
     statWeights: { atk: 1.1, fd: 1.5, ele: 1.3, cri: 1.3 },
     statScaling: { hp: 0.5, atk: 0.9 },
     skillMultiplier: 1.05
   },
   SwordMaster: {
-    baseScore: 2800,
     statWeights: { atk: 1.2, fd: 1.4, cri: 1.5 },
     statScaling: { hp: 0.5, atk: 0.9 },
     skillMultiplier: 1.25
   },
   Mercenary: {
-    baseScore: 2700,
     statWeights: { atk: 1.2, hp: 0.9, fd: 1.1, cri: 1.0 },
     statScaling: { hp: 0.6, atk: 0.9 },
     skillMultiplier: 1.25
   },
   Bowmaster: {
-    baseScore: 2700,
     statWeights: { atk: 1.2, hp: 0.9, fd: 1.1, cri: 1.0 },
     statScaling: { hp: 0.6, atk: 0.9 },
     skillMultiplier: 1.15
   },
   Acrobat: {
-    baseScore: 2700,
     statWeights: { atk: 1.2, hp: 0.9, fd: 1.1, cri: 1.0 },
     statScaling: { hp: 0.6, atk: 0.9 },
     skillMultiplier: 1.15
@@ -105,7 +98,6 @@ const ROLE_BALANCE: Record<string, RoleConstants> = {
 
   // Tank/Support
   Paladin: {
-    baseScore: 2750,
     statWeights: { 
       hp: 0.6,           
       pdef: 0.8,         
@@ -121,7 +113,6 @@ const ROLE_BALANCE: Record<string, RoleConstants> = {
     skillMultiplier: 1.15
   },
   Priest: {
-    baseScore: 2700,
     statWeights: { 
       hp: 0.5,           
       pdef: 0.7,         
@@ -139,13 +130,11 @@ const ROLE_BALANCE: Record<string, RoleConstants> = {
 
   // อาชีพสมดุล
   Engineer: {
-    baseScore: 2700,
     statWeights: { atk: 1.2, hp: 0.9, fd: 1.1, cri: 1.0 },
     statScaling: { hp: 0.6, atk: 0.9 },
     skillMultiplier: 1.15
   },
   Alchemist: {
-    baseScore: 2700,
     statWeights: { atk: 1.1, hp: 0.9, fd: 1.1, cri: 1.0 },
     statScaling: { hp: 0.6, atk: 0.9 },
     skillMultiplier: 1.05
@@ -196,12 +185,11 @@ function sortCharacters(characters: RankedCharacter[], stat: SortType, direction
 
 const calculateScore = (character: Character): number => {
   const stats = character.stats;
-  // Cap FD ตามเลเวล
-  const fdCap = character.level && character.level >= 50 ? 1290 : 850;
-  const fdPercent = Math.min(stats.fd, fdCap) / fdCap;
+  // ไม่ต้อง cap FD
+  const fdPercent = (stats.fd || 0) / 100;
 
-  // Critical calculation (cap cri at 89%)
-  const critChance = Math.min((stats.cri || 0) / 100, 0.89);
+  // ไม่ต้อง cap CRI
+  const critChance = (stats.cri || 0) / 100;
   const critDmg = critChance; // ใช้ cri เป็น crit damage เช่นเดียวกับ crit rate
   const critMultiplier = critDmg * critChance + (1 - critChance);
 
@@ -216,15 +204,17 @@ const calculateScore = (character: Character): number => {
     critMultiplier *
     (roleBalance.skillMultiplier || 1.0);
 
-  // Survival bonus (เพิ่มน้ำหนัก HP ลดน้ำหนัก DEF ทุกอาชีพ)
-  const hpWeight = 0.4;
-  const defWeight = 0.1;
+  // Survival bonus (บาลานซ์มากขึ้น)
+  const hpWeight = 1.0;
+  const defWeight = 0.25;
   const survivalScore =
     ((stats.hp || 0) / 1000) * hpWeight +
     (((stats.pdef || 0) + (stats.mdef || 0)) / 2) * defWeight;
 
-  // คะแนนรวม (ขยายผลลัพธ์ให้เป็นหลักพัน-หมื่น)
-  return Math.round((effectiveAtk / 10 + survivalScore * 10) * 10);
+  // คะแนนรวม (บาลานซ์ damage/survival)
+  const damagePart = effectiveAtk / 10;
+  const survivalPart = survivalScore * 10;
+  return Math.round((damagePart * 0.65 + survivalPart * 0.35) * 30);
 };
 
 export default function RankingPage() {
