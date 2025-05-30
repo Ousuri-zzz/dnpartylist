@@ -80,6 +80,19 @@ function parseJoinedAt(joinedAt: any): number {
   return 0;
 }
 
+type UserMeta = {
+  discord: string;
+  approved?: boolean;
+  lastResetDaily?: number;
+  lastResetWeekly?: number;
+};
+
+type User = {
+  meta?: UserMeta;
+  photoURL?: string;
+  // ... อื่นๆ
+};
+
 export default function GuildSettingsPage() {
   const { user } = useAuth();
   const { users } = useUsers();
@@ -241,6 +254,7 @@ export default function GuildSettingsPage() {
           .map(([uid, u]: any) => ({
             uid,
             discord: u.meta.discord,
+            joinedAt: (guild?.members?.[uid]?.joinedAt) ?? u.meta.joinedAt ?? 0,
           }));
         setPendingMembers(pending);
       } else {
@@ -248,7 +262,7 @@ export default function GuildSettingsPage() {
       }
     };
     fetchPendingMembers();
-  }, [user]);
+  }, [user, guild]);
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -303,25 +317,24 @@ export default function GuildSettingsPage() {
     });
   }, [activeMerchants, debouncedMerchantSearch]);
 
-  const filteredMembers = React.useMemo(() => {
-    const searchTerm = debouncedMemberSearch.toLowerCase();
-    return Object.entries(guild?.members || {})
-      .filter(([uid, member]) => {
-        if (!searchTerm) return true; // Show all members when no search term
-        
-        const name = member.discordName ? member.discordName.toLowerCase() : '';
-        const memberMatch = name.includes(searchTerm) || uid.toLowerCase().includes(searchTerm);
-        
-        // Check if any character matches the search
-        const characters = memberCharacters[uid] || [];
-        const hasMatchingCharacter = characters.some(char =>
-          char.name?.toLowerCase().includes(searchTerm) ||
-          char.class?.toLowerCase().includes(searchTerm)
-        );
+  type MemberType = { discordName?: string; joinedAt?: string; [key: string]: any };
 
-        return memberMatch || hasMatchingCharacter;
-      })
-      .sort((a, b) => parseJoinedAt(b[1].joinedAt) - parseJoinedAt(a[1].joinedAt));
+  const filteredMembers = React.useMemo<[string, MemberType][]>(() => {
+    const searchTerm = debouncedMemberSearch.toLowerCase();
+    return Object.entries(guild?.members || {}).reduce((acc: [string, MemberType][], [uid, member]) => {
+      if (typeof member !== 'object') return acc;
+      const name = ((member as MemberType)?.discordName ?? '').toLowerCase();
+      const memberMatch = !searchTerm || name.includes(searchTerm) || uid.toLowerCase().includes(searchTerm);
+      const characters = (typeof memberCharacters[uid] === 'object' && memberCharacters[uid] !== null) ? memberCharacters[uid] : [];
+      const hasMatchingCharacter = characters.some((char: any) =>
+        char.name?.toLowerCase().includes(searchTerm) ||
+        char.class?.toLowerCase().includes(searchTerm)
+      );
+      if (memberMatch || hasMatchingCharacter) {
+        acc.push([uid, member as MemberType]);
+      }
+      return acc;
+    }, []).sort((a, b) => parseJoinedAt(b[1].joinedAt ?? 0) - parseJoinedAt(a[1].joinedAt ?? 0));
   }, [guild?.members, debouncedMemberSearch, memberCharacters]);
 
   const clearLoanNotifications = () => {
@@ -488,7 +501,8 @@ export default function GuildSettingsPage() {
         if (!guild?.members?.[userId]) {
           await set(ref(db, `guild/members/${userId}`), {
             discordName: users[userId]?.meta?.discord || '',
-            joinedAt: Date.now()
+            joinedAt: Date.now(),
+            approved: users[userId]?.meta?.approved ?? false,
           });
           imported++;
         }
@@ -924,34 +938,76 @@ export default function GuildSettingsPage() {
                     <div className="mt-4">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {filteredMembers.map(([uid, member]) => {
-                          const characters = memberCharacters[uid] || [];
-                          return characters.map((char) => {
-                            const mainClass = getMainClass(char);
-                            const colors = getColors(mainClass);
-                            return (
-                              <div
-                                key={`${uid}-${char.characterId}`}
-                                className={`flex items-center gap-4 p-4 rounded-lg border cursor-pointer transition-colors ${
-                                  selectedMember === uid && selectedCharacterId === char.characterId
-                                    ? `${colors.bg} border-opacity-50`
-                                    : `${colors.bg} bg-opacity-10 hover:bg-opacity-20 border-opacity-30`
-                                }`}
-                                onClick={() => {
-                                  setSelectedMember(uid);
-                                  setSelectedCharacterId(char.characterId);
-                                }}
-                              >
-                                <div className={`p-2 ${colors.bg} bg-opacity-20 rounded-lg`}>
-                                  <span className="text-lg">{getClassIcon(char.class)}</span>
-                                </div>
-                                <div className="flex-1">
-                                  <p className="font-medium text-gray-800">{member.discordName || 'ไม่ทราบ'}</p>
-                                  <p className={`text-xs ${colors.text} opacity-75`}>{char.name}</p>
-                                  <p className={`text-xs ${colors.text} opacity-75`}>{char.class}</p>
+                          const m = member as { discordName: string; joinedAt: string };
+                          return (
+                            <div
+                              key={`${uid}-${m.discordName}`}
+                              className={cn(
+                                "flex flex-col md:flex-row md:items-center md:justify-between p-4 bg-white rounded-xl border border-blue-100 shadow-sm hover:shadow-md transition-shadow gap-2 md:gap-0",
+                                users[uid]?.meta && (users[uid]?.meta as UserMeta).approved === false && "border-2 border-yellow-400 bg-yellow-50/60"
+                              )}
+                            >
+                              <div className="flex items-center gap-4">
+                                <Avatar className="h-9 w-9">
+                                  <AvatarImage src={users[uid]?.photoURL!} alt={m.discordName || 'Member'} />
+                                  <AvatarFallback className="bg-blue-200 text-blue-800 text-sm font-semibold">
+                                    {m.discordName ? m.discordName.charAt(0).toUpperCase() : 'M'}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <div>
+                                  <p className="font-medium text-gray-800 flex items-center gap-2">
+                                    {m.discordName || 'ไม่ทราบ'}
+                                    {users[uid]?.meta && (users[uid]?.meta as UserMeta).approved === false && (
+                                      <span className="ml-2 px-2 py-0.5 rounded-full bg-yellow-300 text-yellow-900 text-xs font-bold animate-pulse">รออนุมัติ</span>
+                                    )}
+                                  </p>
+                                  <p className="text-sm text-gray-500">
+                                    เข้าร่วมเมื่อ: {(() => {
+                                      const parsed = parseJoinedAt(m.joinedAt);
+                                      if (parsed && parsed > 0) {
+                                        return new Date(parsed).toLocaleDateString('th-TH');
+                                      }
+                                      if (typeof m.joinedAt === 'string' && m.joinedAt.trim() !== '') {
+                                        return m.joinedAt;
+                                      }
+                                      return '-';
+                                    })()}
+                                  </p>
+                                  <p className="text-xs text-gray-400">UID: {uid}</p>
+                                  {Array.isArray(memberCharacters[uid]) && memberCharacters[uid].length > 0 && (
+                                    <div className="mt-1 space-y-0.5">
+                                      {memberCharacters[uid].map((char: any, idx: number) => (
+                                        <div key={char.characterId || idx} className="text-xs text-gray-500 flex gap-1 items-center">
+                                          <span>{char.name}</span>
+                                          {char.class && <span className="text-gray-400">({char.class})</span>}
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
                                 </div>
                               </div>
-                            );
-                          });
+                              {uid !== user?.uid && (
+                                <div className="w-full md:w-auto flex flex-row gap-x-2 md:gap-2">
+                                  <button
+                                    onClick={() => handleRemoveMember(uid)}
+                                    className="flex-1 md:w-auto p-2 rounded-l-lg md:rounded-lg text-red-500 hover:bg-red-50 transition-colors"
+                                    title="ลบสมาชิก"
+                                  >
+                                    <X className="w-5 h-5" />
+                                  </button>
+                                  {isGuildLeader && (
+                                    <button
+                                      onClick={() => handleResetStats(uid)}
+                                      className="flex-1 md:w-auto p-2 rounded-r-lg md:rounded-lg text-orange-500 hover:bg-orange-50 transition-colors"
+                                      title="รีเซ็ตสเตตัสตัวละคร"
+                                    >
+                                      <RefreshCw className="w-5 h-5" />
+                                    </button>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          );
                         })}
                       </div>
                     </div>
@@ -996,7 +1052,19 @@ export default function GuildSettingsPage() {
                         </Avatar>
                         <div>
                           <p className="font-medium text-gray-800">{member.discord || 'ไม่ทราบ'}</p>
-                          <p className="text-sm text-gray-500">เข้าร่วมเมื่อ: {new Date(parseJoinedAt(member.joinedAt)).toLocaleDateString('th-TH')}</p>
+                          <p className="text-sm text-gray-500">
+                            เข้าร่วมเมื่อ: {(() => {
+                              const parsed = parseJoinedAt(member.joinedAt);
+                              if (parsed && parsed > 0) {
+                                return new Date(parsed).toLocaleDateString('th-TH');
+                              }
+                              // ถ้า parse ไม่ได้แต่มี string raw ให้แสดง raw
+                              if (typeof member.joinedAt === 'string' && member.joinedAt.trim() !== '') {
+                                return member.joinedAt;
+                              }
+                              return '-';
+                            })()}
+                          </p>
                           <p className="text-xs text-gray-400">UID: {member.uid}</p>
                           {Array.isArray(memberCharacters[member.uid]) && memberCharacters[member.uid].length > 0 && (
                             <div className="mt-1 space-y-0.5">
@@ -1200,56 +1268,78 @@ export default function GuildSettingsPage() {
                 </div>
               </div>
             ) : (
-              filteredMembers.map(([uid, member]) => (
-                <div
-                  key={uid}
-                  className="flex flex-col md:flex-row md:items-center md:justify-between p-4 bg-white rounded-xl border border-blue-100 shadow-sm hover:shadow-md transition-shadow gap-2 md:gap-0"
-                >
-                  <div className="flex items-center gap-4">
-                    <Avatar className="h-9 w-9">
-                      <AvatarImage src={users[uid]?.photoURL!} alt={member.discordName || 'Member'} />
-                      <AvatarFallback className="bg-blue-200 text-blue-800 text-sm font-semibold">
-                        {member.discordName ? member.discordName.charAt(0).toUpperCase() : 'M'}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="font-medium text-gray-800">{member.discordName || 'ไม่ทราบ'}</p>
-                      <p className="text-sm text-gray-500">เข้าร่วมเมื่อ: {new Date(parseJoinedAt(member.joinedAt)).toLocaleDateString('th-TH')}</p>
-                      <p className="text-xs text-gray-400">UID: {uid}</p>
-                      {Array.isArray(memberCharacters[uid]) && memberCharacters[uid].length > 0 && (
-                        <div className="mt-1 space-y-0.5">
-                          {memberCharacters[uid].map((char, idx) => (
-                            <div key={char.characterId || idx} className="text-xs text-gray-500 flex gap-1 items-center">
-                              <span>{char.name}</span>
-                              {char.class && <span className="text-gray-400">({char.class})</span>}
-                            </div>
-                          ))}
-                        </div>
-                      )}
+              filteredMembers.map(([uid, member]) => {
+                const m = member as { discordName: string; joinedAt: string };
+                return (
+                  <div
+                    key={uid}
+                    className={cn(
+                      "flex flex-col md:flex-row md:items-center md:justify-between p-4 bg-white rounded-xl border border-blue-100 shadow-sm hover:shadow-md transition-shadow gap-2 md:gap-0",
+                      users[uid]?.meta && (users[uid]?.meta as UserMeta).approved === false && "border-2 border-yellow-400 bg-yellow-50/60"
+                    )}
+                  >
+                    <div className="flex items-center gap-4">
+                      <Avatar className="h-9 w-9">
+                        <AvatarImage src={users[uid]?.photoURL!} alt={m.discordName || 'Member'} />
+                        <AvatarFallback className="bg-blue-200 text-blue-800 text-sm font-semibold">
+                          {m.discordName ? m.discordName.charAt(0).toUpperCase() : 'M'}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="font-medium text-gray-800 flex items-center gap-2">
+                          {m.discordName || 'ไม่ทราบ'}
+                          {users[uid]?.meta && (users[uid]?.meta as UserMeta).approved === false && (
+                            <span className="ml-2 px-2 py-0.5 rounded-full bg-yellow-300 text-yellow-900 text-xs font-bold animate-pulse">รออนุมัติ</span>
+                          )}
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          เข้าร่วมเมื่อ: {(() => {
+                            const parsed = parseJoinedAt(m.joinedAt);
+                            if (parsed && parsed > 0) {
+                              return new Date(parsed).toLocaleDateString('th-TH');
+                            }
+                            if (typeof m.joinedAt === 'string' && m.joinedAt.trim() !== '') {
+                              return m.joinedAt;
+                            }
+                            return '-';
+                          })()}
+                        </p>
+                        <p className="text-xs text-gray-400">UID: {uid}</p>
+                        {Array.isArray(memberCharacters[uid]) && memberCharacters[uid].length > 0 && (
+                          <div className="mt-1 space-y-0.5">
+                            {memberCharacters[uid].map((char: any, idx: number) => (
+                              <div key={char.characterId || idx} className="text-xs text-gray-500 flex gap-1 items-center">
+                                <span>{char.name}</span>
+                                {char.class && <span className="text-gray-400">({char.class})</span>}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                  {uid !== user?.uid && (
-                    <div className="w-full md:w-auto flex flex-row gap-x-2 md:gap-2">
-                      <button
-                        onClick={() => handleRemoveMember(uid)}
-                        className="flex-1 md:w-auto p-2 rounded-l-lg md:rounded-lg text-red-500 hover:bg-red-50 transition-colors"
-                        title="ลบสมาชิก"
-                      >
-                        <X className="w-5 h-5" />
-                      </button>
-                      {isGuildLeader && (
+                    {uid !== user?.uid && (
+                      <div className="w-full md:w-auto flex flex-row gap-x-2 md:gap-2">
                         <button
-                          onClick={() => handleResetStats(uid)}
-                          className="flex-1 md:w-auto p-2 rounded-r-lg md:rounded-lg text-orange-500 hover:bg-orange-50 transition-colors"
-                          title="รีเซ็ตสเตตัสตัวละคร"
+                          onClick={() => handleRemoveMember(uid)}
+                          className="flex-1 md:w-auto p-2 rounded-l-lg md:rounded-lg text-red-500 hover:bg-red-50 transition-colors"
+                          title="ลบสมาชิก"
                         >
-                          <RefreshCw className="w-5 h-5" />
+                          <X className="w-5 h-5" />
                         </button>
-                      )}
-                    </div>
-                  )}
-                </div>
-              ))
+                        {isGuildLeader && (
+                          <button
+                            onClick={() => handleResetStats(uid)}
+                            className="flex-1 md:w-auto p-2 rounded-r-lg md:rounded-lg text-orange-500 hover:bg-orange-50 transition-colors"
+                            title="รีเซ็ตสเตตัสตัวละคร"
+                          >
+                            <RefreshCw className="w-5 h-5" />
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })
             )}
           </div>
         </div>
