@@ -5,13 +5,15 @@ import { useAuth } from '@/hooks/useAuth';
 import { useSplitBills } from './useSplitBills';
 import { BillCard } from './BillCard';
 import { CreateBillModal } from './CreateBillModal';
+import { StampCalculatorModal } from './StampCalculatorModal';
 import { toast } from 'react-hot-toast';
-import { BanknotesIcon, CurrencyDollarIcon, SparklesIcon } from '@heroicons/react/24/solid';
+import { BanknotesIcon, CurrencyDollarIcon, SparklesIcon, TagIcon } from '@heroicons/react/24/solid';
 
 export default function SplitPage() {
   const { user } = useAuth();
   const { bills, loading, error } = useSplitBills();
   const [modalOpen, setModalOpen] = useState(false);
+  const [stampModalOpen, setStampModalOpen] = useState(false);
 
   // State สำหรับ input และผลลัพธ์
   const [cash, setCash] = useState('');
@@ -20,6 +22,8 @@ export default function SplitPage() {
   const [gold, setGold] = useState('');
   const [goldInput, setGoldInput] = useState('');
   const [goldToBaht, setGoldToBaht] = useState('');
+  const [stamps, setStamps] = useState('');
+  const [highlightGoldRate, setHighlightGoldRate] = useState(false);
 
   // ฟังก์ชันคำนวณ
   const handleCalculate = (cashValue: string, goldRateValue: string, goldValue?: string) => {
@@ -46,6 +50,16 @@ export default function SplitPage() {
       const bahtFromGold = goldNum * goldRateNum;
       setGoldToBaht(bahtFromGold ? bahtFromGold.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '');
     }
+  };
+
+  // ฟังก์ชันคำนวณจากแสตมป์
+  const handleStampCalculate = (stampsValue: string) => {
+    const stampsNum = parseFloat(stampsValue) || 0;
+    const cashValue = stampsNum * 35; // 1 แสตมป์ = 35 Cash
+    setCash(cashValue.toString());
+    handleCalculate(cashValue.toString(), goldRate, goldInput);
+    setHighlightGoldRate(true);
+    setTimeout(() => setHighlightGoldRate(false), 2000); // หายไฮไลท์หลังจาก 2 วินาที
   };
 
   useEffect(() => {
@@ -109,16 +123,32 @@ export default function SplitPage() {
         <div className="max-w-4xl mx-auto px-2 sm:px-4 w-full">
           {/* ส่วนคำนวณราคา */}
           <div className="mb-4 bg-white/80 rounded-3xl p-6 shadow-lg border border-yellow-100">
-            <h2 className="text-2xl font-bold text-yellow-600 mb-4 flex items-center gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              เครื่องมือคำนวณราคา
-            </h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-bold text-yellow-600 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                เครื่องมือคำนวณราคา
+              </h2>
+            </div>
             <div className="bg-gradient-to-br from-yellow-50 to-emerald-50 rounded-2xl p-4 border border-yellow-100">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* ด้านซ้าย - ช่องกรอกข้อมูล */}
                 <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-yellow-600 mb-1">จำนวนแสตมป์</label>
+                    <input
+                      type="number"
+                      value={stamps}
+                      placeholder="กรอกจำนวนแสตมป์"
+                      className="w-full rounded-xl border border-yellow-200 px-4 py-2 focus:ring-2 focus:ring-yellow-100 transition bg-white text-gray-700 placeholder-gray-400"
+                      onChange={e => {
+                        setStamps(e.target.value);
+                        handleStampCalculate(e.target.value);
+                      }}
+                    />
+                    <div className="text-xs text-yellow-600 mt-1">* 1 แสตมป์ = 35 Cash</div>
+                  </div>
                   <div>
                     <label className="block text-sm font-medium text-yellow-600 mb-1">จำนวน Cash</label>
                     <input
@@ -138,14 +168,18 @@ export default function SplitPage() {
                     <input
                       type="number"
                       value={goldRate}
-                      placeholder="กรอกเรท Gold"
-                      className="w-full rounded-xl border border-yellow-200 px-4 py-2 focus:ring-2 focus:ring-yellow-100 transition bg-white text-gray-700 placeholder-gray-400"
+                      placeholder="เช่น 0.6 (หมายถึง 0.6 บาท = 1 Gold)"
+                      className={`w-full rounded-xl border px-4 py-2 focus:ring-2 focus:ring-yellow-100 transition bg-white text-gray-700 placeholder-gray-400 ${
+                        highlightGoldRate 
+                          ? 'border-yellow-400 bg-yellow-50 shadow-[0_0_0_2px_rgba(234,179,8,0.2)]' 
+                          : 'border-yellow-200'
+                      }`}
                       onChange={e => {
                         setGoldRate(e.target.value);
                         handleCalculate(cash, e.target.value, goldInput);
                       }}
                     />
-                    <div className="text-xs text-yellow-600 mt-1">* เช่น 0.6 บาท = 1 Gold</div>
+                    <div className="text-xs text-yellow-600 mt-1">* เช่น 0.6 บาท = 1 Gold, 1.2 บาท = 1 Gold</div>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-yellow-600 mb-1">จำนวน Gold</label>
@@ -220,6 +254,7 @@ export default function SplitPage() {
             </div>
           )}
           <CreateBillModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
+          <StampCalculatorModal isOpen={stampModalOpen} onClose={() => setStampModalOpen(false)} />
         </div>
       </div>
     </div>
