@@ -191,7 +191,7 @@ const CharacterCard = ({ char }: CharacterCardProps) => {
 const ALL_NESTS = [
   "DQ+FTG700", "Minotaur", "Cerberus", "Cerberus Hell", "Cerberus Challenge",
   "Manticore", "Manticore Hell", "Apocalypse", "Apocalypse Hell", "Sea Dragon",
-  "Chaos Rift: Bairra", "Chaos Rift: Kamala", "Dark Banquet Hall",
+  "Sea Dragon Classic", "Chaos Rift: Bairra", "Chaos Rift: Kamala", "Dark Banquet Hall",
   "Jealous Albeuteur", "Theme Park"
 ];
 
@@ -511,6 +511,7 @@ export function SearchingPartyList({ searchQuery }: SearchingPartyListProps) {
                   <SelectItem value="Apocalypse">Apocalypse</SelectItem>
                   <SelectItem value="Apocalypse Hell">Apocalypse Hell</SelectItem>
                   <SelectItem value="Sea Dragon">Sea Dragon</SelectItem>
+                  <SelectItem value="Sea Dragon Classic">Sea Dragon Classic</SelectItem>
                   <SelectItem value="Chaos Rift: Bairra">Chaos Rift: Bairra</SelectItem>
                   <SelectItem value="Chaos Rift: Kamala">Chaos Rift: Kamala</SelectItem>
                   <SelectItem value="Dark Banquet Hall">Dark Banquet Hall</SelectItem>
@@ -631,6 +632,7 @@ export function SearchingPartyList({ searchQuery }: SearchingPartyListProps) {
                   <SelectItem value="Apocalypse">Apocalypse</SelectItem>
                   <SelectItem value="Apocalypse Hell">Apocalypse Hell</SelectItem>
                   <SelectItem value="Sea Dragon">Sea Dragon</SelectItem>
+                  <SelectItem value="Sea Dragon Classic">Sea Dragon Classic</SelectItem>
                   <SelectItem value="Chaos Rift: Bairra">Chaos Rift: Bairra</SelectItem>
                   <SelectItem value="Chaos Rift: Kamala">Chaos Rift: Kamala</SelectItem>
                   <SelectItem value="Dark Banquet Hall">Dark Banquet Hall</SelectItem>

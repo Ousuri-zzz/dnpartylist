@@ -391,6 +391,7 @@ export default function PartyPage({ params }: { params: { id: string } }) {
     let myIsLeader = false;
     let nextLeaderUserId: string | undefined = undefined;
     let nextLeaderCharId: string | undefined = undefined;
+
     // หา myCharId และตรวจสอบว่าเป็นหัวหน้าหรือไม่ พร้อมหา next leader
     for (const [charId, memberData] of Object.entries(party.members || {})) {
       let userId: string | undefined;
@@ -407,16 +408,55 @@ export default function PartyPage({ params }: { params: { id: string } }) {
         nextLeaderCharId = charId;
       }
     }
+
     if (!myCharId) {
       toast.error('ไม่พบตัวละครของคุณในปาร์ตี้นี้');
       return;
     }
+
     try {
       // ถ้าเป็นหัวหน้าและมีสมาชิกคนถัดไป ให้เปลี่ยน leader ก่อน
       if (myIsLeader && nextLeaderUserId) {
         await set(ref(db, `parties/${party.id}/leader`), nextLeaderUserId);
       }
+
+      // ลบสมาชิกออกจากปาร์ตี้
       await set(ref(db, `parties/${party.id}/members/${myCharId}`), null);
+
+      // ตรวจสอบว่าตัวละครนี้เป็นหัวหน้าปาร์ตี้ในปาร์ตี้อื่นหรือไม่
+      const partiesRef = ref(db, 'parties');
+      const snapshot = await get(partiesRef);
+      const allParties = snapshot.val() as Record<string, Party>;
+
+      if (allParties) {
+        for (const [partyId, partyData] of Object.entries(allParties)) {
+          // ข้ามปาร์ตี้ปัจจุบัน
+          if (partyId === party.id) continue;
+
+          // ตรวจสอบว่าตัวละครนี้เป็นหัวหน้าปาร์ตี้ในปาร์ตี้อื่นหรือไม่
+          if (partyData.leader === user.uid && partyData.members?.[myCharId]) {
+            // หาสมาชิกคนถัดไปในปาร์ตี้นั้น
+            let nextLeaderInOtherParty: string | undefined;
+            for (const [charId, memberData] of Object.entries(partyData.members)) {
+              if (charId !== myCharId) {
+                const userId = typeof memberData === 'boolean' 
+                  ? Object.entries(users).find(([, userData]) => userData.characters?.[charId])?.[0]
+                  : (memberData as { userId: string }).userId;
+                if (userId) {
+                  nextLeaderInOtherParty = userId;
+                  break;
+                }
+              }
+            }
+
+            // ถ้ามีสมาชิกคนถัดไป ให้เปลี่ยนหัวปาร์ตี้
+            if (nextLeaderInOtherParty) {
+              await set(ref(db, `parties/${partyId}/leader`), nextLeaderInOtherParty);
+            }
+          }
+        }
+      }
+
       toast.success('ออกจากปาร์ตี้สำเร็จ');
       router.push('/party');
     } catch (error) {

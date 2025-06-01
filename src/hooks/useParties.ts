@@ -100,6 +100,7 @@ export function useParties() {
   const getMaxMemberByNest = (nest: NestType): number => {
     switch (nest) {
       case 'Sea Dragon':
+      case 'Sea Dragon Classic':
         return 8;
       default:
         return 4;
