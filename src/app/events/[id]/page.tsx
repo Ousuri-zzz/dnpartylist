@@ -40,7 +40,7 @@ function CountdownTimer({ targetDate, className = "" }: { targetDate: Date | nul
     <span className={className + ' ' + (isStarted ? 'text-green-600' : 'text-red-500') + ' font-semibold'}>
       {isStarted ? 'กำลังดำเนิน: ' : 'นับถอยหลัง: '}
       {days > 0
-        ? `${days} วัน ${hours} ชั่วโมง`
+        ? `${days} วัน ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
         : `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`}
     </span>
   );
@@ -103,13 +103,16 @@ function CountdownOrEnded({ event, startDate, staticCountdownText }: { event: an
     const endedDate = new Date(event.endedAt.seconds * 1000);
     const durationMs = endedDate.getTime() - startDate.getTime();
     const duration = durationMs > 0 ? durationMs : 0;
-    const hours = Math.floor(duration / (1000 * 60 * 60));
+    const days = Math.floor(duration / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((duration % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
     const minutes = Math.floor((duration % (1000 * 60 * 60)) / (1000 * 60));
     const seconds = Math.floor((duration % (1000 * 60)) / 1000);
     return (
       <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-green-100 text-green-700 shadow font-mono text-lg">
         <span className="text-lg">✅</span>
-        ระยะเวลากิจกรรม: {hours.toString().padStart(2, '0')}:{minutes.toString().padStart(2, '0')}:{seconds.toString().padStart(2, '0')}
+        ระยะเวลากิจกรรม: {days > 0
+          ? `${days} วัน ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+          : `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`}
       </div>
     );
   }

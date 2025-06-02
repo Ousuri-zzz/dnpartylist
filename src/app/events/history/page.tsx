@@ -155,7 +155,7 @@ export default function EventHistoryPage() {
                                   const minutes = Math.floor((duration % (1000 * 60 * 60)) / (1000 * 60));
                                   const seconds = Math.floor((duration % (1000 * 60)) / 1000);
                                   return days > 0
-                                    ? `${days} วัน ${hours} ชั่วโมง`
+                                    ? `${days} วัน ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
                                     : `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
                                 })()}
                               </div>

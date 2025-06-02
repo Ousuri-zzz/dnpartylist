@@ -37,7 +37,7 @@ function CountdownTimer({ targetDate }: { targetDate: Date | null }) {
     <div className={"mt-2 text-sm font-semibold " + (isStarted ? 'text-green-600' : 'text-red-500')}>
       {isStarted ? 'กำลังดำเนิน: ' : 'นับถอยหลัง: '}
       {days > 0
-        ? `${days} วัน ${hours} ชั่วโมง`
+        ? `${days} วัน ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
         : `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`}
     </div>
   );
