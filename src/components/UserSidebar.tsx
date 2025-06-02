@@ -82,12 +82,12 @@ export function UserSidebar({ users }: UserSidebarProps) {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
             {selectedUser?.characters && Object.values(selectedUser.characters).map((char) => (
-              <CharacterCard className="bg-white/90 backdrop-blur-sm border border-pink-200 rounded-2xl shadow-xl"
-                key={char.id} 
-                character={char} 
-                onEdit={() => {}} 
-                onDelete={() => {}} 
-                onChecklistChange={() => {}} 
+              <CharacterCard
+                key={char.id}
+                character={char}
+                onEdit={() => {}}
+                onDelete={() => {}}
+                onChecklistChange={() => {}}
               />
             ))}
           </div>
