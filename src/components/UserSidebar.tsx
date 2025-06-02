@@ -75,14 +75,14 @@ export function UserSidebar({ users }: UserSidebarProps) {
       </div>
       
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto bg-white/90 backdrop-blur-sm border border-pink-200 rounded-2xl shadow-xl">
           <DialogHeader>
             <DialogTitle>{selectedUser?.meta?.discord || 'Unknown User'}'s Characters</DialogTitle>
           </DialogHeader>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
             {selectedUser?.characters && Object.values(selectedUser.characters).map((char) => (
-              <CharacterCard 
+              <CharacterCard className="bg-white/90 backdrop-blur-sm border border-pink-200 rounded-2xl shadow-xl"
                 key={char.id} 
                 character={char} 
                 onEdit={() => {}} 

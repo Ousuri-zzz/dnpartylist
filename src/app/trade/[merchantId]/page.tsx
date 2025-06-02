@@ -170,7 +170,7 @@ export default function MerchantShopPage({ params }: { params: { merchantId: str
 
   if (!merchant) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-pink-50 to-purple-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-400 mx-auto"></div>
           <p className="mt-4 text-gray-600">กำลังโหลดข้อมูลร้านค้า...</p>
@@ -180,12 +180,12 @@ export default function MerchantShopPage({ params }: { params: { merchantId: str
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-pink-50 to-purple-50">
+    <div className="min-h-screen">
       <div className="container mx-auto px-4 py-8">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8 bg-gradient-to-r from-indigo-50 via-pink-50 to-purple-50 rounded-2xl shadow-lg border border-pink-100 px-8 py-6"
+          className="mb-8 rounded-3xl bg-white/90 backdrop-blur-sm shadow-lg border border-pink-200 px-6 py-7"
         >
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div className="flex items-center gap-4">
@@ -270,7 +270,7 @@ export default function MerchantShopPage({ params }: { params: { merchantId: str
         </motion.div>
 
         <div className="mb-8">
-          <div className="flex items-center gap-2 mb-4">
+          <div className="flex items-center gap-2 mb-4 bg-white/90 backdrop-blur-sm rounded-xl px-4 py-2 shadow border border-pink-100">
             <Coins className="w-6 h-6 text-yellow-500" />
             <h2 className="text-xl font-bold text-pink-600">Gold ที่ขาย</h2>
           </div>
@@ -281,7 +281,7 @@ export default function MerchantShopPage({ params }: { params: { merchantId: str
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className="bg-white rounded-xl p-6 shadow-sm border border-pink-100 flex flex-col gap-4"
+                className="bg-white/90 backdrop-blur-sm rounded-xl p-6 shadow-md border-2 border-pink-200 hover:border-pink-400 hover:shadow-xl flex flex-col gap-4 transition-all"
               >
                 <div className="flex items-center gap-2 mb-2">
                   <Coins className="w-5 h-5 text-yellow-500" />
@@ -305,7 +305,7 @@ export default function MerchantShopPage({ params }: { params: { merchantId: str
                 </div>
               </motion.div>
             )) : (
-              <div className="text-center py-12 bg-white rounded-xl shadow-sm border border-pink-100 col-span-2">
+              <div className="text-center py-12 bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-pink-200 col-span-2">
                 <p className="text-gray-500">ยังไม่มีรายการ Gold ที่ขาย</p>
               </div>
             )}
@@ -313,7 +313,7 @@ export default function MerchantShopPage({ params }: { params: { merchantId: str
         </div>
 
         <div>
-          <div className="flex items-center gap-2 mb-4">
+          <div className="flex items-center gap-2 mb-4 bg-white/90 backdrop-blur-sm rounded-xl px-4 py-2 shadow border border-pink-100">
             <ShoppingBag className="w-6 h-6 text-purple-500" />
             <h2 className="text-xl font-bold text-purple-600">สินค้าและบริการ</h2>
           </div>
@@ -344,12 +344,13 @@ export default function MerchantShopPage({ params }: { params: { merchantId: str
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
                 className={cn(
-                  "bg-white rounded-xl p-6 shadow-sm border flex flex-col gap-2",
-                  item.status === 'available' ? 'border-green-200' :
-                  item.status === 'sold' ? 'border-gray-200' :
-                  item.status === 'queue_full' ? 'border-yellow-200' :
-                  item.status === 'sold_out' ? 'border-red-200' :
-                  'border-pink-100'
+                  "bg-white/90 backdrop-blur-sm rounded-xl p-6 shadow-md flex flex-col gap-2 transition-all",
+                  item.status === 'available' ? 'border-2 border-green-200' :
+                  item.status === 'sold' ? 'border-2 border-gray-200' :
+                  item.status === 'queue_full' ? 'border-2 border-yellow-200' :
+                  item.status === 'sold_out' ? 'border-2 border-red-200' :
+                  'border-2 border-pink-100',
+                  'hover:shadow-xl'
                 )}
               >
                 <div className="flex items-center gap-2 mb-2">
@@ -386,7 +387,7 @@ export default function MerchantShopPage({ params }: { params: { merchantId: str
                 )}
               </motion.div>
             )) : (
-              <div className="text-center py-12 bg-white rounded-xl shadow-sm border border-pink-100 col-span-2">
+              <div className="text-center py-12 bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-pink-200 col-span-2">
                 <p className="text-gray-500">ยังไม่มีรายการไอเทมที่ขาย</p>
               </div>
             )}

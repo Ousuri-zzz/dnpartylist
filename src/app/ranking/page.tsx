@@ -308,7 +308,7 @@ export default function RankingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 py-8">
+    <div className="min-h-screen py-8">
       <div className="container mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -317,7 +317,7 @@ export default function RankingPage() {
           className="space-y-6"
         >
           {/* Header */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white/90 backdrop-blur-sm rounded-lg p-6 shadow-sm border border-pink-200/50">
             <div className="space-y-1">
               <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-pink-600 to-blue-600 bg-clip-text text-transparent">
                 อันดับตัวละคร
@@ -334,14 +334,14 @@ export default function RankingPage() {
                 placeholder="ค้นหาตัวละครหรือชื่อ Discord..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-white/50 backdrop-blur-sm border-pink-200/50 focus:border-pink-300/50"
+                className="w-full bg-white/90 backdrop-blur-sm border-pink-200/50 focus:border-pink-300/50"
               />
             </div>
 
             {/* Mobile Stats Selection */}
             <div className="lg:hidden">
               <Select value={selectedStat} onValueChange={(value) => setSelectedStat(value as SortType)}>
-                <SelectTrigger className="w-full bg-white/50 backdrop-blur-sm border-pink-200/50">
+                <SelectTrigger className="w-full bg-white/90 backdrop-blur-sm border-pink-200/50">
                   <SelectValue placeholder="เลือกสเตตัส" />
                 </SelectTrigger>
                 <SelectContent>
@@ -394,7 +394,7 @@ export default function RankingPage() {
             {/* Mobile Job Selection */}
             <div className="lg:hidden">
               <Select value={selectedJob} onValueChange={setSelectedJob}>
-                <SelectTrigger className="w-full bg-white/50 backdrop-blur-sm border-pink-200/50">
+                <SelectTrigger className="w-full bg-white/90 backdrop-blur-sm border-pink-200/50">
                   <SelectValue placeholder="เลือกอาชีพ" />
                 </SelectTrigger>
                 <SelectContent>
@@ -419,10 +419,10 @@ export default function RankingPage() {
               <button
                 onClick={() => setSelectedJob('all')}
                 className={cn(
-                  "px-4 py-2 rounded-full text-sm font-medium transition-all duration-200",
-                  "bg-white/50 backdrop-blur-sm border border-pink-200/50",
-                  "hover:bg-pink-50/50 hover:border-pink-300/50",
-                  selectedJob === 'all' && "bg-pink-100/50 border-pink-300/50"
+                  "px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 border",
+                  selectedJob === 'all'
+                    ? "bg-gradient-to-r from-pink-200/80 to-blue-100/80 border-pink-400 text-pink-700 shadow font-bold"
+                    : "bg-white/90 border-pink-200/50 text-gray-700 hover:bg-pink-50/60 hover:border-pink-300/50"
                 )}
               >
                 ทั้งหมด
@@ -435,11 +435,10 @@ export default function RankingPage() {
                     key={job}
                     onClick={() => setSelectedJob(job)}
                     className={cn(
-                      "px-4 py-2 rounded-full text-sm font-medium transition-all duration-200",
-                      "bg-white/50 backdrop-blur-sm border",
-                      "hover:bg-opacity-70",
-                      selectedJob === job && "bg-opacity-70",
-                      colors.border
+                      "px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 border",
+                      selectedJob === job
+                        ? "bg-gradient-to-r from-pink-200/80 to-blue-100/80 border-pink-400 text-pink-700 shadow font-bold"
+                        : "bg-white/90 border-pink-200/50 text-gray-700 hover:bg-pink-50/60 hover:border-pink-300/50"
                     )}
                   >
                     <span className={cn(colors.text)}>{job}</span>
@@ -450,12 +449,12 @@ export default function RankingPage() {
           </div>
 
           {/* Ranking Table */}
-          <Card className="overflow-hidden bg-white/30 backdrop-blur-sm border-pink-200/50 shadow-lg">
+          <Card className="overflow-hidden bg-white/90 backdrop-blur-sm border-pink-200/50 shadow-lg">
             <CardContent className="p-0">
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="bg-gradient-to-r from-pink-50 to-blue-50">
+                    <tr className="bg-gradient-to-r from-pink-50/90 to-blue-50/90">
                       <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 whitespace-nowrap">
                         <div className="flex items-center gap-1">
                           <span>🏅</span>
@@ -578,9 +577,8 @@ export default function RankingPage() {
                         key={character.id}
                         className={cn(
                           "group transition-all duration-200 border-l-4 border-transparent",
-                          "hover:bg-gradient-to-r hover:from-pink-100/80 hover:to-pink-50/80",
-                          "hover:border-pink-300/50",
-                          user?.uid === character.userId && "bg-gradient-to-r from-blue-100/80 to-blue-50/80"
+                          "hover:bg-pink-100/70 hover:border-pink-300/50",
+                          user?.uid === character.userId && "bg-gradient-to-r from-blue-100/70 to-blue-50/70 border-blue-300/50"
                         )}
                       >
                         <td className="px-4 py-3 text-sm font-medium text-pink-600 group-hover:text-pink-700 whitespace-nowrap">#{character.rank}</td>
@@ -604,10 +602,11 @@ export default function RankingPage() {
                         <td className="px-4 py-3 text-sm text-pink-600 font-medium group-hover:text-pink-700 whitespace-nowrap">{formatNumber(character.stats.atk)}</td>
                         <td className="px-4 py-3 text-sm text-red-500 font-medium group-hover:text-red-600 whitespace-nowrap">{formatNumber(character.stats.hp)}</td>
                         <td className="px-4 py-3 text-sm whitespace-nowrap">
-                          <div className="flex items-center gap-1">
-                            <span className="text-blue-500 font-medium group-hover:text-blue-600">{character.stats.pdef}%</span>
-                            <span className="text-gray-400">/</span>
-                            <span className="text-purple-500 font-medium group-hover:text-purple-600">{character.stats.mdef}%</span>
+                          {/* DEF (PDEF/MDEF) ใน modal เท่านั้น ไม่มีกรอบ ไม่มีไอคอน */}
+                          <div className="flex items-center gap-0.5">
+                            <span className="font-semibold text-blue-500">{character.stats.pdef}%</span>
+                            <span className="text-gray-400 mx-0.5">/</span>
+                            <span className="font-semibold text-purple-500">{character.stats.mdef}%</span>
                           </div>
                         </td>
                         <td className="px-4 py-3 text-sm text-yellow-500 font-medium group-hover:text-yellow-600 whitespace-nowrap">{character.stats.cri}%</td>
@@ -627,48 +626,108 @@ export default function RankingPage() {
       </div>
       {/* Popup แสดง stat + checklist */}
       <Dialog open={!!openCharacterId} onOpenChange={open => !open && setOpenCharacterId(null)}>
-        <DialogContent className="max-w-xl w-[85vw] max-h-[90vh] overflow-y-auto">
-          {openCharacter && (
-            <div className="p-3">
-              <DialogHeader>
-                <DialogTitle className="flex items-center gap-2 mb-1">
-                  <span className="text-xl font-bold bg-gradient-to-r from-pink-600 to-blue-600 bg-clip-text text-transparent">{openCharacter.name}</span>
-                  <span className={cn(
-                    "text-sm font-semibold px-2 py-0.5 rounded-full",
-                    getClassColors(CLASS_TO_ROLE[openCharacter.class]).text,
-                    getClassColors(CLASS_TO_ROLE[openCharacter.class]).bg
+        <DialogContent className={cn(
+          "max-w-lg w-[95vw] max-h-[90vh] overflow-y-auto shadow-xl rounded-2xl p-0 border-2 backdrop-blur-xl",
+          openCharacter && getClassColors(CLASS_TO_ROLE[openCharacter.class]).border,
+          openCharacter && getClassColors(CLASS_TO_ROLE[openCharacter.class]).bgSoft
+        )}>
+          {openCharacter && (() => {
+            const colors = getClassColors(CLASS_TO_ROLE[openCharacter.class]);
+            const stats = openCharacter.stats;
+            return (
+              <div className="p-4 sm:p-6">
+                <DialogHeader>
+                  <DialogTitle className="flex flex-wrap items-center gap-3 mb-2">
+                    <span className={cn(
+                      "text-2xl font-extrabold bg-clip-text text-transparent",
+                      colors.gradientText
+                    )}>{openCharacter.name}</span>
+                    <span className={cn(
+                      "text-base font-semibold px-3 py-1 rounded-full border shadow",
+                      colors.border,
+                      colors.bgVeryLight,
+                      colors.text
+                    )}>
+                      {openCharacter.class}
+                    </span>
+                  </DialogTitle>
+                  <DialogDescription className="text-sm text-gray-500 mb-2">
+                    <span className="font-medium text-gray-700">Discord:</span> {openCharacter.discordName}
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 mt-2">
+                  {/* Stat Section: grid 2 cols, each stat in its own box */}
+                  <div className={cn(
+                    "rounded-xl p-4 sm:p-5 shadow border backdrop-blur-sm mb-1",
+                    colors.border,
+                    colors.bgVeryLight
                   )}>
-                    {openCharacter.class}
-                  </span>
-                </DialogTitle>
-                <DialogDescription className="text-xs">
-                  <span className="text-gray-600">Discord: </span>
-                  <span className="font-medium text-gray-800">{openCharacter.discordName}</span>
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-3 mt-3">
-                <div className="bg-white/50 backdrop-blur-sm rounded-lg p-3 shadow-sm">
-                  <h4 className="text-sm font-semibold mb-2 flex items-center gap-1.5 text-gray-700">
-                    <Sword className="w-3.5 h-3.5 text-pink-500" />
-                    สเตตัสตัวละคร
-                  </h4>
-                  <CharacterStatsComponent stats={openCharacter.stats} />
-                </div>
-                <div className="bg-white/50 backdrop-blur-sm rounded-lg p-3 shadow-sm">
-                  <h4 className="text-sm font-semibold mb-2 flex items-center gap-1.5 text-gray-700">
-                    <TrendingUp className="w-3.5 h-3.5 text-green-500" />
-                    เช็คลิสต์ประจำวัน/สัปดาห์
-                  </h4>
-                  <CharacterChecklist 
-                    checklist={openCharacter.checklist} 
-                    onChange={() => {}} 
-                    accentColor={getClassColors(CLASS_TO_ROLE[openCharacter.class]).text} 
-                    readOnly 
-                  />
+                    <h4 className={cn(
+                      "text-lg font-bold mb-3 flex items-center gap-2",
+                      colors.text
+                    )}>
+                      <Sword className={cn("w-5 h-5", colors.text)} />
+                      สเตตัสตัวละคร
+                    </h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="flex items-center gap-2 p-2 rounded-lg bg-white/80 border border-gray-100">
+                        <Sword className="w-5 h-5 text-pink-500" />
+                        <span className="font-bold text-gray-700">ATK:</span>
+                        <span className="font-semibold text-pink-600">{stats.atk}</span>
+                      </div>
+                      <div className="flex items-center gap-2 p-2 rounded-lg bg-white/80 border border-gray-100">
+                        <Heart className="w-5 h-5 text-red-400" />
+                        <span className="font-bold text-gray-700">HP:</span>
+                        <span className="font-semibold text-red-500">{stats.hp}</span>
+                      </div>
+                      <div className="flex items-center gap-2 p-2 rounded-lg bg-white/80 border border-gray-100">
+                        <Shield className="w-5 h-5 text-blue-400" />
+                        <span className="font-bold text-gray-700">DEF:</span>
+                        <span className="font-semibold text-blue-500">{stats.pdef}%</span>
+                        <span className="text-gray-400 mx-0.5">/</span>
+                        <span className="font-semibold text-purple-500">{stats.mdef}%</span>
+                      </div>
+                      <div className="flex items-center gap-2 p-2 rounded-lg bg-white/80 border border-gray-100">
+                        <Target className="w-5 h-5 text-yellow-400" />
+                        <span className="font-bold text-gray-700">CRI:</span>
+                        <span className="font-semibold text-yellow-500">{stats.cri}%</span>
+                      </div>
+                      <div className="flex items-center gap-2 p-2 rounded-lg bg-white/80 border border-gray-100">
+                        <Flame className="w-5 h-5 text-purple-400" />
+                        <span className="font-bold text-gray-700">ELE:</span>
+                        <span className="font-semibold text-purple-500">{stats.ele}%</span>
+                      </div>
+                      <div className="flex items-center gap-2 p-2 rounded-lg bg-white/80 border border-gray-100">
+                        <Zap className="w-5 h-5 text-orange-400" />
+                        <span className="font-bold text-gray-700">FD:</span>
+                        <span className="font-semibold text-orange-500">{stats.fd}%</span>
+                      </div>
+                    </div>
+                  </div>
+                  {/* Checklist Section */}
+                  <div className={cn(
+                    "rounded-xl p-4 sm:p-5 shadow border backdrop-blur-sm",
+                    colors.border,
+                    colors.bgVeryLight
+                  )}>
+                    <h4 className={cn(
+                      "text-lg font-bold mb-3 flex items-center gap-2",
+                      colors.text
+                    )}>
+                      <TrendingUp className={cn("w-5 h-5", colors.text)} />
+                      เช็คลิสต์ประจำวัน/สัปดาห์
+                    </h4>
+                    <CharacterChecklist
+                      checklist={openCharacter.checklist}
+                      onChange={() => {}}
+                      accentColor={colors.text}
+                      readOnly
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
         </DialogContent>
       </Dialog>
     </div>

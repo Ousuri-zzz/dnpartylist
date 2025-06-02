@@ -20,7 +20,7 @@ export default function LoginPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50">
+      <div className="flex items-center justify-center min-h-screen">
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
@@ -31,7 +31,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 px-4">
+    <div className="flex flex-col items-center justify-center min-h-screen px-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -39,8 +39,7 @@ export default function LoginPage() {
         className="w-full max-w-md"
       >
         <div className="relative group">
-          <div className="absolute -inset-1 bg-gradient-to-r from-pink-100 via-purple-100 to-blue-100 rounded-2xl blur opacity-75 group-hover:opacity-100 transition duration-1000"></div>
-          <div className="relative p-4 sm:p-8 space-y-4 sm:space-y-6 bg-white/80 backdrop-blur-lg rounded-xl shadow-xl">
+          <div className="relative p-6 sm:p-10 space-y-6 bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl border border-pink-200">
             <div className="text-center space-y-2">
               <motion.h1 
                 className="flex items-center justify-center gap-2 text-3xl sm:text-4xl font-bold bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 bg-clip-text text-transparent"
@@ -64,14 +63,13 @@ export default function LoginPage() {
 
             <motion.button
               onClick={login}
-              className="w-full px-6 py-3 text-sm font-medium text-white bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 rounded-xl hover:from-pink-600 hover:via-purple-600 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transform hover:scale-[1.02] transition-all duration-300 shadow-md hover:shadow-lg relative group overflow-hidden"
+              className="w-full px-6 py-3 text-lg font-bold text-white bg-pink-500/90 hover:bg-pink-600/90 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-300 focus:ring-offset-2 transform hover:scale-[1.02] transition-all duration-300 shadow-lg hover:shadow-xl relative group overflow-hidden"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
               <span className="relative">เข้าสู่ระบบด้วย Google</span>
             </motion.button>
           </div>

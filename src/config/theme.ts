@@ -71,49 +71,67 @@ export const CLASS_TO_ROLE: Record<CharacterClass, Role> = {
   'Alchemist': 'Academic'
 };
 
-export const getClassColors = (role: Role): { text: string; bg: string; border: string; icon?: string } => {
+export const getClassColors = (role: Role): { text: string; bg: string; border: string; icon?: string; bgSoft?: string; bgVeryLight?: string; gradientText?: string } => {
   switch (role) {
     case 'Warrior':
       return {
         text: 'text-red-600',
         bg: 'bg-red-50',
         border: 'border-red-200',
-        icon: ROLE_ICONS.Warrior
+        icon: ROLE_ICONS.Warrior,
+        bgSoft: 'bg-gradient-to-br from-rose-50/90 to-pink-100/80',
+        bgVeryLight: 'bg-rose-50/80',
+        gradientText: 'bg-gradient-to-r from-rose-500 via-pink-500 to-pink-400'
       };
     case 'Archer':
       return {
         text: 'text-emerald-600',
         bg: 'bg-emerald-50',
         border: 'border-emerald-200',
-        icon: ROLE_ICONS.Archer
+        icon: ROLE_ICONS.Archer,
+        bgSoft: 'bg-gradient-to-br from-lime-50/90 to-green-100/80',
+        bgVeryLight: 'bg-lime-50/80',
+        gradientText: 'bg-gradient-to-r from-lime-500 via-green-500 to-emerald-400'
       };
     case 'Sorceress':
       return {
         text: 'text-purple-600',
         bg: 'bg-purple-50',
         border: 'border-purple-200',
-        icon: ROLE_ICONS.Sorceress
+        icon: ROLE_ICONS.Sorceress,
+        bgSoft: 'bg-gradient-to-br from-fuchsia-50/90 to-purple-100/80',
+        bgVeryLight: 'bg-fuchsia-50/80',
+        gradientText: 'bg-gradient-to-r from-fuchsia-500 via-purple-500 to-violet-400'
       };
     case 'Cleric':
       return {
         text: 'text-sky-600',
         bg: 'bg-sky-50',
         border: 'border-sky-200',
-        icon: ROLE_ICONS.Cleric
+        icon: ROLE_ICONS.Cleric,
+        bgSoft: 'bg-gradient-to-br from-cyan-50/90 to-blue-100/80',
+        bgVeryLight: 'bg-cyan-50/80',
+        gradientText: 'bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-400'
       };
     case 'Academic':
       return {
         text: 'text-amber-600',
         bg: 'from-amber-100 to-yellow-200/70',
         border: 'border-amber-300',
-        icon: ROLE_ICONS.Academic
+        icon: ROLE_ICONS.Academic,
+        bgSoft: 'bg-gradient-to-br from-yellow-50/90 to-amber-100/80',
+        bgVeryLight: 'bg-yellow-50/80',
+        gradientText: 'bg-gradient-to-r from-yellow-500 via-amber-500 to-orange-400'
       };
     default:
       return {
         text: 'text-gray-600',
         bg: 'bg-gray-50',
         border: 'border-gray-200',
-        icon: '👤'
+        icon: '👤',
+        bgSoft: 'bg-gradient-to-br from-gray-100 to-gray-200/80',
+        bgVeryLight: 'bg-gray-50/80',
+        gradientText: 'bg-gradient-to-r from-gray-400 to-gray-600'
       };
   }
 };

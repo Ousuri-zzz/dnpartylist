@@ -485,7 +485,7 @@ export default function PartyPage({ params }: { params: { id: string } }) {
       }
 
       const blob = await toBlob(element, {
-        backgroundColor: '#fdf2f8', // Light pink background to match the theme
+        backgroundColor: '#fde4ec', // พื้นหลังสีชมพูพาสเทล
         quality: 1.0,
         pixelRatio: 2, // Higher quality for retina displays
       });
@@ -730,7 +730,7 @@ export default function PartyPage({ params }: { params: { id: string } }) {
   const partyStats = calculatePartyStats();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 to-indigo-50 py-8">
+    <div className="min-h-screen py-8">
       <div className="container mx-auto px-4 space-y-6">
         <div className="flex items-center justify-between">
           <Button 
@@ -779,10 +779,7 @@ export default function PartyPage({ params }: { params: { id: string } }) {
         </div>
 
         <div id="party-snapshot-area">
-          <div className="relative space-y-2 p-2 pt-1 bg-gradient-to-br from-pink-50/95 to-indigo-50/95 rounded-2xl border border-pink-100/20 shadow-xl">
-            {/* Background decoration */}
-            <div className="absolute inset-0 bg-gradient-to-br from-pink-200/5 via-purple-200/5 to-blue-200/5 rounded-2xl" />
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-pink-100/10 via-transparent to-transparent rounded-2xl" />
+          <div className="relative space-y-2 p-2 pt-1 rounded-2xl border border-pink-100/20 shadow-xl">
             {/* Content with relative positioning */}
             <div className="relative">
               {party?.nest && (
@@ -792,8 +789,7 @@ export default function PartyPage({ params }: { params: { id: string } }) {
                   className="flex-1 text-center mb-1"
                 >
                   <div className="relative w-full">
-                    <div className="absolute inset-0 bg-gradient-to-r from-pink-400/5 via-purple-400/5 to-blue-400/5 blur-2xl transform scale-150" />
-                    <div className="relative flex items-center justify-center gap-2 px-3 py-1 rounded-xl bg-gradient-to-r from-pink-50/90 to-purple-50/90 border border-pink-100/30 shadow-sm">
+                    <div className="relative flex items-center justify-center gap-2 px-3 py-1 rounded-xl bg-white/90 backdrop-blur-sm border border-pink-200/50 shadow-lg">
                       <div className="h-[1px] w-8 bg-gradient-to-r from-pink-200 to-transparent" />
                       <h1 className="text-lg md:text-xl font-bold bg-gradient-to-r from-sky-600 to-blue-600 bg-clip-text text-transparent">
                         {party.nest}
@@ -827,7 +823,7 @@ export default function PartyPage({ params }: { params: { id: string } }) {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      <div className="p-4 rounded-lg bg-gradient-to-r from-pink-50 to-purple-50 border border-pink-100/30">
+                      <div className="p-4 rounded-lg bg-gradient-to-r from-pink-50 to-purple-50 border border-pink-100/30 shadow-lg">
                         <div className="grid gap-4">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
@@ -856,7 +852,7 @@ export default function PartyPage({ params }: { params: { id: string } }) {
                         </div>
                       </div>
                       
-                      <div className="p-3 rounded-lg bg-gradient-to-r from-pink-50 to-purple-50 border border-pink-100/30">
+                      <div className="p-3 rounded-lg bg-gradient-to-r from-pink-50 to-purple-50 border border-pink-100/30 shadow-lg">
                         <div className="flex items-center mb-3 gap-2">
                           <div className="flex items-center gap-2">
                             <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-pink-500 to-purple-500 flex items-center justify-center">
@@ -1650,7 +1646,7 @@ ${typeof window !== 'undefined' ? window.location.href : ''}`;
             </DialogHeader>
             <div className="grid gap-4 py-4">
               {selectedCharacterToAdd && (
-                <div className="p-4 rounded-lg bg-gradient-to-r from-pink-50 to-purple-50 border border-pink-100/30">
+                <div className="p-4 rounded-lg bg-gradient-to-r from-pink-50 to-purple-50 border border-pink-100/30 shadow-lg">
                   <div className="flex items-center gap-3">
                     <div className={`w-12 h-12 rounded-lg ${getClassColor(selectedCharacterToAdd.class).bg} border ${getClassColor(selectedCharacterToAdd.class).border} flex items-center justify-center shadow-inner`}>
                       <span className="text-2xl">{getClassColor(selectedCharacterToAdd.class).icon}</span>

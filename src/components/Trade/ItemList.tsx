@@ -65,7 +65,7 @@ export function ItemList({ merchantId }: { merchantId: string }) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
               className={cn(
-                "bg-white rounded-xl p-6 border shadow-sm hover:shadow-md transition-shadow",
+                "bg-white/90 backdrop-blur-sm rounded-2xl p-6 border border-pink-200 shadow-xl hover:shadow-2xl transition-shadow",
                 item.status === 'sold' ? 'border-gray-200' : 'border-pink-100'
               )}
             >

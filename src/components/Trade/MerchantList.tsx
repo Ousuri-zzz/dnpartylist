@@ -53,7 +53,7 @@ export function MerchantList() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
-              className="bg-white rounded-xl p-6 border border-pink-100 shadow-sm hover:shadow-md transition-shadow"
+              className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 border border-pink-200 shadow-xl hover:shadow-2xl transition-shadow"
             >
               <div className="flex items-start justify-between mb-4">
                 <div>

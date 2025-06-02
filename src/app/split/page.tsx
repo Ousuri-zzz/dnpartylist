@@ -77,37 +77,33 @@ export default function SplitPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-yellow-50 to-blue-50">
+    <div className="min-h-screen">
       {/* Decorative Banner */}
-      <div className="relative bg-gradient-to-r from-yellow-100 via-white to-emerald-50 py-6 overflow-hidden rounded-b-3xl shadow-sm">
-        <div className="absolute inset-0 flex justify-end items-end opacity-15 pointer-events-none select-none">
-          {/* ไอคอนเงินขนาดใหญ่เป็นลาย background */}
-          <svg width="180" height="180" fill="none" viewBox="0 0 24 24"><circle cx="90" cy="90" r="80" fill="#FEF9C3" /><rect x="120" y="60" width="40" height="20" rx="6" fill="#D1FAE5" /><circle cx="150" cy="70" r="6" fill="#FDE68A" /></svg>
-        </div>
-        <div className="relative max-w-4xl mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl font-extrabold text-yellow-500 mb-3 drop-shadow-none flex items-center justify-center gap-3">
-            <span>จัดสรรแบ่ง Gold ปาร์ตี้</span>
-            <svg className="inline h-9 w-9 text-yellow-300" fill="currentColor" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8" /><text x="10" y="14" textAnchor="middle" fontSize="12" fill="#fff">฿</text></svg>
-          </h1>
-          <p className="text-emerald-500 text-lg md:text-xl max-w-2xl mx-auto font-medium">
+      <div className="relative max-w-3xl mx-auto mt-6 mb-8 px-4">
+        <div className="rounded-3xl bg-white/90 backdrop-blur-sm shadow-lg border border-yellow-100 px-6 py-7 flex flex-col items-center text-center">
+          <div className="flex items-center justify-center gap-3 mb-2">
+            <h1 className="text-3xl md:text-4xl font-extrabold text-yellow-500 drop-shadow-none flex items-center gap-2">
+              <span>จัดสรรแบ่ง Gold ปาร์ตี้</span>
+              <svg className="inline h-8 w-8 text-yellow-300" fill="currentColor" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8" /><text x="10" y="14" textAnchor="middle" fontSize="12" fill="#fff">฿</text></svg>
+            </h1>
+          </div>
+          <p className="text-emerald-500 text-base md:text-lg max-w-2xl mx-auto font-medium mb-3">
             แบ่งปันค่าใช้จ่ายในปาร์ตี้ของคุณอย่างยุติธรรมและโปร่งใส
           </p>
-          <div className="flex justify-center mt-6">
-            <button
-              onClick={() => setModalOpen(true)}
-              className="flex items-center justify-center gap-2 px-6 py-2 rounded-full bg-gradient-to-r from-yellow-50 to-emerald-50 border border-yellow-200 text-yellow-600 font-semibold text-lg shadow-sm hover:bg-yellow-100 hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-yellow-100 focus:ring-offset-2"
-              style={{ minWidth: 220 }}
-            >
-              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-yellow-100 shadow-none">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8" /><text x="10" y="14" textAnchor="middle" fontSize="12" fill="#fff">+</text></svg>
-              </span>
-              <span>สร้างบิลใหม่</span>
-              <span className="flex items-center ml-1">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="3" y="7" width="18" height="10" rx="2" fill="#FEF9C3" stroke="#FDE68A" strokeWidth="2"/><circle cx="17" cy="12" r="1.5" fill="#FDE68A"/></svg>
-              </span>
-            </button>
-          </div>
-          <p className="flex flex-wrap items-center justify-center gap-2 text-sm text-emerald-600/60 opacity-80 mt-3 text-center px-2">
+          <button
+            onClick={() => setModalOpen(true)}
+            className="flex items-center justify-center gap-2 px-6 py-2 rounded-full bg-gradient-to-r from-yellow-50 to-emerald-50 border border-yellow-200 text-yellow-600 font-semibold text-lg shadow-sm hover:bg-yellow-100 hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-yellow-100 focus:ring-offset-2 mb-2"
+            style={{ minWidth: 220 }}
+          >
+            <span className="flex items-center justify-center w-8 h-8 rounded-full bg-yellow-100 shadow-none">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8" /><text x="10" y="14" textAnchor="middle" fontSize="12" fill="#fff">+</text></svg>
+            </span>
+            <span>สร้างบิลใหม่</span>
+            <span className="flex items-center ml-1">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="3" y="7" width="18" height="10" rx="2" fill="#FEF9C3" stroke="#FDE68A" strokeWidth="2"/><circle cx="17" cy="12" r="1.5" fill="#FDE68A"/></svg>
+            </span>
+          </button>
+          <p className="flex flex-wrap items-center justify-center gap-2 text-sm text-emerald-600/60 opacity-80 mt-2 text-center px-2">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
@@ -122,7 +118,7 @@ export default function SplitPage() {
       <div className="py-4">
         <div className="max-w-4xl mx-auto px-2 sm:px-4 w-full">
           {/* ส่วนคำนวณราคา */}
-          <div className="mb-4 bg-white/80 rounded-3xl p-6 shadow-lg border border-yellow-100">
+          <div className="mb-4 bg-white/90 backdrop-blur-sm rounded-3xl p-6 shadow-lg border border-yellow-100">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-2xl font-bold text-yellow-600 flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -131,7 +127,7 @@ export default function SplitPage() {
                 เครื่องมือคำนวณราคา
               </h2>
             </div>
-            <div className="bg-gradient-to-br from-yellow-50 to-emerald-50 rounded-2xl p-4 border border-yellow-100">
+            <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-4 border border-yellow-100">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* ด้านซ้าย - ช่องกรอกข้อมูล */}
                 <div className="space-y-4">
@@ -198,7 +194,7 @@ export default function SplitPage() {
                 </div>
 
                 {/* ด้านขวา - แสดงผลลัพธ์ */}
-                <div className="bg-white/90 rounded-xl p-4 border border-yellow-100 flex flex-col justify-center space-y-4">
+                <div className="bg-white/90 backdrop-blur-sm rounded-xl p-4 border border-yellow-100 flex flex-col justify-center space-y-4">
                   <div>
                     <div className="text-lg font-extrabold text-yellow-700 mb-4 flex items-center gap-2">
                       <SparklesIcon className="w-6 h-6 text-yellow-400" />

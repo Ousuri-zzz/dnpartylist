@@ -684,7 +684,7 @@ export function SearchingPartyList({ searchQuery }: SearchingPartyListProps) {
         return (
           <div
             key={nest}
-            className="mb-6 rounded-2xl border-2 border-violet-200/60 bg-gradient-to-br from-violet-100/80 via-white/80 to-blue-100/80 shadow-xl overflow-hidden transition-transform hover:scale-[1.01]"
+            className="mb-6 rounded-2xl border-2 border-violet-200/60 bg-white/90 backdrop-blur-sm shadow-xl overflow-hidden transition-transform hover:scale-[1.01]"
           >
             <div className="px-6 pt-4 pb-2 flex items-center justify-between">
               <h3 className="inline-block text-xl font-extrabold bg-gradient-to-r from-violet-600 to-blue-500 bg-clip-text text-transparent drop-shadow">

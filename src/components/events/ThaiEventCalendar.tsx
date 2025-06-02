@@ -33,7 +33,7 @@ export function ThaiEventCalendar({ selected, onSelect }: ThaiEventCalendarProps
           ? 'bg-blue-500 text-white rounded-full !hover:bg-blue-600'
           : ''
       }
-      className="bg-white/80 rounded-xl shadow-lg p-2 border border-blue-200"
+      className="bg-white/90 backdrop-blur-sm border border-pink-200 shadow-xl rounded-2xl p-4"
     />
   );
 } 

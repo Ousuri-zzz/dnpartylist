@@ -162,10 +162,10 @@ export default function GuildLoanPage() {
   }, [myLoans, guildLoans]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-pink-50 to-purple-50 p-4">
+    <div className="min-h-screen p-4">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex justify-between items-center mb-8 rounded-3xl bg-white/90 backdrop-blur-sm shadow-xl border border-pink-200 px-6 py-7">
           <div className="flex items-center gap-3">
             <Users className="text-pink-500 w-8 h-8 drop-shadow" />
             <h1 className="text-3xl font-extrabold bg-gradient-to-r from-pink-500 via-purple-500 to-yellow-400 bg-clip-text text-transparent drop-shadow-lg">
@@ -175,7 +175,7 @@ export default function GuildLoanPage() {
           </div>
           <button
             onClick={() => setShowLoanModal(true)}
-            className="flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-pink-400 to-purple-300 hover:from-pink-500 hover:to-purple-400 text-white font-bold rounded-full shadow-lg text-lg transition-all"
+            className="flex items-center gap-2 px-6 py-3 bg-pink-500/90 hover:bg-pink-600/90 text-white font-bold rounded-xl shadow-lg text-lg transition-all"
           >
             <Plus size={22} />
             ขอกู้เงินจากกิลด์
@@ -184,8 +184,8 @@ export default function GuildLoanPage() {
 
         {/* Loan Modal */}
         {showLoanModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white p-8 rounded-2xl shadow-2xl max-w-md w-full border-2 border-pink-100 relative animate-fadeIn">
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+            <div className="bg-white/90 backdrop-blur-sm p-8 rounded-2xl shadow-2xl max-w-md w-full border-2 border-pink-200 relative animate-fadeIn">
               <h2 className="text-2xl font-bold mb-4 text-pink-700 flex items-center gap-2">
                 <Plus className="text-pink-400" /> ยื่นขอกู้ยืมเงิน
               </h2>
@@ -198,7 +198,7 @@ export default function GuildLoanPage() {
                     type="number"
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
-                    className="w-full px-3 py-2 border border-pink-200 rounded-lg focus:ring-2 focus:ring-pink-300 focus:border-transparent text-lg"
+                    className="w-full px-4 py-3 border border-pink-200 bg-white/90 rounded-lg focus:ring-2 focus:ring-pink-300 focus:border-pink-300 text-lg placeholder:text-gray-300"
                     placeholder="กรอกจำนวนเงิน"
                   />
                 </div>
@@ -210,19 +210,19 @@ export default function GuildLoanPage() {
                     type="date"
                     value={dueDate}
                     onChange={(e) => setDueDate(e.target.value)}
-                    className="w-full px-3 py-2 border border-pink-200 rounded-lg focus:ring-2 focus:ring-pink-300 focus:border-transparent text-lg"
+                    className="w-full px-4 py-3 border border-pink-200 bg-white/90 rounded-lg focus:ring-2 focus:ring-pink-300 focus:border-pink-300 text-lg placeholder:text-gray-300"
                   />
                 </div>
                 <div className="flex justify-end gap-2 mt-4">
                   <button
                     onClick={() => setShowLoanModal(false)}
-                    className="px-4 py-2 text-gray-600 hover:text-gray-800 rounded-lg border border-gray-200 bg-gray-50"
+                    className="px-5 py-2 text-gray-600 hover:text-gray-800 rounded-lg border border-gray-200 bg-white/90 shadow"
                   >
                     ยกเลิก
                   </button>
                   <button
                     onClick={handleCreateLoan}
-                    className="px-4 py-2 bg-gradient-to-r from-pink-400 to-purple-300 hover:from-pink-500 hover:to-purple-400 text-white font-bold rounded-lg shadow"
+                    className="px-5 py-2 bg-pink-500/90 hover:bg-pink-600/90 text-white font-bold rounded-lg shadow-lg text-base"
                   >
                     ส่งคำขอ
                   </button>
@@ -234,7 +234,7 @@ export default function GuildLoanPage() {
 
         {/* My Loans */}
         <div className="mb-10">
-          <div className="flex items-center gap-2 mb-4">
+          <div className="flex items-center gap-2 mb-4 bg-white/90 backdrop-blur-sm rounded-xl px-4 py-2 shadow border border-pink-100">
             <History className="text-purple-600 w-6 h-6" />
             <h2 className="text-xl font-bold text-gray-800">ประวัติกู้ยืมของฉัน</h2>
           </div>
@@ -242,7 +242,7 @@ export default function GuildLoanPage() {
             {getPageItems(sortedMyLoans, currentPage, ITEMS_PER_PAGE).map((loan) => (
               <div
                 key={loan.loanId}
-                className="bg-white p-5 rounded-xl shadow-md border-2 border-purple-100 hover:shadow-lg transition-all group relative"
+                className="bg-white/90 backdrop-blur-sm p-6 rounded-xl shadow-md border-2 border-purple-200 hover:shadow-lg transition-all group relative"
               >
                 <div className="flex justify-between items-start">
                   <div>
@@ -275,7 +275,7 @@ export default function GuildLoanPage() {
                 {loan.status === 'active' && (
                   <button
                     onClick={() => handleMarkAsReturned(loan.loanId)}
-                    className="mt-4 w-full py-2 bg-blue-100 hover:bg-blue-200 text-blue-800 rounded-lg font-semibold flex items-center justify-center gap-2 transition-all"
+                    className="mt-4 w-full py-2 bg-blue-100 hover:bg-blue-200 text-blue-800 rounded-lg font-semibold flex items-center justify-center gap-2 transition-all shadow"
                   >
                     <Coins className="w-5 h-5" /> แจ้งคืนเงินแล้ว
                   </button>
@@ -289,15 +289,17 @@ export default function GuildLoanPage() {
               <button
                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
-                className="px-3 py-1 rounded bg-gray-100 text-gray-500 hover:bg-gray-200 disabled:opacity-50"
+                className="px-4 py-2 rounded-full bg-white/90 border border-pink-200 text-pink-600 font-bold shadow disabled:bg-gray-100 disabled:text-gray-400 disabled:border-gray-100"
               >
                 ก่อนหน้า
               </button>
-              <span className="px-3 py-1 text-gray-700 font-semibold">{currentPage} / {totalMyPages}</span>
+              <span className="px-4 py-2 rounded-full bg-white/90 border border-pink-200 text-pink-600 font-bold shadow">
+                {currentPage} / {totalMyPages}
+              </span>
               <button
                 onClick={() => setCurrentPage((p) => Math.min(totalMyPages, p + 1))}
                 disabled={currentPage === totalMyPages}
-                className="px-3 py-1 rounded bg-gray-100 text-gray-500 hover:bg-gray-200 disabled:opacity-50"
+                className="px-4 py-2 rounded-full bg-white/90 border border-pink-200 text-pink-600 font-bold shadow disabled:bg-gray-100 disabled:text-gray-400 disabled:border-gray-100"
               >
                 ถัดไป
               </button>
@@ -308,7 +310,7 @@ export default function GuildLoanPage() {
         {/* Guild Loans (for leaders) */}
         {isGuildLeader && (
           <div>
-            <div className="flex items-center gap-2 mb-4">
+            <div className="flex items-center gap-2 mb-4 bg-white/90 backdrop-blur-sm rounded-xl px-4 py-2 shadow border border-pink-100">
               <Crown className="text-yellow-500 w-6 h-6" />
               <h2 className="text-xl font-bold text-gray-800">ประวัติกู้ยืมของกิลด์</h2>
             </div>
@@ -316,7 +318,7 @@ export default function GuildLoanPage() {
               {getPageItems(sortedGuildLoans, currentPage, ITEMS_PER_PAGE).map((loan) => (
                 <div
                   key={loan.loanId}
-                  className="bg-white p-5 rounded-xl shadow-md border-2 border-pink-100 hover:shadow-lg transition-all group relative"
+                  className="bg-white/90 backdrop-blur-sm p-6 rounded-xl shadow-md border-2 border-pink-200 hover:shadow-lg transition-all group relative"
                 >
                   <div className="flex justify-between items-start">
                     <div>
@@ -350,13 +352,13 @@ export default function GuildLoanPage() {
                     <div className="flex gap-2 mt-4">
                       <button
                         onClick={() => handleApproveLoan(loan.loanId)}
-                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-100 hover:bg-green-200 text-green-800 rounded-lg font-semibold shadow"
+                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-500/90 hover:bg-green-600/90 text-white rounded-lg font-semibold shadow-lg text-base"
                       >
                         <Check className="w-5 h-5" /> อนุมัติ
                       </button>
                       <button
                         onClick={() => handleRejectLoan(loan.loanId)}
-                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-100 hover:bg-red-200 text-red-800 rounded-lg font-semibold shadow"
+                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-500/90 hover:bg-red-600/90 text-white rounded-lg font-semibold shadow-lg text-base"
                       >
                         <X className="w-5 h-5" /> ปฏิเสธ
                       </button>
@@ -365,7 +367,7 @@ export default function GuildLoanPage() {
                   {loan.status === 'returned' && (
                     <button
                       onClick={() => handleCompleteLoanLeader(loan.loanId)}
-                      className="mt-4 w-full py-2 bg-purple-100 hover:bg-purple-200 text-purple-800 rounded-lg font-semibold flex items-center justify-center gap-2 transition-all"
+                      className="mt-4 w-full py-2 bg-purple-500/90 hover:bg-purple-600/90 text-white rounded-lg font-semibold flex items-center justify-center gap-2 transition-all shadow-lg text-base"
                     >
                       <Check className="w-5 h-5" /> ยืนยันการคืนเงินแล้ว
                     </button>
@@ -379,15 +381,17 @@ export default function GuildLoanPage() {
                 <button
                   onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
-                  className="px-3 py-1 rounded bg-gray-100 text-gray-500 hover:bg-gray-200 disabled:opacity-50"
+                  className="px-4 py-2 rounded-full bg-white/90 border border-pink-200 text-pink-600 font-bold shadow disabled:bg-gray-100 disabled:text-gray-400 disabled:border-gray-100"
                 >
                   ก่อนหน้า
                 </button>
-                <span className="px-3 py-1 text-gray-700 font-semibold">{currentPage} / {totalGuildPages}</span>
+                <span className="px-4 py-2 rounded-full bg-white/90 border border-pink-200 text-pink-600 font-bold shadow">
+                  {currentPage} / {totalGuildPages}
+                </span>
                 <button
                   onClick={() => setCurrentPage((p) => Math.min(totalGuildPages, p + 1))}
                   disabled={currentPage === totalGuildPages}
-                  className="px-3 py-1 rounded bg-gray-100 text-gray-500 hover:bg-gray-200 disabled:opacity-50"
+                  className="px-4 py-2 rounded-full bg-white/90 border border-pink-200 text-pink-600 font-bold shadow disabled:bg-gray-100 disabled:text-gray-400 disabled:border-gray-100"
                 >
                   ถัดไป
                 </button>

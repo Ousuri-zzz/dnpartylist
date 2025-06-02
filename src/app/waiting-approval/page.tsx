@@ -44,7 +44,7 @@ export default function WaitingApprovalPage() {
 
   if (authLoading || isChecking) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-pink-50 to-purple-100 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -84,12 +84,12 @@ export default function WaitingApprovalPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-pink-50 to-purple-100 flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        className="bg-white/80 rounded-3xl shadow-2xl border border-pink-100 p-10 w-full max-w-md text-center relative overflow-hidden"
+        className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl border border-pink-200 p-10 w-full max-w-md text-center relative overflow-hidden"
       >
         {/* Discord Icon with floating animation */}
         <motion.div
@@ -140,9 +140,9 @@ export default function WaitingApprovalPage() {
             href="https://discord.com/users/1163943838826631258"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-sky-50 border border-sky-100 hover:bg-sky-100 text-sky-600 hover:text-sky-700 transition-colors font-medium text-sm shadow-sm"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-sky-500/90 hover:bg-sky-600/90 text-white shadow-lg text-base font-bold transition-all"
           >
-            <FaDiscord className="w-4 h-4" />
+            <FaDiscord className="w-5 h-5" />
             ติดต่อหัวกิลด์
           </a>
         </motion.div>

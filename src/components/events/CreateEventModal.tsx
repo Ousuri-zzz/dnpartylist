@@ -227,7 +227,7 @@ export function CreateEventModal({ isOpen, onClose, onSubmit, defaultValues, isE
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto !bg-pink-100/70 !backdrop-blur-sm !border-pink-200 !shadow-xl !rounded-2xl">
         <DialogHeader>
           <DialogTitle>{isEdit ? 'แก้ไขกิจกรรม' : 'สร้างกิจกรรมใหม่'}</DialogTitle>
         </DialogHeader>
@@ -239,7 +239,7 @@ export function CreateEventModal({ isOpen, onClose, onSubmit, defaultValues, isE
               value={name}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
               required
-              className="w-full rounded-lg border-pink-200 focus:ring-2 focus:ring-pink-300"
+              className="w-full rounded-lg border-pink-200 focus:ring-2 focus:ring-pink-300 bg-white"
             />
           </div>
 
@@ -250,7 +250,7 @@ export function CreateEventModal({ isOpen, onClose, onSubmit, defaultValues, isE
               value={description}
               onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setDescription(e.target.value)}
               required
-              className="w-full rounded-lg border-purple-200 focus:ring-2 focus:ring-purple-300"
+              className="w-full rounded-lg border-purple-200 focus:ring-2 focus:ring-purple-300 bg-white"
             />
           </div>
 
@@ -277,7 +277,7 @@ export function CreateEventModal({ isOpen, onClose, onSubmit, defaultValues, isE
                   max="8"
                   value={maxGroupSize}
                   onChange={(e) => setMaxGroupSize(Math.min(8, Math.max(2, parseInt(e.target.value) || 4)))}
-                  className="w-24 rounded-lg border-green-200 focus:ring-2 focus:ring-green-300"
+                  className="w-24 rounded-lg border-green-200 focus:ring-2 focus:ring-green-300 bg-white"
                 />
                 <span className="text-green-500 text-sm">คน (2-8 คน)</span>
               </div>
@@ -316,7 +316,7 @@ export function CreateEventModal({ isOpen, onClose, onSubmit, defaultValues, isE
                   type="time"
                   value={time}
                   onChange={e => handleTimeChange(e.target.value)}
-                  className="w-[100px] rounded-lg border-blue-200 focus:ring-2 focus:ring-blue-300"
+                  className="w-[100px] rounded-lg border-blue-200 focus:ring-2 focus:ring-blue-300 bg-white"
                   required
                 />
               </div>
@@ -352,7 +352,7 @@ export function CreateEventModal({ isOpen, onClose, onSubmit, defaultValues, isE
                   type="time"
                   value={endTime}
                   onChange={e => handleEndTimeChange(e.target.value)}
-                  className="w-[100px] rounded-lg border-red-200 focus:ring-2 focus:ring-red-300"
+                  className="w-[100px] rounded-lg border-red-200 focus:ring-2 focus:ring-red-300 bg-white"
                   required
                 />
               </div>
@@ -365,7 +365,7 @@ export function CreateEventModal({ isOpen, onClose, onSubmit, defaultValues, isE
               id="rewardInfo"
               value={rewardInfo}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRewardInfo(e.target.value)}
-              className="w-full rounded-lg border-yellow-200 focus:ring-2 focus:ring-yellow-300"
+              className="w-full rounded-lg border-yellow-200 focus:ring-2 focus:ring-yellow-300 bg-white"
             />
           </div>
 
@@ -404,7 +404,7 @@ export function CreateEventModal({ isOpen, onClose, onSubmit, defaultValues, isE
 
           {error && <div className="text-red-600 text-sm mb-2">{error}</div>}
 
-          <div className="flex flex-col sm:flex-row justify-end gap-2 sticky bottom-0 bg-white/90 pt-2 z-10">
+          <div className="flex flex-col sm:flex-row justify-end gap-2 sticky bottom-0 pt-2 z-10">
             <Button type="button" variant="outline" onClick={handleClose} className="w-full sm:w-auto">
               ยกเลิก
             </Button>

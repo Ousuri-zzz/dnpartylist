@@ -935,7 +935,7 @@ export default function MyPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-violet-50 via-pink-50 to-sky-50">
+    <div className="min-h-screen">
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -947,7 +947,7 @@ export default function MyPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, ease: "easeOut" }}
-          className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg p-6 mb-8"
+          className="relative w-full mt-4 mb-8 rounded-2xl shadow-xl bg-white/90 backdrop-blur-sm border border-pink-200/60 p-6"
         >
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <motion.div 
@@ -1054,7 +1054,7 @@ export default function MyPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.2, ease: "easeOut" }}
-            className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg p-8 text-center"
+            className="bg-white/30 backdrop-blur-sm rounded-2xl shadow-lg p-8 text-center"
           >
             <div className="w-20 h-20 mx-auto mb-4 bg-violet-100 text-violet-500 rounded-full flex items-center justify-center">
               <svg xmlns="http://www.w3.org/2000/svg" className="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

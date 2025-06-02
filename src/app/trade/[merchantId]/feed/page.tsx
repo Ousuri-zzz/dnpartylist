@@ -97,7 +97,7 @@ export default function MerchantFeedPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-pink-50 to-purple-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-400 mx-auto"></div>
           <p className="mt-4 text-gray-600">กำลังโหลดข้อมูล...</p>
@@ -110,10 +110,10 @@ export default function MerchantFeedPage() {
   const paginatedFeed = feedMessages.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-pink-50 to-purple-50">
+    <div className="min-h-screen">
       <div className="container mx-auto px-4 py-8">
-        <div className="mb-8 flex items-center justify-between">
-          <h1 className="text-3xl font-bold text-pink-600 mb-4">ประวัติการซื้อขายร้านนี้</h1>
+        <div className="mb-8 rounded-3xl bg-white/90 backdrop-blur-sm shadow-lg border border-pink-200 px-6 py-7 flex items-center justify-between">
+          <h1 className="text-3xl font-bold text-pink-600">ประวัติการซื้อขายร้านนี้</h1>
           <Link href={`/trade/${merchantId}`} className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-pink-50 hover:bg-pink-100 text-pink-600 transition-colors">
             <ArrowLeft className="w-5 h-5" />
             <span>กลับหน้าร้าน</span>
@@ -128,12 +128,7 @@ export default function MerchantFeedPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
-                  className={
-                    `rounded-2xl p-6 shadow-md border flex flex-col gap-2 transition-all ` +
-                    (index % 2 === 0
-                      ? 'bg-gradient-to-r from-pink-50 via-white to-purple-50 border-pink-100'
-                      : 'bg-gradient-to-r from-purple-50 via-white to-pink-50 border-pink-200')
-                  }
+                  className="rounded-xl p-6 shadow-md border-2 border-pink-200 flex flex-col gap-2 transition-all bg-white/90 backdrop-blur-sm hover:shadow-xl"
                 >
                   <div className="flex items-center gap-3 mb-2">
                     <span className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-pink-100 text-pink-600 shadow text-2xl">
@@ -185,14 +180,14 @@ export default function MerchantFeedPage() {
                       `px-5 py-2 rounded-full font-semibold shadow-sm border transition-all duration-150 ` +
                       (currentPage === 1
                         ? 'bg-gray-100 text-gray-300 border-gray-100 cursor-not-allowed'
-                        : 'bg-gradient-to-r from-pink-100 via-purple-100 to-blue-100 text-pink-600 border-pink-200 hover:from-pink-200 hover:to-blue-200 hover:text-purple-700')
+                        : 'bg-white/90 backdrop-blur-sm text-pink-600 border-pink-200 hover:bg-pink-50')
                     }
                     onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                     disabled={currentPage === 1}
                   >
                     <ChevronLeft className="w-5 h-5" />
                   </button>
-                  <span className="px-4 py-1 rounded-full bg-gradient-to-r from-pink-50 via-purple-50 to-blue-50 text-pink-600 font-semibold border border-pink-200 shadow-sm">
+                  <span className="px-4 py-1 rounded-full bg-white/90 backdrop-blur-sm text-pink-600 font-semibold border border-pink-200 shadow-sm">
                     หน้า {currentPage} / {totalPages}
                   </span>
                   <button
@@ -200,7 +195,7 @@ export default function MerchantFeedPage() {
                       `px-5 py-2 rounded-full font-semibold shadow-sm border transition-all duration-150 ` +
                       (currentPage === totalPages
                         ? 'bg-gray-100 text-gray-300 border-gray-100 cursor-not-allowed'
-                        : 'bg-gradient-to-r from-blue-100 via-purple-100 to-pink-100 text-blue-600 border-blue-200 hover:from-blue-200 hover:to-pink-200 hover:text-purple-700')
+                        : 'bg-white/90 backdrop-blur-sm text-pink-600 border-pink-200 hover:bg-pink-50')
                     }
                     onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                     disabled={currentPage === totalPages}

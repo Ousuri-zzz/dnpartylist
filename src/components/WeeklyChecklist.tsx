@@ -41,7 +41,7 @@ function StatDisplay({ label, value, icon, suffix = "", className }: StatDisplay
 
 export function WeeklyChecklist({ character }: WeeklyChecklistProps) {
   return (
-    <Card className="bg-gradient-to-br from-purple-50/80 to-pink-50/80 backdrop-blur-xl border border-purple-100/30">
+    <Card className="bg-white/90 backdrop-blur-sm border border-pink-200 rounded-2xl shadow-xl">
       <CardHeader>
         <CardTitle className="text-lg font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
           Weekly Checklist
@@ -93,7 +93,7 @@ export function WeeklyChecklist({ character }: WeeklyChecklistProps) {
           {weeklyTasks.map((task) => (
             <div
               key={task.id}
-              className="p-3 rounded-lg bg-white/50 border border-purple-100/50 hover:bg-white/70 transition-colors cursor-pointer group"
+              className="p-3 rounded-lg bg-white/80 border border-pink-200 hover:bg-white/90 transition-colors cursor-pointer group"
             >
               <div className="flex items-center gap-2">
                 <span className="text-xl group-hover:scale-110 transition-transform">

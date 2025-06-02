@@ -269,11 +269,11 @@ export default function GuildDonatePage() {
     <div className="flex flex-col md:flex-row gap-8 max-w-5xl mx-auto py-8">
       <div className="flex-1 min-w-0">
         {/* ฟอร์มบริจาค */}
-        <form onSubmit={handleSubmit} className="bg-gradient-to-br from-pink-50 via-yellow-50 to-purple-50 rounded-2xl shadow-xl p-7 mb-10 border-2 border-pink-100 flex flex-col gap-5">
-          <h2 className="font-bold text-xl text-pink-700 flex items-center gap-2 mb-2">
+        <form onSubmit={handleSubmit} className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-7 mb-10 border border-pink-200 flex flex-col gap-5">
+          <div className="flex items-center gap-2 mb-4 bg-white/90 backdrop-blur-sm rounded-xl px-4 py-2 shadow border border-pink-100">
             <span className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-pink-100 text-pink-500 shadow"><span className="text-2xl">💖</span></span>
             ส่งคำขอบริจาคกิลด์
-          </h2>
+          </div>
           <div className="flex gap-4">
             <div className="flex-1">
               <label className="block text-sm font-semibold text-gray-700 mb-1 flex items-center gap-1"><span className="text-lg">💰</span> จำนวนเงิน (G)</label>
@@ -330,10 +330,10 @@ export default function GuildDonatePage() {
         {isGuildLeader && cashDonations.length > 0 && (
           <div className="mb-10">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-bold text-yellow-700 mb-4 flex items-center gap-2">
+              <div className="flex items-center gap-2 mb-4 bg-white/90 backdrop-blur-sm rounded-xl px-4 py-2 shadow border border-pink-100">
                 <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-yellow-100 text-yellow-500 shadow"><span className="text-xl">💵</span></span>
                 รายการรออนุมัติเงินสด
-              </h2>
+              </div>
               <div className="flex items-center gap-2">
                 <Link
                   href="/guild-donate/cash"
@@ -345,7 +345,7 @@ export default function GuildDonatePage() {
               </div>
             </div>
             {cashDonations.map(donation => (
-              <div key={donation.id} className="bg-gradient-to-r from-yellow-50 via-pink-50 to-purple-50 border-2 border-yellow-200 rounded-xl p-5 flex flex-col gap-2 shadow-md relative overflow-hidden">
+              <div key={donation.id} className="bg-white/90 backdrop-blur-sm border border-pink-200 rounded-2xl p-5 flex flex-col gap-2 shadow-xl relative overflow-hidden">
                 <div className="flex flex-wrap gap-4 items-center mb-1">
                   <span className="inline-flex items-center gap-1 font-bold text-pink-700 bg-pink-100 px-3 py-1 rounded-full shadow-sm"><span className="text-lg">💰</span> {donation.amount} บาท</span>
                   <span className="text-gray-500 text-xs flex items-center gap-1"><span className="text-lg">⏰</span> {new Date(donation.createdAt).toLocaleString()}</span>
@@ -365,10 +365,10 @@ export default function GuildDonatePage() {
         {isGuildLeader && (
           <div className="mb-10">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-bold text-yellow-700 mb-4 flex items-center gap-2">
+              <div className="flex items-center gap-2 mb-4 bg-white/90 backdrop-blur-sm rounded-xl px-4 py-2 shadow border border-pink-100">
                 <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-yellow-100 text-yellow-500 shadow"><span className="text-xl">📝</span></span>
                 รายการรออนุมัติ
-              </h2>
+              </div>
               <div className="flex justify-end">
                 <Link
                   href="/guild-donate/history"
@@ -393,7 +393,7 @@ export default function GuildDonatePage() {
                   roleIcon = classColors.icon || '🧙‍♂️';
                 }
                 return (
-                  <div key={donate.id} className="bg-gradient-to-r from-yellow-50 via-pink-50 to-purple-50 border-2 border-yellow-200 rounded-xl p-5 flex flex-col gap-2 shadow-md relative overflow-hidden">
+                  <div key={donate.id} className="bg-white/90 backdrop-blur-sm border border-pink-200 rounded-2xl p-5 flex flex-col gap-2 shadow-xl relative overflow-hidden">
                     <div className="flex flex-wrap gap-4 items-center mb-1">
                       <span className="inline-flex items-center gap-1 font-bold text-pink-700 bg-pink-100 px-3 py-1 rounded-full shadow-sm"><span className="text-lg">🎁</span> {donate.amount}G</span>
                       <span className="text-gray-500 text-xs flex items-center gap-1"><span className="text-lg">⏰</span> {new Date(donate.createdAt).toLocaleString()}</span>
@@ -432,11 +432,11 @@ export default function GuildDonatePage() {
         )}
       </div>
       <aside className="w-full md:w-[380px] max-w-full">
-        <div className="bg-white/80 rounded-2xl shadow-lg border-2 border-pink-100 p-5 sticky top-6 flex flex-col">
-          <h2 className="text-lg font-bold text-pink-700 mb-4 flex items-center gap-2">
-            <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-pink-100 text-pink-500 shadow"><span className="text-xl">📜</span></span>
-            ประวัติการบริจาคของฉัน
-          </h2>
+        <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-pink-200 p-5 sticky top-6 flex flex-col">
+          <div className="flex items-center gap-2 mb-4 bg-white/90 backdrop-blur-sm rounded-xl px-4 py-2 shadow border border-pink-100">
+            <CreditCard className="text-pink-500 w-6 h-6" />
+            <h2 className="text-xl font-bold text-gray-800">ประวัติการบริจาคของฉัน</h2>
+          </div>
           <div className="space-y-2">
             {pagedHistory.length === 0 && (
               <div className="text-gray-400 text-center">ยังไม่มีประวัติ</div>

@@ -19,7 +19,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <ErrorBoundary fallback={<div>Something went wrong</div>}>
-      <div className="min-h-screen bg-gradient-to-br from-violet-100 via-pink-100 to-sky-100">
+      <div className="min-h-screen bg-transparent">
         <Navigation />
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-full">
           <div className="flex gap-0 pt-4">

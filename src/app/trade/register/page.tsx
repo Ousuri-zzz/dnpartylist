@@ -91,7 +91,7 @@ export default function RegisterPage() {
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-pink-50 to-purple-50">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-400"></div>
       </div>
     );
@@ -99,17 +99,17 @@ export default function RegisterPage() {
 
   if (isRegistered) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-pink-50 to-purple-50">
+      <div className="min-h-screen flex items-center justify-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white/80 rounded-2xl shadow-xl border border-pink-100 p-8 w-full max-w-md text-center"
+          className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl border border-pink-200 p-8 w-full max-w-md text-center"
         >
           <h2 className="text-2xl font-bold text-pink-600 mb-2">คุณได้ลงทะเบียนเป็นพ่อค้าแล้ว</h2>
           <p className="text-gray-500 mb-4">กรุณารอการอนุมัติจากหัวกิลด์</p>
           <button
             onClick={() => router.push('/trade/mystore')}
-            className="px-4 py-2 rounded-lg bg-gradient-to-r from-pink-400 to-purple-400 text-white font-bold shadow hover:from-pink-500 hover:to-purple-500 transition-all"
+            className="w-full py-3 rounded-lg bg-pink-500/90 hover:bg-pink-600/90 text-white font-bold shadow-lg text-lg transition-all"
           >
             ไปที่ร้านค้าของฉัน
           </button>
@@ -119,15 +119,15 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-pink-50 to-purple-50">
+    <div className="min-h-screen flex items-center justify-center">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white/80 rounded-2xl shadow-xl border border-pink-100 p-8 w-full max-w-md"
+        className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl border border-pink-200 p-8 w-full max-w-md"
       >
         <h2 className="text-2xl font-bold text-pink-600 mb-2 text-center">ลงทะเบียนร้านค้า</h2>
         <p className="text-gray-500 mb-6 text-center">กรอกข้อมูลร้านค้าของคุณเพื่อยืนยันตัวตนกับหัวกิลด์</p>
-        <form onSubmit={handleRegister} className="space-y-4">
+        <form onSubmit={handleRegister} className="space-y-5">
           <div>
             <label className="block text-sm text-gray-700 mb-1 flex items-center gap-2">
               <User className="w-4 h-4" />
@@ -138,7 +138,7 @@ export default function RegisterPage() {
               name="bankAccountName"
               value={form.bankAccountName}
               onChange={handleChange}
-              className="w-full rounded-lg border border-pink-200 bg-pink-50 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-pink-300"
+              className="w-full rounded-lg border border-pink-200 bg-white/90 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-300 placeholder:text-gray-300 text-base"
               placeholder="เช่น นายเอ"
               required
             />
@@ -153,7 +153,7 @@ export default function RegisterPage() {
               name="bankAccountNumber"
               value={form.bankAccountNumber}
               onChange={handleChange}
-              className="w-full rounded-lg border border-pink-200 bg-pink-50 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-pink-300"
+              className="w-full rounded-lg border border-pink-200 bg-white/90 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-300 placeholder:text-gray-300 text-base"
               placeholder="เช่น 1234567890"
               required
             />
@@ -168,7 +168,7 @@ export default function RegisterPage() {
               name="bankName"
               value={form.bankName}
               onChange={handleChange}
-              className="w-full rounded-lg border border-pink-200 bg-pink-50 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-pink-300"
+              className="w-full rounded-lg border border-pink-200 bg-white/90 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-300 placeholder:text-gray-300 text-base"
               placeholder="เช่น SCB, KBank"
               required
             />
@@ -184,7 +184,7 @@ export default function RegisterPage() {
                 name="discordId"
                 value={form.discordId}
                 onChange={handleChange}
-                className="flex-1 rounded-lg border border-pink-200 bg-pink-50 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-pink-300"
+                className="flex-1 rounded-lg border border-pink-200 bg-white/90 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-300 placeholder:text-gray-300 text-base"
                 placeholder="เช่น 823456789012345678"
                 required
               />
@@ -201,7 +201,7 @@ export default function RegisterPage() {
           </div>
           <button
             type="submit"
-            className="w-full py-2 rounded-lg bg-gradient-to-r from-pink-400 to-purple-400 text-white font-bold shadow hover:from-pink-500 hover:to-purple-500 transition-all"
+            className="w-full py-3 rounded-lg bg-pink-500/90 hover:bg-pink-600/90 text-white font-bold shadow-lg text-lg transition-all"
           >
             ลงทะเบียนร้านค้า
           </button>

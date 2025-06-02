@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
-import { MessageSquare, Copy, ArrowLeft, Search } from 'lucide-react';
+import { MessageSquare, Copy, ArrowLeft, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { db } from '@/lib/firebase';
 import { ref, onValue, query, orderByChild, update, get } from 'firebase/database';
@@ -246,9 +246,9 @@ export default function FeedPage() {
     toast.success('อัปเดตสถานะสำเร็จ');
   };
 
-  if (!user) {
+  if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-pink-50 to-purple-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-400 mx-auto"></div>
           <p className="mt-4 text-gray-600">กำลังโหลดข้อมูล...</p>
@@ -258,24 +258,15 @@ export default function FeedPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-pink-50 to-purple-50">
+    <div className="min-h-screen">
       <div className="container mx-auto px-4 py-8">
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8 bg-white rounded-xl p-6 shadow-sm border border-pink-100"
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-800">📋 ประวัติธุรกรรมทั้งหมด</h1>
-              <p className="text-gray-600 mt-2">แสดงข้อความทั้งหมดจากระบบ</p>
-            </div>
-            <Link href="/trade" className="flex items-center space-x-2 text-gray-600 hover:text-gray-800">
-              <ArrowLeft className="w-5 h-5" />
-              <span>กลับ</span>
-            </Link>
-          </div>
-        </motion.div>
+        <div className="mb-8 rounded-3xl bg-white/90 backdrop-blur-sm shadow-lg border border-pink-200 px-6 py-7 flex items-center justify-between">
+          <h1 className="text-3xl font-bold text-pink-600">ประวัติการซื้อขายทั้งหมด</h1>
+          <Link href="/trade" className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-pink-50 hover:bg-pink-100 text-pink-600 transition-colors">
+            <ArrowLeft className="w-5 h-5" />
+            <span>กลับหน้าหลัก</span>
+          </Link>
+        </div>
 
         <div className="flex flex-col md:flex-row gap-4 mb-6">
           <div className="flex space-x-4 overflow-x-auto pb-2">
@@ -353,10 +344,7 @@ export default function FeedPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
-                className={cn(
-                  "bg-white rounded-xl p-5 shadow-sm border flex flex-col gap-2",
-                  index % 2 === 0 ? "border-pink-100" : "border-gray-100"
-                )}
+                className="rounded-xl p-6 shadow-md border-2 border-pink-200 flex flex-col gap-2 transition-all bg-white/90 backdrop-blur-sm hover:shadow-xl"
               >
                 <div className="flex items-center gap-3 mb-1">
                   <span className="text-2xl">
@@ -435,31 +423,31 @@ export default function FeedPage() {
         {totalPages > 1 && (
           <div className="flex justify-center items-center gap-2 mt-8">
             <button
+              className={
+                `px-5 py-2 rounded-full font-semibold shadow-sm border transition-all duration-150 ` +
+                (currentPage === 1
+                  ? 'bg-gray-100 text-gray-300 border-gray-100 cursor-not-allowed'
+                  : 'bg-white/90 backdrop-blur-sm text-pink-600 border-pink-200 hover:bg-pink-50')
+              }
               onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
               disabled={currentPage === 1}
-              className={cn(
-                'px-5 py-2 rounded-full font-semibold shadow-sm border transition-all duration-150',
-                currentPage === 1
-                  ? 'bg-gray-100 text-gray-300 border-gray-100 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-pink-100 via-purple-100 to-blue-100 text-pink-600 border-pink-200 hover:from-pink-200 hover:to-blue-200 hover:text-purple-700'
-              )}
             >
-              ก่อนหน้า
+              <ChevronLeft className="w-5 h-5" />
             </button>
-            <span className="px-4 py-1 rounded-full bg-gradient-to-r from-pink-50 via-purple-50 to-blue-50 text-pink-600 font-semibold border border-pink-200 shadow-sm">
+            <span className="px-4 py-1 rounded-full bg-white/90 backdrop-blur-sm text-pink-600 font-semibold border border-pink-200 shadow-sm">
               หน้า {currentPage} / {totalPages}
             </span>
             <button
+              className={
+                `px-5 py-2 rounded-full font-semibold shadow-sm border transition-all duration-150 ` +
+                (currentPage === totalPages
+                  ? 'bg-gray-100 text-gray-300 border-gray-100 cursor-not-allowed'
+                  : 'bg-white/90 backdrop-blur-sm text-pink-600 border-pink-200 hover:bg-pink-50')
+              }
               onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
-              className={cn(
-                'px-5 py-2 rounded-full font-semibold shadow-sm border transition-all duration-150',
-                currentPage === totalPages
-                  ? 'bg-gray-100 text-gray-300 border-gray-100 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-blue-100 via-purple-100 to-pink-100 text-blue-600 border-blue-200 hover:from-blue-200 hover:to-pink-200 hover:text-purple-700'
-              )}
             >
-              ถัดไป
+              <ChevronRight className="w-5 h-5" />
             </button>
           </div>
         )}

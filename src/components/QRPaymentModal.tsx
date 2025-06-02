@@ -183,7 +183,7 @@ export default function QRPaymentModal({ isOpen, onClose, onSuccess }: QRPayment
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-xl">
+      <DialogContent className="sm:max-w-xl bg-white/95 backdrop-blur-sm">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-pink-700 flex items-center gap-2">
             <span className="text-2xl">💖</span>

@@ -168,7 +168,7 @@ export default function GuildDonateCashPage() {
           <div className="ml-auto flex items-center gap-2">
             <Link
               href="/guild-donate/history"
-              className="flex items-center gap-2 px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-colors shadow-sm"
+              className="flex items-center gap-2 px-4 py-2 bg-pink-100 text-pink-600 rounded-lg hover:bg-pink-200 transition-colors shadow-sm border border-pink-200"
             >
               <Crown className="w-4 h-4" />
               <span>ประวัติบริจาค Gold</span>

@@ -508,7 +508,7 @@ function RenderBracketTree({ matches, isGuildLeader, onSelectWinner, title }: { 
       <Dialog open={!!confirmModal?.open} onClose={() => setConfirmModal(null)} className="fixed z-50 inset-0 flex items-center justify-center">
         <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
         <Dialog.Panel>
-          <div className="relative bg-white rounded-2xl shadow-2xl p-8 max-w-xs mx-auto z-50 border border-pink-100 flex flex-col items-center">
+          <div className="relative bg-white/90 backdrop-blur-sm rounded-2xl shadow-2xl p-8 max-w-xs mx-auto z-50 border border-pink-200 flex flex-col items-center">
             <div className="flex flex-col items-center mb-4">
               <div className="w-16 h-16 rounded-full bg-gradient-to-br from-green-200 to-pink-200 flex items-center justify-center mb-2 shadow-lg">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="#a21caf" className="w-10 h-10">

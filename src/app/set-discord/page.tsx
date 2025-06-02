@@ -57,12 +57,12 @@ export default function SetDiscordPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-pink-50 to-purple-100 px-4">
+    <div className="min-h-screen flex flex-col items-center justify-center px-4">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        className="bg-white/80 rounded-3xl shadow-2xl border border-pink-100 p-10 w-full max-w-md text-center relative overflow-hidden"
+        className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl border border-pink-200 p-10 w-full max-w-md text-center relative overflow-hidden"
       >
         {/* Discord Icon with floating animation */}
         <motion.div
@@ -100,7 +100,7 @@ export default function SetDiscordPage() {
         <form onSubmit={handleSubmit} className="space-y-5">
           <motion.input
             type="text"
-            className="w-full px-5 py-3 border-2 border-pink-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-400 text-center bg-white/90 text-lg font-semibold shadow-sm transition-all duration-200 focus:scale-105"
+            className="w-full px-5 py-3 border border-pink-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-300 text-center bg-white/90 text-lg font-semibold shadow-sm transition-all duration-200 focus:scale-105 placeholder:text-gray-300"
             placeholder="กรอก Discord Name ของคุณ"
             value={discordName}
             onChange={e => setDiscordName(e.target.value)}
@@ -124,7 +124,7 @@ export default function SetDiscordPage() {
           </AnimatePresence>
           <motion.button
             type="submit"
-            className="w-full px-4 py-3 rounded-xl bg-gradient-to-r from-pink-400 to-purple-400 text-white font-bold shadow-lg hover:from-pink-500 hover:to-purple-500 transition-all text-lg tracking-wide flex items-center justify-center gap-2"
+            className="w-full px-4 py-3 rounded-xl bg-pink-500/90 hover:bg-pink-600/90 text-white font-bold shadow-lg transition-all text-lg tracking-wide flex items-center justify-center gap-2"
             disabled={isSubmitting || !discordName.trim()}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

@@ -376,9 +376,9 @@ export function BillCard({ bill }: BillCardProps) {
   };
 
   return (
-    <div className="max-w-md w-full mx-auto rounded-3xl border border-emerald-100 bg-white/80 p-6 shadow-xl hover:shadow-2xl transition-all sm:max-w-md sm:p-6 px-2 py-2">
+    <div className="max-w-md w-full mx-auto rounded-3xl border border-emerald-100 bg-white/90 backdrop-blur-sm p-6 shadow-xl hover:shadow-2xl transition-all sm:max-w-md sm:p-6 px-2 py-2">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4 bg-gradient-to-r from-white via-blue-50 to-emerald-50 rounded-2xl px-4 py-3 shadow-sm">
+      <div className="flex items-center justify-between mb-4 bg-white/90 backdrop-blur-sm rounded-2xl px-4 py-3 shadow-sm">
         <div className="flex items-center gap-2">
           <GiftIcon className="w-7 h-7 text-yellow-300 drop-shadow" />
           <div className="max-w-[180px] md:max-w-[260px] overflow-hidden relative" title={bill.title}>
@@ -404,7 +404,7 @@ export function BillCard({ bill }: BillCardProps) {
       </div>
 
       {/* ตารางไอเทม */}
-      <table className="w-full text-sm mb-4 border-collapse rounded-2xl overflow-hidden shadow-sm">
+      <table className="w-full text-sm mb-4 border-collapse rounded-2xl overflow-hidden shadow-sm bg-white/90 backdrop-blur-sm">
         <thead>
           <tr className="text-left text-emerald-600 bg-gradient-to-r from-white via-emerald-50 to-blue-50">
             <th className="py-2 rounded-tl-2xl">
@@ -586,17 +586,17 @@ export function BillCard({ bill }: BillCardProps) {
 
       {/* กล่องสรุป */}
       <div className="mb-4 grid grid-cols-1 md:grid-cols-3 gap-2">
-        <div className="rounded-xl bg-white/80 shadow flex flex-col items-center py-2 px-1 min-w-[80px] border border-emerald-50">
+        <div className="rounded-xl bg-white/90 backdrop-blur-sm shadow flex flex-col items-center py-2 px-1 min-w-[80px] border border-emerald-50">
           <span className="flex items-center gap-1 text-[11px] text-emerald-400 mb-0.5"><Cog6ToothIcon className="w-4 h-4 text-yellow-300" /> ค่าบริการ</span>
           <span className="text-xl font-bold text-emerald-600">{formatGold(editServiceFee)}</span>
           <span className="text-[11px] text-emerald-200 mt-0.5">Gold</span>
         </div>
-        <div className="rounded-xl bg-white/80 shadow flex flex-col items-center py-2 px-1 min-w-[80px] border border-emerald-50">
+        <div className="rounded-xl bg-white/90 backdrop-blur-sm shadow flex flex-col items-center py-2 px-1 min-w-[80px] border border-emerald-50">
           <span className="flex items-center gap-1 text-[11px] text-emerald-400 mb-0.5"><UserGroupIcon className="w-4 h-4 text-yellow-300" /> เงินต่อคน</span>
           <span className="text-xl font-extrabold text-yellow-400 drop-shadow">{formatGold(splitAmount)}</span>
           <span className="text-[11px] text-emerald-200 mt-0.5">Gold</span>
         </div>
-        <div className="rounded-xl bg-white/80 shadow flex flex-col items-center py-2 px-1 min-w-[80px] border border-emerald-50">
+        <div className="rounded-xl bg-white/90 backdrop-blur-sm shadow flex flex-col items-center py-2 px-1 min-w-[80px] border border-emerald-50">
           <span className="flex items-center gap-1 text-[11px] text-emerald-400 mb-0.5"><BanknotesIcon className="w-4 h-4 text-yellow-300" /> ราคารวม</span>
           <span className="text-xl font-bold text-emerald-600">{formatGold(totalPrice)}</span>
           <span className="text-[11px] text-emerald-200 mt-0.5">Gold</span>

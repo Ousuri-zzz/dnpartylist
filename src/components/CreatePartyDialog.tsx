@@ -79,7 +79,7 @@ export function CreatePartyDialog() {
         </motion.button>
       </DialogTrigger>
       
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-pink-200/50 p-6">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-pink-600 to-indigo-600 bg-clip-text text-transparent">
             สร้างปาร์ตี้ใหม่
@@ -115,23 +115,24 @@ export function CreatePartyDialog() {
         </Dialog>
 
         <div className="space-y-6 py-4">
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">ชื่อปาร์ตี้</Label>
+          <div className="space-y-3">
+            <Label className="text-base font-semibold text-pink-700 mb-1">ชื่อปาร์ตี้</Label>
             <Input
               value={partyName}
               onChange={e => setPartyName(e.target.value)}
               placeholder="กรอกชื่อปาร์ตี้"
               maxLength={30}
+              className="bg-white/95 border border-pink-200/70 rounded-lg px-4 py-2 text-base shadow-sm placeholder:text-gray-400 focus:ring-2 focus:ring-pink-300/50 focus:border-pink-300/50"
             />
           </div>
 
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">เนสต์</Label>
+          <div className="space-y-3">
+            <Label className="text-base font-semibold text-pink-700 mb-1">เนสต์</Label>
             <Select 
               value={selectedNest} 
               onValueChange={(value: NestType) => setSelectedNest(value)}
             >
-              <SelectTrigger className="w-full">
+              <SelectTrigger className="w-full bg-white/95 border border-pink-200/70 rounded-lg px-4 py-2 text-base shadow-sm placeholder:text-gray-400 focus:ring-2 focus:ring-pink-300/50 focus:border-pink-300/50">
                 <SelectValue placeholder="เลือกเนสต์" />
               </SelectTrigger>
               <SelectContent>
@@ -155,15 +156,15 @@ export function CreatePartyDialog() {
             </Select>
           </div>
 
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">ตัวละคร</Label>
+          <div className="space-y-3">
+            <Label className="text-base font-semibold text-pink-700 mb-1">ตัวละคร</Label>
             <Select
               value={selectedCharacter ? selectedCharacter.id : ''}
               onValueChange={(value) => 
                 setSelectedCharacter(characters.find(c => c.id === value) || null)
               }
             >
-              <SelectTrigger className="w-full">
+              <SelectTrigger className="w-full bg-white/95 border border-pink-200/70 rounded-lg px-4 py-2 text-base shadow-sm placeholder:text-gray-400 focus:ring-2 focus:ring-pink-300/50 focus:border-pink-300/50">
                 <SelectValue placeholder="เลือกตัวละคร" />
               </SelectTrigger>
               <SelectContent>

@@ -86,12 +86,12 @@ export default function LoanStatusPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-pink-50 to-purple-50">
+    <div className="min-h-screen">
       <div className="container mx-auto px-4 py-8">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8 bg-white rounded-xl p-6 shadow-sm border border-pink-100"
+          className="mb-8 bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-pink-200"
         >
           <div className="flex items-center justify-between">
             <div>
@@ -142,7 +142,7 @@ export default function LoanStatusPage() {
 
         <div className="space-y-4">
           {filteredLoans.length === 0 ? (
-            <div className="text-center py-12 bg-white rounded-xl shadow-sm border border-pink-100">
+            <div className="text-center py-12 bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-pink-200">
               <p className="text-gray-500">คุณยังไม่เคยกู้ยืมเงิน</p>
             </div>
           ) : (
@@ -152,7 +152,7 @@ export default function LoanStatusPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className="bg-white rounded-xl p-6 shadow-sm border border-pink-100"
+                className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-pink-200"
               >
                 <div className="flex justify-between items-start">
                   <div>

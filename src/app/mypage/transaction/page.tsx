@@ -253,12 +253,12 @@ export default function TransactionHistoryPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-pink-50 to-purple-50">
+    <div className="min-h-screen">
       <div className="container mx-auto px-4 py-8">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8 bg-white rounded-xl p-6 shadow-sm border border-pink-100"
+          className="mb-8 bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-pink-200"
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -337,7 +337,7 @@ export default function TransactionHistoryPage() {
 
         <div className="space-y-4">
           {pagedTransactions.length === 0 ? (
-            <div className="text-center py-12 bg-white rounded-2xl shadow border border-pink-100">
+            <div className="text-center py-12 bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-pink-200">
               <p className="text-gray-500">ยังไม่มีประวัติธุรกรรม</p>
             </div>
           ) : (
@@ -346,8 +346,8 @@ export default function TransactionHistoryPage() {
                 key={transaction.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
-                className="bg-white/90 rounded-2xl p-6 shadow-md border border-pink-100 flex flex-col md:flex-row md:items-center md:justify-between gap-4 hover:shadow-lg transition-all"
+                transition={{ delay: index * 0.1 }}
+                className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-pink-200 flex flex-col md:flex-row md:items-center md:justify-between gap-4 hover:shadow-lg transition-all"
               >
                 <div className="flex items-center gap-4 flex-1 min-w-0">
                   {transaction.type === 'gold' ? (

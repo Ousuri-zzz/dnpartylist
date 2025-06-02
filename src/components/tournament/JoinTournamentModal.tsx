@@ -108,7 +108,7 @@ export function JoinTournamentModal({ isOpen, onClose, onSubmit, tournamentId }:
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.95, opacity: 0 }}
-          className="relative bg-white rounded-xl shadow-xl w-full max-w-md mx-4 p-6"
+          className="relative bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl w-full max-w-md mx-4 p-6 border border-pink-200"
         >
           <button
             onClick={onClose}

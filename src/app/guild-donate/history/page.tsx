@@ -273,7 +273,7 @@ export default function GuildDonateHistoryPage() {
         <div className="overflow-x-auto hidden md:block">
           <table className="w-full">
             <thead>
-              <tr className="bg-pink-50">
+              <tr className="bg-white/80 backdrop-blur-sm">
                 <th 
                   className="px-3 py-3 text-center text-sm font-semibold text-gray-600 cursor-pointer hover:bg-pink-100 w-16"
                   onClick={() => handleSort('donationCount')}
@@ -365,7 +365,7 @@ export default function GuildDonateHistoryPage() {
                               {chars.length > count && (
                                 <span
                                   ref={el => { plusNRefs.current[member.userId] = el; }}
-                                  className="px-1.5 py-0.5 bg-pink-100 text-pink-600 rounded-full text-xs border border-pink-200 cursor-pointer select-none flex-shrink-0"
+                                  className="px-1.5 py-0.5 bg-white/80 backdrop-blur-sm text-pink-600 rounded-full text-xs border border-pink-200 cursor-pointer select-none flex-shrink-0"
                                   onClick={e => {
                                     if (openPopoverUser === member.userId) {
                                       setOpenPopoverUser(null);

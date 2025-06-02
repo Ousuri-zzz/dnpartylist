@@ -122,9 +122,8 @@ export function CharacterCard({ character, onEdit, onDelete, onChecklistChange }
 
   return (
     <Card className={cn(
-      "relative overflow-hidden rounded-3xl shadow-2xl transition-all duration-500 group",
-      "bg-white",
-      "border-2",
+      "relative overflow-hidden rounded-2xl shadow-xl transition-all duration-500 group",
+      "bg-white/90 backdrop-blur-sm border border-pink-200",
       mainClass === 'Warrior' && 'border-red-400/90',
       mainClass === 'Archer' && 'border-emerald-400/90',
       mainClass === 'Sorceress' && 'border-purple-400/90',
@@ -231,7 +230,7 @@ export function CharacterCard({ character, onEdit, onDelete, onChecklistChange }
           {character.class}
         </p>
         <div className="w-full flex flex-col gap-2">
-          <div className="p-3 rounded-xl bg-white shadow-inner border border-gray-300">
+          <div className="p-3 rounded-xl bg-white/90 backdrop-blur-sm shadow-inner border border-gray-300">
             <h4 className="text-sm font-semibold mb-2 flex items-center gap-1 text-gray-900">
               <Target className={cn("h-4 w-4",
                 mainClass === 'Warrior' && 'text-red-600',
@@ -246,7 +245,7 @@ export function CharacterCard({ character, onEdit, onDelete, onChecklistChange }
             </h4>
             <CharacterStats stats={character.stats} />
           </div>
-          <div className="p-3 rounded-xl bg-white shadow-inner border border-gray-300">
+          <div className="p-3 rounded-xl bg-white/90 backdrop-blur-sm shadow-inner border border-gray-300">
             <h4 className="text-sm font-semibold mb-2 flex items-center gap-1 text-gray-900">
               <CheckCircle2 className={cn("h-4 w-4",
                 mainClass === 'Warrior' && 'text-red-600',

@@ -181,7 +181,7 @@ export default function EventsPage() {
       <div className="flex flex-col lg:flex-row gap-8 w-full max-w-6xl mx-auto">
         {/* Calendar Section */}
         <div className="w-full lg:w-1/3 max-w-md mx-auto flex flex-col items-center justify-center mb-8 self-start h-fit">
-          <div className="bg-white/30 backdrop-blur-md border border-pink-200/50 shadow-lg p-4 rounded-xl mx-auto max-w-xs sm:max-w-md sticky top-0 z-30 lg:top-8">
+          <div className="bg-white/90 backdrop-blur-sm border border-pink-200 shadow-xl p-6 rounded-2xl mx-auto max-w-xs sm:max-w-md sticky top-0 z-30 lg:top-8">
             <h2 className="text-xl font-extrabold text-pink-700 flex items-center gap-2 mb-4">
               <CalendarIcon className="w-6 h-6 text-pink-500" />
               ปฏิทินกิจกรรม
@@ -287,6 +287,8 @@ export default function EventsPage() {
                     ? new Date(event.startAt.seconds * 1000)
                     : null;
                   
+                  const isGradient = event.color && event.color.startsWith('linear-gradient');
+
                   return (
                     <Link href={`/events/${event.id}`} key={event.id} legacyBehavior>
                       <a>
@@ -298,22 +300,21 @@ export default function EventsPage() {
                             "cursor-pointer border-2 rounded-2xl p-5 shadow-md hover:shadow-xl transition-all group mb-2 relative overflow-hidden"
                           }
                           style={{
-                            ...(event.color && event.color.startsWith('linear-gradient')
+                            ...(isGradient
                               ? {
                                   backgroundImage: event.color,
                                   borderColor: '#FFB5E8',
                                 }
                               : {
-                                  backgroundColor: `${event.color || '#FFB5E8'}0D`, // 0D = 5% opacity
+                                  backgroundColor: event.color || '#FFB5E8', // สีทึบ
                                   borderColor: event.color || '#FFB5E8',
                                 }
                             ),
-                            boxShadow: `0 0 0 1px ${(event.color && !event.color.startsWith('linear-gradient')) ? (event.color || '#FFB5E8') + '40' : '#FFB5E8' + '40'}, 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)`
+                            boxShadow: `0 0 0 1px ${(event.color && !isGradient) ? (event.color || '#FFB5E8') + '40' : '#FFB5E8' + '40'}, 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)`
                           }}
                         >
-                          {event.color && event.color.startsWith('linear-gradient') && (
-                            <div style={{position:'absolute',inset:0,background:'rgba(255,255,255,0.7)',zIndex:1,borderRadius:'inherit'}} />
-                          )}
+                          {/* overlay สีขาวโปร่งใสทับทุกกรณี ให้ดู soft/pastel */}
+                          <div style={{position:'absolute',inset:0,background:'rgba(255,255,255,0.7)',zIndex:1,borderRadius:'inherit'}} />
                           <div style={{position:'relative',zIndex:2}}>
                             <div className="flex items-center gap-2 mb-2">
                               <span className="text-2xl">🎉</span>
@@ -322,7 +323,7 @@ export default function EventsPage() {
                             <div className="px-4 py-2 w-full mb-2">
                               <div className="inline-flex items-start w-full min-w-0">
                                 <span className="text-lg flex-shrink-0 mt-1">📝</span>
-                                <span className="break-words whitespace-pre-line w-full ml-2 text-pink-500 text-sm font-semibold drop-shadow-sm min-w-0">{event.description}</span>
+                                <span className="break-words whitespace-pre-line w-full ml-2 text-pink-500 text-sm font-semibold drop-shadow-sm min-w-0 bg-white/70 backdrop-blur-sm rounded-lg px-4 py-2">{event.description}</span>
                               </div>
                             </div>
                             <div className="mb-2 space-y-2 flex flex-col">

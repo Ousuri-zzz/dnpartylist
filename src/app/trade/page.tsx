@@ -170,12 +170,12 @@ const TradeDashboardPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-pink-50 to-purple-50">
+    <div className="min-h-screen">
       <div className="container mx-auto px-4 py-4 sm:py-8">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative mb-8 bg-gradient-to-r from-yellow-50 via-pink-50 to-purple-100 rounded-2xl p-4 sm:p-8 shadow-lg border-2 border-pink-200 grid grid-cols-1 lg:grid-cols-[1fr_480px] gap-4 sm:gap-8 items-center"
+          className="relative mb-8 rounded-3xl bg-white/90 backdrop-blur-sm shadow-lg border border-pink-200 px-6 py-7 grid grid-cols-1 lg:grid-cols-[1fr_480px] gap-4 sm:gap-8 items-center"
         >
           {/* ปุ่มบริจาคกิลด์ มุมซ้ายบน */}
           <a
@@ -297,10 +297,10 @@ const TradeDashboardPage = () => {
           {/* รายการร้านค้า */}
           <div>
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-              <h2 className="text-2xl font-extrabold flex items-center gap-3 bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent drop-shadow">
+              <div className="flex items-center gap-3 bg-white/90 backdrop-blur-sm rounded-xl px-4 py-2 shadow border border-pink-100">
                 <Store className="w-7 h-7 text-pink-500" />
-                ร้านค้าทั้งหมด
-              </h2>
+                <h2 className="text-2xl font-extrabold text-pink-600">ร้านค้าทั้งหมด</h2>
+              </div>
               <input
                 type="text"
                 value={merchantSearch}
@@ -311,7 +311,7 @@ const TradeDashboardPage = () => {
             </div>
             <div className="space-y-4">
               {merchants.length === 0 ? (
-                <div className="text-center py-12 bg-white rounded-xl shadow-sm border border-pink-100">
+                <div className="text-center py-12 bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-pink-200">
                   <p className="text-gray-500">ยังไม่มีร้านเปิดให้บริการในขณะนี้</p>
                 </div>
               ) : (
@@ -347,7 +347,7 @@ const TradeDashboardPage = () => {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.1 }}
-                        className="bg-white rounded-xl p-6 shadow-md border-2 border-pink-200 hover:border-pink-400 hover:shadow-xl transition-all cursor-pointer"
+                        className="bg-white/90 backdrop-blur-sm rounded-xl p-6 shadow-md border-2 border-pink-200 hover:border-pink-400 hover:shadow-xl transition-all cursor-pointer"
                       >
                         <div className="flex items-center justify-between mb-1">
                           <div className="flex items-center gap-2 flex-wrap">
@@ -429,10 +429,10 @@ const TradeDashboardPage = () => {
           {/* รายการไอเทมที่ขาย */}
           <div>
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-              <h2 className="text-2xl font-extrabold flex items-center gap-3 bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent drop-shadow">
+              <div className="flex items-center gap-3 bg-white/90 backdrop-blur-sm rounded-xl px-4 py-2 shadow border border-pink-100">
                 <ShoppingBag className="w-7 h-7 text-pink-500" />
-                สินค้าและบริการ
-              </h2>
+                <h2 className="text-2xl font-extrabold text-pink-600">สินค้าและบริการ</h2>
+              </div>
               <input
                 type="text"
                 value={itemSearch}
@@ -443,7 +443,7 @@ const TradeDashboardPage = () => {
             </div>
             <div className="space-y-4">
               {Object.values(merchantItems).flat().length === 0 ? (
-                <div className="text-center py-12 bg-white rounded-xl shadow-sm border border-pink-100">
+                <div className="text-center py-12 bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-pink-200">
                   <p className="text-gray-500">ยังไม่มีไอเทมที่ขายในขณะนี้</p>
                 </div>
               ) : (
@@ -483,7 +483,7 @@ const TradeDashboardPage = () => {
                           initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: index * 0.05 }}
-                          className={`bg-white rounded-lg p-3 shadow-md border-2 ${
+                          className={`bg-white/90 backdrop-blur-sm rounded-lg p-3 shadow-md border-2 ${
                             item.status === 'available' ? 'border-green-200' :
                             item.status === 'sold' ? 'border-gray-200' :
                             item.status === 'queue_full' ? 'border-yellow-200' :

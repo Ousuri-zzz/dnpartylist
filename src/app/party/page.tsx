@@ -186,7 +186,7 @@ export default function PartyPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div
           className="w-8 h-8 border-3 border-pink-500 border-t-transparent rounded-full"
         />
@@ -195,7 +195,7 @@ export default function PartyPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50">
+    <div className="min-h-screen">
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -207,7 +207,7 @@ export default function PartyPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, ease: "easeOut" }}
-          className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg p-3 sm:p-6 mb-6 sm:mb-8 relative"
+          className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-pink-200/50 p-3 sm:p-6 mb-6 sm:mb-8 relative"
         >
           <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
             <motion.div 
@@ -233,7 +233,7 @@ export default function PartyPage() {
                   placeholder="ค้นหาปาร์ตี้หรือชื่อเนส..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200 text-sm"
+                  className="w-full px-3 py-2 rounded-lg border border-pink-200/50 bg-white/90 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-pink-300/50 focus:border-transparent transition-all duration-200 text-sm"
                 />
               </div>
               <CreatePartyDialog />
@@ -355,7 +355,7 @@ export default function PartyPage() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.3, ease: "easeOut" }}
-                  className="col-span-full flex flex-col items-center justify-center p-6 sm:p-12 text-center bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg"
+                  className="col-span-full flex flex-col items-center justify-center p-6 sm:p-12 text-center bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-pink-200/50"
                 >
                   <motion.div 
                     initial={{ scale: 0.8 }}
