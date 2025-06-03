@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
-import { Plus, Check, X, Package, MessageSquare, Copy, Settings, UserPlus, User, KeyRound, DollarSign, Clock, CheckCircle2, XCircle, Crown, ChevronDown, ChevronUp, LogOut, History, Store, ShoppingBag, Edit, Trash2, PlusCircle, ClipboardList, PiggyBank } from 'lucide-react';
+import { Plus, Check, X, Package, MessageSquare, Copy, Settings, UserPlus, User, KeyRound, DollarSign, Clock, CheckCircle2, XCircle, Crown, ChevronDown, ChevronUp, LogOut, History, Store, ShoppingBag, Edit, Trash2, PlusCircle, ClipboardList, PiggyBank, BarChart3, Calendar } from 'lucide-react';
 import { toast } from 'sonner';
 import { db } from '@/lib/firebase';
 import { ref, push, set, onValue, update, get, remove } from 'firebase/database';
@@ -29,7 +29,8 @@ export default function MyStorePage() {
   const [newItem, setNewItem] = useState({
     itemName: '',
     description: '',
-    price: ''
+    price: '',
+    priceType: 'gold', // default
   });
   const [isRegistered, setIsRegistered] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
@@ -48,6 +49,13 @@ export default function MyStorePage() {
   const [pendingLoans, setPendingLoans] = useState<any[]>([]);
   const [returnedLoans, setReturnedLoans] = useState<any[]>([]);
   const [activeLoans, setActiveLoans] = useState<any[]>([]);
+  const [activeTab, setActiveTab] = useState<'trade' | 'loan' | 'status'>('trade');
+  const [feed, setFeed] = useState<any[]>([]);
+  const [feedLoading, setFeedLoading] = useState(true);
+  // เพิ่ม state สำหรับแก้ไขไอเทม
+  const [editingItemId, setEditingItemId] = useState<string | null>(null);
+  const [editItemData, setEditItemData] = useState({ itemName: '', description: '', price: '', priceType: 'gold' });
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
 
   useEffect(() => {
     if (authLoading || !user) return;
@@ -142,6 +150,21 @@ export default function MyStorePage() {
     });
   }, [user, isRegistered]);
 
+  useEffect(() => {
+    if (!user) return;
+    setFeedLoading(true);
+    const feedRef = ref(db, `feed/merchant/${user.uid}/${activeTab}`);
+    const unsubscribe = onValue(feedRef, (snapshot) => {
+      const data = snapshot.val();
+      const feedList = data ? Object.entries(data)
+        .map(([id, item]: [string, any]) => ({ id, ...item }))
+        .sort((a, b) => b.timestamp - a.timestamp) : [];
+      setFeed(feedList);
+      setFeedLoading(false);
+    });
+    return () => unsubscribe();
+  }, [user, activeTab]);
+
   const handleCreateTrade = async () => {
     if (!user) return;
 
@@ -181,12 +204,13 @@ export default function MyStorePage() {
         itemName: newItem.itemName,
         description: newItem.description,
         price: parseInt(newItem.price),
+        priceType: newItem.priceType || 'gold',
         status: 'available',
         createdAt: Date.now()
       });
 
       setIsCreatingItem(false);
-      setNewItem({ itemName: '', description: '', price: '' });
+      setNewItem({ itemName: '', description: '', price: '', priceType: 'gold' });
       toast.success('เพิ่มไอเทมสำเร็จ');
     } catch (error) {
       toast.error('เกิดข้อผิดพลาดในการเพิ่มไอเทม');
@@ -304,9 +328,30 @@ export default function MyStorePage() {
     }
   };
 
+  // ฟังก์ชันบันทึกการแก้ไขไอเทม
+  const handleSaveEditItem = async () => {
+    if (!editingItemId) return;
+    setIsSavingEdit(true);
+    try {
+      const itemRef = ref(db, `tradeItems/${editingItemId}`);
+      await update(itemRef, {
+        itemName: editItemData.itemName,
+        description: editItemData.description,
+        price: parseInt(editItemData.price),
+        priceType: editItemData.priceType || 'gold',
+      });
+      toast.success('แก้ไขไอเทมสำเร็จ');
+      setEditingItemId(null);
+    } catch (error) {
+      toast.error('เกิดข้อผิดพลาดในการแก้ไขไอเทม');
+    } finally {
+      setIsSavingEdit(false);
+    }
+  };
+
   if (authLoading || loading || !user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-pink-50 to-purple-50">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-400"></div>
       </div>
     );
@@ -314,11 +359,11 @@ export default function MyStorePage() {
 
   if (!isRegistered) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-pink-50 to-purple-50">
+      <div className="min-h-screen flex items-center justify-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white/80 rounded-2xl shadow-xl border border-pink-100 p-8 w-full max-w-md text-center"
+          className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-pink-200 p-8 w-full max-w-md text-center"
         >
           <h2 className="text-2xl font-bold text-pink-600 mb-2">คุณยังไม่ได้ลงทะเบียนเป็นพ่อค้า</h2>
           <p className="text-gray-500 mb-4">กรุณาลงทะเบียนก่อนจึงจะสามารถใช้งานฟีเจอร์นี้ได้</p>
@@ -335,11 +380,11 @@ export default function MyStorePage() {
 
   if (merchantStatus === 'pending') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-pink-50 to-purple-50">
+      <div className="min-h-screen flex items-center justify-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white/80 rounded-2xl shadow-xl border border-pink-100 p-8 w-full max-w-md text-center"
+          className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-pink-200 p-8 w-full max-w-md text-center"
         >
           <h2 className="text-2xl font-bold text-pink-600 mb-2">รอการอนุมัติจากหัวกิลด์</h2>
           <p className="text-gray-500 mb-4">ร้านค้าของคุณกำลังรอการอนุมัติจากหัวกิลด์ กรุณารอ...</p>
@@ -349,26 +394,6 @@ export default function MyStorePage() {
   }
 
   if (merchantStatus === 'approved') {
-    // แสดงหน้าร้านค้าของตัวเอง พร้อมป้ายรับรอง ปุ่มยกเลิกการเป็นพ่อค้า และแท็บ feed ส่วนตัว
-    const [activeTab, setActiveTab] = useState<'trade' | 'loan'>('trade');
-    const [feed, setFeed] = useState<any[]>([]);
-    const [feedLoading, setFeedLoading] = useState(true);
-
-    useEffect(() => {
-      if (!user) return;
-      setFeedLoading(true);
-      const feedRef = ref(db, `feed/merchant/${user.uid}/${activeTab}`);
-      const unsubscribe = onValue(feedRef, (snapshot) => {
-        const data = snapshot.val();
-        const feedList = data ? Object.entries(data)
-          .map(([id, item]: [string, any]) => ({ id, ...item }))
-          .sort((a, b) => b.timestamp - a.timestamp) : [];
-        setFeed(feedList);
-        setFeedLoading(false);
-      });
-      return () => unsubscribe();
-    }, [user, activeTab]);
-
     return (
       <div className="min-h-screen flex flex-col items-center bg-gradient-to-b from-pink-50 to-purple-50 py-8">
         <motion.div
@@ -402,36 +427,177 @@ export default function MyStorePage() {
             >
               Feed กู้ยืม
             </button>
+            <button
+              onClick={() => setActiveTab('status')}
+              className={`px-4 py-2 rounded-lg font-semibold transition-colors ${activeTab === 'status' ? 'bg-blue-200 text-blue-700' : 'bg-gray-100 text-gray-600 hover:bg-blue-50'}`}
+            >
+              สรุปยอดขาย
+            </button>
           </div>
-          <div className="bg-white rounded-xl border border-pink-100 shadow-sm p-4 min-h-[180px]">
-            {feedLoading ? (
-              <div className="text-center py-8 text-gray-400">กำลังโหลด feed...</div>
-            ) : feed.length === 0 ? (
-              <div className="text-center py-8 text-gray-400">ยังไม่มีข้อมูลใน feed นี้</div>
-            ) : (
-              <ul className="space-y-2">
-                {feed.map((item) => (
-                  <li key={item.id} className="p-3 rounded-lg bg-pink-50 text-gray-700 shadow-sm">
-                    <span className="font-semibold">{new Date(item.timestamp).toLocaleString('th-TH')}</span> — {item.text}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+
+          {activeTab === 'status' ? (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* ยอดขายรวม */}
+                <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200 shadow-sm">
+                  <div className="flex items-center gap-3 mb-2">
+                    <DollarSign className="w-6 h-6 text-blue-500" />
+                    <h3 className="text-lg font-semibold text-blue-700">ยอดขายรวม</h3>
+                  </div>
+                  <div className="text-3xl font-bold text-blue-800">
+                    {trades.reduce((sum, trade) => {
+                      const confirmedAmount = Object.values(trade.confirms || {})
+                        .filter((confirm: any) => confirm.status === 'done')
+                        .reduce((total: number, confirm: any) => total + confirm.amount, 0);
+                      return sum + confirmedAmount;
+                    }, 0)}G
+                  </div>
+                  <p className="text-sm text-blue-600 mt-2">รวมยอดขายที่ยืนยันแล้วทั้งหมด</p>
+                </div>
+
+                {/* รายการที่รอยืนยัน */}
+                <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-6 border border-yellow-200 shadow-sm">
+                  <div className="flex items-center gap-3 mb-2">
+                    <Clock className="w-6 h-6 text-yellow-500" />
+                    <h3 className="text-lg font-semibold text-yellow-700">รอยืนยัน</h3>
+                  </div>
+                  <div className="text-3xl font-bold text-yellow-800">
+                    {trades.reduce((sum, trade) => {
+                      const waitingAmount = Object.values(trade.confirms || {})
+                        .filter((confirm: any) => confirm.status === 'waiting')
+                        .reduce((total: number, confirm: any) => total + confirm.amount, 0);
+                      return sum + waitingAmount;
+                    }, 0)}G
+                  </div>
+                  <p className="text-sm text-yellow-600 mt-2">รวมยอดที่รอยืนยันการขาย</p>
+                </div>
+
+                {/* ยอดขายวันนี้ */}
+                <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 border border-green-200 shadow-sm">
+                  <div className="flex items-center gap-3 mb-2">
+                    <Calendar className="w-6 h-6 text-green-500" />
+                    <h3 className="text-lg font-semibold text-green-700">ยอดขายวันนี้</h3>
+                  </div>
+                  <div className="text-3xl font-bold text-green-800">
+                    {trades.reduce((sum, trade) => {
+                      const today = new Date().setHours(0, 0, 0, 0);
+                      const confirmedToday = Object.values(trade.confirms || {})
+                        .filter((confirm: any) => 
+                          confirm.status === 'done' && 
+                          new Date(confirm.confirmedAt).setHours(0, 0, 0, 0) === today
+                        )
+                        .reduce((total: number, confirm: any) => total + confirm.amount, 0);
+                      return sum + confirmedToday;
+                    }, 0)}G
+                  </div>
+                  <p className="text-sm text-green-600 mt-2">รวมยอดขายที่ยืนยันแล้ววันนี้</p>
+                </div>
+              </div>
+
+              {/* รายการขายล่าสุด */}
+              <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                  <History className="w-5 h-5 text-gray-500" />
+                  รายการขายล่าสุด
+                </h3>
+                <div className="space-y-4">
+                  {trades
+                    .filter(trade => Object.values(trade.confirms || {}).some((confirm: any) => confirm.status === 'done'))
+                    .slice(0, 5)
+                    .map((trade) => (
+                      <div key={trade.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-100">
+                        <div>
+                          <p className="font-medium text-gray-800">#{trade.id.slice(0, 6)}</p>
+                          <p className="text-sm text-gray-500">
+                            {new Date(trade.createdAt).toLocaleString()}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-bold text-green-600">
+                            {Object.values(trade.confirms || {})
+                              .filter((confirm: any) => confirm.status === 'done')
+                              .reduce((total: number, confirm: any) => total + confirm.amount, 0)}G
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            {Object.values(trade.confirms || {}).filter((confirm: any) => confirm.status === 'done').length} รายการ
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="bg-white rounded-xl border border-pink-100 shadow-sm p-4 min-h-[180px]">
+              {feedLoading ? (
+                <div className="text-center py-8 text-gray-400">กำลังโหลด feed...</div>
+              ) : feed.length === 0 ? (
+                <div className="text-center py-8 text-gray-400">ยังไม่มีข้อมูลใน feed นี้</div>
+              ) : (
+                <ul className="space-y-2">
+                  {feed.map((item) => (
+                    <li key={item.id} className="p-3 rounded-lg bg-pink-50 text-gray-700 shadow-sm">
+                      <span className="font-semibold">{new Date(item.timestamp).toLocaleString('th-TH')}</span> — {item.text}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
         </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-pink-50 to-purple-50">
+    <div className="min-h-screen">
       <div className="container mx-auto px-4 py-8">
+        {/* Summary Box */}
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
+          {/* Gold Sold */}
+          <div className="bg-yellow-100 rounded-xl p-4 border border-yellow-200 shadow-sm flex flex-col items-center">
+            <DollarSign className="w-6 h-6 text-yellow-700 mb-1" />
+            <div className="text-xs text-yellow-700 font-semibold">ขาย Gold ทั้งหมด</div>
+            <div className="text-xl font-bold text-yellow-700">
+              {trades.reduce((sum, trade) => {
+                const confirmedAmount = Object.values(trade.confirms || {})
+                  .filter((confirm: any) => confirm.status === 'done')
+                  .reduce((total: number, confirm: any) => total + confirm.amount, 0);
+                return sum + confirmedAmount;
+              }, 0)}G
+            </div>
+          </div>
+          {/* Items Available */}
+          <div className="bg-green-100 rounded-xl p-4 border border-green-200 shadow-sm flex flex-col items-center">
+            <CheckCircle2 className="w-6 h-6 text-green-700 mb-1" />
+            <div className="text-xs text-green-700 font-semibold">พร้อมขาย</div>
+            <div className="text-xl font-bold text-green-700">{items.filter(i => i.status === 'available').length}</div>
+          </div>
+          {/* Items Sold */}
+          <div className="bg-gray-200 rounded-xl p-4 border border-gray-300 shadow-sm flex flex-col items-center">
+            <Clock className="w-6 h-6 text-gray-700 mb-1" />
+            <div className="text-xs text-gray-700 font-semibold">ติดจอง</div>
+            <div className="text-xl font-bold text-gray-700">{items.filter(i => i.status === 'sold').length}</div>
+          </div>
+          {/* Items Queue Full */}
+          <div className="bg-yellow-100 rounded-xl p-4 border border-yellow-200 shadow-sm flex flex-col items-center">
+            <Package className="w-6 h-6 text-yellow-700 mb-1" />
+            <div className="text-xs text-yellow-700 font-semibold">คิวเต็ม</div>
+            <div className="text-xl font-bold text-yellow-700">{items.filter(i => i.status === 'queue_full').length}</div>
+          </div>
+          {/* Items Sold Out */}
+          <div className="bg-red-100 rounded-xl p-4 border border-red-200 shadow-sm flex flex-col items-center">
+            <XCircle className="w-6 h-6 text-red-700 mb-1" />
+            <div className="text-xs text-red-700 font-semibold">ขายแล้ว</div>
+            <div className="text-xl font-bold text-red-700">{items.filter(i => i.status === 'sold_out').length}</div>
+          </div>
+        </div>
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <div className="flex items-center gap-3 mb-8 p-4 rounded-2xl bg-gradient-to-r from-pink-100 via-yellow-50 to-purple-100 shadow-lg border-2 border-pink-200">
+          <div className="flex items-center gap-3 mb-8 p-4 rounded-2xl bg-white/90 backdrop-blur-sm shadow-lg border-2 border-pink-200">
             <Store className="w-10 h-10 text-pink-500 drop-shadow" />
             <div>
               <h1 className="text-4xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 via-yellow-500 to-orange-500 drop-shadow mb-1 flex items-center gap-2">ร้านค้าของฉัน</h1>
@@ -442,7 +608,7 @@ export default function MyStorePage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Gold Trade Section */}
-          <div className="bg-white/80 rounded-2xl shadow-xl border border-pink-100 p-6 mb-8">
+          <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border-2 border-pink-200 p-6 mb-8">
             <div className="flex items-center gap-2 mb-6">
               <DollarSign className="w-8 h-8 text-yellow-500 drop-shadow" />
               <h2 className="text-2xl font-bold text-yellow-700 flex items-center gap-2">การขาย Gold <span className="ml-2"><Clock className="w-5 h-5 text-yellow-400" /></span></h2>
@@ -865,7 +1031,7 @@ export default function MyStorePage() {
           </div>
 
           {/* Item Trade Section */}
-          <div className="bg-white/80 rounded-2xl shadow-xl border border-purple-100 p-6 mb-8">
+          <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border-2 border-pink-200 p-6 mb-8">
             <div className="flex items-center gap-2 mb-6">
               <ShoppingBag className="w-6 h-6 text-purple-500" />
               <h2 className="text-xl font-semibold text-gray-800">สินค้าและบริการ</h2>
@@ -924,6 +1090,14 @@ export default function MyStorePage() {
                     />
                   </div>
                   <div className="flex space-x-4">
+                    <select
+                      value={newItem.priceType}
+                      onChange={e => setNewItem({ ...newItem, priceType: e.target.value })}
+                      className="w-full px-4 py-2 rounded-lg border border-pink-200 focus:ring-2 focus:ring-pink-400 focus:border-transparent"
+                    >
+                      <option value="gold">Gold (G)</option>
+                      <option value="baht">บาท (฿)</option>
+                    </select>
                     <button
                       onClick={handleCreateItem}
                       className="px-4 py-2 rounded-lg bg-gradient-to-r from-pink-400 to-purple-400 text-white hover:from-pink-500 hover:to-purple-500 transition-all"
@@ -955,22 +1129,86 @@ export default function MyStorePage() {
                 >
                   <div className="flex flex-row">
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2"><Package className="w-5 h-5 text-purple-400" /> {item.itemName}</h3>
-                      <p className="text-sm text-gray-500 mt-1 flex items-center gap-1"><DollarSign className="w-4 h-4 text-yellow-400" /> ราคา: <span className="font-bold text-yellow-700">{item.price}G</span></p>
-                      <p className="text-gray-600 text-sm mb-4 flex items-center gap-1"><ClipboardList className="w-4 h-4 text-pink-400" /> {item.description}</p>
-                      <div className="flex space-x-2">
-                        <button
-                          onClick={() => {
-                            const message = `:tada: ขายไอเทม DN Classic sv.Geriant :tada:\n:label: ชื่อไอเทม: ${item.itemName}\n:moneybag: ราคา: ${item.price}G\n:bookmark_tabs: รายละเอียด: ${item.description}\n:shopping_cart: ร้านค้า: https://dnpartylist.vercel.app/trade/${user.uid}\n:envelope_with_arrow: สนใจทักแชทหรือกดลิงก์เพื่อซื้อได้เลย!`;
-                            navigator.clipboard.writeText(message);
-                            toast.success('คัดลอกข้อความสำเร็จ');
-                          }}
-                          className="flex-1 flex items-center justify-center space-x-2 py-2 rounded-lg bg-purple-50 hover:bg-purple-100 transition-colors shadow"
+                      {editingItemId === item.id ? (
+                        // ฟอร์มแก้ไขไอเทม
+                        <form
+                          onSubmit={e => { e.preventDefault(); handleSaveEditItem(); }}
+                          className="space-y-2 mb-4"
                         >
-                          <Copy className="w-5 h-5 text-purple-500" />
-                          <span>คัดลอก</span>
-                        </button>
-                      </div>
+                          <input
+                            type="text"
+                            value={editItemData.itemName}
+                            onChange={e => setEditItemData({ ...editItemData, itemName: e.target.value })}
+                            className="w-full px-3 py-2 rounded border border-pink-200 focus:ring-2 focus:ring-pink-400"
+                            placeholder="ชื่อไอเทม"
+                            required
+                          />
+                          <textarea
+                            value={editItemData.description}
+                            onChange={e => setEditItemData({ ...editItemData, description: e.target.value })}
+                            className="w-full px-3 py-2 rounded border border-pink-200 focus:ring-2 focus:ring-pink-400"
+                            placeholder="คำอธิบาย"
+                            rows={2}
+                            required
+                          />
+                          <input
+                            type="number"
+                            value={editItemData.price}
+                            onChange={e => setEditItemData({ ...editItemData, price: e.target.value })}
+                            className="w-full px-3 py-2 rounded border border-pink-200 focus:ring-2 focus:ring-pink-400"
+                            placeholder="ราคา (G)"
+                            required
+                          />
+                          <select
+                            value={editItemData.priceType}
+                            onChange={e => setEditItemData({ ...editItemData, priceType: e.target.value })}
+                            className="w-full px-3 py-2 rounded border border-pink-200 focus:ring-2 focus:ring-pink-400"
+                          >
+                            <option value="gold">Gold (G)</option>
+                            <option value="baht">บาท (฿)</option>
+                          </select>
+                          <div className="flex gap-2 mt-2">
+                            <button
+                              type="submit"
+                              className="px-4 py-2 rounded-lg bg-green-500 text-white font-bold hover:bg-green-600 transition-colors"
+                              disabled={isSavingEdit}
+                            >
+                              {isSavingEdit ? 'กำลังบันทึก...' : 'บันทึก'}
+                            </button>
+                            <button
+                              type="button"
+                              className="px-4 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200"
+                              onClick={() => setEditingItemId(null)}
+                              disabled={isSavingEdit}
+                            >
+                              ยกเลิก
+                            </button>
+                          </div>
+                        </form>
+                      ) : (
+                        <>
+                          <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2"><Package className="w-5 h-5 text-purple-400" /> {item.itemName}</h3>
+                          <p className="text-sm text-gray-500 mt-1 flex items-center gap-1">
+                            <DollarSign className="w-4 h-4 text-yellow-400" />
+                            ราคา: <span className="font-bold text-yellow-700">{item.price}{item.priceType === 'baht' ? '฿' : 'G'}</span>
+                          </p>
+                          <p className="text-gray-600 text-sm mb-4 flex items-center gap-1"><ClipboardList className="w-4 h-4 text-pink-400" /> {item.description}</p>
+                          <div className="flex space-x-2">
+                            <button
+                              onClick={() => {
+                                const priceUnit = item.priceType === 'baht' ? '฿' : 'G';
+                                const msg = `:tada: ขายไอเทม DN Classic sv.Geriant :tada:\n:label: ชื่อไอเทม: ${item.itemName}\n:moneybag: ราคา: ${item.price}${priceUnit}\n:bookmark_tabs: รายละเอียด: ${item.description}\n:shopping_cart: ร้านค้า: https://dnpartylist.vercel.app/trade/${user.uid}\n:envelope_with_arrow: สนใจทักแชทหรือกดลิงก์เพื่อซื้อได้เลย!`;
+                                navigator.clipboard.writeText(msg);
+                                toast.success('คัดลอกข้อความสำเร็จ');
+                              }}
+                              className="flex-1 flex items-center justify-center space-x-2 py-2 rounded-lg bg-purple-50 hover:bg-purple-100 transition-colors shadow"
+                            >
+                              <Copy className="w-5 h-5 text-purple-500" />
+                              <span>คัดลอก</span>
+                            </button>
+                          </div>
+                        </>
+                      )}
                     </div>
                     <div className="flex flex-col gap-2 items-end justify-start flex-shrink-0 ml-4">
                       <button
@@ -994,6 +1232,22 @@ export default function MyStorePage() {
                         {item.status === 'sold' && 'ติดจอง'}
                         {item.status === 'queue_full' && 'คิวเต็ม'}
                         {item.status === 'sold_out' && 'ขายแล้ว'}
+                      </button>
+                      {/* ปุ่มแก้ไข */}
+                      <button
+                        onClick={() => {
+                          setEditingItemId(item.id);
+                          setEditItemData({
+                            itemName: item.itemName,
+                            description: item.description,
+                            price: item.price ? item.price.toString() : '',
+                            priceType: item.priceType || 'gold',
+                          });
+                        }}
+                        className="h-10 min-h-0 px-4 py-0 rounded-full bg-blue-100 text-blue-700 text-sm hover:bg-blue-200 transition-colors flex items-center gap-1 shadow"
+                      >
+                        <Edit className="w-4 h-4" />
+                        แก้ไข
                       </button>
                       <button
                         onClick={() => { setItemToDelete(item); setShowDeleteItemModal(true); }}

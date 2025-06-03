@@ -326,16 +326,17 @@ const TradeDashboardPage = () => {
                     const priceB = merchantLatestTrade[b.id]?.pricePer100 ? merchantLatestTrade[b.id].pricePer100 / 100 : Infinity;
 
                     // เรียงหลัก: ราคา Gold (น้อย -> มาก)
-                    // ถ้า priceA < priceB -> a ขึ้นก่อน (-1)
-                    // ถ้า priceA > priceB -> b ขึ้นก่อน (1)
-                    // ถ้า priceA === priceB ให้ไปเรียงรอง
                     if (priceA < priceB) return -1;
                     if (priceA > priceB) return 1;
 
-                    // ถ้า ราคา Gold เท่ากัน (หรือเป็น Infinity ทั้งคู่) ให้เรียงตามจำนวนไอเทม (มาก -> น้อย)
-                    const itemsA = merchantItems[a.id]?.length || 0;
-                    const itemsB = merchantItems[b.id]?.length || 0;
-                    return itemsB - itemsA; // มาก -> น้อย
+                    // ถ้า ราคา Gold เท่ากัน (หรือเป็น Infinity ทั้งคู่) ให้เรียงตามจำนวนไอเทมแต่ละสถานะ
+                    const statusOrder = ['available', 'sold', 'queue_full', 'sold_out'];
+                    for (const status of statusOrder) {
+                      const countA = (merchantItems[a.id] || []).filter(i => i.status === status).length;
+                      const countB = (merchantItems[b.id] || []).filter(i => i.status === status).length;
+                      if (countA !== countB) return countB - countA; // มาก -> น้อย
+                    }
+                    return 0;
                   })
                   .map((merchant, index) => (
                     <Link
@@ -408,7 +409,7 @@ const TradeDashboardPage = () => {
                                 <li key={idx} className="flex items-center gap-1 bg-pink-50 text-pink-700 px-2 py-1 rounded-full text-xs">
                                   <Package className="w-3 h-3" />
                                   {item.itemName}
-                                  <span className="text-gray-400 ml-1">({item.price}G)</span>
+                                  <span className="text-gray-400 ml-1">({item.price}{item.priceType === 'baht' ? '฿' : 'G'})</span>
                                 </li>
                               ))}
                               {merchantItems[merchant.id].length > 3 && (
@@ -495,7 +496,7 @@ const TradeDashboardPage = () => {
                             <ShoppingBag className="w-4 h-4 text-emerald-500 flex-shrink-0" />
                             <h3 className="text-sm font-bold text-blue-600 flex-1 line-clamp-2 break-all">{item.itemName}</h3>
                             <span className={`px-2 py-0.5 text-xs rounded-full ${item.status === 'available' ? 'bg-green-100 text-green-700' : item.status === 'sold' ? 'bg-gray-100 text-gray-600' : item.status === 'queue_full' ? 'bg-yellow-100 text-yellow-700' : item.status === 'sold_out' ? 'bg-red-100 text-red-700' : 'bg-pink-100 text-pink-600'} font-bold shadow flex-shrink-0`}>
-                              {item.price}G
+                              {item.price}{item.priceType === 'baht' ? '฿' : 'G'}
                             </span>
                             {/* Badge สถานะ */}
                             {item.status === 'available' && (
@@ -515,19 +516,21 @@ const TradeDashboardPage = () => {
                             )}
                           </div>
                           <p className="text-gray-600 whitespace-pre-line break-words mb-2 line-clamp-5" style={{ fontSize: '13px' }}>{item.description}</p>
-                          <div className="flex justify-end mt-auto">
-                            <a
-                              href={`https://discord.com/users/${merchants.find(m => m.id === item.merchantId)?.discordId}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex items-center gap-1 h-8 px-2 rounded-md bg-sky-50 border border-sky-100 hover:bg-sky-100 text-sky-600 hover:text-sky-700 transition-colors font-medium text-xs shadow-sm"
-                              onClick={e => e.stopPropagation()}
-                              title="DM"
-                            >
-                              <MessageSquare className="w-4 h-4" />
-                              <span className="font-medium text-xs">DM</span>
-                            </a>
-                          </div>
+                          {item.status === 'available' || item.status === 'sold' || item.status === 'queue_full' ? (
+                            <div className="flex justify-end mt-auto">
+                              <a
+                                href={`https://discord.com/users/${merchants.find(m => m.id === item.merchantId)?.discordId}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-1 h-8 px-2 rounded-md bg-sky-50 border border-sky-100 hover:bg-sky-100 text-sky-600 hover:text-sky-700 transition-colors font-medium text-xs shadow-sm"
+                                onClick={e => e.stopPropagation()}
+                                title="DM"
+                              >
+                                <MessageSquare className="w-4 h-4" />
+                                <span className="font-medium text-xs">DM</span>
+                              </a>
+                            </div>
+                          ) : null}
                         </motion.div>
                       </Link>
                     ))}

@@ -18,6 +18,7 @@ interface Item {
   price: number;
   status: 'available' | 'sold';
   createdAt: number;
+  priceType?: 'G' | 'baht';
 }
 
 export function ItemList({ merchantId }: { merchantId: string }) {
@@ -72,7 +73,7 @@ export function ItemList({ merchantId }: { merchantId: string }) {
               <div className="flex justify-between items-start mb-4">
                 <div>
                   <h3 className="text-lg font-semibold text-gray-800">{item.itemName}</h3>
-                  <p className="text-sm text-gray-500 mt-1">ราคา: {item.price}G</p>
+                  <p className="text-sm text-gray-500 mt-1">ราคา: {item.price}{item.priceType === 'baht' ? '฿' : 'G'}</p>
                 </div>
                 {item.status === 'sold' && (
                   <span className="px-2 py-1 rounded-full bg-gray-100 text-gray-800 text-sm">

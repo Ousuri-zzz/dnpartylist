@@ -356,7 +356,9 @@ export default function MerchantShopPage({ params }: { params: { merchantId: str
                 <div className="flex items-center gap-2 mb-2">
                   <ShoppingBag className="w-5 h-5 text-purple-500 flex-shrink-0" />
                   <h3 className="text-lg font-semibold text-blue-600 flex-1">{item.itemName}</h3>
-                  <span className={`px-2 py-1 text-sm rounded-full ${item.status === 'available' ? 'bg-green-100 text-green-700' : item.status === 'sold' ? 'bg-gray-100 text-gray-600' : item.status === 'queue_full' ? 'bg-yellow-100 text-yellow-700' : item.status === 'sold_out' ? 'bg-red-100 text-red-700' : 'bg-pink-100 text-pink-600'} flex-shrink-0`}>{item.price}G</span>
+                  <span className={`px-2 py-1 text-sm rounded-full ${item.status === 'available' ? 'bg-green-100 text-green-700' : item.status === 'sold' ? 'bg-gray-100 text-gray-600' : item.status === 'queue_full' ? 'bg-yellow-100 text-yellow-700' : item.status === 'sold_out' ? 'bg-red-100 text-red-700' : 'bg-pink-100 text-pink-600'} flex-shrink-0`}>
+                    {item.price}{item.priceType === 'baht' ? '฿' : 'G'}
+                  </span>
                   {item.status === 'available' && (
                     <span className="px-2 py-1 text-sm rounded-full bg-green-100 text-green-700 font-bold flex-shrink-0">พร้อมขาย</span>
                   )}
