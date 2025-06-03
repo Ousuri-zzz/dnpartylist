@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   },
   description: 'Dragon Nest Party List - เว็บไซต์สำหรับผู้เล่น Dragon Nest (Classic)',
   icons: {
-    icon: '/favicon.ico',
+    icon: '/favicon.png',
   },
   openGraph: {
     title: 'GalaxyCat',
