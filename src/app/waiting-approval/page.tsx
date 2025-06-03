@@ -45,35 +45,10 @@ export default function WaitingApprovalPage() {
   if (authLoading || isChecking) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-          className="flex flex-col items-center"
-        >
-          <motion.div
-            initial={{ rotate: 0 }}
-            animate={{ rotate: 360 }}
-            transition={{ repeat: Infinity, duration: 1.2, ease: "linear" }}
-            className="mb-6"
-          >
-            <FaDiscord className="w-16 h-16 text-[#5865F2] drop-shadow-lg" />
-          </motion.div>
-          <motion.div
-            className="h-12 w-12 border-4 border-pink-300 border-t-transparent rounded-full animate-spin mb-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-          />
-          <motion.p
-            className="text-lg text-pink-500 font-semibold mt-2"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.5 }}
-          >
-            กำลังโหลดข้อมูล...
-          </motion.p>
-        </motion.div>
+        <div className="relative">
+          <div className="w-16 h-16 border-4 border-gray-200 rounded-full"></div>
+          <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin absolute top-0 left-0"></div>
+        </div>
       </div>
     );
   }

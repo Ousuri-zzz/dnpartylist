@@ -19,9 +19,9 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <ErrorBoundary fallback={<div>Something went wrong</div>}>
-      <div className="min-h-screen bg-transparent">
+      <div className="min-h-screen">
         <Navigation />
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-full">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-full pt-14">
           <div className="flex gap-0 pt-4">
             {/* Main Content */}
             <div className={cn(
@@ -33,8 +33,17 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
         
-        <footer className="py-4 text-center text-gray-600 text-sm mt-8 px-4">
-          Guild GalaxyCat by Ousuri
+        <footer className="py-6 text-center mt-8 px-4">
+          <span className="inline-block bg-white/80 rounded-full px-6 py-3 border border-pink-100 backdrop-blur-sm">
+            <span className="flex flex-col items-center justify-center gap-0.5">
+              <span className="text-lg md:text-xl font-semibold text-pink-400 select-none" style={{letterSpacing:'0.04em'}}>
+                🐾 GalaxyCat — รวมพลคนรัก Dragon Nest
+              </span>
+              <span className="text-pink-300 text-sm md:text-base select-none" style={{letterSpacing:'0.02em'}}>
+                พัฒนาโดย Ousuri | ขอบคุณที่เป็นส่วนหนึ่งของกิลด์เรา!
+              </span>
+            </span>
+          </span>
         </footer>
       </div>
     </ErrorBoundary>

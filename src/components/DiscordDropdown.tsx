@@ -82,7 +82,7 @@ export function DiscordDropdown({ inMobileMenu = false }: { inMobileMenu?: boole
             <AvatarImage src={user.photoURL || ''} alt={user.displayName || user.email || 'User'} />
             <AvatarFallback>{user.displayName?.[0] || discordName?.[0] || 'U'}</AvatarFallback>
           </Avatar>
-          <span className="text-sm font-medium flex-1 text-left whitespace-nowrap overflow-hidden text-ellipsis">
+          <span className="text-sm font-medium flex-1 text-left whitespace-nowrap overflow-hidden text-ellipsis text-pink-400">
             {discordName || user.displayName || 'กรุณาตั้งชื่อ'}
           </span>
         </div>
@@ -94,19 +94,19 @@ export function DiscordDropdown({ inMobileMenu = false }: { inMobileMenu?: boole
 
       {isOpen && (
         <div className={cn(
-          "absolute right-0 w-60 bg-[#23272A] rounded-2xl shadow-2xl py-2 z-[10000] border border-[#5865F2]/30 backdrop-blur-sm max-h-72 overflow-y-auto animate-fade-in",
+          "absolute right-0 w-60 bg-white/90 rounded-2xl shadow-2xl shadow-pink-200/40 py-2 z-[100000] border border-pink-200 backdrop-blur-md max-h-72 overflow-y-auto animate-fade-in backdrop-blur-md",
           openUpwards ? 'bottom-12 mb-2' : 'mt-2 top-full'
         )}>
           {discordName && (
             <button
-              className="w-full flex items-center gap-2 px-4 py-3 text-left text-sm text-white hover:bg-[#5865F2]/30 hover:text-[#5865F2] transition-all duration-200 rounded-xl"
+              className="w-full flex items-center gap-2 px-4 py-3 text-left text-sm text-pink-600 hover:bg-pink-50/70 hover:text-pink-700 transition-all duration-200 rounded-xl"
               onClick={() => {
                 setShowChangeName(true);
                 setNewDiscordName(discordName);
                 setIsOpen(false);
               }}
             >
-              <FaDiscord className="w-4 h-4 text-[#5865F2]" />
+              <FaDiscord className="w-4 h-4 text-pink-400" />
               เปลี่ยนชื่อ Discord
             </button>
           )}
@@ -114,14 +114,14 @@ export function DiscordDropdown({ inMobileMenu = false }: { inMobileMenu?: boole
             href="https://discord.com/users/1163943838826631258"
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full flex items-center gap-2 px-4 py-3 text-left text-sm text-sky-300 hover:bg-sky-900/30 hover:text-sky-200 transition-all duration-200 rounded-xl"
+            className="w-full flex items-center gap-2 px-4 py-3 text-left text-sm text-purple-400 hover:bg-purple-50/70 hover:text-purple-700 transition-all duration-200 rounded-xl"
             style={{ textDecoration: 'none' }}
           >
-            <FaDiscord className="w-4 h-4 text-sky-400" />
+            <FaDiscord className="w-4 h-4 text-purple-300" />
             ติดต่อหัวกิลด์
           </a>
           <button
-            className="w-full flex items-center gap-2 px-4 py-3 text-left text-sm text-red-500 hover:bg-red-100/10 hover:text-red-600 transition-all duration-200 rounded-xl"
+            className="w-full flex items-center gap-2 px-4 py-3 text-left text-sm text-red-400 hover:bg-red-50/70 hover:text-red-600 transition-all duration-200 rounded-xl"
             onClick={handleLogout}
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

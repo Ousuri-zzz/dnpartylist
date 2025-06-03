@@ -556,7 +556,26 @@ export default function EventDetailPage() {
   };
 
   if (loading || usersLoading || authLoading || !user) {
-    return <div className="max-w-2xl mx-auto py-8 px-4 text-center text-gray-400">กำลังโหลดกิจกรรม...</div>;
+    return (
+      <div className="flex items-center justify-center py-8">
+        <div className="relative">
+          {/* Outer ring with gradient */}
+          <div className="w-24 h-24 rounded-full bg-gradient-to-r from-pink-100 to-purple-100 shadow-lg animate-pulse"></div>
+          {/* Spinning ring */}
+          <div className="absolute inset-0">
+            <div className="w-24 h-24 rounded-full border-4 border-pink-300 border-t-transparent animate-spin"></div>
+          </div>
+          {/* Inner ring with gradient */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-r from-pink-200 to-purple-200 shadow-inner animate-pulse"></div>
+          </div>
+          {/* Center dot */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-full bg-white shadow animate-pulse"></div>
+          </div>
+        </div>
+      </div>
+    );
   }
   if (error) {
     return <div className="max-w-2xl mx-auto py-8 px-4 text-center text-red-500">{error}</div>;
@@ -626,13 +645,17 @@ export default function EventDetailPage() {
                     let c = event.color.replace('#', '');
                     if (c.length === 3) c = c.split('').map((x: string) => x + x).join('');
                     const num = parseInt(c, 16);
+                    // Mix with white to make it more pastel
+                    const r = Math.round(((num >> 16) & 255) * 0.7 + 255 * 0.3);
+                    const g = Math.round(((num >> 8) & 255) * 0.7 + 255 * 0.3);
+                    const b = Math.round((num & 255) * 0.7 + 255 * 0.3);
                     return {
-                      backgroundColor: `rgba(${(num >> 16) & 255},${(num >> 8) & 255},${num & 255},0.5)`,
+                      backgroundColor: `rgba(${r},${g},${b},0.9)`,
                       borderColor: event.color,
                     };
                   })()
                 : {
-                    backgroundColor: 'rgba(255,255,255,0.5)',
+                    backgroundColor: 'rgba(255,255,255,0.9)',
                     borderColor: '#FFB5E8',
                   }
             ),

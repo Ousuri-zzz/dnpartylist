@@ -177,7 +177,7 @@ export default function Navigation() {
   if (!user) return null;
 
   return (
-    <nav className="sticky top-0 w-full bg-white/30 backdrop-blur-md border-b border-pink-200/50 shadow-sm z-50">
+    <nav className="fixed top-0 left-0 w-full h-14 backdrop-blur-md border-b border-gray-200/50 shadow-sm z-[100000]">
       <div className="container mx-auto px-4">
         <div className="flex items-center h-14">
           {showNavLinks ? (

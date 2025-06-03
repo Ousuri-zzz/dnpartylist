@@ -45,6 +45,9 @@ export default function GuildDonatePage() {
   const [cashDonations, setCashDonations] = useState<any[]>([]);
   const [cashDonorDiscords, setCashDonorDiscords] = useState<Record<string, string>>({});
   const [myCashDonations, setMyCashDonations] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [usersLoading, setUsersLoading] = useState(false);
+  const [authLoading, setAuthLoading] = useState(false);
 
   useEffect(() => {
     const donatesRef = ref(db, 'guilddonate');
@@ -264,6 +267,29 @@ export default function GuildDonatePage() {
   }, [donates, myCashDonations, user]);
   const totalHistoryPages = Math.ceil(myHistory.length / historyPerPage);
   const pagedHistory = myHistory.slice((historyPage - 1) * historyPerPage, historyPage * historyPerPage);
+
+  if (loading || usersLoading || authLoading || !user) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <div className="relative">
+          {/* Outer ring with gradient */}
+          <div className="w-24 h-24 rounded-full bg-gradient-to-r from-pink-100 to-purple-100 shadow-lg animate-pulse"></div>
+          {/* Spinning ring */}
+          <div className="absolute inset-0">
+            <div className="w-24 h-24 rounded-full border-4 border-pink-300 border-t-transparent animate-spin"></div>
+          </div>
+          {/* Inner ring with gradient */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-r from-pink-200 to-purple-200 shadow-inner animate-pulse"></div>
+          </div>
+          {/* Center dot */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-full bg-white shadow animate-pulse"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col md:flex-row gap-8 max-w-5xl mx-auto py-8">
