@@ -9,7 +9,7 @@ export function UsersList() {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="min-h-screen flex items-center justify-center bg-gradient-to-b from-pink-50/50 to-purple-50/50"
+        className="flex items-center justify-center"
       >
         <div className="relative">
           {/* Outer ring with gradient */}

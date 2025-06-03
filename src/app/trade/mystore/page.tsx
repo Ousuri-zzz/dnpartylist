@@ -351,10 +351,8 @@ export default function MyStorePage() {
 
   if (authLoading || loading || !user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-pink-50/50 to-purple-50/50">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="relative">
-          {/* Outer ring with gradient */}
-          <div className="w-24 h-24 rounded-full bg-gradient-to-r from-pink-100 to-purple-100 shadow-lg animate-pulse"></div>
           {/* Spinning ring */}
           <div className="absolute inset-0">
             <div className="w-24 h-24 rounded-full border-4 border-pink-300 border-t-transparent animate-spin"></div>
