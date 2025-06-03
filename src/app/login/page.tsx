@@ -7,7 +7,7 @@ import { motion } from 'framer-motion';
 import { FaCat } from 'react-icons/fa';
 
 export default function LoginPage() {
-  const { user, loading, login, authLoading } = useAuth();
+  const { user, loading, login } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const from = searchParams.get('from') || '/mypage';
@@ -18,7 +18,7 @@ export default function LoginPage() {
     }
   }, [user, loading, router, from]);
 
-  if (loading || authLoading) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center py-8">
         <div className="relative">
