@@ -611,18 +611,22 @@ export default function RankingPage() {
                       else if (character.rank === 2) borderLeftColor = "#bfc1c6"; // silver
                       else if (character.rank === 3) borderLeftColor = "#fb923c"; // orange-400
 
-                      // กำหนดพื้นหลังและตัวเลข
+                      // กำหนดพื้นหลังและตัวเลข + special effect
                       let bgClass = "";
                       let rankTextClass = "text-pink-600";
+                      let specialEffect = "";
                       if (character.rank === 1) {
-                        bgClass = "bg-yellow-100/90 shadow-xl";
-                        rankTextClass = "text-pink-600";
+                        bgClass = "bg-gradient-to-r from-yellow-200 via-yellow-100 to-white shadow-2xl";
+                        rankTextClass = "text-yellow-600 drop-shadow-lg";
+                        specialEffect = "ring-4 ring-yellow-300/60";
                       } else if (character.rank === 2) {
-                        bgClass = "bg-gradient-to-r from-[#f8fafc] via-[#e5e7eb] to-[#f3f4f6] shadow-lg";
-                        rankTextClass = "text-gray-700 drop-shadow font-extrabold";
+                        bgClass = "bg-gradient-to-r from-gray-400 via-gray-200 to-white shadow-xl";
+                        rankTextClass = "text-gray-500 drop-shadow";
+                        specialEffect = "ring-4 ring-gray-300/50";
                       } else if (character.rank === 3) {
-                        bgClass = "bg-orange-100/90 shadow-md";
-                        rankTextClass = "text-pink-600";
+                        bgClass = "bg-gradient-to-r from-orange-200 via-orange-100 to-white shadow-lg";
+                        rankTextClass = "text-orange-500 drop-shadow";
+                        specialEffect = "ring-4 ring-orange-300/40";
                       }
 
                       // borderRadius เฉพาะแถวแรก/สุดท้ายของผลลัพธ์เท่านั้น
@@ -638,6 +642,7 @@ export default function RankingPage() {
                           className={cn(
                             "group transition-all duration-200",
                             bgClass,
+                            specialEffect,
                             user?.uid === character.userId && "bg-gradient-to-r from-blue-100/70 to-blue-50/70"
                           )}
                           style={{
