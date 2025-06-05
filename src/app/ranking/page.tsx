@@ -10,7 +10,7 @@ import { cn } from '../../lib/utils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';
-import { Sword, Heart, Shield, Target, Flame, Zap, TrendingUp } from 'lucide-react';
+import { Sword, Heart, Shield, Target, Flame, Zap, TrendingUp, Trophy, Info } from 'lucide-react';
 import { CLASS_TO_ROLE, getClassColors } from '../../config/theme';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../../components/ui/dialog';
 import { CharacterStats as CharacterStatsComponent } from '../../components/CharacterStats';
@@ -335,12 +335,60 @@ export default function RankingPage() {
           className="space-y-6"
         >
           {/* Header */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white/90 backdrop-blur-sm rounded-lg p-6 shadow-sm border border-pink-200/50">
-            <div className="space-y-1">
-              <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-pink-600 to-blue-600 bg-clip-text text-transparent">
-                อันดับตัวละคร
-              </h1>
-              <p className="text-gray-500">ดูอันดับและเปรียบเทียบค่าสเตตัสของตัวละครทั้งหมด</p>
+          <div className="flex flex-col md:flex-row justify-between items-stretch gap-6 bg-gradient-to-r from-pink-50/80 via-white/90 to-blue-50/80 rounded-3xl p-8 shadow-2xl border-0">
+            {/* Left: Title & Description */}
+            <div className="flex-[2] min-w-[260px] flex flex-col justify-center gap-2">
+              <div className="flex items-center gap-3 mb-1">
+                <Trophy className="w-8 h-8 text-yellow-400 drop-shadow" />
+                <h1 className="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-pink-600 via-purple-500 to-blue-600 bg-clip-text text-transparent drop-shadow-md">
+                  อันดับตัวละคร
+                </h1>
+              </div>
+              <div className="flex items-center gap-2">
+                <Info className="w-5 h-5 text-gray-400" />
+                <p className="text-gray-400 text-base md:text-lg font-medium">
+                  ดูอันดับและเปรียบเทียบค่าสเตตัสของตัวละครทั้งหมด
+                </p>
+              </div>
+            </div>
+            {/* Right: Job Filter Buttons */}
+            <div className="flex-[3] flex flex-col items-start gap-2 w-full">
+              {/* ปุ่มทั้งหมด แยกแถวและเด่นขึ้น */}
+              <button
+                onClick={() => setSelectedJob('all')}
+                className={cn(
+                  "mb-1 px-6 py-2 rounded-full text-base font-bold border-2 shadow transition-all duration-200",
+                  selectedJob === 'all'
+                    ? "bg-gradient-to-r from-pink-100/80 to-blue-50/80 border-pink-400 text-pink-700 shadow-lg scale-105"
+                    : "bg-white/80 border-pink-200/70 text-gray-700 hover:bg-pink-50/60 hover:border-pink-300/50"
+                )}
+                style={{minWidth: 110}}
+              >
+                ทั้งหมด
+              </button>
+              {/* ปุ่มอาชีพอื่นๆ */}
+              <div className="flex flex-row flex-wrap gap-2">
+                {ALLOWED_JOBS.map(job => {
+                  const role = CLASS_TO_ROLE[job];
+                  const colors = getClassColors(role);
+                  return (
+                    <button
+                      key={job}
+                      onClick={() => setSelectedJob(job)}
+                      className={cn(
+                        "px-4 py-2 rounded-full text-sm font-medium border transition-all duration-200",
+                        selectedJob === job
+                          ? "border-2 border-pink-400 bg-pink-50/60 shadow text-pink-700 font-bold"
+                          : "bg-white/90 border-pink-200/50 text-gray-700 hover:bg-pink-50/60 hover:border-pink-300/50",
+                        colors.text
+                      )}
+                      style={{minWidth: 100}}
+                    >
+                      <span className={cn(colors.text)}>{job}</span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
 
@@ -430,39 +478,6 @@ export default function RankingPage() {
                   })}
                 </SelectContent>
               </Select>
-            </div>
-
-            {/* Desktop Job Filter */}
-            <div className="hidden lg:flex flex-wrap gap-2">
-              <button
-                onClick={() => setSelectedJob('all')}
-                className={cn(
-                  "px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 border",
-                  selectedJob === 'all'
-                    ? "bg-gradient-to-r from-pink-200/80 to-blue-100/80 border-pink-400 text-pink-700 shadow font-bold"
-                    : "bg-white/90 border-pink-200/50 text-gray-700 hover:bg-pink-50/60 hover:border-pink-300/50"
-                )}
-              >
-                ทั้งหมด
-              </button>
-              {ALLOWED_JOBS.map(job => {
-                const role = CLASS_TO_ROLE[job];
-                const colors = getClassColors(role);
-                return (
-                  <button
-                    key={job}
-                    onClick={() => setSelectedJob(job)}
-                    className={cn(
-                      "px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 border",
-                      selectedJob === job
-                        ? "bg-gradient-to-r from-pink-200/80 to-blue-100/80 border-pink-400 text-pink-700 shadow font-bold"
-                        : "bg-white/90 border-pink-200/50 text-gray-700 hover:bg-pink-50/60 hover:border-pink-300/50"
-                    )}
-                  >
-                    <span className={cn(colors.text)}>{job}</span>
-                  </button>
-                );
-              })}
             </div>
           </div>
 
