@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { ref, onValue, get } from 'firebase/database';
 import { db } from '@/lib/firebase';
 import { toast } from 'sonner';
-import { Crown, Search, Calendar, Users, Coins, CreditCard } from 'lucide-react';
+import { Crown, Search, Calendar, Users, Coins, CreditCard, Award, Trophy } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { createPortal } from 'react-dom';
@@ -43,6 +43,35 @@ interface MemberDonation {
 }
 
 const BADGE_CONTAINER_WIDTH = 250; // Reduced from 350px to 250px
+
+// ฟังก์ชันช่วยคำนวณยอดบริจาคเฉพาะเดือนปัจจุบัน
+function getCurrentMonthDonations(donates: Donate[], members: Record<string, any>) {
+  const now = new Date();
+  const thisMonth = now.getMonth();
+  const thisYear = now.getFullYear();
+  const donationsByUser: Record<string, { userId: string, discordName: string, amount: number }> = {};
+  Object.entries(members).forEach(([userId, member]: [string, any]) => {
+    donationsByUser[userId] = {
+      userId,
+      discordName: member.discordName || 'ไม่ทราบ',
+      amount: 0
+    };
+  });
+  donates.forEach(donate => {
+    if (donate.status === 'active') {
+      const d = new Date(donate.createdAt);
+      if (d.getMonth() === thisMonth && d.getFullYear() === thisYear) {
+        if (donationsByUser[donate.userId]) {
+          donationsByUser[donate.userId].amount += donate.amount;
+        }
+      }
+    }
+  });
+  return Object.values(donationsByUser)
+    .filter(u => u.amount > 0)
+    .sort((a, b) => b.amount - a.amount)
+    .slice(0, 3);
+}
 
 export default function GuildDonateHistoryPage() {
   const { user } = useAuth();
@@ -212,6 +241,15 @@ export default function GuildDonateHistoryPage() {
     }
   };
 
+  // Top 3 ของเดือนนี้
+  const top3 = getCurrentMonthDonations(donates, members);
+  // ใช้ไอคอน Award จาก lucide-react เพื่อความชัวร์
+  const medalIcons = [
+    <Award key="gold" className="w-5 h-5 text-yellow-400" />, 
+    <Award key="silver" className="w-5 h-5 text-gray-400" />, 
+    <Award key="bronze" className="w-5 h-5 text-orange-400" />
+  ];
+
   return (
     <div className="max-w-6xl mx-auto p-6">
       <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-pink-200 max-w-2xl mx-auto md:max-w-6xl">
@@ -244,17 +282,30 @@ export default function GuildDonateHistoryPage() {
             </Link>
           </div>
         </div>
-        {/* ปุ่มบริจาคกิลด์: Mobile */}
-        <Link
-          href="/guild-donate"
-          className="block sm:hidden w-full mb-4 px-0 py-2 bg-gradient-to-r from-pink-200 via-orange-100 to-yellow-100 text-pink-800 text-base font-bold rounded-xl shadow-sm border border-pink-200 text-center hover:from-pink-400 hover:to-orange-200 hover:text-white hover:shadow transition-all duration-150"
-        >
-          <span className="inline-flex items-center gap-2 justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" /></svg>
-            บริจาคกิลด์
-          </span>
-        </Link>
-
+        {/* Top 3 Ranking */}
+        <div className="mb-6 flex flex-col items-center">
+          <div className="flex items-center gap-2 mb-2">
+            <Trophy className="w-6 h-6 text-yellow-400" />
+            <span className="font-bold text-pink-700 text-lg">อันดับ 1-3 ยอดบริจาคประจำเดือนนี้</span>
+            <Trophy className="w-6 h-6 text-yellow-400" />
+          </div>
+          <div className="flex flex-wrap gap-4 justify-center">
+            {top3.length === 0 && (
+              <span className="text-gray-400">ยังไม่มีข้อมูลบริจาคในเดือนนี้</span>
+            )}
+            {top3.map((user, idx) => (
+              <div key={user.userId} className="flex flex-col items-start bg-pink-50 border border-pink-200 rounded-lg px-4 py-2 shadow-sm min-w-[200px] text-left">
+                <div className="font-semibold text-pink-500 truncate text-base mb-1 flex items-center gap-2 min-w-0 max-w-[180px] w-full justify-center">
+                  {medalIcons[idx]}
+                  {user.discordName}
+                </div>
+                <div className="flex items-center gap-1 mt-1 w-full justify-center">
+                  <span className="text-green-600 font-bold text-lg">{user.amount.toLocaleString()}G</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
         {/* Search */}
         <div className="mb-6">
           <div className="relative">
@@ -418,8 +469,8 @@ export default function GuildDonateHistoryPage() {
                   <td className="px-3 py-3 w-36 whitespace-nowrap text-center">
                     {member.lastDonation ? (
                       <span className={cn(
-                        "text-gray-600",
-                        new Date().getTime() - member.lastDonation > 30 * 24 * 60 * 60 * 1000 && "text-pink-500"
+                        "text-pink-500",
+                        new Date(member.lastDonation).getMonth() !== new Date().getMonth() && "text-gray-600"
                       )}>
                         {new Date(member.lastDonation).toLocaleDateString('th-TH', {
                           year: 'numeric',

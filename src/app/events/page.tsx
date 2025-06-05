@@ -43,6 +43,29 @@ function CountdownTimer({ targetDate }: { targetDate: Date | null }) {
   );
 }
 
+// Add CurrentTime component
+function CurrentTime() {
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
+    <div className="text-center mt-1 mb-1 text-sm font-semibold text-pink-600 bg-white/80 rounded-xl px-4 py-2 shadow-sm">
+      {currentTime.toLocaleTimeString('th-TH', { 
+        hour: '2-digit', 
+        minute: '2-digit', 
+        second: '2-digit',
+        hour12: false 
+      })}
+    </div>
+  );
+}
+
 type ValuePiece = Date | null;
 type Value = ValuePiece | [ValuePiece, ValuePiece];
 
@@ -289,8 +312,9 @@ export default function EventsPage() {
                 prev2Label={null}
                 next2Label={null}
               />
+              <CurrentTime />
               {/* Legend */}
-              <div className="flex flex-wrap gap-2 justify-center items-center mt-5 mb-2 text-xs select-none">
+              <div className="flex flex-wrap gap-2 justify-center items-center mt-2 mb-2 text-xs select-none">
                 <div className="flex items-center gap-1">
                   <span className="inline-block w-5 h-5 rounded-full border-2 border-purple-400 bg-white"></span> วันนี้
                 </div>

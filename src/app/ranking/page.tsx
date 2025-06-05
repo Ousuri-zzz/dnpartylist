@@ -482,12 +482,12 @@ export default function RankingPage() {
           </div>
 
           {/* Ranking Table */}
-          <Card className="overflow-hidden bg-white/90 backdrop-blur-sm border-pink-200/50 shadow-lg">
+          <Card className="overflow-hidden bg-white/90 backdrop-blur-sm border-0 shadow-2xl rounded-3xl">
             <CardContent className="p-0">
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="bg-gradient-to-r from-pink-50/90 to-blue-50/90">
+                    <tr className="bg-gradient-to-r from-pink-100/80 via-white/90 to-blue-100/80">
                       <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 whitespace-nowrap">
                         <div className="flex items-center gap-1">
                           <span>🏅</span>
@@ -605,51 +605,105 @@ export default function RankingPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-pink-100/50">
-                    {rankedCharacters.map((character) => (
-                      <tr
-                        key={character.id}
-                        className={cn(
-                          "group transition-all duration-200 border-l-4 border-transparent",
-                          "hover:bg-pink-100/70 hover:border-pink-300/50",
-                          user?.uid === character.userId && "bg-gradient-to-r from-blue-100/70 to-blue-50/70 border-blue-300/50"
-                        )}
-                      >
-                        <td className="px-4 py-3 text-sm font-medium text-pink-600 group-hover:text-pink-700 whitespace-nowrap">#{character.rank}</td>
-                        <td className="px-4 py-3 text-sm whitespace-nowrap">
-                          <span className="text-black font-medium group-hover:text-gray-800">{character.discordName}</span>
-                        </td>
-                        <td 
-                          className="px-4 py-3 text-sm cursor-pointer whitespace-nowrap"
-                          onClick={() => setOpenCharacterId(character.id)}
+                    {rankedCharacters.map((character, idx) => {
+                      let borderLeftColor = "transparent";
+                      if (character.rank === 1) borderLeftColor = "#facc15"; // yellow-400
+                      else if (character.rank === 2) borderLeftColor = "#bfc1c6"; // silver
+                      else if (character.rank === 3) borderLeftColor = "#fb923c"; // orange-400
+
+                      // กำหนดพื้นหลังและตัวเลข
+                      let bgClass = "";
+                      let rankTextClass = "text-pink-600";
+                      if (character.rank === 1) {
+                        bgClass = "bg-yellow-100/90 shadow-xl";
+                        rankTextClass = "text-pink-600";
+                      } else if (character.rank === 2) {
+                        bgClass = "bg-gradient-to-r from-[#f8fafc] via-[#e5e7eb] to-[#f3f4f6] shadow-lg";
+                        rankTextClass = "text-gray-700 drop-shadow font-extrabold";
+                      } else if (character.rank === 3) {
+                        bgClass = "bg-orange-100/90 shadow-md";
+                        rankTextClass = "text-pink-600";
+                      }
+
+                      // borderRadius เฉพาะแถวแรก/สุดท้ายของผลลัพธ์เท่านั้น
+                      const borderRadius = idx === 0
+                        ? "1.5rem 1.5rem 0 0"
+                        : idx === rankedCharacters.length - 1
+                        ? "0 0 1.5rem 1.5rem"
+                        : undefined;
+
+                      return (
+                        <tr
+                          key={character.id}
+                          className={cn(
+                            "group transition-all duration-200",
+                            bgClass,
+                            user?.uid === character.userId && "bg-gradient-to-r from-blue-100/70 to-blue-50/70"
+                          )}
+                          style={{
+                            borderLeftWidth: 8,
+                            borderLeftColor,
+                            borderRadius
+                          }}
                         >
-                          <span className="text-gray-600 font-medium group-hover:text-gray-800 underline underline-offset-2">{character.name}</span>
-                        </td>
-                        <td className="px-4 py-3 text-sm whitespace-nowrap">
-                          <span className={cn(
-                            "font-medium group-hover:opacity-90",
-                            getClassColors(CLASS_TO_ROLE[character.class]).text
+                          <td className={cn(
+                            "px-4 py-3 text-sm font-bold group-hover:text-pink-700 whitespace-nowrap drop-shadow",
+                            rankTextClass
                           )}>
-                            {character.class}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3 text-sm text-pink-600 font-medium group-hover:text-pink-700 whitespace-nowrap">{formatNumber(character.stats.atk)}</td>
-                        <td className="px-4 py-3 text-sm text-red-500 font-medium group-hover:text-red-600 whitespace-nowrap">{formatNumber(character.stats.hp)}</td>
-                        <td className="px-4 py-3 text-sm whitespace-nowrap">
-                          {/* DEF (PDEF/MDEF) ใน modal เท่านั้น ไม่มีกรอบ ไม่มีไอคอน */}
-                          <div className="flex items-center gap-0.5">
-                            <span className="font-semibold text-blue-500">{character.stats.pdef}%</span>
-                            <span className="text-gray-400 mx-0.5">/</span>
-                            <span className="font-semibold text-purple-500">{character.stats.mdef}%</span>
-                          </div>
-                        </td>
-                        <td className="px-4 py-3 text-sm text-yellow-500 font-medium group-hover:text-yellow-600 whitespace-nowrap">{character.stats.cri}%</td>
-                        <td className="px-4 py-3 text-sm text-purple-500 font-medium group-hover:text-purple-600 whitespace-nowrap">{character.stats.ele}%</td>
-                        <td className="px-4 py-3 text-sm text-orange-500 font-medium group-hover:text-orange-600 whitespace-nowrap">{character.stats.fd}%</td>
-                        <td className="px-4 py-3 text-sm text-green-500 font-medium group-hover:text-green-600 whitespace-nowrap">
-                          {formatNumberWithComma(character.score)}
-                        </td>
-                      </tr>
-                    ))}
+                            #{character.rank}
+                            {character.rank === 1 && <span className="ml-1 align-middle">🥇</span>}
+                            {character.rank === 2 && <span className="ml-1 align-middle">🥈</span>}
+                            {character.rank === 3 && <span className="ml-1 align-middle">🥉</span>}
+                          </td>
+                          <td className="px-4 py-3 text-sm whitespace-nowrap">
+                            <span className="text-black font-medium group-hover:text-gray-800">
+                              {character.discordName}
+                            </span>
+                          </td>
+                          <td 
+                            className="px-4 py-3 text-sm cursor-pointer whitespace-nowrap"
+                            onClick={() => setOpenCharacterId(character.id)}
+                          >
+                            <span className="text-gray-600 font-medium group-hover:text-gray-800 underline underline-offset-2">
+                              {character.name}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-sm whitespace-nowrap">
+                            <span className={cn(
+                              "font-medium group-hover:opacity-90",
+                              getClassColors(CLASS_TO_ROLE[character.class]).text
+                            )}>
+                              {character.class}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-sm text-pink-600 font-bold group-hover:text-pink-700 whitespace-nowrap">
+                            {formatNumber(character.stats.atk)}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-red-500 font-bold group-hover:text-red-600 whitespace-nowrap">
+                            {formatNumber(character.stats.hp)}
+                          </td>
+                          <td className="px-4 py-3 text-sm whitespace-nowrap">
+                            <div className="flex items-center gap-0.5">
+                              <span className="font-semibold text-blue-500">{character.stats.pdef}%</span>
+                              <span className="text-gray-400 mx-0.5">/</span>
+                              <span className="font-semibold text-purple-500">{character.stats.mdef}%</span>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 text-sm text-yellow-500 font-bold group-hover:text-yellow-600 whitespace-nowrap">
+                            {character.stats.cri}%
+                          </td>
+                          <td className="px-4 py-3 text-sm text-purple-500 font-bold group-hover:text-purple-600 whitespace-nowrap">
+                            {character.stats.ele}%
+                          </td>
+                          <td className="px-4 py-3 text-sm text-orange-500 font-bold group-hover:text-orange-600 whitespace-nowrap">
+                            {character.stats.fd}%
+                          </td>
+                          <td className="px-4 py-3 text-sm text-green-500 font-extrabold group-hover:text-green-600 whitespace-nowrap">
+                            {formatNumberWithComma(character.score)}
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -659,108 +713,134 @@ export default function RankingPage() {
       </div>
       {/* Popup แสดง stat + checklist */}
       <Dialog open={!!openCharacterId} onOpenChange={open => !open && setOpenCharacterId(null)}>
-        <DialogContent className={cn(
-          "max-w-lg w-[95vw] max-h-[90vh] overflow-y-auto shadow-xl rounded-2xl p-0 border-2 backdrop-blur-xl",
-          openCharacter && getClassColors(CLASS_TO_ROLE[openCharacter.class]).border,
-          openCharacter && getClassColors(CLASS_TO_ROLE[openCharacter.class]).bgSoft
-        )}>
-          {openCharacter && (() => {
-            const colors = getClassColors(CLASS_TO_ROLE[openCharacter.class]);
-            const stats = openCharacter.stats;
-            return (
-              <div className="p-4 sm:p-6">
-                <DialogHeader>
-                  <DialogTitle className="flex flex-wrap items-center gap-3 mb-2">
-                    <span className={cn(
-                      "text-2xl font-extrabold bg-clip-text text-transparent",
-                      colors.gradientText
-                    )}>{openCharacter.name}</span>
-                    <span className={cn(
-                      "text-base font-semibold px-3 py-1 rounded-full border shadow",
+        <DialogContent
+          className={cn(
+            "max-w-lg w-[95vw] max-h-[90vh] overflow-y-auto shadow-xl rounded-2xl p-0 border-2 backdrop-blur-xl z-[110] mt-8",
+            openCharacter ? getClassColors(CLASS_TO_ROLE[openCharacter.class]).border : '',
+            openCharacter ? getClassColors(CLASS_TO_ROLE[openCharacter.class]).bgSoft : '',
+            openCharacter ? "scrollbar-thumb-rounded-lg scrollbar-track-rounded-lg" : ''
+          )}
+          style={openCharacter ? {
+            marginTop: '2rem',
+            borderRadius: '1rem',
+            scrollbarColor: `${getClassColors(CLASS_TO_ROLE[openCharacter.class]).bgSoft} #e5e7eb`,
+            scrollbarWidth: 'thin'
+          } : {
+            marginTop: '2rem',
+            borderRadius: '1rem'
+          }}
+        >
+          {/* ซ่อน scrollbar ใน PC ด้วย CSS-in-JS */}
+          <style jsx global>{`
+            @media (min-width: 1024px) {
+              .modal-hide-scrollbar::-webkit-scrollbar {
+                display: none !important;
+              }
+              .modal-hide-scrollbar {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+              }
+            }
+          `}</style>
+          <div className="modal-hide-scrollbar">
+            {openCharacter && (() => {
+              const colors = getClassColors(CLASS_TO_ROLE[openCharacter.class]);
+              const stats = openCharacter.stats;
+              return (
+                <div className="p-4 sm:p-6">
+                  <DialogHeader>
+                    <DialogTitle className="flex flex-wrap items-center gap-3 mb-2">
+                      <span className={cn(
+                        "text-2xl font-extrabold bg-clip-text text-transparent",
+                        colors.gradientText
+                      )}>{openCharacter.name}</span>
+                      <span className={cn(
+                        "text-base font-semibold px-3 py-1 rounded-full border shadow",
+                        colors.border,
+                        colors.bgVeryLight,
+                        colors.text
+                      )}>
+                        {openCharacter.class}
+                      </span>
+                    </DialogTitle>
+                    <DialogDescription className="text-sm text-gray-500 mb-2">
+                      <span className="font-medium text-gray-700">Discord:</span> {openCharacter.discordName}
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4 mt-2">
+                    {/* Stat Section: grid 2 cols, each stat in its own box */}
+                    <div className={cn(
+                      "rounded-xl p-4 sm:p-5 shadow border backdrop-blur-sm mb-1",
                       colors.border,
-                      colors.bgVeryLight,
-                      colors.text
+                      colors.bgVeryLight
                     )}>
-                      {openCharacter.class}
-                    </span>
-                  </DialogTitle>
-                  <DialogDescription className="text-sm text-gray-500 mb-2">
-                    <span className="font-medium text-gray-700">Discord:</span> {openCharacter.discordName}
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4 mt-2">
-                  {/* Stat Section: grid 2 cols, each stat in its own box */}
-                  <div className={cn(
-                    "rounded-xl p-4 sm:p-5 shadow border backdrop-blur-sm mb-1",
-                    colors.border,
-                    colors.bgVeryLight
-                  )}>
-                    <h4 className={cn(
-                      "text-lg font-bold mb-3 flex items-center gap-2",
-                      colors.text
-                    )}>
-                      <Sword className={cn("w-5 h-5", colors.text)} />
-                      สเตตัสตัวละคร
-                    </h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div className="flex items-center gap-2 p-2 rounded-lg bg-white/80 border border-gray-100">
-                        <Sword className="w-5 h-5 text-pink-500" />
-                        <span className="font-bold text-gray-700">ATK:</span>
-                        <span className="font-semibold text-pink-600">{stats.atk}</span>
-                      </div>
-                      <div className="flex items-center gap-2 p-2 rounded-lg bg-white/80 border border-gray-100">
-                        <Heart className="w-5 h-5 text-red-400" />
-                        <span className="font-bold text-gray-700">HP:</span>
-                        <span className="font-semibold text-red-500">{stats.hp}</span>
-                      </div>
-                      <div className="flex items-center gap-2 p-2 rounded-lg bg-white/80 border border-gray-100">
-                        <Shield className="w-5 h-5 text-blue-400" />
-                        <span className="font-bold text-gray-700">DEF:</span>
-                        <span className="font-semibold text-blue-500">{stats.pdef}%</span>
-                        <span className="text-gray-400 mx-0.5">/</span>
-                        <span className="font-semibold text-purple-500">{stats.mdef}%</span>
-                      </div>
-                      <div className="flex items-center gap-2 p-2 rounded-lg bg-white/80 border border-gray-100">
-                        <Target className="w-5 h-5 text-yellow-400" />
-                        <span className="font-bold text-gray-700">CRI:</span>
-                        <span className="font-semibold text-yellow-500">{stats.cri}%</span>
-                      </div>
-                      <div className="flex items-center gap-2 p-2 rounded-lg bg-white/80 border border-gray-100">
-                        <Flame className="w-5 h-5 text-purple-400" />
-                        <span className="font-bold text-gray-700">ELE:</span>
-                        <span className="font-semibold text-purple-500">{stats.ele}%</span>
-                      </div>
-                      <div className="flex items-center gap-2 p-2 rounded-lg bg-white/80 border border-gray-100">
-                        <Zap className="w-5 h-5 text-orange-400" />
-                        <span className="font-bold text-gray-700">FD:</span>
-                        <span className="font-semibold text-orange-500">{stats.fd}%</span>
+                      <h4 className={cn(
+                        "text-lg font-bold mb-3 flex items-center gap-2",
+                        colors.text
+                      )}>
+                        <Sword className={cn("w-5 h-5", colors.text)} />
+                        สเตตัสตัวละคร
+                      </h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="flex items-center gap-2 p-2 rounded-lg bg-white/80 border border-gray-100">
+                          <Sword className="w-5 h-5 text-pink-500" />
+                          <span className="font-bold text-gray-700">ATK:</span>
+                          <span className="font-semibold text-pink-600">{stats.atk}</span>
+                        </div>
+                        <div className="flex items-center gap-2 p-2 rounded-lg bg-white/80 border border-gray-100">
+                          <Heart className="w-5 h-5 text-red-400" />
+                          <span className="font-bold text-gray-700">HP:</span>
+                          <span className="font-semibold text-red-500">{stats.hp}</span>
+                        </div>
+                        <div className="flex items-center gap-2 p-2 rounded-lg bg-white/80 border border-gray-100">
+                          <Shield className="w-5 h-5 text-blue-400" />
+                          <span className="font-bold text-gray-700">DEF:</span>
+                          <span className="font-semibold text-blue-500">{stats.pdef}%</span>
+                          <span className="text-gray-400 mx-0.5">/</span>
+                          <span className="font-semibold text-purple-500">{stats.mdef}%</span>
+                        </div>
+                        <div className="flex items-center gap-2 p-2 rounded-lg bg-white/80 border border-gray-100">
+                          <Target className="w-5 h-5 text-yellow-400" />
+                          <span className="font-bold text-gray-700">CRI:</span>
+                          <span className="font-semibold text-yellow-500">{stats.cri}%</span>
+                        </div>
+                        <div className="flex items-center gap-2 p-2 rounded-lg bg-white/80 border border-gray-100">
+                          <Flame className="w-5 h-5 text-purple-400" />
+                          <span className="font-bold text-gray-700">ELE:</span>
+                          <span className="font-semibold text-purple-500">{stats.ele}%</span>
+                        </div>
+                        <div className="flex items-center gap-2 p-2 rounded-lg bg-white/80 border border-gray-100">
+                          <Zap className="w-5 h-5 text-orange-400" />
+                          <span className="font-bold text-gray-700">FD:</span>
+                          <span className="font-semibold text-orange-500">{stats.fd}%</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  {/* Checklist Section */}
-                  <div className={cn(
-                    "rounded-xl p-4 sm:p-5 shadow border backdrop-blur-sm",
-                    colors.border,
-                    colors.bgVeryLight
-                  )}>
-                    <h4 className={cn(
-                      "text-lg font-bold mb-3 flex items-center gap-2",
-                      colors.text
+                    {/* Checklist Section */}
+                    <div className={cn(
+                      "rounded-xl p-4 sm:p-5 shadow border backdrop-blur-sm",
+                      colors.border,
+                      colors.bgVeryLight
                     )}>
-                      <TrendingUp className={cn("w-5 h-5", colors.text)} />
-                      เช็คลิสต์ประจำวัน/สัปดาห์
-                    </h4>
-                    <CharacterChecklist
-                      checklist={openCharacter.checklist}
-                      onChange={() => {}}
-                      accentColor={colors.text}
-                      readOnly
-                    />
+                      <h4 className={cn(
+                        "text-lg font-bold mb-3 flex items-center gap-2",
+                        colors.text
+                      )}>
+                        <TrendingUp className={cn("w-5 h-5", colors.text)} />
+                        เช็คลิสต์ประจำวัน/สัปดาห์
+                      </h4>
+                      <CharacterChecklist
+                        checklist={openCharacter.checklist}
+                        onChange={() => {}}
+                        accentColor={colors.text}
+                        readOnly
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })()}
+              );
+            })()}
+          </div>
         </DialogContent>
       </Dialog>
     </div>
