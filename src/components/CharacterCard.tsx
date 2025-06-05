@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Pencil, Trash2, Shield, Sword, Zap, Star, Crown, Sparkles, User, Target, Heart, Shield as ShieldIcon, Sword as SwordIcon, Zap as ZapIcon, Sparkles as SparklesIcon, Star as StarIcon, CheckCircle2 } from 'lucide-react';
+import { Pencil, Trash2, Shield, Sword, Zap, Star, Crown, Sparkles, User, Target, Heart, Shield as ShieldIcon, Sword as SwordIcon, Zap as ZapIcon, Sparkles as SparklesIcon, Star as StarIcon, CheckCircle2, AlertCircle } from 'lucide-react';
 import { CharacterStats } from './CharacterStats';
 import { CharacterChecklist } from './CharacterChecklist';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -79,6 +79,11 @@ export function CharacterCard({ character, onEdit, onDelete, onChecklistChange }
   const handleDelete = () => {
     onDelete(character.id);
     setShowDeleteDialog(false);
+  };
+
+  // Function to check if required stats are missing
+  const hasMissingRequiredStats = (char: Character) => {
+    return !char.stats.atk || !char.stats.hp || !char.stats.pdef || !char.stats.mdef;
   };
 
   // ดึง mainClass จาก character หรือแปลงจาก class
@@ -171,14 +176,20 @@ export function CharacterCard({ character, onEdit, onDelete, onChecklistChange }
           <Button
             variant="ghost"
             size="icon"
-            className={cn("hover:bg-black/20 transition-all duration-300 rounded-full")}
+            className={cn(
+              "hover:bg-black/20 transition-all duration-300 rounded-full",
+              hasMissingRequiredStats(character) && "hover:bg-red-200/60"
+            )}
             onClick={() => {
               if (onEdit && character) {
                 onEdit(character);
               }
             }}
           >
-            <Pencil className="h-5 w-5 text-gray-800" />
+            <Pencil className={cn(
+              "h-5 w-5",
+              hasMissingRequiredStats(character) ? "text-red-600 animate-pulse" : "text-gray-800"
+            )} />
           </Button>
           <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
             <DialogTrigger asChild>
