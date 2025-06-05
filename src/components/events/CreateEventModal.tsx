@@ -18,6 +18,8 @@ import { collection, addDoc, serverTimestamp, Timestamp } from 'firebase/firesto
 import { firestore } from '@/lib/firebase';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 const thMonday = { ...th, options: { ...th.options, weekStartsOn: 1 as 1 } };
 
@@ -227,7 +229,7 @@ export function CreateEventModal({ isOpen, onClose, onSubmit, defaultValues, isE
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto !bg-pink-100/70 !backdrop-blur-sm !border-pink-200 !shadow-xl !rounded-2xl">
+      <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto !bg-pink-100/70 !backdrop-blur-sm !border-pink-200 !shadow-xl !rounded-2xl mt-8">
         <DialogHeader>
           <DialogTitle>{isEdit ? 'แก้ไขกิจกรรม' : 'สร้างกิจกรรมใหม่'}</DialogTitle>
         </DialogHeader>
@@ -245,12 +247,21 @@ export function CreateEventModal({ isOpen, onClose, onSubmit, defaultValues, isE
 
           <div className="space-y-2">
             <Label htmlFor="description" className="flex items-center gap-2 text-purple-700"><span className="text-lg">📄</span>รายละเอียด</Label>
-            <Textarea
-              id="description"
+            <ReactQuill
+              theme="snow"
               value={description}
-              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setDescription(e.target.value)}
-              required
-              className="w-full rounded-lg border-purple-200 focus:ring-2 focus:ring-purple-300 bg-white"
+              onChange={setDescription}
+              className="bg-white rounded-lg"
+              modules={{
+                toolbar: [
+                  [{ 'header': [1, 2, false] }],
+                  ['bold', 'italic', 'underline', 'strike'],
+                  [{ 'color': [] }, { 'background': [] }],
+                  [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                  ['clean']
+                ]
+              }}
+              formats={['header', 'bold', 'italic', 'underline', 'strike', 'color', 'background', 'list', 'bullet']}
             />
           </div>
 

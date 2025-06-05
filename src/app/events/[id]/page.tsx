@@ -686,7 +686,10 @@ export default function EventDetailPage() {
               <div className="px-4 py-2 w-full">
                 <div className="inline-flex items-start w-full min-w-0">
                   <span className="text-xl flex-shrink-0 mt-1">📝</span>
-                  <span className="break-words whitespace-pre-line w-full ml-2 text-pink-500 text-lg font-semibold drop-shadow-sm min-w-0 bg-white/70 backdrop-blur-sm rounded-lg px-4 py-2">{event.description || 'ไม่มีรายละเอียดกิจกรรม'}</span>
+                  <div
+                    className="break-words w-full ml-2 text-pink-500 text-lg font-semibold drop-shadow-sm min-w-0 bg-white/70 backdrop-blur-sm rounded-lg px-4 py-2"
+                    dangerouslySetInnerHTML={{ __html: event.description || 'ไม่มีรายละเอียดกิจกรรม' }}
+                  />
                 </div>
               </div>
             </div>
