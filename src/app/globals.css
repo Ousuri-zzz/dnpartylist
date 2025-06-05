@@ -116,11 +116,13 @@ body {
   overflow-x: hidden;
   height: 100%;
   @apply text-foreground;
-  background: url('/images/background.jpg');
+  background-color: #f8f9fa;
+  background-image: url('/images/background.jpg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   background-attachment: fixed;
+  transition: background-image 0.3s ease-in-out;
 }
 
 .react-calendar__month-view__weekdays__weekday {

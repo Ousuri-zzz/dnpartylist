@@ -1,0 +1,42 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import Image from 'next/image';
+
+export function BackgroundImage() {
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    // ตรวจสอบว่าหน้าเว็บโหลดเสร็จแล้วหรือยัง
+    if (document.readyState === 'complete') {
+      setIsLoaded(true);
+    } else {
+      window.addEventListener('load', () => setIsLoaded(true));
+      return () => window.removeEventListener('load', () => setIsLoaded(true));
+    }
+  }, []);
+
+  return (
+    <div 
+      className="fixed inset-0 w-full h-full -z-10"
+      style={{
+        backgroundColor: '#f8f9fa',
+        transition: 'opacity 0.3s ease-in-out',
+        opacity: isLoaded ? 1 : 0
+      }}
+    >
+      <Image
+        src="/images/background.jpg"
+        alt="Background"
+        fill
+        priority
+        quality={100}
+        style={{
+          objectFit: 'cover',
+          objectPosition: 'center'
+        }}
+        onLoad={() => setIsLoaded(true)}
+      />
+    </div>
+  );
+} 

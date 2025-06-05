@@ -6,6 +6,7 @@ import { Sidebar } from './Sidebar';
 import { useUsers } from '../hooks/useUsers';
 import { usePathname } from 'next/navigation';
 import { cn } from '../lib/utils';
+import { BackgroundImage } from './BackgroundImage';
 
 const Navigation = dynamic(() => import('./Navigation'), {
   ssr: false,
@@ -19,6 +20,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <ErrorBoundary fallback={<div>Something went wrong</div>}>
+      <BackgroundImage />
       <div className="min-h-screen">
         <Navigation />
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-full pt-14">

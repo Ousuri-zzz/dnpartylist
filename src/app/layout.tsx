@@ -22,6 +22,12 @@ export default function RootLayout({
     <html lang="th">
       <head>
         <link rel="icon" type="image/png" href="/favicon.png" />
+        <link
+          rel="preload"
+          href="/images/background.jpg"
+          as="image"
+          type="image/jpeg"
+        />
       </head>
       <body className={inter.className}>
         <ClientLayout>
