@@ -736,10 +736,24 @@ export default function MyPage() {
       <DialogFooter className="border-t border-gray-200 pt-4 flex justify-end">
         <Button
           type="submit"
-          className="bg-gradient-to-r from-violet-500 to-blue-500 text-white hover:from-violet-600 hover:to-blue-600 transition-all duration-200 shadow-md hover:shadow-xl flex items-center gap-2 px-6 py-2 rounded-lg"
+          className="relative group bg-gradient-to-r from-violet-500 via-purple-500 to-blue-500 text-white hover:from-violet-600 hover:via-purple-600 hover:to-blue-600 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-2 rounded-xl px-6 py-3 w-full md:w-auto overflow-hidden"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-          เพิ่มตัวละคร
+          {/* Animated background effect */}
+          <div className="absolute inset-0 bg-gradient-to-r from-violet-400/20 via-purple-400/20 to-blue-400/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+          
+          {/* Button content */}
+          <div className="relative flex items-center gap-2">
+            <div className="p-1 rounded-lg bg-white/10 backdrop-blur-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+            </div>
+            <span className="font-medium tracking-wide">เพิ่มตัวละคร</span>
+          </div>
+
+          {/* Shine effect */}
+          <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
         </Button>
       </DialogFooter>
     </motion.form>
@@ -969,21 +983,44 @@ export default function MyPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, ease: "easeOut" }}
-          className="relative w-full mt-4 mb-8 rounded-2xl shadow-xl bg-white/90 backdrop-blur-sm border border-pink-200/60 p-6"
+          className="relative w-full mt-1 mb-8 rounded-3xl bg-white/30 backdrop-blur-md border border-white/30 shadow-2xl overflow-hidden"
+          style={{
+            minHeight: '120px',
+            boxShadow: '0 8px 40px 0 rgba(124, 58, 237, 0.18)',
+          }}
         >
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <motion.div 
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.2, delay: 0.1, ease: "easeOut" }}
-              className="space-y-1"
-            >
-              <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-violet-600 to-blue-600 bg-clip-text text-transparent">
-                ตัวละครของฉัน
-              </h1>
-              <div className="flex items-center gap-2">
-                <p className="text-gray-500">จัดการตัวละครและติดตามความคืบหน้าของคุณ</p>
-                <div className="flex items-center gap-2 ml-4">
+          {/* Animated Shine Effect */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden z-10">
+            <div className="absolute left-[-40%] top-0 w-1/2 h-full bg-gradient-to-r from-white/40 to-transparent blur-lg animate-shine" />
+          </div>
+          {/* White overlay for readability */}
+          <div className="absolute inset-0 bg-white/80 rounded-3xl z-0" />
+          {/* Fantasy cloud/shine effect (softer) */}
+          <div className="absolute inset-0 z-0 pointer-events-none">
+            <svg width="100%" height="100%" viewBox="0 0 1440 200" fill="none" xmlns="http://www.w3.org/2000/svg" className="absolute top-0 left-0 w-full h-20 md:h-32 opacity-30">
+              <ellipse cx="720" cy="100" rx="720" ry="80" fill="url(#cloudGradient)" />
+              <defs>
+                <linearGradient id="cloudGradient" x1="0" y1="0" x2="1440" y2="0" gradientUnits="userSpaceOnUse">
+                  <stop stopColor="#f3e8ff" />
+                  <stop offset="1" stopColor="#e0e7ff" />
+                </linearGradient>
+              </defs>
+            </svg>
+            <div className="absolute right-2 md:right-10 top-2 md:top-6 w-16 h-16 md:w-32 md:h-32 bg-pink-200/20 rounded-full blur-2xl opacity-30 animate-none" />
+            <div className="absolute left-2 md:left-10 bottom-0 w-12 h-12 md:w-24 md:h-24 bg-blue-200/20 rounded-full blur-2xl opacity-20 animate-none" />
+          </div>
+          {/* Main Content */}
+          <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-3 md:gap-4 px-4 md:px-10 py-5 md:py-8">
+            <div className="space-y-2 w-full">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
+                <span className="inline-flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-tr from-violet-300 via-pink-200 to-blue-200 shadow-lg border-4 border-white">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 md:w-7 md:h-7 text-violet-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19.5 2 21l1.5-5L16.5 3.5z"/></svg>
+                </span>
+                <h1 className="text-2xl md:text-4xl font-extrabold bg-gradient-to-r from-violet-600 via-pink-500 to-blue-600 bg-clip-text text-transparent drop-shadow-lg tracking-tight">ตัวละครของฉัน</h1>
+              </div>
+              <p className="text-gray-600 text-sm md:text-lg font-medium drop-shadow-sm">จัดการตัวละครและติดตามความคืบหน้าของคุณในโลกแฟนตาซี</p>
+              <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-2 mt-2 w-full">
+                <div className="flex flex-row gap-2 w-full sm:w-auto">
                   <Button
                     variant="ghost"
                     size="sm"
@@ -1029,42 +1066,53 @@ export default function MyPage() {
                     รีเซ็ตสัปดาห์
                   </Button>
                 </div>
+                <span className="text-xs text-gray-400 ml-0 sm:ml-2">ปุ่มคัดลอกข้อความรายวัน</span>
+                <div className="flex flex-row gap-2 w-full sm:w-auto">
+                  <button
+                    className={`flex items-center gap-1 px-3 py-1 rounded-lg border border-pink-200 bg-pink-50 text-pink-700 text-xs font-medium shadow hover:bg-pink-100 transition-all duration-200 ${copied === 'th' ? 'scale-105 bg-pink-200' : ''}`}
+                    onClick={() => handleCopy('ยินดีต้อนรับกลับ Nest', 'th')}
+                    type="button"
+                  >
+                    {copied === 'th' ? <ClipboardCheck className="w-4 h-4 text-green-500 animate-bounce" /> : <ClipboardCopy className="w-4 h-4 text-pink-400" />}
+                    ยินดีต้อนรับกลับ Nest
+                  </button>
+                  <button
+                    className={`flex items-center gap-1 px-3 py-1 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 text-xs font-medium shadow hover:bg-blue-100 transition-all duration-200 ${copied === 'en' ? 'scale-105 bg-blue-200' : ''}`}
+                    onClick={() => handleCopy('Welcome back to DN', 'en')}
+                    type="button"
+                  >
+                    {copied === 'en' ? <ClipboardCheck className="w-4 h-4 text-green-500 animate-bounce" /> : <ClipboardCopy className="w-4 h-4 text-blue-400" />}
+                    Welcome back to DN
+                  </button>
+                </div>
               </div>
-              <div className="flex items-center gap-3 mt-2">
-                <span className="text-xs text-gray-400">ปุ่มคัดลอกข้อความรายวัน</span>
-                <button
-                  className={`flex items-center gap-1 px-3 py-1 rounded-lg border border-pink-200 bg-pink-50 text-pink-700 text-xs font-medium shadow hover:bg-pink-100 transition-all duration-200 ${copied === 'th' ? 'scale-105 bg-pink-200' : ''}`}
-                  onClick={() => handleCopy('ยินดีต้อนรับกลับ Nest', 'th')}
-                  type="button"
-                >
-                  {copied === 'th' ? <ClipboardCheck className="w-4 h-4 text-green-500 animate-bounce" /> : <ClipboardCopy className="w-4 h-4 text-pink-400" />}
-                  ยินดีต้อนรับกลับ Nest
-                </button>
-                <button
-                  className={`flex items-center gap-1 px-3 py-1 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 text-xs font-medium shadow hover:bg-blue-100 transition-all duration-200 ${copied === 'en' ? 'scale-105 bg-blue-200' : ''}`}
-                  onClick={() => handleCopy('Welcome back to DN', 'en')}
-                  type="button"
-                >
-                  {copied === 'en' ? <ClipboardCheck className="w-4 h-4 text-green-500 animate-bounce" /> : <ClipboardCopy className="w-4 h-4 text-blue-400" />}
-                  Welcome back to DN
-                </button>
-              </div>
-            </motion.div>
+            </div>
             <motion.div 
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.2, delay: 0.2, ease: "easeOut" }}
-              className="flex items-center gap-4"
+              className="flex items-center gap-4 w-full md:w-auto justify-end"
             >
               <Button 
                 onClick={() => setIsAddModalOpen(true)}
-                className="bg-gradient-to-r from-violet-500 to-blue-500 text-white hover:from-violet-600 hover:to-blue-600 transition-all duration-200 shadow-md hover:shadow-lg flex items-center gap-2 rounded-xl px-6"
+                className="relative group bg-gradient-to-r from-violet-500 via-purple-500 to-blue-500 text-white hover:from-violet-600 hover:via-purple-600 hover:to-blue-600 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-2 rounded-xl px-6 py-3 w-full md:w-auto overflow-hidden"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="12" y1="5" x2="12" y2="19"></line>
-                  <line x1="5" y1="12" x2="19" y2="12"></line>
-                </svg>
-                เพิ่มตัวละคร
+                {/* Animated background effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-violet-400/20 via-purple-400/20 to-blue-400/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+                
+                {/* Button content */}
+                <div className="relative flex items-center gap-2">
+                  <div className="p-1 rounded-lg bg-white/10 backdrop-blur-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="12" y1="5" x2="12" y2="19"></line>
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                  </div>
+                  <span className="font-medium tracking-wide">เพิ่มตัวละคร</span>
+                </div>
+
+                {/* Shine effect */}
+                <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
               </Button>
             </motion.div>
           </div>

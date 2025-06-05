@@ -171,26 +171,8 @@ export function CharacterCard({ character, onEdit, onDelete, onChecklistChange }
             {getClassIcon(character.class)}
           </div>
         </div>
-        {/* Floating edit/delete buttons */}
+        {/* Delete button */}
         <div className="absolute top-2 right-4 flex gap-2 z-30">
-          <Button
-            variant="ghost"
-            size="icon"
-            className={cn(
-              "hover:bg-black/20 transition-all duration-300 rounded-full",
-              hasMissingRequiredStats(character) && "hover:bg-red-200/60"
-            )}
-            onClick={() => {
-              if (onEdit && character) {
-                onEdit(character);
-              }
-            }}
-          >
-            <Pencil className={cn(
-              "h-5 w-5",
-              hasMissingRequiredStats(character) ? "text-red-600 animate-pulse" : "text-gray-800"
-            )} />
-          </Button>
           <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
             <DialogTrigger asChild>
               <Button 
@@ -242,17 +224,39 @@ export function CharacterCard({ character, onEdit, onDelete, onChecklistChange }
         </p>
         <div className="w-full flex flex-col gap-2">
           <div className="p-3 rounded-xl bg-white/90 backdrop-blur-sm shadow-inner border border-gray-300">
-            <h4 className="text-sm font-semibold mb-2 flex items-center gap-1 text-gray-900">
-              <Target className={cn("h-4 w-4",
-                mainClass === 'Warrior' && 'text-red-600',
-                mainClass === 'Archer' && 'text-emerald-600',
-                mainClass === 'Sorceress' && 'text-purple-600',
-                mainClass === 'Cleric' && 'text-sky-600',
-                mainClass === 'Academic' && 'text-amber-600',
-                "transition-all duration-500 group-hover:scale-110",
-                "group-hover:drop-shadow-[0_0_4px_rgba(0,0,0,0.2)]"
-              )} />
-              สถานะตัวละคร
+            <h4 className="text-sm font-semibold mb-2 flex items-center justify-between text-gray-900">
+              <span className="flex items-center gap-1">
+                <Target className={cn("h-4 w-4",
+                  mainClass === 'Warrior' && 'text-red-600',
+                  mainClass === 'Archer' && 'text-emerald-600',
+                  mainClass === 'Sorceress' && 'text-purple-600',
+                  mainClass === 'Cleric' && 'text-sky-600',
+                  mainClass === 'Academic' && 'text-amber-600',
+                  "transition-all duration-500 group-hover:scale-110",
+                  "group-hover:drop-shadow-[0_0_4px_rgba(0,0,0,0.2)]"
+                )} />
+                สถานะตัวละคร
+              </span>
+              <Button
+                variant="ghost"
+                size="icon"
+                className={cn(
+                  "hover:bg-black/10 transition-all duration-300 rounded-full p-1 ml-2",
+                  hasMissingRequiredStats(character) && "hover:bg-red-200/60"
+                )}
+                onClick={() => {
+                  if (onEdit && character) {
+                    onEdit(character);
+                  }
+                }}
+                tabIndex={0}
+                aria-label="แก้ไขสถานะตัวละคร"
+              >
+                <Pencil className={cn(
+                  "h-4 w-4",
+                  hasMissingRequiredStats(character) ? "text-red-600 blink-scale" : "text-gray-800"
+                )} />
+              </Button>
             </h4>
             <CharacterStats stats={character.stats} />
           </div>

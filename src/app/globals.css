@@ -142,4 +142,26 @@ body {
 /* .react-calendar__tile,
 .react-calendar__month-view__days__day {
   color: inherit !important;
-} */ 
+} */
+
+@keyframes blinkScale {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.3;
+    transform: scale(1.2);
+  }
+}
+.blink-scale {
+  animation: blinkScale 1.5s ease-in-out infinite;
+}
+
+@keyframes shine {
+  0% { left: -40%; }
+  100% { left: 120%; }
+}
+.animate-shine {
+  animation: shine 3s linear infinite;
+} 
