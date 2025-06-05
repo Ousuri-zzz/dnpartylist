@@ -20,19 +20,20 @@ export default function LoginPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-8">
+      <div className="flex items-center justify-center min-h-screen w-full bg-transparent">
         <div className="relative">
           {/* Spinning ring */}
-          <div className="absolute inset-0">
-            <div className="w-24 h-24 rounded-full border-4 border-pink-300 border-t-transparent animate-spin"></div>
-          </div>
+          <div className="w-24 h-24 rounded-full border-4 border-pink-300 border-t-transparent animate-spin"></div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen px-4">
+    <div
+      className="flex flex-col items-center justify-center min-h-screen px-4 bg-cover bg-center bg-no-repeat bg-fixed"
+      style={{ backgroundImage: "url('/images/background.jpg')" }}
+    >
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

@@ -7,15 +7,27 @@ const publicPaths = ['/login', '/api/auth'];
 // Add paths that are allowed for unapproved users
 const unapprovedPaths = ['/set-discord', '/waiting-approval'];
 
+// เพิ่ม static asset path ที่ควรยกเว้น
+const staticAssetPaths = [
+  '/images/',
+  '/favicon.ico',
+  '/robots.txt',
+  '/fonts/',
+  '/sitemap',
+];
+
 export function middleware(request: NextRequest) {
   const token = request.cookies.get('auth-token');
   const { pathname } = request.nextUrl;
   
   // Skip middleware for public paths and static files
-  if (publicPaths.some(path => pathname.startsWith(path)) || 
-      pathname.includes('_next') || 
-      pathname.includes('static') ||
-      pathname.includes('api')) {
+  if (
+    publicPaths.some(path => pathname.startsWith(path)) || 
+    pathname.includes('_next') || 
+    pathname.includes('static') ||
+    pathname.includes('api') ||
+    staticAssetPaths.some(path => pathname.startsWith(path))
+  ) {
     return NextResponse.next();
   }
 
@@ -54,6 +66,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!_next|static|api|favicon.ico).*)',
+    '/((?!_next|static|api|favicon.ico|images|fonts|robots.txt|sitemap).*)',
   ],
 }; 
