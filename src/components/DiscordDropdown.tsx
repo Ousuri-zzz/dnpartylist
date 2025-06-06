@@ -82,7 +82,7 @@ export function DiscordDropdown({ inMobileMenu = false }: { inMobileMenu?: boole
             <AvatarImage src={user.photoURL || ''} alt={user.displayName || user.email || 'User'} />
             <AvatarFallback>{user.displayName?.[0] || discordName?.[0] || 'U'}</AvatarFallback>
           </Avatar>
-          <span className="text-sm font-medium flex-1 text-left whitespace-nowrap overflow-hidden text-ellipsis text-pink-400">
+          <span className="text-sm font-semibold flex-1 text-left whitespace-nowrap overflow-hidden text-ellipsis text-blue-600 tracking-wide drop-shadow-sm transition-all duration-200">
             {discordName || user.displayName || 'กรุณาตั้งชื่อ'}
           </span>
         </div>

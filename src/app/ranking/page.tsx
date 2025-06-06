@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import { useAllCharacters } from '../../hooks/useAllCharacters';
 import { useAuth } from '../../hooks/useAuth';
 import { useUsers } from '../../hooks/useUsers';
@@ -54,52 +54,37 @@ interface RoleConstants {
     pdef?: number;
     mdef?: number;
   };
-  // เพิ่มตัวคูณสำหรับลดการเติบโตของสเตตัส
-  statScaling?: {
-    hp?: number;    // ใช้เลขชี้กำลังลดการเติบโตของ HP
-    atk?: number;   // ใช้เลขชี้กำลังลดการเติบโตของ ATK
-    def?: number;   // เพิ่มการเติบโตช้าของ DEF
-  };
   skillMultiplier?: number; // ทำให้เป็น optional
 }
 
 const ROLE_BALANCE: Record<string, RoleConstants> = {
   // DPS อาชีพ
   ElementalLord: {
-    statWeights: { atk: 1.0, fd: 1.25, ele: 1.0, cri: 1.3 },
-    statScaling: { hp: 0.55, atk: 0.9 }
+    statWeights: { atk: 1.0, fd: 1.0, ele: 1.0, cri: 1.3 }
   },
   "Elemental Lord": {
-    statWeights: { atk: 1.0, fd: 1.25, ele: 1.0, cri: 1.3 },
-    statScaling: { hp: 0.55, atk: 0.9 }
+    statWeights: { atk: 1.0, fd: 1.0, ele: 1.0, cri: 1.3 }
   },
   ForceUser: {
-    statWeights: { atk: 1.15, fd: 1.25, ele: 1.0, cri: 1.3 },
-    statScaling: { hp: 0.55, atk: 0.9 }
+    statWeights: { atk: 1.15, fd: 1.0, ele: 1.0, cri: 1.3 }
   },
   "Force User": {
-    statWeights: { atk: 1.15, fd: 1.25, ele: 1.0, cri: 1.3 },
-    statScaling: { hp: 0.55, atk: 0.9 }
+    statWeights: { atk: 1.15, fd: 1.0, ele: 1.0, cri: 1.3 }
   },
   SwordMaster: {
-    statWeights: { atk: 1.35, fd: 1.25, cri: 1.2, hp: 0.2 },
-    statScaling: { hp: 0.5, atk: 0.95 }
+    statWeights: { atk: 1.35, fd: 1.0, cri: 1.2, hp: 0.2 }
   },
   "Sword Master": {
-    statWeights: { atk: 1.35, fd: 1.25, cri: 1.2, hp: 0.2 },
-    statScaling: { hp: 0.5, atk: 0.95 }
+    statWeights: { atk: 1.35, fd: 1.0, cri: 1.2, hp: 0.2 }
   },
   Mercenary: {
-    statWeights: { atk: 1.2, hp: 0.9, fd: 1.1, cri: 1.0 },
-    statScaling: { hp: 0.6, atk: 0.9 }
+    statWeights: { atk: 1.2, hp: 0.9, fd: 1.0, cri: 1.0 }
   },
   Bowmaster: {
-    statWeights: { atk: 1.2, hp: 0.9, fd: 1.1, cri: 1.0 },
-    statScaling: { hp: 0.6, atk: 0.9 }
+    statWeights: { atk: 1.2, hp: 0.9, fd: 1.0, cri: 1.0 }
   },
   Acrobat: {
-    statWeights: { atk: 1.2, hp: 0.9, fd: 1.1, cri: 1.0 },
-    statScaling: { hp: 0.6, atk: 0.9 }
+    statWeights: { atk: 1.2, hp: 0.9, fd: 1.0, cri: 1.0 }
   },
 
   // Tank/Support
@@ -108,13 +93,8 @@ const ROLE_BALANCE: Record<string, RoleConstants> = {
       hp: 0.8,           
       pdef: 1.2,         
       mdef: 1.2,         
-      fd: 1.1,           
+      fd: 1.0,           
       atk: 1.2           
-    },
-    statScaling: { 
-      hp: 0.95,          
-      atk: 0.95,         
-      def: 1.0           
     }
   },
   Priest: {
@@ -124,22 +104,15 @@ const ROLE_BALANCE: Record<string, RoleConstants> = {
       mdef: 0.7,         
       atk: 1.1,           
       ele: 1.1           
-    },
-    statScaling: { 
-      hp: 0.9,           
-      atk: 0.9,          
-      def: 0.95          
     }
   },
 
   // อาชีพสมดุล
   Engineer: {
-    statWeights: { atk: 1.2, hp: 0.9, fd: 1.1, cri: 1.0 },
-    statScaling: { hp: 0.6, atk: 0.9 }
+    statWeights: { atk: 1.2, hp: 0.9, fd: 1.1, cri: 1.0 }
   },
   Alchemist: {
-    statWeights: { atk: 1.1, hp: 0.9, fd: 1.1, cri: 1.0 },
-    statScaling: { hp: 0.6, atk: 0.9 }
+    statWeights: { atk: 1.1, hp: 0.9, fd: 1.1, cri: 1.0 }
   }
 };
 
@@ -226,6 +199,8 @@ export default function RankingPage() {
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const [openCharacterId, setOpenCharacterId] = useState<string | null>(null);
   const [forceUpdate, setForceUpdate] = useState(0);
+  const [hoveredCard, setHoveredCard] = useState<{ char: RankedCharacter, rect: DOMRect } | null>(null);
+  const cardRefs = useRef<{ [job: string]: HTMLDivElement | null }>({});
 
   // เพิ่ม useEffect เพื่อติดตามการเปลี่ยนแปลง
   useEffect(() => {
@@ -244,6 +219,37 @@ export default function RankingPage() {
       setSortDirection('desc');
     }
   };
+
+  // All characters (ไม่ filter) สำหรับ Top 1 per job (อิง score เท่านั้น)
+  const allRankedByScore = useMemo(() => {
+    let processed = characters.map(char => {
+      const discordName = users[char.userId]?.meta?.discord || 'ไม่มีชื่อ Discord';
+      return {
+        ...char,
+        score: calculateScore(char),
+        discordName,
+        stats: char.stats as CharacterStats
+      };
+    }) as RankedCharacter[];
+    // Sort by score เท่านั้น
+    processed = sortCharacters(processed, 'score', 'desc');
+    // Add rank ใหม่แยกตามอาชีพ
+    const byJob: { [job: string]: number } = {};
+    processed = processed.map(char => {
+      byJob[char.class] = (byJob[char.class] || 0) + 1;
+      return { ...char, rank: byJob[char.class] };
+    });
+    return processed;
+  }, [characters, users]);
+
+  // หาอันดับ 1 ของแต่ละอาชีพ (จาก allRankedByScore)
+  const top1PerJob = useMemo(() => {
+    const top: { [job: string]: RankedCharacter | undefined } = {};
+    ALLOWED_JOBS.forEach(job => {
+      top[job] = allRankedByScore.find(c => c.class === job && c.rank === 1);
+    });
+    return top;
+  }, [allRankedByScore]);
 
   // Filter and sort characters
   const rankedCharacters = useMemo(() => {
@@ -332,10 +338,105 @@ export default function RankingPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          className="space-y-6"
+          className="space-y-3"
         >
+          {/* Top 1 per job (modern glassmorphism, icon effect, gradient name) - MOVE TO TOP */}
+          <div className="w-full mt-2 mb-1">
+            <div className="mb-2 flex justify-center">
+              <div className="px-6 py-2 rounded-xl bg-gradient-to-r from-yellow-200/80 via-yellow-100/90 to-yellow-300/80 backdrop-blur-md shadow-lg flex items-center gap-2 border border-yellow-200/70">
+                <span className="text-2xl md:text-3xl animate-bounce text-yellow-400 drop-shadow-glow">🏆</span>
+                <span className="text-yellow-700 text-lg md:text-2xl font-extrabold tracking-tight drop-shadow-lg" style={{textShadow:'0 2px 12px #fff,0 0 16px #facc15'}}>
+                  Top 1 ของแต่ละอาชีพ
+                </span>
+                <span className="text-2xl md:text-3xl animate-bounce text-yellow-400 drop-shadow-glow">🏆</span>
+              </div>
+            </div>
+            <div className="flex flex-wrap justify-center gap-4 py-1 overflow-visible">
+              {ALLOWED_JOBS.map(job => {
+                const char = top1PerJob[job];
+                if (!char) return null;
+                const colors = getClassColors(CLASS_TO_ROLE[job]);
+                // ไอคอนอาชีพ + สี glow
+                const jobIcons: Record<string, {icon: string, glow: string}> = {
+                  'Sword Master': {icon: '⚔️', glow: '#f87171'},
+                  'Mercenary': {icon: '⚔️', glow: '#f87171'},
+                  'Bowmaster': {icon: '🏹', glow: '#34d399'},
+                  'Acrobat': {icon: '🏹', glow: '#34d399'},
+                  'Force User': {icon: '🔮', glow: '#a78bfa'},
+                  'Elemental Lord': {icon: '🔮', glow: '#a78bfa'},
+                  'Paladin': {icon: '✨', glow: '#60a5fa'},
+                  'Priest': {icon: '✨', glow: '#60a5fa'},
+                  'Engineer': {icon: '🔧', glow: '#fbbf24'},
+                  'Alchemist': {icon: '🔧', glow: '#fbbf24'},
+                };
+                return (
+                  <div
+                    key={job}
+                    ref={el => { cardRefs.current[job] = el; }}
+                    className={cn(
+                      "relative group flex flex-col items-center justify-center min-w-[110px] max-w-[140px] px-3 py-3 rounded-2xl border border-yellow-200/70 shadow-xl bg-gradient-to-br from-yellow-50/90 via-white/90 to-yellow-100/80 backdrop-blur-md",
+                      "hover:scale-105 hover:shadow-2xl transition-all duration-200 cursor-pointer"
+                    )}
+                    style={{ boxShadow: '0 4px 32px 0 rgba(250,204,21,0.10), 0 2px 8px 0 rgba(0,0,0,0.06)' }}
+                    onMouseEnter={e => {
+                      const rect = cardRefs.current[job]?.getBoundingClientRect();
+                      if (rect) setHoveredCard({ char, rect });
+                    }}
+                    onMouseLeave={() => setHoveredCard(null)}
+                  >
+                    <span
+                      className="text-3xl mb-1 drop-shadow-glow animate-pulse"
+                      style={{
+                        color: colors.text,
+                        filter: `drop-shadow(0 0 8px #fff8) drop-shadow(0 0 16px ${jobIcons[job].glow})`
+                      }}
+                    >
+                      {jobIcons[job].icon}
+                    </span>
+                    <span className="font-extrabold text-base md:text-lg text-pink-500 drop-shadow" style={{textShadow:'0 2px 8px #fff'}}>
+                      {char.name}
+                    </span>
+                    <span className={cn("font-semibold text-xs mb-1 drop-shadow", colors.text)} style={{textShadow: `0 2px 8px #fff8, 0 0 8px ${jobIcons[job].glow}`}}>
+                      {job}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+            {/* Tooltip แบบ fixed ลอยอิสระ */}
+            {hoveredCard && (
+              <div
+                className="fixed z-[999999] min-w-[260px] max-w-md pointer-events-none"
+                style={{
+                  left: hoveredCard.rect.left + hoveredCard.rect.width / 2,
+                  top: hoveredCard.rect.bottom + 12,
+                  transform: 'translateX(-50%)',
+                }}
+              >
+                <div className="bg-gradient-to-br from-pink-50 via-yellow-50 to-blue-50/90 border border-pink-200/60 rounded-2xl shadow-2xl p-4 text-sm text-gray-800 font-semibold backdrop-blur-xl relative z-[999999]">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-blue-500 text-xl">💬</span>
+                    <span className="font-bold text-pink-600 text-base">{hoveredCard.char.name}</span>
+                    <span className="text-xs text-gray-500">({hoveredCard.char.discordName})</span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-x-4 gap-y-1 mb-0">
+                    <div><span className="text-pink-500">⚔️ ATK:</span> {hoveredCard.char.stats.atk}</div>
+                    <div><span className="text-red-400">❤️ HP:</span> {hoveredCard.char.stats.hp}</div>
+                    <div><span className="text-orange-400">💥 FD:</span> {hoveredCard.char.stats.fd}</div>
+                    <div><span className="text-yellow-400">🎯 CRI:</span> {hoveredCard.char.stats.cri}</div>
+                    <div><span className="text-purple-400">🔥 ELE:</span> {hoveredCard.char.stats.ele}</div>
+                    <div><span className="text-green-500">📈 Score:</span> {hoveredCard.char.score}</div>
+                  </div>
+                  <div className="absolute left-1/2 -top-3 -translate-x-1/2 w-5 h-5 pointer-events-none z-[999999]">
+                    <div className="w-5 h-5 bg-gradient-to-br from-pink-50 via-yellow-50 to-blue-50/90 border-t border-r border-pink-200/60 rotate-45"></div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* Header */}
-          <div className="flex flex-col md:flex-row justify-between items-stretch gap-6 bg-gradient-to-r from-pink-50/80 via-white/90 to-blue-50/80 rounded-3xl p-8 shadow-2xl border-0">
+          <div className="flex flex-col md:flex-row justify-between items-stretch gap-4 bg-gradient-to-r from-pink-50/80 via-white/90 to-blue-50/80 rounded-3xl p-3 md:p-4 shadow-2xl border-0 mt-0 mb-1">
             {/* Left: Title & Description */}
             <div className="flex-[2] min-w-[260px] flex flex-col justify-center gap-2">
               <div className="flex items-center gap-3 mb-1">
@@ -392,97 +493,94 @@ export default function RankingPage() {
             </div>
           </div>
 
-          {/* Search and Job Filter */}
-          <div className="flex flex-col gap-4">
-            <div className="w-full max-w-md">
+          {/* Mobile Stats Selection */}
+          <div className="lg:hidden">
+            <Select value={selectedStat} onValueChange={(value) => setSelectedStat(value as SortType)}>
+              <SelectTrigger className="w-full bg-white/90 backdrop-blur-sm border-pink-200/50">
+                <SelectValue placeholder="เลือกสเตตัส" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="score">
+                  <div className="flex items-center gap-2">
+                    <TrendingUp className="w-4 h-4 text-green-400" />
+                    <span>Score</span>
+                  </div>
+                </SelectItem>
+                <SelectItem value="atk">
+                  <div className="flex items-center gap-2">
+                    <Sword className="w-4 h-4 text-pink-500" />
+                    <span>ATK</span>
+                  </div>
+                </SelectItem>
+                <SelectItem value="hp">
+                  <div className="flex items-center gap-2">
+                    <Heart className="w-4 h-4 text-red-400" />
+                    <span>HP</span>
+                  </div>
+                </SelectItem>
+                <SelectItem value="def">
+                  <div className="flex items-center gap-2">
+                    <Shield className="w-4 h-4 text-blue-400" />
+                    <span>DEF%</span>
+                  </div>
+                </SelectItem>
+                <SelectItem value="cri">
+                  <div className="flex items-center gap-2">
+                    <Target className="w-4 h-4 text-yellow-400" />
+                    <span>CRI%</span>
+                  </div>
+                </SelectItem>
+                <SelectItem value="ele">
+                  <div className="flex items-center gap-2">
+                    <Flame className="w-4 h-4 text-purple-400" />
+                    <span>ELE%</span>
+                  </div>
+                </SelectItem>
+                <SelectItem value="fd">
+                  <div className="flex items-center gap-2">
+                    <Zap className="w-4 h-4 text-orange-400" />
+                    <span>FD%</span>
+                  </div>
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Mobile Job Selection */}
+          <div className="lg:hidden">
+            <Select value={selectedJob} onValueChange={setSelectedJob}>
+              <SelectTrigger className="w-full bg-white/90 backdrop-blur-sm border-pink-200/50">
+                <SelectValue placeholder="เลือกอาชีพ" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">
+                  <span className="text-gray-700">ทั้งหมด</span>
+                </SelectItem>
+                {ALLOWED_JOBS.map(job => {
+                  const role = CLASS_TO_ROLE[job];
+                  const colors = getClassColors(role);
+                  return (
+                    <SelectItem key={job} value={job}>
+                      <span className={cn(colors.text)}>{job}</span>
+                    </SelectItem>
+                  );
+                })}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Ranking Table */}
+          <Card className="overflow-hidden bg-white/90 backdrop-blur-sm border-0 shadow-2xl rounded-3xl mt-0">
+            <div className="p-4 pb-0 relative">
+              <span className="absolute left-6 top-1/2 -translate-y-1/2 text-pink-400 text-lg pointer-events-none">🔍</span>
               <Input
                 type="text"
                 placeholder="ค้นหาตัวละครหรือชื่อ Discord..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-white/90 backdrop-blur-sm border-pink-200/50 focus:border-pink-300/50"
+                className="w-full bg-white border-2 border-pink-400 shadow-md shadow-pink-200 rounded-t-3xl rounded-b-none text-sm px-12 py-2 focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-all duration-150"
               />
             </div>
-
-            {/* Mobile Stats Selection */}
-            <div className="lg:hidden">
-              <Select value={selectedStat} onValueChange={(value) => setSelectedStat(value as SortType)}>
-                <SelectTrigger className="w-full bg-white/90 backdrop-blur-sm border-pink-200/50">
-                  <SelectValue placeholder="เลือกสเตตัส" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="score">
-                    <div className="flex items-center gap-2">
-                      <TrendingUp className="w-4 h-4 text-green-400" />
-                      <span>Score</span>
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="atk">
-                    <div className="flex items-center gap-2">
-                      <Sword className="w-4 h-4 text-pink-500" />
-                      <span>ATK</span>
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="hp">
-                    <div className="flex items-center gap-2">
-                      <Heart className="w-4 h-4 text-red-400" />
-                      <span>HP</span>
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="def">
-                    <div className="flex items-center gap-2">
-                      <Shield className="w-4 h-4 text-blue-400" />
-                      <span>DEF%</span>
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="cri">
-                    <div className="flex items-center gap-2">
-                      <Target className="w-4 h-4 text-yellow-400" />
-                      <span>CRI%</span>
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="ele">
-                    <div className="flex items-center gap-2">
-                      <Flame className="w-4 h-4 text-purple-400" />
-                      <span>ELE%</span>
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="fd">
-                    <div className="flex items-center gap-2">
-                      <Zap className="w-4 h-4 text-orange-400" />
-                      <span>FD%</span>
-                    </div>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Mobile Job Selection */}
-            <div className="lg:hidden">
-              <Select value={selectedJob} onValueChange={setSelectedJob}>
-                <SelectTrigger className="w-full bg-white/90 backdrop-blur-sm border-pink-200/50">
-                  <SelectValue placeholder="เลือกอาชีพ" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">
-                    <span className="text-gray-700">ทั้งหมด</span>
-                  </SelectItem>
-                  {ALLOWED_JOBS.map(job => {
-                    const role = CLASS_TO_ROLE[job];
-                    const colors = getClassColors(role);
-                    return (
-                      <SelectItem key={job} value={job}>
-                        <span className={cn(colors.text)}>{job}</span>
-                      </SelectItem>
-                    );
-                  })}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          {/* Ranking Table */}
-          <Card className="overflow-hidden bg-white/90 backdrop-blur-sm border-0 shadow-2xl rounded-3xl">
             <CardContent className="p-0">
               <div className="overflow-x-auto">
                 <table className="w-full">
