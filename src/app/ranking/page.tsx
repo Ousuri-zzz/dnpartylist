@@ -406,26 +406,31 @@ export default function RankingPage() {
             {/* Tooltip แบบ fixed ลอยอิสระ */}
             {hoveredCard && (
               <div
-                className="fixed z-[999999] min-w-[260px] max-w-md pointer-events-none"
+                className="fixed z-[999999] sm:w-[420px] w-[95vw] min-w-0 max-w-full pointer-events-none"
                 style={{
-                  left: hoveredCard.rect.left + hoveredCard.rect.width / 2,
+                  left: typeof window !== 'undefined' && window.innerWidth < 640 ? '50vw' : (hoveredCard.rect.left + hoveredCard.rect.width / 2),
                   top: hoveredCard.rect.bottom + 12,
                   transform: 'translateX(-50%)',
                 }}
               >
-                <div className="bg-gradient-to-br from-pink-50 via-yellow-50 to-blue-50/90 border border-pink-200/60 rounded-2xl shadow-2xl p-4 text-sm text-gray-800 font-semibold backdrop-blur-xl relative z-[999999]">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-blue-500 text-xl">💬</span>
-                    <span className="font-bold text-pink-600 text-base">{hoveredCard.char.name}</span>
-                    <span className="text-xs text-gray-500">({hoveredCard.char.discordName})</span>
+                <div className="bg-gradient-to-br from-pink-50 via-yellow-50 to-blue-50/90 border border-pink-200/60 rounded-2xl shadow-2xl sm:p-4 p-2 sm:text-sm text-xs text-gray-800 font-semibold backdrop-blur-xl relative z-[999999] overflow-hidden">
+                  <div className="flex items-center gap-2 mb-2 justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-blue-500 text-xl">💬</span>
+                      <span className="font-bold text-pink-600 text-base">{hoveredCard.char.name}</span>
+                      <span className="text-xs text-gray-500">({hoveredCard.char.discordName})</span>
+                    </div>
+                    <div className="text-green-600 font-bold text-xs flex items-center gap-1 whitespace-nowrap">
+                      <span className="">📈</span> {formatNumberWithComma(hoveredCard.char.score)}
+                    </div>
                   </div>
-                  <div className="grid grid-cols-3 gap-x-4 gap-y-1 mb-0">
-                    <div><span className="text-pink-500">⚔️ ATK:</span> {hoveredCard.char.stats.atk}</div>
-                    <div><span className="text-red-400">❤️ HP:</span> {hoveredCard.char.stats.hp}</div>
-                    <div><span className="text-orange-400">💥 FD:</span> {hoveredCard.char.stats.fd}</div>
-                    <div><span className="text-yellow-400">🎯 CRI:</span> {hoveredCard.char.stats.cri}</div>
-                    <div><span className="text-purple-400">🔥 ELE:</span> {hoveredCard.char.stats.ele}</div>
-                    <div><span className="text-green-500">📈 Score:</span> {hoveredCard.char.score}</div>
+                  <div className="grid sm:grid-cols-3 grid-cols-2 gap-x-2 gap-y-1 mb-0">
+                    <div className="flex items-center gap-1"><span className="text-pink-500">⚔️</span><span className="text-gray-700 font-bold">ATK:</span> <span className="text-pink-600 font-bold">{formatNumberWithComma(hoveredCard.char.stats.atk)}</span></div>
+                    <div className="flex items-center gap-1"><span className="text-red-400">❤️</span><span className="text-gray-700 font-bold">HP:</span> <span className="text-red-600 font-bold">{formatNumberWithComma(hoveredCard.char.stats.hp)}</span></div>
+                    <div className="flex items-center gap-0.5 text-xs min-w-0 break-words"><span className="text-blue-500">🛡️</span><span className="text-gray-700 font-bold">DEF:</span><span className="text-blue-600 font-bold">P{hoveredCard.char.stats.pdef}%</span><span className="text-gray-400 mx-0.5">/</span><span className="text-purple-600 font-bold">M{hoveredCard.char.stats.mdef}%</span></div>
+                    <div className="flex items-center gap-1"><span className="text-yellow-400">🎯</span><span className="text-gray-700 font-bold">CRI:</span> <span className="text-yellow-600 font-bold">{hoveredCard.char.stats.cri}%</span></div>
+                    <div className="flex items-center gap-1"><span className="text-purple-400">🔥</span><span className="text-gray-700 font-bold">ELE:</span> <span className="text-purple-600 font-bold">{hoveredCard.char.stats.ele}%</span></div>
+                    <div className="flex items-center gap-1"><span className="text-orange-400">💥</span><span className="text-gray-700 font-bold">FD:</span> <span className="text-orange-600 font-bold">{hoveredCard.char.stats.fd}%</span></div>
                   </div>
                   <div className="absolute left-1/2 -top-3 -translate-x-1/2 w-5 h-5 pointer-events-none z-[999999]">
                     <div className="w-5 h-5 bg-gradient-to-br from-pink-50 via-yellow-50 to-blue-50/90 border-t border-r border-pink-200/60 rotate-45"></div>
