@@ -22,6 +22,8 @@ export default function RootLayout({
     <html lang="th">
       <head>
         <link rel="icon" type="image/png" href="/favicon.png" />
+        <link rel="apple-touch-icon" href="/favicon.png" />
+        <meta name="theme-color" content="#ffffff" />
         <link
           rel="preload"
           href="/images/background.jpg"

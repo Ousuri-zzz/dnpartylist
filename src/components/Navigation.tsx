@@ -164,7 +164,7 @@ export default function Navigation() {
       }
     });
     return () => unsubscribe();
-  }, [isGuildLeader]);
+  }, [user, isGuildLeader]);
 
   const handleLogout = async () => {
     try {
@@ -184,11 +184,11 @@ export default function Navigation() {
             <>
               {/* Mobile Menu Button */}
               <button
-                onClick={() => setIsMobileMenuOpen(true)}
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className="lg:hidden mr-2 p-2 rounded-lg hover:bg-pink-50/50 transition-all duration-300 hover:scale-105 relative"
               >
                 <svg
-                  className="w-6 h-6 text-gray-600"
+                  className="w-6 h-6 text-pink-500"
                   fill="none"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -261,32 +261,68 @@ export default function Navigation() {
                       <span className={cn("font-medium", pathname === "/split" ? "text-yellow-600" : undefined)}>Loot</span>
                     </Link>
                     <Link href="/trade" onClick={() => setIsMobileMenuOpen(false)} className={cn(
-                      "flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-pink-50/50",
+                      "flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-pink-50/50 relative",
                       pathname === "/trade" ? "bg-pink-50" : "text-gray-700"
                     )}>
                       <ShoppingCart className={cn("w-5 h-5", pathname === "/trade" ? "text-pink-600" : "text-pink-400")} />
                       <span className={cn("font-medium", pathname === "/trade" ? "text-pink-600" : undefined)}>Trade</span>
                       {pendingCount > 0 && (
-                        <span className="ml-auto px-2 py-0.5 rounded-full bg-yellow-300 text-yellow-900 text-xs font-bold shadow">
+                        <span className="absolute right-4 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded-full bg-yellow-300 text-yellow-900 text-xs font-bold shadow">
                           {pendingCount}
                         </span>
                       )}
                     </Link>
                     <Link href="/guild-donate/history" onClick={() => setIsMobileMenuOpen(false)} className={cn(
-                      "relative flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-pink-50/50",
+                      "flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-pink-50/50 relative",
                       pathname === "/guild-donate/history" ? "bg-yellow-50" : "text-gray-700"
                     )}>
                       <Crown className={cn("w-5 h-5", pathname === "/guild-donate/history" ? "text-yellow-600" : "text-yellow-400")} />
                       <span className={cn("font-medium whitespace-nowrap flex items-center", pathname === "/guild-donate/history" ? "text-yellow-600" : undefined)}>
                         บริจาคกิลด์
-                        {(isGuildLeader && (pendingDonationCount > 0 || pendingCashDonationCount > 0)) && (
-                          <span className="absolute -top-2 -right-2 w-4 h-4 min-w-4 min-h-4 p-0 flex justify-center items-center rounded-full bg-red-500 text-white text-xs font-bold shadow select-none z-30"
-                            style={{ boxSizing: 'border-box' }}>
-                            {pendingDonationCount + pendingCashDonationCount}
+                      </span>
+                      {(isGuildLeader && (pendingDonationCount > 0 || pendingCashDonationCount > 0)) && (
+                        <span className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 min-w-4 min-h-4 flex justify-center items-center rounded-full bg-red-500 text-white text-xs font-bold shadow select-none z-30">
+                          {pendingDonationCount + pendingCashDonationCount}
+                        </span>
+                      )}
+                    </Link>
+                    {isGuildLeader && (
+                      <Link href="/guild/settings" onClick={() => setIsMobileMenuOpen(false)} className={cn(
+                        "flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-green-50/50 relative",
+                        pathname === "/guild/settings" ? "bg-emerald-50" : "text-gray-700"
+                      )}>
+                        <Settings className={cn("w-5 h-5", pathname === "/guild/settings" ? "text-emerald-600" : "text-emerald-400")} />
+                        <span className={cn("font-medium whitespace-nowrap flex items-center", pathname === "/guild/settings" ? "text-emerald-600" : undefined)}>จัดการกิลด์</span>
+                        {(pendingGuildLoanCount > 0 || pendingMerchantCount > 0 || pendingNewMemberCount > 0) && (
+                          <span className="absolute right-4 top-1/2 -translate-y-1/2 flex gap-1 z-30">
+                            {pendingNewMemberCount > 0 && (
+                              <span
+                                className="w-4 h-4 min-w-4 min-h-4 flex justify-center items-center rounded-full bg-blue-400 text-white text-xs font-bold shadow-md border border-blue-200"
+                                title="มีสมาชิกใหม่รออนุมัติ"
+                              >
+                                {pendingNewMemberCount}
+                              </span>
+                            )}
+                            {pendingMerchantCount > 0 && (
+                              <span
+                                className="w-4 h-4 min-w-4 min-h-4 flex justify-center items-center rounded-full bg-yellow-300 text-yellow-900 text-xs font-bold shadow-md border border-yellow-200"
+                                title="มีร้านค้ารออนุมัติ"
+                              >
+                                {pendingMerchantCount}
+                              </span>
+                            )}
+                            {pendingGuildLoanCount > 0 && (
+                              <span
+                                className="w-4 h-4 min-w-4 min-h-4 flex justify-center items-center rounded-full bg-red-500 text-white text-xs font-bold shadow-md border border-red-400"
+                                title="มีคำขอกู้ยืมใหม่"
+                              >
+                                {pendingGuildLoanCount}
+                              </span>
+                            )}
                           </span>
                         )}
-                      </span>
-                    </Link>
+                      </Link>
+                    )}
                     <a
                       href="https://discord.com/users/1163943838826631258"
                       target="_blank"
@@ -300,43 +336,6 @@ export default function Navigation() {
                       <MessageSquare className={cn("w-5 h-5", pathname === "/contact-guild-leader" ? "text-sky-600" : "text-sky-400")} />
                       <span className={cn("font-medium", pathname === "/contact-guild-leader" ? "text-sky-600" : undefined)}>ติดต่อหัวกิลด์</span>
                     </a>
-                    {isGuildLeader && (
-                      <Link href="/guild/settings" onClick={() => setIsMobileMenuOpen(false)} className={cn(
-                        "flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-green-50/50 relative",
-                        pathname === "/guild/settings" ? "bg-emerald-50" : "text-gray-700"
-                      )}>
-                        <Settings className={cn("w-5 h-5", pathname === "/guild/settings" ? "text-emerald-600" : "text-emerald-400")} />
-                        <span className={cn("font-medium whitespace-nowrap flex items-center", pathname === "/guild/settings" ? "text-emerald-600" : undefined)}>จัดการกิลด์</span>
-                        {(pendingGuildLoanCount > 0 || pendingMerchantCount > 0 || pendingNewMemberCount > 0) && (
-                          <span className="absolute -top-2 -right-2 flex gap-1 z-30">
-                            {pendingNewMemberCount > 0 && (
-                              <span
-                                className="w-4 h-4 min-w-4 min-h-4 p-0 flex justify-center items-center rounded-full bg-blue-400 text-white text-xs font-bold shadow-md border border-blue-200 cursor-pointer hover:bg-blue-300 transition-colors drop-shadow z-30"
-                                title="มีสมาชิกใหม่รออนุมัติ"
-                              >
-                                {pendingNewMemberCount}
-                              </span>
-                            )}
-                            {pendingMerchantCount > 0 && (
-                              <span
-                                className="w-4 h-4 min-w-4 min-h-4 p-0 flex justify-center items-center rounded-full bg-yellow-300 text-yellow-900 text-xs font-bold shadow-md border border-yellow-200 cursor-pointer hover:bg-yellow-200 transition-colors drop-shadow z-30"
-                                title="มีร้านค้ารออนุมัติ"
-                              >
-                                {pendingMerchantCount}
-                              </span>
-                            )}
-                            {pendingGuildLoanCount > 0 && (
-                              <span
-                                className="w-4 h-4 min-w-4 min-h-4 p-0 flex justify-center items-center rounded-full bg-red-500 text-white text-xs font-bold shadow-md border border-red-400 cursor-pointer hover:bg-red-400 transition-colors drop-shadow z-30"
-                                title="มีคำขอกู้ยืมใหม่"
-                              >
-                                {pendingGuildLoanCount}
-                              </span>
-                            )}
-                          </span>
-                        )}
-                      </Link>
-                    )}
                   </nav>
                   <div className="p-4 border-t border-pink-100 bg-white/95 backdrop-blur-md">
                     <DiscordDropdown inMobileMenu={true} />
