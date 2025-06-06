@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { cn } from '../lib/utils';
 import { DiscordDropdown } from './DiscordDropdown';
 import { motion } from 'framer-motion';
-import { Home, Users, BarChart2, Calendar, ShoppingCart, PiggyBank, Settings, Crown, LogOut, CreditCard, MessageSquare, SplitSquareHorizontal } from 'lucide-react';
+import { Home, Users, BarChart2, Calendar, ShoppingCart, PiggyBank, Settings, Crown, LogOut, CreditCard, MessageSquare, SplitSquareHorizontal, Menu } from 'lucide-react';
 import { useGuild } from '@/hooks/useGuild';
 import { useAuth } from '@/hooks/useAuth';
 import { ref, onValue } from 'firebase/database';
@@ -28,6 +28,7 @@ export default function Navigation() {
   const [pendingCashDonationCount, setPendingCashDonationCount] = React.useState(0);
   const [pendingNewMemberCount, setPendingNewMemberCount] = React.useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [charactersWithMissingStats, setCharactersWithMissingStats] = React.useState(0);
 
   useGuildLoanNotification();
 
@@ -166,6 +167,25 @@ export default function Navigation() {
     return () => unsubscribe();
   }, [user, isGuildLeader]);
 
+  React.useEffect(() => {
+    if (!user) return;
+    const charactersRef = ref(db, `users/${user.uid}/characters`);
+    
+    const unsubscribe = onValue(charactersRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const characters = snapshot.val();
+        const missingStatsCount = Object.values(characters).filter((char: any) => {
+          return !char.stats.atk || !char.stats.hp || !char.stats.pdef || !char.stats.mdef;
+        }).length;
+        setCharactersWithMissingStats(missingStatsCount);
+      } else {
+        setCharactersWithMissingStats(0);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [user]);
+
   const handleLogout = async () => {
     try {
       await logout();
@@ -184,24 +204,14 @@ export default function Navigation() {
             <>
               {/* Mobile Menu Button */}
               <button
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="lg:hidden mr-2 p-2 rounded-lg hover:bg-pink-50/50 transition-all duration-300 hover:scale-105 relative"
+                className="lg:hidden p-2 rounded-md hover:bg-pink-100/60 transition-all relative"
+                onClick={() => setIsMobileMenuOpen(true)}
+                aria-label="Open menu"
               >
-                <svg
-                  className="w-6 h-6 text-pink-500"
-                  fill="none"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-                {(pendingCount > 0 || (isGuildLeader && (pendingDonationCount > 0 || pendingCashDonationCount > 0 || pendingGuildLoanCount > 0 || pendingMerchantCount > 0 || pendingNewMemberCount > 0))) && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 min-w-4 min-h-4 p-0 flex justify-center items-center rounded-full bg-red-500 text-white text-xs font-bold shadow select-none z-30"
-                    style={{ boxSizing: 'border-box' }}>
-                    {pendingCount + (isGuildLeader ? (pendingDonationCount + pendingCashDonationCount + pendingGuildLoanCount + pendingMerchantCount + pendingNewMemberCount) : 0)}
+                <Menu className="w-6 h-6 text-pink-500" />
+                {charactersWithMissingStats > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 min-w-4 min-h-4 flex justify-center items-center rounded-full bg-red-500 text-white text-xs font-bold shadow select-none z-30 lg:hidden">
+                    {charactersWithMissingStats}
                   </span>
                 )}
               </button>
@@ -222,11 +232,23 @@ export default function Navigation() {
                   </div>
                   <nav className="flex-1 flex flex-col gap-2 p-4 overflow-y-auto">
                     <Link href="/mypage" onClick={() => setIsMobileMenuOpen(false)} className={cn(
-                      "flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-pink-50/50",
+                      "flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-pink-50/50 relative",
                       pathname === "/mypage" ? "bg-pink-50" : "text-gray-700"
                     )}>
                       <Home className={cn("w-5 h-5", pathname === "/mypage" ? "text-blue-600" : "text-blue-400")} />
                       <span className={cn("font-medium", pathname === "/mypage" ? "text-blue-600" : undefined)}>My Character</span>
+                      {charactersWithMissingStats > 0 && (
+                        <>
+                          {/* Mobile badge */}
+                          <span className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 min-w-4 min-h-4 flex justify-center items-center rounded-full bg-red-500 text-white text-xs font-bold shadow select-none z-30 lg:hidden">
+                            {charactersWithMissingStats}
+                          </span>
+                          {/* Desktop badge */}
+                          <span className="absolute -top-2 -right-2 w-4 h-4 min-w-4 min-h-4 justify-center items-center rounded-full bg-red-500 text-white text-xs font-bold shadow select-none z-30 hidden lg:flex">
+                            {charactersWithMissingStats}
+                          </span>
+                        </>
+                      )}
                     </Link>
                     <Link href="/party" onClick={() => setIsMobileMenuOpen(false)} className={cn(
                       "flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-purple-50/50",
@@ -356,7 +378,7 @@ export default function Navigation() {
                   )}
                 >
                   <motion.div
-                    className="flex items-center gap-1.5"
+                    className="flex items-center gap-1.5 relative"
                     whileHover={{ scale: 1.05, y: -1 }}
                     whileTap={{ scale: 0.98 }}
                     transition={{ type: "spring", stiffness: 400, damping: 17 }}
@@ -371,6 +393,18 @@ export default function Navigation() {
                     )}>
                       My Character
                     </span>
+                    {charactersWithMissingStats > 0 && (
+                      <>
+                        {/* Mobile badge */}
+                        <span className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 min-w-4 min-h-4 flex justify-center items-center rounded-full bg-red-500 text-white text-xs font-bold shadow select-none z-30 lg:hidden">
+                          {charactersWithMissingStats}
+                        </span>
+                        {/* Desktop badge */}
+                        <span className="absolute -top-2 -right-2 w-4 h-4 min-w-4 min-h-4 justify-center items-center rounded-full bg-red-500 text-white text-xs font-bold shadow select-none z-30 hidden lg:flex">
+                          {charactersWithMissingStats}
+                        </span>
+                      </>
+                    )}
                   </motion.div>
                   {pathname === "/mypage" && (
                     <motion.div
