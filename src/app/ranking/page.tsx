@@ -417,8 +417,8 @@ export default function RankingPage() {
                   <div className="flex items-center gap-2 mb-2 justify-between">
                     <div className="flex items-center gap-2">
                       <span className="text-blue-500 text-xl">💬</span>
-                      <span className="font-bold text-pink-600 text-base">{hoveredCard.char.name}</span>
-                      <span className="text-xs text-gray-500">({hoveredCard.char.discordName})</span>
+                      <span className="font-bold text-pink-600 text-base">{hoveredCard.char.discordName}</span>
+                      <span className="text-xs text-gray-500">({hoveredCard.char.name})</span>
                     </div>
                     <div className="text-green-600 font-bold text-xs flex items-center gap-1 whitespace-nowrap">
                       <span className="">📈</span> {formatNumberWithComma(hoveredCard.char.score)}
