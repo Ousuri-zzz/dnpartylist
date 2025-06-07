@@ -923,7 +923,15 @@ export default function EventDetailPage() {
                                 </div>
                                 {/* แสดงรางวัลหรือปุ่มมอบรางวัล */}
                                 {participantDoc?.rewardGiven ? (
-                                  <span className="text-sm text-green-700 ml-2">
+                                  <span
+                                    onClick={isOwner ? () => {
+                                      setSelectedParticipant(memberUser.uid);
+                                      setRewardName(participantDoc.rewardNote || "");
+                                      setRewardModal(true);
+                                    } : undefined}
+                                    className={`text-sm text-green-700 ml-2${isOwner ? ' cursor-pointer hover:text-green-800' : ''}`}
+                                    title={isOwner ? 'แก้ไขรางวัล' : undefined}
+                                  >
                                     ✓ {participantDoc.rewardNote}
                                   </span>
                                 ) : isOwner && (
@@ -988,15 +996,14 @@ export default function EventDetailPage() {
                                   {/* ปุ่มหรือแสดงรางวัลกลุ่ม */}
                                   {allRewarded && lastRewardNote ? (
                                     <span 
-                                      onClick={() => {
-                                        if (isOwner) {
-                                          setSelectedGroupMember(groupId);
-                                          setSelectedParticipant(groupId);
-                                          setRewardName(lastRewardNote);
-                                          setRewardModal(true);
-                                        }
-                                      }}
-                                      className={`text-sm ${isOwner ? 'cursor-pointer hover:text-green-700' : ''} ml-0`}
+                                      onClick={isOwner ? () => {
+                                        setSelectedGroupMember(groupId);
+                                        setSelectedParticipant(groupId);
+                                        setRewardName(lastRewardNote);
+                                        setRewardModal(true);
+                                      } : undefined}
+                                      className={`text-sm text-green-700 ml-0${isOwner ? ' cursor-pointer hover:text-green-800' : ''}`}
+                                      title={isOwner ? 'แก้ไขรางวัล' : undefined}
                                     >
                                       ✓ {lastRewardNote}
                                     </span>

@@ -33,6 +33,21 @@ interface DiscordUser {
   characters: Character[];
 }
 
+// เพิ่ม mapping สีอาชีพ
+const classColors: Record<string, string> = {
+  'Force User': 'text-fuchsia-500',
+  'Elemental Lord': 'text-fuchsia-500',
+  'Bowmaster': 'text-lime-500',
+  'Acrobat': 'text-lime-500',
+  'Sword Master': 'text-rose-500',
+  'Mercenary': 'text-rose-500',
+  'Paladin': 'text-cyan-500',
+  'Priest': 'text-cyan-500',
+  'Engineer': 'text-amber-500',
+  'Alchemist': 'text-amber-500',
+};
+const getClassColor = (className: string) => classColors[className] || 'text-gray-600';
+
 export default function TeamPage() {
   const router = useRouter();
   const { users } = useUsers();
@@ -271,7 +286,9 @@ export default function TeamPage() {
                         <div className="flex justify-between items-start mb-2">
                           <div>
                             <h4 className="font-semibold text-gray-800">{char.name}</h4>
-                            <p className="text-sm text-gray-600">{char.class}</p>
+                            <p className={cn("text-sm font-semibold", getClassColor(char.class))}>
+                              {char.class}
+                            </p>
                           </div>
                         </div>
                         <div className="grid grid-cols-2 gap-3 text-sm">
