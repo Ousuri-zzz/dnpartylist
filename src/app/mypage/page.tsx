@@ -761,12 +761,12 @@ export default function MyPage() {
 
   const renderEditCharacterForm = () => (
     <Dialog open={!!editingCharacter} onOpenChange={() => setEditingCharacter(null)}>
-      <DialogContent className="sm:max-w-[425px] bg-gradient-to-b from-white to-gray-50 border-0">
+      <DialogContent className="w-full max-w-[95vw] sm:max-w-[600px] md:max-w-[800px] max-h-[80vh] mt-4 sm:mt-6 md:mt-8 mb-4 overflow-y-auto px-2 sm:px-4 pb-6 bg-gradient-to-b from-white to-gray-50 rounded-2xl shadow-xl border-0">
         <DialogHeader className="space-y-3 pb-4 border-b border-gray-200">
-          <DialogTitle className="text-xl font-bold flex items-center gap-2 text-gray-800">
+          <DialogTitle className="text-lg sm:text-xl font-bold flex items-center gap-2 text-gray-800">
             <div className="p-2 rounded-lg bg-violet-100 text-violet-600">
               <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5L16.5 3.5z"/>
               </svg>
             </div>
             แก้ไขข้อมูลตัวละคร
@@ -777,138 +777,220 @@ export default function MyPage() {
           e.preventDefault();
           handleSave();
         }} className="space-y-4">
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="name" className="text-right font-medium text-gray-600">
-                ชื่อตัวละคร
-              </Label>
-              <Input
-                id="name"
-                value={editingCharacter?.name || ''}
-                onChange={(e) => setEditingCharacter(prev => prev ? { ...prev, name: e.target.value } : null)}
-                className="col-span-3 bg-white shadow-sm border-gray-200 focus:border-violet-500 focus:ring-violet-500 transition-colors"
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="class" className="text-right font-medium text-gray-600">
-                คลาส
-              </Label>
-              <Select
-                value={editingCharacter?.class || 'Swordsman'}
-                onValueChange={(value: CharacterClass) => {
-                  const mainClass = CLASS_TO_ROLE[value];
-                  setEditingCharacter(prev => prev ? { ...prev, class: value, mainClass } : null);
-                }}
-              >
-                <SelectTrigger className="col-span-3 bg-white shadow-sm border-gray-200 focus:border-violet-500 focus:ring-violet-500 transition-colors">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {CHARACTER_CLASSES.map((characterClass) => (
-                    <SelectItem key={characterClass} value={characterClass}>
-                      <span className="mr-2" role="img" aria-label={characterClass}>
-                        {classIcons[characterClass]}
-                      </span>
-                      {characterClass}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+          <div className="grid gap-4 sm:gap-6 py-2 sm:py-4">
+            {/* Basic Info Section */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-2 sm:p-4 bg-gradient-to-br from-violet-50 to-blue-50 rounded-lg border border-violet-100 shadow-sm">
+              <div className="space-y-4">
+                <div className="grid grid-cols-4 items-center gap-2 sm:gap-4">
+                  <Label htmlFor="name" className="text-right font-medium text-gray-600 flex items-center justify-end gap-2 text-xs sm:text-base">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-violet-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    ชื่อตัวละคร
+                  </Label>
+                  <Input
+                    id="name"
+                    value={editingCharacter?.name || ''}
+                    onChange={(e) => setEditingCharacter(prev => prev ? { ...prev, name: e.target.value } : null)}
+                    className="col-span-3 bg-white shadow-sm border-gray-200 focus:border-violet-500 focus:ring-violet-500 transition-colors text-xs sm:text-base"
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-2 sm:gap-4">
+                  <Label htmlFor="class" className="text-right font-medium text-gray-600 flex items-center justify-end gap-2 text-xs sm:text-base">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                      <path d="M2 17l10 5 10-5"></path>
+                      <path d="M2 12l10 5 10-5"></path>
+                    </svg>
+                    คลาส
+                  </Label>
+                  <Select
+                    value={editingCharacter?.class || 'Swordsman'}
+                    onValueChange={(value: CharacterClass) => {
+                      const mainClass = CLASS_TO_ROLE[value];
+                      setEditingCharacter(prev => prev ? { ...prev, class: value, mainClass } : null);
+                    }}
+                  >
+                    <SelectTrigger className="col-span-3 bg-white shadow-sm border-gray-200 focus:border-violet-500 focus:ring-violet-500 transition-colors text-xs sm:text-base">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {CHARACTER_CLASSES.map((characterClass) => (
+                        <SelectItem key={characterClass} value={characterClass}>
+                          <span className="mr-2" role="img" aria-label={characterClass}>
+                            {classIcons[characterClass]}
+                          </span>
+                          {characterClass}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
             </div>
 
             {/* Stats Section */}
             <div className="mt-2">
               <div className="flex items-center gap-2 mb-4">
-                <div className="p-1.5 rounded-md bg-blue-100 text-blue-600">
+                <div className="p-1.5 rounded-md bg-gradient-to-r from-violet-100 to-blue-100 text-violet-600">
                   <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"/>
                     <line x1="16" y1="8" x2="2" y2="22"/>
                     <line x1="17.5" y1="15" x2="9" y2="15"/>
                   </svg>
                 </div>
-                <Label className="font-semibold text-gray-700">สเตตัส</Label>
+                <Label className="font-semibold text-gray-700 text-sm sm:text-base">สเตตัส</Label>
               </div>
-              <div className="grid grid-cols-2 gap-6 p-4 bg-gray-50 rounded-lg border border-gray-100">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 p-2 sm:p-4 bg-gradient-to-br from-violet-50 to-blue-50 rounded-lg border border-violet-100 shadow-sm">
                 {/* Left Column */}
                 <div className="space-y-4">
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="atk" className="text-right font-medium text-gray-600">ATK</Label>
-                    <Input
-                      id="atk"
-                      value={editingCharacter?.stats.atk || '0'}
-                      onChange={(e) => handleEditStatChange('atk', e.target.value)}
-                      className="col-span-3 bg-white shadow-sm border-gray-200 focus:border-violet-500 focus:ring-violet-500 transition-colors"
-                    />
+                  <div className="grid grid-cols-4 items-center gap-2 sm:gap-4">
+                    <Label htmlFor="atk" className="text-right font-medium text-gray-600 flex items-center justify-end gap-2 text-xs sm:text-base">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 19l7-7 3 3-7 7-3-3z"></path>
+                        <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path>
+                        <path d="M2 2l7.586 7.586"></path>
+                        <circle cx="11" cy="11" r="2"></circle>
+                      </svg>
+                      ATK
+                    </Label>
+                    <div className="col-span-3">
+                      <Input
+                        id="atk"
+                        value={editingCharacter?.stats.atk || '0'}
+                        onChange={(e) => handleEditStatChange('atk', e.target.value)}
+                        className="w-full bg-white shadow-sm border-gray-200 focus:border-violet-500 focus:ring-violet-500 transition-colors text-xs sm:text-base"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">พลังโจมตีพื้นฐานของตัวละคร</p>
+                    </div>
                   </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="hp" className="text-right font-medium text-gray-600">HP</Label>
-                    <Input
-                      id="hp"
-                      value={editingCharacter?.stats.hp || '0'}
-                      onChange={(e) => handleEditStatChange('hp', e.target.value)}
-                      className="col-span-3 bg-white shadow-sm border-gray-200 focus:border-violet-500 focus:ring-violet-500 transition-colors"
-                    />
+                  <div className="grid grid-cols-4 items-center gap-2 sm:gap-4">
+                    <Label htmlFor="hp" className="text-right font-medium text-gray-600 flex items-center justify-end gap-2 text-xs sm:text-base">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-green-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                      </svg>
+                      HP
+                    </Label>
+                    <div className="col-span-3">
+                      <Input
+                        id="hp"
+                        value={editingCharacter?.stats.hp || '0'}
+                        onChange={(e) => handleEditStatChange('hp', e.target.value)}
+                        className="w-full bg-white shadow-sm border-gray-200 focus:border-violet-500 focus:ring-violet-500 transition-colors text-xs sm:text-base"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">พลังชีวิตของตัวละคร</p>
+                    </div>
                   </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="def" className="text-right font-medium text-gray-600">DEF%</Label>
+                  <div className="grid grid-cols-4 items-center gap-2 sm:gap-4">
+                    <Label htmlFor="def" className="text-right font-medium text-gray-600 flex items-center justify-end gap-2 text-xs sm:text-base">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                      </svg>
+                      DEF%
+                    </Label>
                     <div className="col-span-3 grid grid-cols-2 gap-2">
-                      <Input
-                        id="pdef"
-                        value={editingCharacter?.stats.pdef || '0'}
-                        onChange={(e) => handleEditStatChange('pdef', e.target.value)}
-                        placeholder="P.DEF"
-                        className="w-full bg-white shadow-sm border-gray-200 focus:border-violet-500 focus:ring-violet-500 transition-colors"
-                      />
-                      <Input
-                        id="mdef"
-                        value={editingCharacter?.stats.mdef || '0'}
-                        onChange={(e) => handleEditStatChange('mdef', e.target.value)}
-                        placeholder="M.DEF"
-                        className="w-full bg-white shadow-sm border-gray-200 focus:border-violet-500 focus:ring-violet-500 transition-colors"
-                      />
+                      <div>
+                        <Input
+                          id="pdef"
+                          value={editingCharacter?.stats.pdef || '0'}
+                          onChange={(e) => handleEditStatChange('pdef', e.target.value)}
+                          placeholder="P.DEF"
+                          className="w-full bg-white shadow-sm border-gray-200 focus:border-violet-500 focus:ring-violet-500 transition-colors text-xs sm:text-base"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">ป้องกันการโจมตีทางกายภาพ (%)</p>
+                      </div>
+                      <div>
+                        <Input
+                          id="mdef"
+                          value={editingCharacter?.stats.mdef || '0'}
+                          onChange={(e) => handleEditStatChange('mdef', e.target.value)}
+                          placeholder="M.DEF"
+                          className="w-full bg-white shadow-sm border-gray-200 focus:border-violet-500 focus:ring-violet-500 transition-colors text-xs sm:text-base"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">ป้องกันการโจมตีเวทมนตร์ (%)</p>
+                      </div>
                     </div>
                   </div>
                 </div>
 
                 {/* Right Column */}
                 <div className="space-y-4">
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="cri" className="text-right font-medium text-gray-600">CRI%</Label>
-                    <Input
-                      id="cri"
-                      value={editingCharacter?.stats.cri || '0'}
-                      onChange={(e) => handleEditStatChange('cri', e.target.value)}
-                      className="col-span-3 bg-white shadow-sm border-gray-200 focus:border-violet-500 focus:ring-violet-500 transition-colors"
-                    />
+                  <div className="grid grid-cols-4 items-center gap-2 sm:gap-4">
+                    <Label htmlFor="cri" className="text-right font-medium text-gray-600 flex items-center justify-end gap-2 text-xs sm:text-base">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-yellow-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                      </svg>
+                      CRI%
+                    </Label>
+                    <div className="col-span-3">
+                      <Input
+                        id="cri"
+                        value={editingCharacter?.stats.cri || '0'}
+                        onChange={(e) => handleEditStatChange('cri', e.target.value)}
+                        className="w-full bg-white shadow-sm border-gray-200 focus:border-violet-500 focus:ring-violet-500 transition-colors text-xs sm:text-base"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">อัตราการคริติคอล (%)</p>
+                    </div>
                   </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="ele" className="text-right font-medium text-gray-600">ELE%</Label>
-                    <Input
-                      id="ele"
-                      value={editingCharacter?.stats.ele || '0'}
-                      onChange={(e) => handleEditStatChange('ele', e.target.value)}
-                      className="col-span-3 bg-white shadow-sm border-gray-200 focus:border-violet-500 focus:ring-violet-500 transition-colors"
-                    />
+                  <div className="grid grid-cols-4 items-center gap-2 sm:gap-4">
+                    <Label htmlFor="ele" className="text-right font-medium text-gray-600 flex items-center justify-end gap-2 text-xs sm:text-base">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-purple-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path>
+                      </svg>
+                      ELE%
+                    </Label>
+                    <div className="col-span-3">
+                      <Input
+                        id="ele"
+                        value={editingCharacter?.stats.ele || '0'}
+                        onChange={(e) => handleEditStatChange('ele', e.target.value)}
+                        className="w-full bg-white shadow-sm border-gray-200 focus:border-violet-500 focus:ring-violet-500 transition-colors text-xs sm:text-base"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">ความเสียหายธาตุ (%)</p>
+                    </div>
                   </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="fd" className="text-right font-medium text-gray-600">FD%</Label>
-                    <Input
-                      id="fd"
-                      value={editingCharacter?.stats.fd || '0'}
-                      onChange={(e) => handleEditStatChange('fd', e.target.value)}
-                      className="col-span-3 bg-white shadow-sm border-gray-200 focus:border-violet-500 focus:ring-violet-500 transition-colors"
-                    />
+                  <div className="grid grid-cols-4 items-center gap-2 sm:gap-4">
+                    <Label htmlFor="fd" className="text-right font-medium text-gray-600 flex items-center justify-end gap-2 text-xs sm:text-base">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-orange-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                        <path d="M2 17l10 5 10-5"></path>
+                        <path d="M2 12l10 5 10-5"></path>
+                      </svg>
+                      FD%
+                    </Label>
+                    <div className="col-span-3">
+                      <Input
+                        id="fd"
+                        value={editingCharacter?.stats.fd || '0'}
+                        onChange={(e) => handleEditStatChange('fd', e.target.value)}
+                        className="w-full bg-white shadow-sm border-gray-200 focus:border-violet-500 focus:ring-violet-500 transition-colors text-xs sm:text-base"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">ความเสียหายสุดท้าย (%)</p>
+                    </div>
                   </div>
                 </div>
               </div>
+            </div>
+
+            {/* Description for hover tip (left-aligned, near stats box) */}
+            <div className="w-full flex justify-start mt-2 mb-1">
+              <span className="text-xs text-gray-500 bg-white/70 rounded px-3 py-1 border border-gray-200 flex items-center gap-1 shadow-sm">
+                <span role="img" aria-label="info">ℹ️</span> วางเมาส์บนตัวเลขเพื่อดูค่า % ของสเตตัส
+              </span>
             </div>
           </div>
 
           <DialogFooter className="border-t border-gray-200 pt-4">
             <Button
               type="submit"
-              className="bg-gradient-to-r from-violet-500 to-blue-500 text-white hover:from-violet-600 hover:to-blue-600 transition-all duration-200 shadow-md hover:shadow-lg"
+              className="bg-gradient-to-r from-violet-500 to-blue-500 text-white hover:from-violet-600 hover:to-blue-600 transition-all duration-200 shadow-md hover:shadow-lg flex items-center gap-2 text-sm sm:text-base"
             >
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                <polyline points="7 3 7 8 15 8"></polyline>
+              </svg>
               บันทึก
             </Button>
           </DialogFooter>
