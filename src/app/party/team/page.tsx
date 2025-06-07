@@ -324,7 +324,7 @@ export default function TeamPage() {
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-pink-300" />
                     <Input
                       type="text"
-                      placeholder="ค้นหา Discord หรือชื่อ..."
+                      placeholder="ค้นหาชื่อตัวละครหรือ Discord..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       className="pl-10 py-3 rounded-lg border border-pink-200/60 bg-white/90 focus:outline-none focus:ring-2 focus:ring-pink-300/50 focus:border-transparent transition-all duration-200 text-base shadow-sm"
