@@ -985,31 +985,32 @@ export default function EventDetailPage() {
                                       ✏️
                                     </button>
                                   )}
-                                  {/* ปุ่มมอบรางวัลสำหรับเจ้าของกิจกรรม (noGroup) */}
-                                  {participantDoc?.rewardGiven ? (
+                                  {/* ปุ่มหรือแสดงรางวัลกลุ่ม */}
+                                  {allRewarded && lastRewardNote ? (
                                     <span 
                                       onClick={() => {
                                         if (isOwner) {
-                                          setSelectedParticipant(memberUser.uid);
-                                          setRewardName(participantDoc.rewardNote || "");
+                                          setSelectedGroupMember(groupId);
+                                          setSelectedParticipant(groupId);
+                                          setRewardName(lastRewardNote);
                                           setRewardModal(true);
                                         }
                                       }}
-                                      className={`text-sm ${isOwner ? 'cursor-pointer hover:text-green-700' : ''} ml-2`}
+                                      className={`text-sm ${isOwner ? 'cursor-pointer hover:text-green-700' : ''} ml-0`}
                                     >
-                                      ✓ {participantDoc.rewardNote}
+                                      ✓ {lastRewardNote}
                                     </span>
                                   ) : isOwner && (
                                     <button
                                       onClick={() => {
-                                        setSelectedParticipant(memberUser.uid);
-                                        setRewardName("");
+                                        setSelectedGroupMember(groupId);
+                                        setSelectedParticipant(groupId);
                                         setRewardModal(true);
                                       }}
-                                      className="flex items-center gap-1 px-3 py-1 rounded-full border border-yellow-200 bg-yellow-50 text-yellow-700 text-sm font-medium shadow hover:bg-yellow-100 transition-colors duration-150 ml-2"
+                                      className="flex items-center gap-1 px-3 py-1 rounded-full border border-yellow-200 bg-yellow-50 text-yellow-700 text-sm font-medium shadow hover:bg-yellow-100 transition-colors duration-150"
                                     >
                                       <Gift className="w-3 h-3" />
-                                      มอบรางวัล
+                                      มอบรางวัลกลุ่ม
                                     </button>
                                   )}
                                 </div>
