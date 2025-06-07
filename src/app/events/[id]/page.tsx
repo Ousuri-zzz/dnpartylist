@@ -921,32 +921,23 @@ export default function EventDetailPage() {
                                     {nameBlock}
                                   </span>
                                 </div>
-                                {/* ปุ่มมอบรางวัลสำหรับเจ้าของกิจกรรม (noGroup) */}
-                                {isOwner && (
-                                  !participantDoc?.rewardGiven ? (
-                                    <button
-                                      onClick={() => {
-                                        setSelectedParticipant(memberUser.uid);
-                                        setRewardName("");
-                                        setRewardModal(true);
-                                      }}
-                                      className="flex items-center gap-1 px-3 py-1 rounded-full border border-yellow-200 bg-yellow-50 text-yellow-700 text-sm font-medium shadow hover:bg-yellow-100 transition-colors duration-150 ml-2"
-                                    >
-                                      <Gift className="w-3 h-3" />
-                                      มอบรางวัล
-                                    </button>
-                                  ) : (
-                                    <span 
-                                      onClick={() => {
-                                        setSelectedParticipant(memberUser.uid);
-                                        setRewardName(participantDoc.rewardNote || "");
-                                        setRewardModal(true);
-                                      }}
-                                      className={`text-sm cursor-pointer hover:text-green-700 ml-2`}
-                                    >
-                                      ✓ {participantDoc.rewardNote}
-                                    </span>
-                                  )
+                                {/* แสดงรางวัลหรือปุ่มมอบรางวัล */}
+                                {participantDoc?.rewardGiven ? (
+                                  <span className="text-sm text-green-700 ml-2">
+                                    ✓ {participantDoc.rewardNote}
+                                  </span>
+                                ) : isOwner && (
+                                  <button
+                                    onClick={() => {
+                                      setSelectedParticipant(memberUser.uid);
+                                      setRewardName("");
+                                      setRewardModal(true);
+                                    }}
+                                    className="flex items-center gap-1 px-3 py-1 rounded-full border border-yellow-200 bg-yellow-50 text-yellow-700 text-sm font-medium shadow hover:bg-yellow-100 transition-colors duration-150 ml-2"
+                                  >
+                                    <Gift className="w-3 h-3" />
+                                    มอบรางวัล
+                                  </button>
                                 )}
                               </div>
                             </li>
@@ -994,33 +985,32 @@ export default function EventDetailPage() {
                                       ✏️
                                     </button>
                                   )}
-                                  {/* ปุ่มหรือแสดงรางวัลกลุ่ม เฉพาะเจ้าของกิจกรรม */}
-                                  {isOwner && (
-                                    allRewarded && lastRewardNote ? (
-                                      <span
-                                        className="text-sm text-green-700 cursor-pointer ml-0"
-                                        onClick={() => {
-                                          setSelectedGroupMember(groupId);
-                                          setSelectedParticipant(groupId);
-                                          setRewardName(lastRewardNote);
+                                  {/* ปุ่มมอบรางวัลสำหรับเจ้าของกิจกรรม (noGroup) */}
+                                  {participantDoc?.rewardGiven ? (
+                                    <span 
+                                      onClick={() => {
+                                        if (isOwner) {
+                                          setSelectedParticipant(memberUser.uid);
+                                          setRewardName(participantDoc.rewardNote || "");
                                           setRewardModal(true);
-                                        }}
-                                      >
-                                        ✓ {lastRewardNote}
-                                      </span>
-                                    ) : (
-                                      <button
-                                        onClick={() => {
-                                          setSelectedGroupMember(groupId);
-                                          setSelectedParticipant(groupId);
-                                          setRewardModal(true);
-                                        }}
-                                        className="flex items-center gap-1 px-3 py-1 rounded-full border border-yellow-200 bg-yellow-50 text-yellow-700 text-sm font-medium shadow hover:bg-yellow-100 transition-colors duration-150"
-                                      >
-                                        <Gift className="w-3 h-3" />
-                                        มอบรางวัลกลุ่ม
-                                      </button>
-                                    )
+                                        }
+                                      }}
+                                      className={`text-sm ${isOwner ? 'cursor-pointer hover:text-green-700' : ''} ml-2`}
+                                    >
+                                      ✓ {participantDoc.rewardNote}
+                                    </span>
+                                  ) : isOwner && (
+                                    <button
+                                      onClick={() => {
+                                        setSelectedParticipant(memberUser.uid);
+                                        setRewardName("");
+                                        setRewardModal(true);
+                                      }}
+                                      className="flex items-center gap-1 px-3 py-1 rounded-full border border-yellow-200 bg-yellow-50 text-yellow-700 text-sm font-medium shadow hover:bg-yellow-100 transition-colors duration-150 ml-2"
+                                    >
+                                      <Gift className="w-3 h-3" />
+                                      มอบรางวัล
+                                    </button>
                                   )}
                                 </div>
                               </div>

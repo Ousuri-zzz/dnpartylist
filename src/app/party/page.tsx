@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useParties } from '../../hooks/useParties';
 import { useCharacters } from '../../hooks/useCharacters';
 import { useUsers } from '../../hooks/useUsers';
@@ -80,6 +80,7 @@ function JobFilterModal({ selectedJob, onSelect, isOpen, onOpenChange }: JobFilt
 
 export default function PartyPage() {
   const router = useRouter();
+  const pathname = usePathname();
   const { parties, loading: partiesLoading } = useParties();
   const { characters: userCharacters, loading: charactersLoading } = useCharacters();
   const { users, isLoading: usersLoading } = useUsers();
@@ -315,6 +316,18 @@ export default function PartyPage() {
                 <span>
                   {selectedJob === 'all' ? 'กรองอาชีพ' : `ไม่มี ${selectedJob}`}
                 </span>
+              </button>
+              <button
+                onClick={() => router.push('/party/team')}
+                className={cn(
+                  "px-4 py-2 rounded-xl font-semibold text-base transition-all duration-200 border shadow-sm flex items-center gap-2 w-full sm:w-auto",
+                  pathname === '/party/team'
+                    ? "bg-gradient-to-r from-indigo-100 to-blue-200 text-indigo-800 border-indigo-200 shadow-md"
+                    : "bg-white text-gray-600 border-gray-200 hover:bg-indigo-50 hover:text-indigo-700"
+                )}
+              >
+                <span className="text-lg"><Users className="w-5 h-5" /></span>
+                <span>จัดทีม</span>
               </button>
               {/* Banner เชิญชวน */}
               {activeTab !== 'searching' && (
