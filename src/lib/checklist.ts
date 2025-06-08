@@ -3,7 +3,7 @@ import { db } from './firebase';
 import { Character } from '@/types/character';
 
 // เวลารีเซ็ตตาม timezone ไทย (+07:00)
-const DAILY_RESET_HOUR = 9; // 09:00 น.
+const DAILY_RESET_HOUR = 8; // 08:00 น.
 const WEEKLY_RESET_HOUR = 8; // 08:00 น.
 const WEEKLY_RESET_DAY = 6; // วันเสาร์ (0 = อาทิตย์, 6 = เสาร์)
 
