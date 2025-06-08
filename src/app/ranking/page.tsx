@@ -189,7 +189,7 @@ const ROLE_BALANCE: Record<string, RoleConstants> = {
       atk: 1.4,    // 1 AGI = 0.5 Physical Damage
       hp: 0.8,     // HP ทำยากกว่า เพราะมี VIT ต่ำ
       fd: 1.2,
-      cri: 1.5,    // Critical ทำง่ายกว่า เพราะมี AGI สูง
+      cri: 1.55,    // Critical ทำง่ายกว่า เพราะมี AGI สูง
       ele: 0.0,    
       pdef: 0.7,   // Defense ทำยากกว่า เพราะมี VIT ต่ำ
       mdef: 0.8
