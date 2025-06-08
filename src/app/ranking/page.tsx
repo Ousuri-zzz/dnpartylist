@@ -61,18 +61,18 @@ const ROLE_BALANCE: Record<string, RoleConstants> = {
   // Pure Physical DPS (Warrior/Cleric/Kali)
   Mercenary: {
     statWeights: { 
-      atk: 1.3,    // 1 STR = 0.5 Physical Damage
+      atk: 1.4,    // 1 STR = 0.5 Physical Damage
       hp: 0.6,     // HP ทำง่าย เพราะมาจาก VIT
       fd: 1.2,     // Equal FD weight for all
       cri: 1.6,    // Critical ทำยาก เพราะมาจาก AGI และมี cap
       ele: 0.0,    // No elemental damage
-      pdef: 0.5,   // Defense ทำง่าย เพราะมาจาก VIT
-      mdef: 0.6    // Defense ทำง่ายมาก เพราะมาจาก INT
+      pdef: 0.6,   // Defense ทำง่าย เพราะมาจาก VIT
+      mdef: 0.7    // Defense ทำง่ายมาก เพราะมาจาก INT
     }
   },
   Acrobat: {
     statWeights: { 
-      atk: 1.3,    // 1 AGI = 0.5 Physical Damage
+      atk: 1.4,    // 1 AGI = 0.5 Physical Damage
       hp: 0.8,     // HP ทำยากกว่า เพราะมี VIT ต่ำ
       fd: 1.2,
       cri: 1.4,    // Critical ทำง่ายกว่า เพราะมี AGI สูง
@@ -83,7 +83,7 @@ const ROLE_BALANCE: Record<string, RoleConstants> = {
   },
   Engineer: {
     statWeights: { 
-      atk: 1.3,    // 1 AGI = 0.5 Physical Damage
+      atk: 1.4,    // 1 AGI = 0.5 Physical Damage
       hp: 0.8,     // HP ทำยากกว่า เพราะมี VIT ต่ำ
       fd: 1.2,
       cri: 1.4,    // Critical ทำง่ายกว่า เพราะมี AGI สูง
@@ -96,24 +96,24 @@ const ROLE_BALANCE: Record<string, RoleConstants> = {
   // Pure Magic DPS (Sorceress)
   ForceUser: {
     statWeights: { 
-      atk: 1.5,    // 1 INT = 0.75 Magic Damage
-      hp: 0.7,     // HP ทำยากที่สุด เพราะมี VIT ต่ำสุด
+      atk: 1.55,    // 1 INT = 0.75 Magic Damage
+      hp: 0.75,     // HP ทำยากที่สุด เพราะมี VIT ต่ำสุด
       fd: 1.2,
       cri: 1.6,    // Critical ทำยาก เพราะมาจาก AGI และมี cap
       ele: 0.8,    // Elemental damage ทำยากมากสำหรับ magic classes
       pdef: 0.7,   // Defense ทำยากที่สุด เพราะมี VIT ต่ำสุด
-      mdef: 0.5    // 1 INT = 0.8 Magic Defense
+      mdef: 0.6    // 1 INT = 0.8 Magic Defense
     }
   },
   "Force User": {
     statWeights: { 
-      atk: 1.5,
-      hp: 0.7,
+      atk: 1.55,
+      hp: 0.75,
       fd: 1.2,
       cri: 1.6,
       ele: 0.8,
       pdef: 0.7,
-      mdef: 0.5
+      mdef: 0.6
     }
   },
   ElementalLord: {
@@ -124,7 +124,7 @@ const ROLE_BALANCE: Record<string, RoleConstants> = {
       cri: 1.6,
       ele: 0.8,
       pdef: 0.7,
-      mdef: 0.5
+      mdef: 0.6
     }
   },
   "Elemental Lord": {
@@ -135,7 +135,7 @@ const ROLE_BALANCE: Record<string, RoleConstants> = {
       cri: 1.6,
       ele: 0.8,
       pdef: 0.7,
-      mdef: 0.5
+      mdef: 0.6
     }
   },
   Priest: {
@@ -157,7 +157,7 @@ const ROLE_BALANCE: Record<string, RoleConstants> = {
       cri: 1.6,
       ele: 0.8,
       pdef: 0.7,
-      mdef: 0.5
+      mdef: 0.6
     }
   },
 
@@ -165,23 +165,23 @@ const ROLE_BALANCE: Record<string, RoleConstants> = {
   SwordMaster: {
     statWeights: { 
       atk: 1.4,    // 1 STR = 0.5 Physical Damage
-      hp: 0.7,     // HP ทำง่าย เพราะมาจาก VIT
+      hp: 0.8,     // HP ทำง่าย เพราะมาจาก VIT
       fd: 1.2,
       cri: 1.6,    // Critical ทำยาก เพราะมาจาก AGI และมี cap
       ele: 0.0,    
-      pdef: 0.6,   // Defense ทำง่าย เพราะมาจาก VIT
-      mdef: 0.6
+      pdef: 0.7,   // Defense ทำง่าย เพราะมาจาก VIT
+      mdef: 0.7
     }
   },
   "Sword Master": {
     statWeights: { 
       atk: 1.4,
-      hp: 0.7,
+      hp: 0.8,
       fd: 1.2,
       cri: 1.6,
       ele: 0.0,
-      pdef: 0.6,
-      mdef: 0.6
+      pdef: 0.7,
+      mdef: 0.7
     }
   },
   Bowmaster: {
@@ -197,13 +197,13 @@ const ROLE_BALANCE: Record<string, RoleConstants> = {
   },
   Paladin: {
     statWeights: { 
-      atk: 1.5,    // 1 STR = 0.5 Physical Damage
+      atk: 1.7,    // 1 STR = 0.5 Physical Damage
       hp: 0.6,     // HP ทำง่ายที่สุด เพราะมี VIT สูงสุด
       fd: 1.2,
       cri: 1.7,    // Critical ทำยากที่สุด เพราะมี AGI ต่ำสุด
       ele: 0.8,    // Can use elemental damage
-      pdef: 0.4,   // Defense ทำง่ายที่สุด เพราะมี VIT สูงสุด
-      mdef: 0.5
+      pdef: 0.6,   // Defense ทำง่ายที่สุด เพราะมี VIT สูงสุด
+      mdef: 0.7
     }
   }
 };
