@@ -58,61 +58,153 @@ interface RoleConstants {
 }
 
 const ROLE_BALANCE: Record<string, RoleConstants> = {
-  // DPS อาชีพ
-  ElementalLord: {
-    statWeights: { atk: 1.0, fd: 1.0, ele: 1.0, cri: 1.3 }
-  },
-  "Elemental Lord": {
-    statWeights: { atk: 1.0, fd: 1.0, ele: 1.0, cri: 1.3 }
-  },
-  ForceUser: {
-    statWeights: { atk: 1.15, fd: 1.0, ele: 1.0, cri: 1.3 }
-  },
-  "Force User": {
-    statWeights: { atk: 1.15, fd: 1.0, ele: 1.0, cri: 1.3 }
-  },
-  SwordMaster: {
-    statWeights: { atk: 1.35, fd: 1.0, cri: 1.2, hp: 0.2 }
-  },
-  "Sword Master": {
-    statWeights: { atk: 1.35, fd: 1.0, cri: 1.2, hp: 0.2 }
-  },
+  // Pure Physical DPS (Warrior/Cleric/Kali)
   Mercenary: {
-    statWeights: { atk: 1.2, hp: 0.9, fd: 1.0, cri: 1.0 }
-  },
-  Bowmaster: {
-    statWeights: { atk: 1.2, hp: 0.9, fd: 1.0, cri: 1.0 }
+    statWeights: { 
+      atk: 1.3,    // 1 STR = 0.5 Physical Damage
+      hp: 0.6,     // HP ทำง่าย เพราะมาจาก VIT
+      fd: 1.2,     // Equal FD weight for all
+      cri: 1.6,    // Critical ทำยาก เพราะมาจาก AGI และมี cap
+      ele: 0.0,    // No elemental damage
+      pdef: 0.5,   // Defense ทำง่าย เพราะมาจาก VIT
+      mdef: 0.6    // Defense ทำง่ายมาก เพราะมาจาก INT
+    }
   },
   Acrobat: {
-    statWeights: { atk: 1.2, hp: 0.9, fd: 1.0, cri: 1.0 }
+    statWeights: { 
+      atk: 1.3,    // 1 AGI = 0.5 Physical Damage
+      hp: 0.8,     // HP ทำยากกว่า เพราะมี VIT ต่ำ
+      fd: 1.2,
+      cri: 1.4,    // Critical ทำง่ายกว่า เพราะมี AGI สูง
+      ele: 0.0,
+      pdef: 0.7,   // Defense ทำยากกว่า เพราะมี VIT ต่ำ
+      mdef: 0.8
+    }
+  },
+  Engineer: {
+    statWeights: { 
+      atk: 1.3,    // 1 AGI = 0.5 Physical Damage
+      hp: 0.8,     // HP ทำยากกว่า เพราะมี VIT ต่ำ
+      fd: 1.2,
+      cri: 1.4,    // Critical ทำง่ายกว่า เพราะมี AGI สูง
+      ele: 0.0,
+      pdef: 0.6,   // Defense ทำยากกว่า เพราะมี VIT ต่ำ
+      mdef: 0.6
+    }
   },
 
-  // Tank/Support
-  Paladin: {
+  // Pure Magic DPS (Sorceress)
+  ForceUser: {
     statWeights: { 
-      hp: 0.8,           
-      pdef: 1.2,         
-      mdef: 1.2,         
-      fd: 1.0,           
-      atk: 1.2           
+      atk: 1.5,    // 1 INT = 0.75 Magic Damage
+      hp: 0.7,     // HP ทำยากที่สุด เพราะมี VIT ต่ำสุด
+      fd: 1.2,
+      cri: 1.6,    // Critical ทำยาก เพราะมาจาก AGI และมี cap
+      ele: 0.8,    // Elemental damage ทำยากมากสำหรับ magic classes
+      pdef: 0.7,   // Defense ทำยากที่สุด เพราะมี VIT ต่ำสุด
+      mdef: 0.5    // 1 INT = 0.8 Magic Defense
+    }
+  },
+  "Force User": {
+    statWeights: { 
+      atk: 1.5,
+      hp: 0.7,
+      fd: 1.2,
+      cri: 1.6,
+      ele: 0.8,
+      pdef: 0.7,
+      mdef: 0.5
+    }
+  },
+  ElementalLord: {
+    statWeights: { 
+      atk: 1.5,
+      hp: 0.7,
+      fd: 1.2,
+      cri: 1.6,
+      ele: 0.8,
+      pdef: 0.7,
+      mdef: 0.5
+    }
+  },
+  "Elemental Lord": {
+    statWeights: { 
+      atk: 1.5,
+      hp: 0.7,
+      fd: 1.2,
+      cri: 1.6,
+      ele: 0.8,
+      pdef: 0.7,
+      mdef: 0.5
     }
   },
   Priest: {
     statWeights: { 
-      hp: 0.5,           
-      pdef: 0.7,         
-      mdef: 0.7,         
-      atk: 1.1,           
-      ele: 1.1           
+      atk: 1.2,
+      hp: 0.6,     // HP ทำง่ายที่สุด เพราะมี VIT สูงสุด
+      fd: 1.2,
+      cri: 1.8,    // Critical ทำยากที่สุด เพราะมี AGI ต่ำสุด
+      ele: 0.8,
+      pdef: 0.5,   // Defense ทำง่ายที่สุด เพราะมี VIT สูงสุด
+      mdef: 0.4
+    }
+  },
+  Alchemist: {
+    statWeights: { 
+      atk: 1.5,
+      hp: 0.8,
+      fd: 1.2,
+      cri: 1.6,
+      ele: 0.8,
+      pdef: 0.7,
+      mdef: 0.5
     }
   },
 
-  // อาชีพสมดุล
-  Engineer: {
-    statWeights: { atk: 1.2, hp: 0.9, fd: 1.1, cri: 1.0 }
+  // Hybrid Classes (can play both Physical and Magic)
+  SwordMaster: {
+    statWeights: { 
+      atk: 1.4,    // 1 STR = 0.5 Physical Damage
+      hp: 0.7,     // HP ทำง่าย เพราะมาจาก VIT
+      fd: 1.2,
+      cri: 1.6,    // Critical ทำยาก เพราะมาจาก AGI และมี cap
+      ele: 0.0,    
+      pdef: 0.6,   // Defense ทำง่าย เพราะมาจาก VIT
+      mdef: 0.6
+    }
   },
-  Alchemist: {
-    statWeights: { atk: 1.1, hp: 0.9, fd: 1.1, cri: 1.0 }
+  "Sword Master": {
+    statWeights: { 
+      atk: 1.4,
+      hp: 0.7,
+      fd: 1.2,
+      cri: 1.6,
+      ele: 0.0,
+      pdef: 0.6,
+      mdef: 0.6
+    }
+  },
+  Bowmaster: {
+    statWeights: { 
+      atk: 1.4,    // 1 AGI = 0.5 Physical Damage
+      hp: 0.8,     // HP ทำยากกว่า เพราะมี VIT ต่ำ
+      fd: 1.2,
+      cri: 1.5,    // Critical ทำง่ายกว่า เพราะมี AGI สูง
+      ele: 0.0,    
+      pdef: 0.7,   // Defense ทำยากกว่า เพราะมี VIT ต่ำ
+      mdef: 0.8
+    }
+  },
+  Paladin: {
+    statWeights: { 
+      atk: 1.5,    // 1 STR = 0.5 Physical Damage
+      hp: 0.6,     // HP ทำง่ายที่สุด เพราะมี VIT สูงสุด
+      fd: 1.2,
+      cri: 1.7,    // Critical ทำยากที่สุด เพราะมี AGI ต่ำสุด
+      ele: 0.8,    // Can use elemental damage
+      pdef: 0.4,   // Defense ทำง่ายที่สุด เพราะมี VIT สูงสุด
+      mdef: 0.5
+    }
   }
 };
 
