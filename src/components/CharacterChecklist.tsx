@@ -167,6 +167,62 @@ export function CharacterChecklist({ checklist, onChange, accentColor = "text-bl
   const accentBgColor = getAccentBackgroundColor();
   const accentTextColor = getAccentTextColor();
 
+  const weeklyChecklistItems: Record<keyof CharacterChecklistType['weekly'], string> = {
+    minotaur: 'Minotaur',
+    cerberus: 'Cerberus',
+    cerberusHell: 'Cerberus (Hell)',
+    chaosRiftBairra: 'Chaos Rift: Bairra',
+    banquetHall: 'Dark Banquet Hall',
+    jealousAlbeuteur: 'Jealous Albeuteur',
+    themePark: 'Theme Park',
+    cerberusChallenge: 'Cerberus (Challenge)',
+    manticore: 'Manticore',
+    apocalypse: 'Apocalypse',
+    manticoreHell: 'Manticore (Hell)',
+    apocalypseHell: 'Apocalypse (Hell)',
+    seaDragon: 'Sea Dragon',
+    chaosRiftKamala: 'Chaos Rift: Kamala',
+    themeHell: 'Theme Park (Hell)'
+  };
+
+  const weeklyChecklistMaxValues: Record<keyof CharacterChecklistType['weekly'], number> = {
+    minotaur: 1,
+    cerberus: 1,
+    cerberusHell: 1,
+    chaosRiftBairra: 1,
+    banquetHall: 1,
+    jealousAlbeuteur: 1,
+    themePark: 1,
+    cerberusChallenge: 1,
+    manticore: 1,
+    apocalypse: 1,
+    manticoreHell: 1,
+    apocalypseHell: 1,
+    seaDragon: 3,
+    chaosRiftKamala: 1,
+    themeHell: 1
+  };
+
+  const weeklyChecklistTab1: (keyof CharacterChecklistType['weekly'])[] = [
+    'minotaur',
+    'cerberus',
+    'cerberusHell',
+    'chaosRiftBairra',
+    'chaosRiftKamala',
+    'jealousAlbeuteur',
+    'themePark'
+  ];
+
+  const weeklyChecklistTab2: (keyof CharacterChecklistType['weekly'])[] = [
+    'cerberusChallenge',
+    'manticore',
+    'apocalypse',
+    'manticoreHell',
+    'apocalypseHell',
+    'seaDragon',
+    'banquetHall'
+  ];
+
   return (
     <div className="w-full space-y-4">
       {/* Daily Tasks Section */}
@@ -198,7 +254,10 @@ export function CharacterChecklist({ checklist, onChange, accentColor = "text-bl
             ) : (
               <Circle className="h-4 w-4 text-gray-400" />
             )}
-            <span className="text-sm text-gray-700">Daily Quest</span>
+            <span className={cn(
+              "text-sm font-medium",
+              checklist.daily.dailyQuest ? "text-gray-400 line-through" : accentColor
+            )}>Daily Quest</span>
           </Button>
 
           <Button
@@ -217,7 +276,10 @@ export function CharacterChecklist({ checklist, onChange, accentColor = "text-bl
             ) : (
               <Circle className="h-4 w-4 text-gray-400" />
             )}
-            <span className="text-sm text-gray-700">FTG 700</span>
+            <span className={cn(
+              "text-sm font-medium",
+              checklist.daily.ftg ? "text-gray-400 line-through" : accentColor
+            )}>FTG 700</span>
           </Button>
         </div>
       </div>
@@ -241,39 +303,41 @@ export function CharacterChecklist({ checklist, onChange, accentColor = "text-bl
             className={cn(
               "flex-1 py-1.5 px-3 text-sm font-medium rounded-md transition-all duration-200",
               activeTab === 1 
-                ? `bg-white shadow-sm ${accentTextColor}` 
+                ? `bg-white shadow-sm ${accentColor}` 
                 : "text-gray-500 hover:text-gray-700 hover:bg-white/50"
             )}
             onClick={() => setActiveTab(1)}
           >
-            Tab 1
+            <span className={cn(activeTab === 1 ? accentColor : "text-gray-500")}>Tab 1</span>
           </button>
           <button
             className={cn(
               "flex-1 py-1.5 px-3 text-sm font-medium rounded-md transition-all duration-200",
               activeTab === 2 
-                ? `bg-white shadow-sm ${accentTextColor}` 
+                ? `bg-white shadow-sm ${accentColor}` 
                 : "text-gray-500 hover:text-gray-700 hover:bg-white/50"
             )}
             onClick={() => setActiveTab(2)}
           >
-            Tab 2
+            <span className={cn(activeTab === 2 ? accentColor : "text-gray-500")}>Tab 2</span>
           </button>
         </div>
         
         {/* Tab Content */}
         <div className="space-y-2">
-          {(activeTab === 1 ? TAB1_ITEMS : TAB2_ITEMS).map((key) => {
+          {(activeTab === 1 ? weeklyChecklistTab1 : weeklyChecklistTab2).map((key) => {
             const value = checklist.weekly[key as keyof CharacterChecklistType['weekly']];
             const maxValue = WEEKLY_MAX_VALUES[key as keyof typeof WEEKLY_MAX_VALUES] || 0;
-            const displayName = displayNames[key] || key;
+            const displayName = weeklyChecklistItems[key] || key;
             const isCompleted = value >= maxValue;
 
             return (
               <div key={key} className="flex items-center gap-2 bg-muted/5 rounded-lg p-1.5 hover:bg-muted/10 transition-colors">
                 <span className={cn(
-                  "text-sm flex-1",
-                  isCompleted ? "text-gray-400 line-through" : "text-gray-700"
+                  "text-sm flex-1 font-medium",
+                  isCompleted 
+                    ? "text-gray-400 line-through" 
+                    : accentColor
                 )}>
                   {displayName}
                 </span>

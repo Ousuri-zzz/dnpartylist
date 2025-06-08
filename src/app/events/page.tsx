@@ -242,76 +242,78 @@ export default function EventsPage() {
                 <CalendarIcon className="w-7 h-7 text-pink-400 drop-shadow" />
                 ปฏิทินกิจกรรม
               </h2>
-              <Calendar
-                onChange={setDate}
-                value={date}
-                onActiveStartDateChange={({ activeStartDate }) => {
-                  if (activeStartDate) {
-                    setDate(new Date(activeStartDate.getFullYear(), activeStartDate.getMonth(), 1));
-                    setHighlightedEventId(null); // reset highlight when change month
-                  }
-                }}
-                onClickDay={(clickedDate) => {
-                  // หา event ที่ตรงกับวันเริ่มหรือวันจบ
-                  const clickedKey = getLocalDateKey(clickedDate);
-                  const found = filteredEvents.find(ev => {
-                    const start = ev.startAt?.seconds ? new Date(ev.startAt.seconds * 1000) : null;
-                    const end = ev.endAt?.seconds ? new Date(ev.endAt.seconds * 1000) : null;
-                    return (start && getLocalDateKey(start) === clickedKey) || (end && getLocalDateKey(end) === clickedKey);
-                  });
-                  setDate(clickedDate);
-                  setHighlightedEventId(found ? found.id : null);
-                }}
-                className="border-none rounded-3xl shadow-xl bg-transparent p-2 calendar-pastel calendar-pink-labels"
-                locale="th-TH"
-                tileContent={({ date: tileDate }: { date: Date }) => {
-                  // ไม่ต้องมี dot event แล้ว
-                  return null;
-                }}
-                tileClassName={({ date: tileDate, view }) => {
-                  const key = getLocalDateKey(tileDate);
-                  const events = eventsRangeByDate[key] || [];
-                  const isToday = tileDate.toDateString() === new Date().toDateString();
-                  const isStartDate = events.some(ev => {
-                    if (ev.startAt?.seconds) {
-                      const startDate = new Date(ev.startAt.seconds * 1000);
-                      return getLocalDateKey(startDate) === key;
+              <div className="flex justify-center">
+                <Calendar
+                  onChange={setDate}
+                  value={date}
+                  onActiveStartDateChange={({ activeStartDate }) => {
+                    if (activeStartDate) {
+                      setDate(new Date(activeStartDate.getFullYear(), activeStartDate.getMonth(), 1));
+                      setHighlightedEventId(null); // reset highlight when change month
                     }
-                    return false;
-                  });
-                  const isEndDate = events.some(ev => {
-                    if (ev.endAt?.seconds) {
-                      const endDate = new Date(ev.endAt.seconds * 1000);
-                      return getLocalDateKey(endDate) === key;
+                  }}
+                  onClickDay={(clickedDate) => {
+                    // หา event ที่ตรงกับวันเริ่มหรือวันจบ
+                    const clickedKey = getLocalDateKey(clickedDate);
+                    const found = filteredEvents.find(ev => {
+                      const start = ev.startAt?.seconds ? new Date(ev.startAt.seconds * 1000) : null;
+                      const end = ev.endAt?.seconds ? new Date(ev.endAt.seconds * 1000) : null;
+                      return (start && getLocalDateKey(start) === clickedKey) || (end && getLocalDateKey(end) === clickedKey);
+                    });
+                    setDate(clickedDate);
+                    setHighlightedEventId(found ? found.id : null);
+                  }}
+                  className="border-none rounded-3xl shadow-xl bg-transparent p-2 calendar-pastel calendar-pink-labels"
+                  locale="th-TH"
+                  tileContent={({ date: tileDate }: { date: Date }) => {
+                    // ไม่ต้องมี dot event แล้ว
+                    return null;
+                  }}
+                  tileClassName={({ date: tileDate, view }) => {
+                    const key = getLocalDateKey(tileDate);
+                    const events = eventsRangeByDate[key] || [];
+                    const isToday = tileDate.toDateString() === new Date().toDateString();
+                    const isStartDate = events.some(ev => {
+                      if (ev.startAt?.seconds) {
+                        const startDate = new Date(ev.startAt.seconds * 1000);
+                        return getLocalDateKey(startDate) === key;
+                      }
+                      return false;
+                    });
+                    const isEndDate = events.some(ev => {
+                      if (ev.endAt?.seconds) {
+                        const endDate = new Date(ev.endAt.seconds * 1000);
+                        return getLocalDateKey(endDate) === key;
+                      }
+                      return false;
+                    });
+                    const isBetween = events.length > 0 && !isStartDate && !isEndDate;
+                    const isOutside = tileDate.getMonth() !== (date as Date).getMonth();
+                    // --- HIGHLIGHT MONTH/YEAR OF TODAY ---
+                    const today = new Date();
+                    if (view === 'year' && tileDate.getFullYear() === today.getFullYear() && tileDate.getMonth() === today.getMonth()) {
+                      return 'calendar-pastel-tile-current-month';
                     }
-                    return false;
-                  });
-                  const isBetween = events.length > 0 && !isStartDate && !isEndDate;
-                  const isOutside = tileDate.getMonth() !== (date as Date).getMonth();
-                  // --- HIGHLIGHT MONTH/YEAR OF TODAY ---
-                  const today = new Date();
-                  if (view === 'year' && tileDate.getFullYear() === today.getFullYear() && tileDate.getMonth() === today.getMonth()) {
-                    return 'calendar-pastel-tile-current-month';
-                  }
-                  if (view === 'decade' && tileDate.getFullYear() === today.getFullYear()) {
-                    return 'calendar-pastel-tile-current-year';
-                  }
-                  // --- END HIGHLIGHT MONTH/YEAR ---
-                  // ลำดับความสำคัญ: วันนี้ > วันเริ่ม > วันจบ > event > ปกติ
-                  let statusClass = "calendar-pastel-tile";
-                  if (isToday) statusClass += " calendar-pastel-tile-today";
-                  else if (isStartDate) statusClass += " calendar-pastel-tile-start";
-                  else if (isEndDate) statusClass += " calendar-pastel-tile-end";
-                  else if (isBetween && isOutside) statusClass += " calendar-pastel-tile-event-outside";
-                  else if (isBetween) statusClass += " calendar-pastel-tile-event";
-                  else if (isOutside) statusClass += " calendar-pastel-tile-outside";
-                  return statusClass;
-                }}
-                prevLabel={<span className="calendar-pastel-nav text-pink-400 text-lg font-bold">«</span>}
-                nextLabel={<span className="calendar-pastel-nav text-pink-400 text-lg font-bold">»</span>}
-                prev2Label={null}
-                next2Label={null}
-              />
+                    if (view === 'decade' && tileDate.getFullYear() === today.getFullYear()) {
+                      return 'calendar-pastel-tile-current-year';
+                    }
+                    // --- END HIGHLIGHT MONTH/YEAR ---
+                    // ลำดับความสำคัญ: วันนี้ > วันเริ่ม > วันจบ > event > ปกติ
+                    let statusClass = "calendar-pastel-tile";
+                    if (isToday) statusClass += " calendar-pastel-tile-today";
+                    else if (isStartDate) statusClass += " calendar-pastel-tile-start";
+                    else if (isEndDate) statusClass += " calendar-pastel-tile-end";
+                    else if (isBetween && isOutside) statusClass += " calendar-pastel-tile-event-outside";
+                    else if (isBetween) statusClass += " calendar-pastel-tile-event";
+                    else if (isOutside) statusClass += " calendar-pastel-tile-outside";
+                    return statusClass;
+                  }}
+                  prevLabel={<span className="calendar-pastel-nav text-pink-400 text-lg font-bold">«</span>}
+                  nextLabel={<span className="calendar-pastel-nav text-pink-400 text-lg font-bold">»</span>}
+                  prev2Label={null}
+                  next2Label={null}
+                />
+              </div>
               <CurrentTime />
               {/* Legend */}
               <div className="flex flex-wrap gap-2 justify-center items-center mt-2 mb-2 text-xs select-none">
@@ -345,42 +347,45 @@ export default function EventsPage() {
                     const textColor = getReadableTextColor(ev.color || '#ec4899');
                     const isHighlighted = highlightedEventId === ev.id;
                     return (
-                      <div
-                        key={ev.id}
-                        className={
-                          `flex items-center gap-2 rounded-xl px-3 py-2 shadow-sm border text-xs min-w-0 w-full transition-all duration-200 ${isHighlighted ? 'scale-105 shadow-xl ring-2 ring-pink-400 z-10' : ''}`
-                        }
-                        style={{
-                          borderColor: ev.color || '#f9a8d4',
-                          background: ev.color ? ev.color : '#f9a8d4',
-                        }}
-                      >
-                        <span className="text-lg flex-shrink-0">🎉</span>
-                        <div className="flex flex-col min-w-0 w-full">
-                          <span
-                            className="font-bold truncate max-w-full"
+                      <Link href={`/events/${ev.id}`} key={ev.id} legacyBehavior>
+                        <a>
+                          <div
+                            className={
+                              `flex items-center gap-2 rounded-xl px-3 py-2 shadow-sm border text-xs min-w-0 w-full transition-all duration-200 ${isHighlighted ? 'scale-105 shadow-xl ring-2 ring-pink-400 z-10' : ''} hover:scale-105 hover:shadow-lg cursor-pointer`
+                            }
                             style={{
-                              color: textColor,
-                              textShadow: textColor === '#fff' ? '0 1px 4px rgba(0,0,0,0.18)' : '0 1px 4px rgba(255,255,255,0.10)'
+                              borderColor: ev.color || '#f9a8d4',
+                              background: ev.color ? ev.color : '#f9a8d4',
                             }}
                           >
-                            {ev.name}
-                          </span>
-                          <span className="text-xs mt-0.5 flex gap-1 items-center flex-wrap">
-                            {start && (
-                              <span className="font-semibold text-green-600 bg-white rounded-full px-2 py-0.5">
-                                {start.toLocaleDateString('th-TH', { day: '2-digit', month: 'short' })}
+                            <span className="text-lg flex-shrink-0">🎉</span>
+                            <div className="flex flex-col min-w-0 w-full">
+                              <span
+                                className="font-bold truncate max-w-full"
+                                style={{
+                                  color: textColor,
+                                  textShadow: textColor === '#fff' ? '0 1px 4px rgba(0,0,0,0.18)' : '0 1px 4px rgba(255,255,255,0.10)'
+                                }}
+                              >
+                                {ev.name}
                               </span>
-                            )}
-                            <span className="text-white/80">-</span>
-                            {end && (
-                              <span className="font-semibold text-red-500 bg-white rounded-full px-2 py-0.5">
-                                {end.toLocaleDateString('th-TH', { day: '2-digit', month: 'short' })}
+                              <span className="text-xs mt-0.5 flex gap-1 items-center flex-wrap">
+                                {start && (
+                                  <span className="font-semibold text-green-600 bg-white rounded-full px-2 py-0.5">
+                                    {start.toLocaleDateString('th-TH', { day: '2-digit', month: 'short' })}
+                                  </span>
+                                )}
+                                <span className="text-white/80">-</span>
+                                {end && (
+                                  <span className="font-semibold text-red-500 bg-white rounded-full px-2 py-0.5">
+                                    {end.toLocaleDateString('th-TH', { day: '2-digit', month: 'short' })}
+                                  </span>
+                                )}
                               </span>
-                            )}
-                          </span>
-                        </div>
-                      </div>
+                            </div>
+                          </div>
+                        </a>
+                      </Link>
                     );
                   })
                 )}
@@ -463,7 +468,10 @@ export default function EventsPage() {
                               <span className="text-2xl">🎉</span>
                               <h3 className="font-bold text-lg text-pink-700 group-hover:text-pink-600 transition-colors break-words whitespace-normal flex-1 min-w-0">{event.name}</h3>
                             </div>
-                            <div className="px-4 py-2 w-full mb-2">
+                            <div className="md:hidden text-center text-sm text-pink-500 font-medium mb-2">
+                              👆 แตะเพื่อดูรายละเอียด
+                            </div>
+                            <div className="hidden md:block px-4 py-2 w-full mb-2">
                               <div className="inline-flex items-start w-full min-w-0">
                                 <span className="text-lg flex-shrink-0 mt-1">📝</span>
                                 <div
@@ -473,7 +481,7 @@ export default function EventsPage() {
                               </div>
                             </div>
                             <div className="mb-2 space-y-2 flex flex-col">
-                              <div className="bg-yellow-50 rounded-lg px-3 py-1 shadow-sm text-yellow-700 font-semibold text-sm max-w-[600px] break-words whitespace-pre-line self-start block inline-flex items-center">
+                              <div className="hidden md:flex bg-yellow-50 rounded-lg px-3 py-1 shadow-sm text-yellow-700 font-semibold text-sm max-w-[600px] break-words whitespace-pre-line self-start block inline-flex items-center">
                                 <span className="text-lg mr-1 flex items-center justify-center">🎁</span>
                                 <span className="break-all whitespace-pre-line flex items-center">{event.rewardInfo}</span>
                               </div>

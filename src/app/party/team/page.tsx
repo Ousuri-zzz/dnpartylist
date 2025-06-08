@@ -47,6 +47,17 @@ const classColors: Record<string, string> = {
   'Engineer': 'text-amber-500',
   'Alchemist': 'text-amber-500',
 };
+
+// เพิ่ม mapping สีสำหรับแต่ละทีม
+const teamColors: Record<number, { from: string; to: string }> = {
+  1: { from: 'from-red-500', to: 'to-orange-500' },
+  2: { from: 'from-blue-500', to: 'to-cyan-500' },
+  3: { from: 'from-green-500', to: 'to-emerald-500' },
+  4: { from: 'from-teal-500', to: 'to-cyan-400' },
+  5: { from: 'from-yellow-500', to: 'to-amber-500' },
+  6: { from: 'from-indigo-500', to: 'to-violet-500' },
+};
+
 const getClassColor = (className: string) => classColors[className] || 'text-gray-600';
 
 export default function TeamPage() {
@@ -115,10 +126,26 @@ export default function TeamPage() {
     return {};
   });
 
+  // เพิ่ม state สำหรับเก็บโน้ตของแต่ละ Discord
+  const [discordNotes, setDiscordNotes] = useState<Record<string, string>>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('discordNotes');
+      if (saved) {
+        try { return JSON.parse(saved); } catch {}
+      }
+    }
+    return {};
+  });
+
   // บันทึก teamNames ลง localStorage ทุกครั้งที่ teamNames เปลี่ยน
   useEffect(() => {
     localStorage.setItem('teamNames', JSON.stringify(teamNames));
   }, [teamNames]);
+
+  // บันทึก discordNotes ลง localStorage ทุกครั้งที่เปลี่ยน
+  useEffect(() => {
+    localStorage.setItem('discordNotes', JSON.stringify(discordNotes));
+  }, [discordNotes]);
 
   // Process users data to get available Discord names
   useEffect(() => {
@@ -280,6 +307,9 @@ export default function TeamPage() {
     return () => document.removeEventListener('mousedown', handleClick);
   }, [teamSelectOpen]);
 
+  // เพิ่ม state สำหรับเก็บสถานะการแสดงสเตตัสของแต่ละตัวละคร
+  const [visibleStats, setVisibleStats] = useState<Record<string, Record<string, boolean>>>({});
+
   return (
     <div className="min-h-screen">
       <motion.div 
@@ -427,20 +457,33 @@ export default function TeamPage() {
                     initial={{ opacity: 0, scale: 0.96 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.96 }}
-                    className="rounded-3xl shadow-xl border border-pink-100 bg-white/90 backdrop-blur-md overflow-hidden transition-transform hover:scale-[1.015] group relative"
+                    className="rounded-3xl shadow-xl border border-indigo-100 bg-white/80 backdrop-blur-md overflow-hidden transition-transform hover:scale-[1.015] group relative"
                   >
                     {/* Discord Header */}
-                    <div className="relative px-6 py-4 flex items-center justify-between bg-gradient-to-r from-pink-100 via-purple-100 to-blue-100 backdrop-blur-md bg-opacity-70 rounded-t-3xl border-b border-pink-200/40 shadow-sm">
-                      <h3 className="text-xl font-extrabold text-indigo-700 drop-shadow-sm flex items-center gap-2">
-                        {discord.discordName}
-                      </h3>
-                      <div className="flex items-center gap-2 ml-auto">
+                    <div className="relative px-6 py-4 flex items-center justify-between bg-gradient-to-r from-indigo-200 via-purple-200 to-blue-200 backdrop-blur-md bg-opacity-80 rounded-t-3xl border-b border-indigo-300/40 shadow-sm">
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <h3 className="text-xl font-extrabold text-indigo-800 drop-shadow-sm flex items-center gap-2 truncate">
+                          {discord.discordName}
+                        </h3>
+                        <input
+                          type="text"
+                          placeholder="เพิ่มโน้ต..."
+                          value={discordNotes[discord.discordName] || ''}
+                          onChange={(e) => setDiscordNotes(prev => ({
+                            ...prev,
+                            [discord.discordName]: e.target.value
+                          }))}
+                          className="flex-1 min-w-0 bg-white/80 border border-indigo-200 rounded-lg px-3 py-1 text-sm text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-300/50 focus:border-transparent transition-all duration-200"
+                          maxLength={30}
+                        />
+                      </div>
+                      <div className="flex items-center gap-2 ml-4">
                         {hasRemoved && (
                           <button
                             onClick={() => handleRestoreAllCharacters(discord.discordName)}
                             className="px-3 py-1 rounded-full bg-gradient-to-r from-green-400 to-blue-400 text-white text-xs font-semibold shadow hover:from-green-500 hover:to-blue-500 transition-colors"
                           >
-                            คืนค่าตัวละครทั้งหมด
+                            คืนค่า
                           </button>
                         )}
                         <button
@@ -467,7 +510,7 @@ export default function TeamPage() {
                         .map((char, idx) => (
                           <div
                             key={char.id}
-                            className="rounded-2xl border border-gray-100 bg-white/80 shadow-sm px-4 py-4 flex flex-col gap-2 relative"
+                            className="rounded-2xl border border-indigo-100 bg-white/90 shadow-md px-4 py-4 flex flex-col gap-2 relative"
                           >
                             {/* Badge อาชีพ + ชื่อ */}
                             <div className="flex items-center gap-3 mb-2">
@@ -476,12 +519,20 @@ export default function TeamPage() {
                               </span>
                               <span className="font-bold text-gray-800 text-base truncate">{char.name}</span>
                               <button
-                                className="ml-auto px-3 py-1 rounded-full bg-gradient-to-r from-pink-400 to-purple-400 text-white text-xs font-semibold shadow hover:from-pink-500 hover:to-purple-500 transition-colors"
+                                className={cn(
+                                  "ml-auto px-3 py-1 rounded-full text-xs font-semibold shadow transition-colors",
+                                  teamNumbers[discord.discordName]?.[char.id]
+                                    ? `bg-gradient-to-r ${teamColors[teamNumbers[discord.discordName][char.id]].from} ${teamColors[teamNumbers[discord.discordName][char.id]].to} hover:opacity-90 text-white`
+                                    : "bg-gradient-to-r from-pink-400 to-purple-400 hover:from-pink-500 hover:to-purple-500 text-white"
+                                )}
                                 style={{ minWidth: '80px' }}
                                 onClick={() => setTeamSelectOpen({ discord: discord.discordName, charId: char.id })}
                               >
                                 {teamNumbers[discord.discordName]?.[char.id]
-                                  ? <span className="font-bold">TEAM {teamNumbers[discord.discordName][char.id]}</span>
+                                  ? <span className="font-bold flex items-center justify-center gap-1">
+                                      <span className="text-[10px]">TEAM</span>
+                                      <span className="text-sm">{teamNumbers[discord.discordName][char.id]}</span>
+                                    </span>
                                   : 'SET TEAM'}
                               </button>
                               {/* ปุ่มลบตัวละคร */}
@@ -549,39 +600,68 @@ export default function TeamPage() {
                             )}
                             {/* Divider */}
                             <div className="border-b border-dashed border-pink-100 mb-2" />
-                            {/* Stats grid 3 col */}
-                            <div className="grid grid-cols-3 gap-3 text-sm">
-                              <div className="flex flex-col items-center bg-pink-50/60 rounded-xl py-2">
-                                <Sword className="w-5 h-5 text-pink-400 mb-1" />
-                                <span className="text-[11px] text-gray-500 font-medium">ATK</span>
-                                <span className="font-bold text-pink-600 text-base">{char.stats.atk ? char.stats.atk.toLocaleString() : '-'}</span>
+                            {/* ปุ่มแสดง/ซ่อนสเตตัส */}
+                            <button
+                              onClick={() => setVisibleStats(prev => ({
+                                ...prev,
+                                [discord.discordName]: {
+                                  ...(prev[discord.discordName] || {}),
+                                  [char.id]: !(prev[discord.discordName]?.[char.id] || false)
+                                }
+                              }))}
+                              className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg bg-gradient-to-r from-pink-50 to-purple-50 hover:from-pink-100 hover:to-purple-100 text-pink-600 font-medium text-sm transition-colors mb-2"
+                            >
+                              {visibleStats[discord.discordName]?.[char.id] ? (
+                                <>
+                                  <span>ซ่อนสเตตัส</span>
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                                  </svg>
+                                </>
+                              ) : (
+                                <>
+                                  <span>แสดงสเตตัส</span>
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                  </svg>
+                                </>
+                              )}
+                            </button>
+                            {/* Stats grid 3 col - แสดงเฉพาะเมื่อ visibleStats เป็น true */}
+                            {visibleStats[discord.discordName]?.[char.id] && (
+                              <div className="grid grid-cols-3 gap-3 text-sm">
+                                <div className="flex flex-col items-center bg-pink-50/60 rounded-xl py-2">
+                                  <Sword className="w-5 h-5 text-pink-400 mb-1" />
+                                  <span className="text-[11px] text-gray-500 font-medium">ATK</span>
+                                  <span className="font-bold text-pink-600 text-base">{char.stats.atk ? char.stats.atk.toLocaleString() : '-'}</span>
+                                </div>
+                                <div className="flex flex-col items-center bg-red-50/60 rounded-xl py-2">
+                                  <Heart className="w-5 h-5 text-red-400 mb-1" />
+                                  <span className="text-[11px] text-gray-500 font-medium">HP</span>
+                                  <span className="font-bold text-red-500 text-base">{char.stats.hp ? char.stats.hp.toLocaleString() : '-'}</span>
+                                </div>
+                                <div className="flex flex-col items-center bg-blue-50/60 rounded-xl py-2">
+                                  <Shield className="w-5 h-5 text-blue-400 mb-1" />
+                                  <span className="text-[11px] text-gray-500 font-medium">DEF</span>
+                                  <span className="font-bold text-blue-500 text-base">P{char.stats.pdef ? char.stats.pdef + '%' : '-'}<span className="font-bold text-purple-500">{char.stats.mdef ? ' M' + char.stats.mdef + '%' : ''}</span></span>
+                                </div>
+                                <div className="flex flex-col items-center bg-yellow-50/60 rounded-xl py-2">
+                                  <Target className="w-5 h-5 text-yellow-400 mb-1" />
+                                  <span className="text-[11px] text-gray-500 font-medium">CRI%</span>
+                                  <span className="font-bold text-yellow-500 text-base">{char.stats.cri ? char.stats.cri + '%' : '-'}</span>
+                                </div>
+                                <div className="flex flex-col items-center bg-purple-50/60 rounded-xl py-2">
+                                  <Flame className="w-5 h-5 text-purple-400 mb-1" />
+                                  <span className="text-[11px] text-gray-500 font-medium">ELE%</span>
+                                  <span className="font-bold text-purple-500 text-base">{char.stats.ele ? char.stats.ele + '%' : '-'}</span>
+                                </div>
+                                <div className="flex flex-col items-center bg-orange-50/60 rounded-xl py-2">
+                                  <Zap className="w-5 h-5 text-orange-400 mb-1" />
+                                  <span className="text-[11px] text-gray-500 font-medium">FD%</span>
+                                  <span className="font-bold text-orange-500 text-base">{char.stats.fd ? char.stats.fd + '%' : '-'}</span>
+                                </div>
                               </div>
-                              <div className="flex flex-col items-center bg-red-50/60 rounded-xl py-2">
-                                <Heart className="w-5 h-5 text-red-400 mb-1" />
-                                <span className="text-[11px] text-gray-500 font-medium">HP</span>
-                                <span className="font-bold text-red-500 text-base">{char.stats.hp ? char.stats.hp.toLocaleString() : '-'}</span>
-                              </div>
-                              <div className="flex flex-col items-center bg-blue-50/60 rounded-xl py-2">
-                                <Shield className="w-5 h-5 text-blue-400 mb-1" />
-                                <span className="text-[11px] text-gray-500 font-medium">DEF</span>
-                                <span className="font-bold text-blue-500 text-base">P{char.stats.pdef ? char.stats.pdef + '%' : '-'}<span className="font-bold text-purple-500">{char.stats.mdef ? ' M' + char.stats.mdef + '%' : ''}</span></span>
-                              </div>
-                              <div className="flex flex-col items-center bg-yellow-50/60 rounded-xl py-2">
-                                <Target className="w-5 h-5 text-yellow-400 mb-1" />
-                                <span className="text-[11px] text-gray-500 font-medium">CRI%</span>
-                                <span className="font-bold text-yellow-500 text-base">{char.stats.cri ? char.stats.cri + '%' : '-'}</span>
-                              </div>
-                              <div className="flex flex-col items-center bg-purple-50/60 rounded-xl py-2">
-                                <Flame className="w-5 h-5 text-purple-400 mb-1" />
-                                <span className="text-[11px] text-gray-500 font-medium">ELE%</span>
-                                <span className="font-bold text-purple-500 text-base">{char.stats.ele ? char.stats.ele + '%' : '-'}</span>
-                              </div>
-                              <div className="flex flex-col items-center bg-orange-50/60 rounded-xl py-2">
-                                <Zap className="w-5 h-5 text-orange-400 mb-1" />
-                                <span className="text-[11px] text-gray-500 font-medium">FD%</span>
-                                <span className="font-bold text-orange-500 text-base">{char.stats.fd ? char.stats.fd + '%' : '-'}</span>
-                              </div>
-                            </div>
+                            )}
                           </div>
                         ))}
                     </div>

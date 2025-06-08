@@ -205,25 +205,33 @@ export default function Navigation() {
               {/* Mobile Menu Button */}
               <button
                 className="lg:hidden p-2 rounded-md hover:bg-pink-100/60 transition-all relative"
-                onClick={() => setIsMobileMenuOpen(true)}
-                aria-label="Open menu"
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
               >
-                <Menu className="w-6 h-6 text-pink-500" />
-                {charactersWithMissingStats > 0 && (
+                <Menu className={cn("w-6 h-6 text-pink-500 transition-transform duration-200", isMobileMenuOpen && "rotate-90")} />
+                {(charactersWithMissingStats > 0 || pendingCount > 0 || (isGuildLeader && (pendingDonationCount > 0 || pendingCashDonationCount > 0)) || (isGuildLeader && (pendingGuildLoanCount > 0 || pendingMerchantCount > 0 || pendingNewMemberCount > 0))) && (
                   <span className="absolute -top-1 -right-1 w-4 h-4 min-w-4 min-h-4 flex justify-center items-center rounded-full bg-red-500 text-white text-xs font-bold shadow select-none z-30 lg:hidden">
-                    {charactersWithMissingStats}
+                    {charactersWithMissingStats + pendingCount + (isGuildLeader ? (pendingDonationCount + pendingCashDonationCount + pendingGuildLoanCount + pendingMerchantCount + pendingNewMemberCount) : 0)}
                   </span>
                 )}
               </button>
 
               {/* Mobile Navigation Modal Overlay using React Portal */}
               {isMobileMenuOpen && typeof window !== 'undefined' && ReactDOM.createPortal(
-                <div className="fixed inset-0 z-[9999] bg-white/95 backdrop-blur-md flex flex-col min-h-screen">
+                <div 
+                  className="fixed inset-0 z-[9999] bg-white/95 backdrop-blur-md flex flex-col min-h-screen"
+                  onClick={(e) => {
+                    if (e.target === e.currentTarget) {
+                      setIsMobileMenuOpen(false);
+                    }
+                  }}
+                >
                   <div className="flex justify-between items-center p-4 border-b border-pink-100">
                     <span className="text-lg font-bold text-gray-800">Menu</span>
                     <button
                       onClick={() => setIsMobileMenuOpen(false)}
                       className="p-2 rounded-lg hover:bg-pink-50/50 transition-colors"
+                      aria-label="Close menu"
                     >
                       <svg className="w-6 h-6 text-gray-600" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
                         <path d="M6 18L18 6M6 6l12 12" />
