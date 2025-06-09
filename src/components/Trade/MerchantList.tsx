@@ -32,7 +32,7 @@ export function MerchantList() {
   }, []);
 
   const copyMessage = (merchantName: string, tradeId: string) => {
-    const message = `@${merchantName}\nสนใจซื้อ Gold ครับ\nลิงก์ยืนยัน: https://dnpartylist.vercel.app/trade/confirm/${tradeId}`;
+    const message = `@${merchantName}\nสนใจซื้อ Gold ครับ\nลิงก์ยืนยัน: https://galaxycat.vercel.app/trade/confirm/${tradeId}`;
     navigator.clipboard.writeText(message);
     toast.success('คัดลอกข้อความเรียบร้อยแล้ว');
   };

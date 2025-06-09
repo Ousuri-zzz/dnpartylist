@@ -641,7 +641,7 @@ export default function MyStorePage() {
               <div className="mb-6 bg-white rounded-xl p-6 shadow-sm border border-pink-100 relative">
                 <button
                   onClick={() => {
-                    const message = `:tada: ขาย Gold DN Classic sv.Geriant (G) :tada:\n:moneybag: จำนวน: ${openTrade.amountLeft}G\n:dollar: ราคาต่อ 1G: ${openTrade.pricePer100} บาท\n:shopping_cart: ร้านค้า: https://dnpartylist.vercel.app/trade/${openTrade.merchantId}?buy=${openTrade.id}\n:envelope_with_arrow: สนใจทักแชทหรือกดลิงก์เพื่อซื้อได้เลย!`;
+                    const message = `:tada: ขาย Gold DN Classic sv.Geriant (G) :tada:\n:moneybag: จำนวน: ${openTrade.amountLeft}G\n:dollar: ราคาต่อ 1G: ${openTrade.pricePer100} บาท\n:shopping_cart: ร้านค้า: https://galaxycat.vercel.app/trade/${openTrade.merchantId}?buy=${openTrade.id}\n:envelope_with_arrow: สนใจทักแชทหรือกดลิงก์เพื่อซื้อได้เลย!`;
                     navigator.clipboard.writeText(message);
                     toast.success('คัดลอกข้อความสำเร็จ');
                   }}
@@ -1210,7 +1210,7 @@ export default function MyStorePage() {
                             <button
                               onClick={() => {
                                 const priceUnit = item.priceType === 'baht' ? '฿' : 'G';
-                                const msg = `:tada: ขายไอเทม DN Classic sv.Geriant :tada:\n:label: ชื่อไอเทม: ${item.itemName}\n:moneybag: ราคา: ${item.price}${priceUnit}\n:bookmark_tabs: รายละเอียด: ${item.description}\n:shopping_cart: ร้านค้า: https://dnpartylist.vercel.app/trade/${user.uid}\n:envelope_with_arrow: สนใจทักแชทหรือกดลิงก์เพื่อซื้อได้เลย!`;
+                                const msg = `:tada: ขายไอเทม DN Classic sv.Geriant :tada:\n:label: ชื่อไอเทม: ${item.itemName}\n:moneybag: ราคา: ${item.price}${priceUnit}\n:bookmark_tabs: รายละเอียด: ${item.description}\n:shopping_cart: ร้านค้า: https://galaxycat.vercel.app/trade/${user.uid}\n:envelope_with_arrow: สนใจทักแชทหรือกดลิงก์เพื่อซื้อได้เลย!`;
                                 navigator.clipboard.writeText(msg);
                                 toast.success('คัดลอกข้อความสำเร็จ');
                               }}

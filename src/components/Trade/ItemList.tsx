@@ -44,7 +44,7 @@ export function ItemList({ merchantId }: { merchantId: string }) {
   }, [merchantId]);
 
   const copyMessage = (item: Item) => {
-    const message = `@${item.merchantName}\nผมสนใจไอเทม: [${item.itemName}]\nราคา: ${item.price}G\nยืนยันที่: https://dnpartylist.vercel.app/trade/item/${item.id}`;
+    const message = `@${item.merchantName}\nผมสนใจไอเทม: [${item.itemName}]\nราคา: ${item.price}G\nยืนยันที่: https://galaxycat.vercel.app/trade/item/${item.id}`;
     navigator.clipboard.writeText(message);
     toast.success('คัดลอกข้อความเรียบร้อยแล้ว');
   };

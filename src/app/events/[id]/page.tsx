@@ -370,7 +370,7 @@ export default function EventDetailPage() {
       `🗓️ วันเวลาเริ่ม: ${startDate ? startDate.toLocaleString('th-TH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}` +
       `\n⏰ วันเวลาสิ้นสุด: ${endDateStr}` +
       `\n🎁 ของรางวัล: ${event.rewardInfo}` +
-      `\n\n[เช็คชื่อเข้าร่วมกิจกรรมที่นี่](https://dnpartylist.vercel.app/events/${event.id})`;
+      `\n\n[เช็คชื่อเข้าร่วมกิจกรรมที่นี่](https://galaxycat.vercel.app/events/${event.id})`;
     copyToClipboard(previewString.replace(/\\n/g, '\n'));
     setToast({ show: true, message: 'คัดลอกข้อความประกาศเรียบร้อย!' });
   };
@@ -775,7 +775,7 @@ export default function EventDetailPage() {
                           `🗓️ วันเวลาเริ่ม: ${startDate ? startDate.toLocaleString('th-TH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}` +
                           `\n⏰ วันเวลาสิ้นสุด: ${endDateStr}` +
                           `\n🎁 ของรางวัล: ${event.rewardInfo}` +
-                          `\n\n[เช็คชื่อเข้าร่วมกิจกรรมที่นี่](https://dnpartylist.vercel.app/events/${event.id})`;
+                          `\n\n[เช็คชื่อเข้าร่วมกิจกรรมที่นี่](https://galaxycat.vercel.app/events/${event.id})`;
                         return previewString.split('\n').map((line, i, arr) => (
                           <React.Fragment key={i}>
                             {line}

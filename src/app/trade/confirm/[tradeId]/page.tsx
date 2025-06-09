@@ -209,7 +209,7 @@ export default function TradeConfirmationPage({ params }: { params: { tradeId: s
                         )}
                         <button
                           onClick={() => {
-                            const message = `@${confirm.buyerName}\nยืนยันการซื้อ Gold ${confirm.amount}G\nราคาต่อ 100G: ${trade.pricePer100} บาท\nยืนยันที่: https://dnpartylist.vercel.app/trade/confirm/${params.tradeId}`;
+                            const message = `@${confirm.buyerName}\nยืนยันการซื้อ Gold ${confirm.amount}G\nราคาต่อ 100G: ${trade.pricePer100} บาท\nยืนยันที่: https://galaxycat.vercel.app/trade/confirm/${params.tradeId}`;
                             navigator.clipboard.writeText(message);
                             toast.success('คัดลอกข้อความเรียบร้อยแล้ว');
                           }}
@@ -264,7 +264,7 @@ export default function TradeConfirmationPage({ params }: { params: { tradeId: s
                     </button>
                     <button
                       onClick={() => {
-                        const message = `@${trade.merchantName}\nผมสนใจ Gold ${amount}G\nราคาต่อ 100G: ${trade.pricePer100} บาท\nยืนยันที่: https://dnpartylist.vercel.app/trade/confirm/${params.tradeId}`;
+                        const message = `@${trade.merchantName}\nผมสนใจ Gold ${amount}G\nราคาต่อ 100G: ${trade.pricePer100} บาท\nยืนยันที่: https://galaxycat.vercel.app/trade/confirm/${params.tradeId}`;
                         navigator.clipboard.writeText(message);
                         toast.success('คัดลอกข้อความเรียบร้อยแล้ว');
                       }}
