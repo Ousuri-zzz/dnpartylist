@@ -128,6 +128,17 @@ function CountdownOrEnded({ event, startDate, staticCountdownText }: { event: an
   );
 }
 
+// เพิ่มฟังก์ชันลอก tag HTML (เฉพาะใน client)
+function stripHtml(html: string) {
+  if (typeof window !== 'undefined') {
+    const div = document.createElement('div');
+    div.innerHTML = html;
+    return div.textContent || div.innerText || '';
+  }
+  // fallback (SSR)
+  return html.replace(/<[^>]+>/g, '');
+}
+
 export default function EventDetailPage() {
   const params = useParams();
   const router = useRouter();
@@ -343,18 +354,24 @@ export default function EventDetailPage() {
 
   // ฟังก์ชันคัดลอกข้อความประกาศ
   const handleCopyAnnounce = () => {
-    const descLines = (event.description || '').split('\n');
-    const descPreview = descLines.length > 0
-      ? `📝 ${descLines.join('\n')}`
-      : '📝';
-    const preview =
-      (announceMsg ? `📢 ${announceMsg}\n\n` : '') +
+    // ใช้ logic เดียวกับ Preview
+    let announce = announceMsg ? `📢 ${announceMsg}` : '';
+    let descHtml = event.description || '';
+    descHtml = descHtml
+      .replace(/<\s*br\s*\/?>(?![^<]*>)/gi, '\n')
+      .replace(/<\/?(div|p|li|ul|ol|h[1-6])[^>]*>/gi, '\n');
+    const descLinesCopy = stripHtml(descHtml).split(/\n+/);
+    let descPreviewCopy = descLinesCopy.length > 0 ? `📝 ${descLinesCopy.join('\n')}` : '📝';
+    const endDateStr = endDate ? endDate.toLocaleString('th-TH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-';
+    const previewString =
+      (announce ? announce + '\n\n' : '') +
       `🎉 ${event.name}\n` +
-      `${descPreview}\n` +
-      `🗓️ วันเวลาเริ่ม: ${startDate ? startDate.toLocaleString('th-TH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}\n` +
-      `🎁 ของรางวัล: ${event.rewardInfo}` +
-      `\n\n🔗 เช็คชื่อเข้าร่วมกิจกรรมที่ https://dnpartylist.vercel.app/events/${event.id}`;
-    copyToClipboard(preview);
+      descPreviewCopy +
+      `🗓️ วันเวลาเริ่ม: ${startDate ? startDate.toLocaleString('th-TH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}` +
+      `\n⏰ วันเวลาสิ้นสุด: ${endDateStr}` +
+      `\n🎁 ของรางวัล: ${event.rewardInfo}` +
+      `\n\n[เช็คชื่อเข้าร่วมกิจกรรมที่นี่](https://dnpartylist.vercel.app/events/${event.id})`;
+    copyToClipboard(previewString.replace(/\\n/g, '\n'));
     setToast({ show: true, message: 'คัดลอกข้อความประกาศเรียบร้อย!' });
   };
 
@@ -739,12 +756,33 @@ export default function EventDetailPage() {
                   <div className="font-semibold mb-1 flex items-center gap-1">👁️‍🗨️ Preview:</div>
                   <pre className="whitespace-pre-wrap font-mono text-gray-800 break-words">
                     {
-                      (announceMsg ? `📢 ${announceMsg}\n\n` : '') +
-                      `🎉 ${event.name}\n` +
-                      `${descPreview}\n` +
-                      `🗓️ วันเวลาเริ่ม: ${startDate ? startDate.toLocaleString('th-TH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}` +
-                      `\n🎁 ของรางวัล: ${event.rewardInfo}` +
-                      `\n\n🔗 เช็คชื่อเข้าร่วมกิจกรรมที่ https://dnpartylist.vercel.app/events/${event.id}`
+                      (() => {
+                        // เตรียมข้อความประกาศ
+                        let announce = announceMsg ? `📢 ${announceMsg}` : '';
+                        // เตรียม description: แปลง block tag ทั้งหมดเป็น \n ก่อน stripHtml
+                        let descHtml = event.description || '';
+                        descHtml = descHtml
+                          .replace(/<\s*br\s*\/?>(?![^<]*>)/gi, '\n')
+                          .replace(/<\/?(div|p|li|ul|ol|h[1-6])[^>]*>/gi, '\n');
+                        const descPlain = stripHtml(descHtml);
+                        const descLines = descPlain.split(/\n+/);
+                        let descPreview = descLines.length > 0 ? `📝 ${descLines.join('\n')}` : '📝';
+                        const endDateStr = endDate ? endDate.toLocaleString('th-TH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-';
+                        const previewString =
+                          (announce ? announce + '\n\n' : '') +
+                          `🎉 ${event.name}\n` +
+                          descPreview +
+                          `🗓️ วันเวลาเริ่ม: ${startDate ? startDate.toLocaleString('th-TH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}` +
+                          `\n⏰ วันเวลาสิ้นสุด: ${endDateStr}` +
+                          `\n🎁 ของรางวัล: ${event.rewardInfo}` +
+                          `\n\n[เช็คชื่อเข้าร่วมกิจกรรมที่นี่](https://dnpartylist.vercel.app/events/${event.id})`;
+                        return previewString.split('\n').map((line, i, arr) => (
+                          <React.Fragment key={i}>
+                            {line}
+                            {i !== arr.length - 1 && <br />}
+                          </React.Fragment>
+                        ));
+                      })()
                     }
                   </pre>
                 </div>

@@ -230,7 +230,7 @@ export function CreateEventModal({ isOpen, onClose, onSubmit, defaultValues, isE
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto !bg-pink-100/70 !backdrop-blur-sm !border-pink-200 !shadow-xl !rounded-2xl mt-8">
+      <DialogContent className="w-full max-w-full sm:max-w-4xl px-4 max-h-[90vh] overflow-y-auto !bg-pink-100/70 !backdrop-blur-sm !border-pink-200 !shadow-xl !rounded-2xl mt-8">
         <DialogHeader>
           <DialogTitle>{isEdit ? 'แก้ไขกิจกรรม' : 'สร้างกิจกรรมใหม่'}</DialogTitle>
         </DialogHeader>
@@ -248,22 +248,24 @@ export function CreateEventModal({ isOpen, onClose, onSubmit, defaultValues, isE
 
           <div className="space-y-2">
             <Label htmlFor="description" className="flex items-center gap-2 text-purple-700"><span className="text-lg">📄</span>รายละเอียด</Label>
-            <ReactQuill
-              theme="snow"
-              value={description}
-              onChange={setDescription}
-              className="bg-white rounded-lg"
-              modules={{
-                toolbar: [
-                  [{ 'header': [1, 2, false] }],
-                  ['bold', 'italic', 'underline', 'strike'],
-                  [{ 'color': [] }, { 'background': [] }],
-                  [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                  ['clean']
-                ]
-              }}
-              formats={['header', 'bold', 'italic', 'underline', 'strike', 'color', 'background', 'list', 'bullet']}
-            />
+            <div className="w-full min-w-0 overflow-x-hidden" style={{ width: '100%' }}>
+              <ReactQuill
+                theme="snow"
+                value={description}
+                onChange={setDescription}
+                className="bg-white rounded-lg"
+                modules={{
+                  toolbar: [
+                    [{ 'header': [1, 2, false] }],
+                    ['bold', 'italic', 'underline', 'strike'],
+                    [{ 'color': [] }, { 'background': [] }],
+                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                    ['clean']
+                  ]
+                }}
+                formats={['header', 'bold', 'italic', 'underline', 'strike', 'color', 'background', 'list', 'bullet']}
+              />
+            </div>
           </div>
 
           <div className="space-y-2">
@@ -383,7 +385,7 @@ export function CreateEventModal({ isOpen, onClose, onSubmit, defaultValues, isE
 
           <div className="space-y-2">
             <Label htmlFor="color" className="flex items-center gap-2 text-purple-700"><span className="text-lg">🎨</span>สีกิจกรรม</Label>
-            <div className="grid grid-cols-4 gap-2">
+            <div className="flex flex-row flex-wrap gap-3">
               {pastelColors.map((pastelColor) => (
                 <button
                   key={pastelColor.value}
@@ -397,18 +399,15 @@ export function CreateEventModal({ isOpen, onClose, onSubmit, defaultValues, isE
                     background: pastelColor.value.includes('linear-gradient') 
                       ? pastelColor.value 
                       : pastelColor.value,
-                    backgroundSize: pastelColor.value.includes('linear-gradient') ? '200% 100%' : 'auto'
+                    width: '60px',
+                    height: '60px'
                   }}
                 >
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    {color === pastelColor.value && (
-                      <span className="text-white drop-shadow-lg">✓</span>
-                    )}
-                  </div>
-                  <div className="h-8 w-full rounded-md" />
-                  <div className="mt-1 text-xs text-center font-medium text-gray-700">
-                    {pastelColor.name}
-                  </div>
+                  {color === pastelColor.value && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="text-white text-2xl">✓</span>
+                    </div>
+                  )}
                 </button>
               ))}
             </div>
@@ -426,6 +425,30 @@ export function CreateEventModal({ isOpen, onClose, onSubmit, defaultValues, isE
           </div>
         </form>
       </DialogContent>
+      <style jsx global>{`
+        :global(.react-quill),
+        :global(.react-quill .ql-container),
+        :global(.react-quill .ql-editor),
+        :global(.react-quill .ql-editor *),
+        :global(.ql-container),
+        :global(.ql-editor),
+        :global(.ql-editor *) {
+          width: 100% !important;
+          min-width: 0 !important;
+          max-width: 100% !important;
+          box-sizing: border-box !important;
+          white-space: pre-wrap !important;
+          word-break: break-all !important;
+          overflow-wrap: break-word !important;
+        }
+        @media (max-width: 640px) {
+          .DialogContent {
+            max-width: 425px !important;
+            padding-left: 0.5rem !important;
+            padding-right: 0.5rem !important;
+          }
+        }
+      `}</style>
     </Dialog>
   );
 } 
