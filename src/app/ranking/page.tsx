@@ -73,12 +73,12 @@ const ROLE_BALANCE: Record<string, RoleConstants> = {
   Acrobat: {
     statWeights: { 
       atk: 1.4,    // 1 AGI = 0.5 Physical Damage
-      hp: 0.8,     // HP ทำยากกว่า เพราะมี VIT ต่ำ
-      fd: 1.2,
-      cri: 1.4,    // Critical ทำง่ายกว่า เพราะมี AGI สูง
+      hp: 0.9,     // HP ทำยากกว่า เพราะมี VIT ต่ำ
+      fd: 1.3,
+      cri: 1.5,    // Critical ทำง่ายกว่า เพราะมี AGI สูง
       ele: 0.0,
-      pdef: 0.7,   // Defense ทำยากกว่า เพราะมี VIT ต่ำ
-      mdef: 0.8
+      pdef: 0.8,   // Defense ทำยากกว่า เพราะมี VIT ต่ำ
+      mdef: 0.9
     }
   },
   Engineer: {
@@ -164,24 +164,24 @@ const ROLE_BALANCE: Record<string, RoleConstants> = {
   // Hybrid Classes (can play both Physical and Magic)
   SwordMaster: {
     statWeights: { 
-      atk: 1.4,    // 1 STR = 0.5 Physical Damage
+      atk: 1.5,    // 1 STR = 0.5 Physical Damage
       hp: 0.8,     // HP ทำง่าย เพราะมาจาก VIT
       fd: 1.2,
       cri: 1.6,    // Critical ทำยาก เพราะมาจาก AGI และมี cap
       ele: 0.0,    
-      pdef: 0.7,   // Defense ทำง่าย เพราะมาจาก VIT
-      mdef: 0.7
+      pdef: 0.8,   // Defense ทำง่าย เพราะมาจาก VIT
+      mdef: 0.8
     }
   },
   "Sword Master": {
     statWeights: { 
-      atk: 1.4,
+      atk: 1.5,
       hp: 0.8,
       fd: 1.2,
       cri: 1.6,
       ele: 0.0,
-      pdef: 0.7,
-      mdef: 0.7
+      pdef: 0.8,
+      mdef: 0.9
     }
   },
   Bowmaster: {
