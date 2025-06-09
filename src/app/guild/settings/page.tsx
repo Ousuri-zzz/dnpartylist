@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { ref, get, remove, update, onValue, query, orderByChild, equalTo, set, push } from 'firebase/database';
 import { db } from '@/lib/firebase';
 import { toast } from 'sonner';
-import { Settings, UserPlus, KeyRound, X, Check, Ban, DollarSign, Clock, CheckCircle2, XCircle, Crown, ChevronDown, ChevronUp, Bell, Users, Store, Building2, Shield, AlertCircle, Search, RefreshCw, PiggyBank } from 'lucide-react';
+import { Settings, UserPlus, KeyRound, X, Check, Ban, DollarSign, Clock, CheckCircle2, XCircle, Crown, ChevronDown, ChevronUp, Bell, Users, Store, Building2, Shield, AlertCircle, Search, RefreshCw, PiggyBank, CreditCard, Coins } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { GuildSettings, GuildLoan } from '@/types/trade';
 import { GuildService } from '@/lib/guildService';
@@ -59,6 +59,7 @@ interface Merchant {
   discord: string;
   bankName: string;
   bankAccountNumber: string;
+  createdAt?: number;
 }
 
 function parseJoinedAt(joinedAt: any): number {
@@ -128,9 +129,22 @@ export default function GuildSettingsPage() {
   const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(null);
   const [pendingMembers, setPendingMembers] = useState<any[]>([]);
   const [donationAmount, setDonationAmount] = useState<number>(0);
+  const [pendingDonations, setPendingDonations] = useState<any[]>([]);
+  const [pendingCashDonations, setPendingCashDonations] = useState<any[]>([]);
+  const [cashDonorDiscords, setCashDonorDiscords] = useState<Record<string, string>>({});
 
   const [debouncedMerchantSearch, setDebouncedMerchantSearch] = useState('');
   const [debouncedMemberSearch, setDebouncedMemberSearch] = useState('');
+
+  const [selectedDonation, setSelectedDonation] = useState<any>(null);
+  const [selectedCashDonation, setSelectedCashDonation] = useState<any>(null);
+  const [showDonationConfirmModal, setShowDonationConfirmModal] = useState(false);
+  const [showCashDonationConfirmModal, setShowCashDonationConfirmModal] = useState(false);
+  const [donationAction, setDonationAction] = useState<'approve' | 'reject'>('approve');
+
+  const [showMemberApproveModal, setShowMemberApproveModal] = useState(false);
+  const [showMemberRejectModal, setShowMemberRejectModal] = useState(false);
+  const [selectedPendingMember, setSelectedPendingMember] = useState<any>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -304,6 +318,138 @@ export default function GuildSettingsPage() {
 
     fetchCharacterData();
   }, [guild?.members]);
+
+  useEffect(() => {
+    const donatesRef = ref(db, 'guilddonate');
+    const unsubscribe = onValue(donatesRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        const donatesList = Object.entries(data)
+          .filter(([_, value]: [string, any]) => value.status === 'waiting')
+          .map(([id, value]: [string, any]) => ({
+            id,
+            ...value
+          }));
+        setPendingDonations(donatesList);
+      } else {
+        setPendingDonations([]);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const cashRef = ref(db, 'guilddonatecash');
+    const unsubscribe = onValue(cashRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        const list = Object.entries(data)
+          .filter(([_, value]: [string, any]) => (
+            value &&
+            value.status === 'waiting' &&
+            typeof value.amount === 'number' &&
+            typeof value.createdAt === 'number' &&
+            typeof value.userId === 'string' &&
+            value.type === 'cash' &&
+            value.paymentMethod === 'promptpay'
+          ))
+          .map(([id, value]: [string, any]) => ({ id, ...value }));
+        setPendingCashDonations(list);
+      } else {
+        setPendingCashDonations([]);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const fetchDiscords = async () => {
+      const userIds = Array.from(new Set(pendingCashDonations.map(d => d.userId)));
+      const newDiscords: Record<string, string> = { ...cashDonorDiscords };
+      await Promise.all(userIds.map(async (uid) => {
+        if (!newDiscords[uid]) {
+          const metaSnap = await get(ref(db, `users/${uid}/meta/discord`));
+          if (metaSnap.exists()) {
+            newDiscords[uid] = metaSnap.val();
+          }
+        }
+      }));
+      setCashDonorDiscords(newDiscords);
+    };
+    if (pendingCashDonations.length > 0) fetchDiscords();
+  }, [pendingCashDonations]);
+
+  const handleApproveDonation = async (donateId: string, approve: boolean) => {
+    const status = approve ? 'active' : 'rejected';
+    const approvedAt = Date.now();
+    await update(ref(db, `guilddonate/${donateId}`), {
+      status,
+      approvedAt,
+      approvedBy: user?.uid || ''
+    });
+    const donation = pendingDonations.find(d => d.id === donateId);
+    if (donation) {
+      const feedText = approve
+        ? `@${donation.discordName} บริจาค ${donation.amount} Gold ให้กิลด์ GalaxyCat สำเร็จ ✅`
+        : `@${donation.discordName} ยกเลิกการบริจาค ${donation.amount} Gold ให้กิลด์ GalaxyCat ❌`;
+      await push(ref(db, 'feed/all'), {
+        type: 'donate',
+        subType: status,
+        text: feedText,
+        userId: donation.userId,
+        discordName: donation.discordName,
+        amount: donation.amount,
+        status,
+        timestamp: approvedAt
+      });
+    }
+    toast.success(approve ? 'ยืนยันการบริจาคสำเร็จ' : 'ยกเลิกการบริจาคแล้ว');
+  };
+
+  const handleApproveCashDonation = async (donationId: string, approve: boolean) => {
+    const status = approve ? 'active' : 'rejected';
+    const approvedAt = Date.now();
+    await update(ref(db, `guilddonatecash/${donationId}`), {
+      status,
+      approvedAt,
+      approvedBy: user?.uid || ''
+    });
+    const donation = pendingCashDonations.find(d => d.id === donationId);
+    if (donation) {
+      const metaSnap = await get(ref(db, `users/${donation.userId}/meta/discord`));
+      const discordName = metaSnap.exists() ? metaSnap.val() : '...';
+      const feedText = approve
+        ? `@${discordName} บริจาคเงินสด ${donation.amount} บาท ให้กิลด์ GalaxyCat สำเร็จ ✅`
+        : `@${discordName} ยกเลิกการบริจาคเงินสด ${donation.amount} บาท ให้กิลด์ GalaxyCat ❌`;
+      await push(ref(db, 'feed/all'), {
+        type: 'donate',
+        subType: status,
+        text: feedText,
+        userId: donation.userId,
+        discordName,
+        amount: donation.amount,
+        status,
+        timestamp: approvedAt
+      });
+    }
+    toast.success(approve ? 'ยืนยันการบริจาคเงินสดสำเร็จ' : 'ยกเลิกการบริจาคเงินสดแล้ว');
+  };
+
+  const confirmDonationAction = async () => {
+    if (selectedDonation) {
+      await handleApproveDonation(selectedDonation.id, donationAction === 'approve');
+      setShowDonationConfirmModal(false);
+      setSelectedDonation(null);
+    }
+  };
+
+  const confirmCashDonationAction = async () => {
+    if (selectedCashDonation) {
+      await handleApproveCashDonation(selectedCashDonation.id, donationAction === 'approve');
+      setShowCashDonationConfirmModal(false);
+      setSelectedCashDonation(null);
+    }
+  };
 
   const filteredActiveMerchants = React.useMemo(() => {
     return activeMerchants.filter(merchant => {
@@ -610,14 +756,37 @@ export default function GuildSettingsPage() {
 
   const handleRejectMember = async (uid: string) => {
     try {
-      await remove(ref(db, `users/${uid}`));
+      // Remove from guild/members
       await remove(ref(db, `guild/members/${uid}`));
-      await remove(ref(db, `guild/leaders/${uid}`));
-      await remove(ref(db, `tradeMerchants/${uid}`));
+      // Remove from users/meta
+      await remove(ref(db, `users/${uid}/meta`));
+      // Update local state
       setPendingMembers(prev => prev.filter(m => m.uid !== uid));
-      toast.success('ยกเลิกและลบสมาชิกสำเร็จ');
+      toast.success('ปฏิเสธสมาชิกสำเร็จ');
     } catch (error) {
-      toast.error('ไม่สามารถลบสมาชิกได้');
+      console.error('Error rejecting member:', error);
+      toast.error('ไม่สามารถปฏิเสธสมาชิกได้');
+    }
+  };
+
+  const confirmApproveMember = async () => {
+    if (selectedPendingMember) {
+      await handleApproveMember(selectedPendingMember.uid);
+      setShowMemberApproveModal(false);
+      setSelectedPendingMember(null);
+    }
+  };
+
+  const confirmRejectMember = async () => {
+    if (selectedPendingMember) {
+      try {
+        await handleRejectMember(selectedPendingMember.uid);
+        setShowMemberRejectModal(false);
+        setSelectedPendingMember(null);
+      } catch (error) {
+        console.error('Error in confirmRejectMember:', error);
+        toast.error('เกิดข้อผิดพลาดในการปฏิเสธสมาชิก');
+      }
     }
   };
 
@@ -715,6 +884,132 @@ export default function GuildSettingsPage() {
 
   return (
     <div className="max-w-5xl mx-auto p-4 md:p-6">
+      {/* Donation Confirmation Modal */}
+      {showDonationConfirmModal && selectedDonation && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">
+              {donationAction === 'approve' ? 'ยืนยันการอนุมัติ' : 'ยืนยันการยกเลิก'}
+            </h3>
+            <p className="text-gray-600 mb-6">
+              คุณต้องการ{donationAction === 'approve' ? 'อนุมัติ' : 'ยกเลิก'}การบริจาค {selectedDonation.amount} Gold 
+              จาก {selectedDonation.discordName} ใช่หรือไม่?
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => {
+                  setShowDonationConfirmModal(false);
+                  setSelectedDonation(null);
+                }}
+                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                ยกเลิก
+              </button>
+              <button
+                onClick={confirmDonationAction}
+                className={`px-4 py-2 text-white rounded-lg transition-colors ${
+                  donationAction === 'approve' ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'
+                }`}
+              >
+                {donationAction === 'approve' ? 'อนุมัติ' : 'ยกเลิกการบริจาค'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Cash Donation Confirmation Modal */}
+      {showCashDonationConfirmModal && selectedCashDonation && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">
+              {donationAction === 'approve' ? 'ยืนยันการอนุมัติ' : 'ยืนยันการยกเลิก'}
+            </h3>
+            <p className="text-gray-600 mb-6">
+              คุณต้องการ{donationAction === 'approve' ? 'อนุมัติ' : 'ยกเลิก'}การบริจาคเงินสด {selectedCashDonation.amount} บาท 
+              จาก {cashDonorDiscords[selectedCashDonation.userId] || '...'} ใช่หรือไม่?
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => {
+                  setShowCashDonationConfirmModal(false);
+                  setSelectedCashDonation(null);
+                }}
+                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                ยกเลิก
+              </button>
+              <button
+                onClick={confirmCashDonationAction}
+                className={`px-4 py-2 text-white rounded-lg transition-colors ${
+                  donationAction === 'approve' ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'
+                }`}
+              >
+                {donationAction === 'approve' ? 'อนุมัติ' : 'ยกเลิกการบริจาค'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Member Approval Confirmation Modal */}
+      {showMemberApproveModal && selectedPendingMember && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">ยืนยันการอนุมัติสมาชิก</h3>
+            <p className="text-gray-600 mb-6">
+              คุณต้องการอนุมัติสมาชิก {selectedPendingMember.discord || 'ไม่ทราบ'} เข้าร่วมกิลด์ใช่หรือไม่?
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => {
+                  setShowMemberApproveModal(false);
+                  setSelectedPendingMember(null);
+                }}
+                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                ยกเลิก
+              </button>
+              <button
+                onClick={confirmApproveMember}
+                className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+              >
+                อนุมัติ
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Member Rejection Confirmation Modal */}
+      {showMemberRejectModal && selectedPendingMember && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">ยืนยันการปฏิเสธสมาชิก</h3>
+            <p className="text-gray-600 mb-6">
+              คุณต้องการปฏิเสธสมาชิก {selectedPendingMember.discord || 'ไม่ทราบ'} เข้าร่วมกิลด์ใช่หรือไม่?
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => {
+                  setShowMemberRejectModal(false);
+                  setSelectedPendingMember(null);
+                }}
+                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                ยกเลิก
+              </button>
+              <button
+                onClick={confirmRejectMember}
+                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+              >
+                ปฏิเสธ
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-4 md:p-8 border border-pink-200">
         {/* Header Section */}
         <div className="flex flex-col md:flex-row items-start md:items-center gap-4 mb-6 md:mb-8 pb-4 md:pb-6 border-b border-pink-100">
@@ -1031,6 +1326,187 @@ export default function GuildSettingsPage() {
               </div>
             </div>
 
+            {/* Pending Donations Section */}
+            <div className="mb-6 md:mb-10">
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-4 md:mb-6 gap-2 md:gap-0">
+                <div className="flex items-center gap-2 md:gap-3">
+                  <div className="p-1.5 md:p-2 bg-yellow-100 rounded-lg">
+                    <DollarSign className="w-5 h-5 text-yellow-600" />
+                  </div>
+                  <h2 className="text-lg md:text-xl font-semibold text-gray-800">รายการรออนุมัติการบริจาค</h2>
+                </div>
+                <div className="flex items-center gap-2 px-3 md:px-4 py-1.5 md:py-2 bg-yellow-50 rounded-lg md:rounded-full">
+                  <span className="text-xs md:text-sm font-medium text-yellow-700">{pendingDonations.length} รายการ</span>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
+                {pendingDonations.length === 0 ? (
+                  <div className="col-span-2 flex items-center justify-center p-8 bg-yellow-50 rounded-xl border border-yellow-100">
+                    <div className="text-center">
+                      <DollarSign className="w-8 h-8 text-yellow-400 mx-auto mb-2" />
+                      <p className="text-sm text-gray-500">ไม่มีรายการรออนุมัติ</p>
+                    </div>
+                  </div>
+                ) : (
+                  pendingDonations.map((donation) => (
+                    <div
+                      key={donation.id}
+                      className="bg-white rounded-xl p-4 border border-amber-100 shadow-sm hover:shadow-md transition-shadow"
+                    >
+                      <div className="flex flex-col gap-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div className="p-2 bg-amber-100 rounded-lg">
+                              <Coins className="w-5 h-5 text-amber-600" />
+                            </div>
+                            <div>
+                              <p className="font-medium text-gray-800">{donation.discordName}</p>
+                              <p className="text-sm text-gray-500">
+                                {new Date(donation.createdAt).toLocaleDateString('th-TH', {
+                                  year: 'numeric',
+                                  month: 'long',
+                                  day: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="inline-flex items-center px-3 py-1.5 rounded-full bg-amber-100 text-amber-700 text-sm font-semibold">
+                              {donation.amount.toLocaleString()} Gold
+                            </span>
+                          </div>
+                        </div>
+
+                        {donation.characters && donation.characters.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5">
+                            {donation.characters.map((char: any) => (
+                              <span 
+                                key={char.id} 
+                                className="inline-flex items-center px-2.5 py-1 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-100 text-xs font-medium"
+                              >
+                                {char.name} ({char.class})
+                              </span>
+                            ))}
+                          </div>
+                        )}
+
+                        <div className="flex gap-2 justify-end">
+                          <button
+                            onClick={() => {
+                              setSelectedDonation(donation);
+                              setDonationAction('approve');
+                              setShowDonationConfirmModal(true);
+                            }}
+                            className="px-3 py-1.5 rounded-lg bg-green-500 text-white font-medium text-sm flex items-center gap-1.5 shadow-sm hover:bg-green-600 transition-colors"
+                            title="อนุมัติ"
+                          >
+                            <Check className="w-4 h-4" /> อนุมัติ
+                          </button>
+                          <button
+                            onClick={() => {
+                              setSelectedDonation(donation);
+                              setDonationAction('reject');
+                              setShowDonationConfirmModal(true);
+                            }}
+                            className="px-3 py-1.5 rounded-lg bg-red-500 text-white font-medium text-sm flex items-center gap-1.5 shadow-sm hover:bg-red-600 transition-colors"
+                            title="ยกเลิก"
+                          >
+                            <X className="w-4 h-4" /> ยกเลิก
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            {/* Pending Cash Donations Section */}
+            <div className="mb-6 md:mb-10">
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-4 md:mb-6 gap-2 md:gap-0">
+                <div className="flex items-center gap-2 md:gap-3">
+                  <div className="p-1.5 md:p-2 bg-green-100 rounded-lg">
+                    <CreditCard className="w-5 h-5 text-green-600" />
+                  </div>
+                  <h2 className="text-lg md:text-xl font-semibold text-gray-800">รายการรออนุมัติเงินสด</h2>
+                </div>
+                <div className="flex items-center gap-2 px-3 md:px-4 py-1.5 md:py-2 bg-green-50 rounded-lg md:rounded-full">
+                  <span className="text-xs md:text-sm font-medium text-green-700">{pendingCashDonations.length} รายการ</span>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
+                {pendingCashDonations.length === 0 ? (
+                  <div className="col-span-2 flex items-center justify-center p-8 bg-green-50 rounded-xl border border-green-100">
+                    <div className="text-center">
+                      <CreditCard className="w-8 h-8 text-green-400 mx-auto mb-2" />
+                      <p className="text-sm text-gray-500">ไม่มีรายการบริจาคเงินสดที่รออนุมัติ</p>
+                    </div>
+                  </div>
+                ) : (
+                  pendingCashDonations.map((donation) => (
+                    <div
+                      key={donation.id}
+                      className="bg-white rounded-xl p-4 border border-green-100 shadow-sm hover:shadow-md transition-shadow"
+                    >
+                      <div className="flex flex-col gap-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div className="p-2 bg-green-100 rounded-lg">
+                              <CreditCard className="w-5 h-5 text-green-600" />
+                            </div>
+                            <div>
+                              <p className="font-medium text-gray-800">{cashDonorDiscords[donation.userId] || 'ไม่ทราบ'}</p>
+                              <p className="text-sm text-gray-500">
+                                {new Date(donation.createdAt).toLocaleDateString('th-TH', {
+                                  year: 'numeric',
+                                  month: 'long',
+                                  day: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="inline-flex items-center px-3 py-1.5 rounded-full bg-green-100 text-green-700 text-sm font-semibold">
+                              {donation.amount.toLocaleString()} บาท
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="flex gap-2 justify-end">
+                          <button
+                            onClick={() => {
+                              setSelectedCashDonation(donation);
+                              setDonationAction('approve');
+                              setShowCashDonationConfirmModal(true);
+                            }}
+                            className="px-3 py-1.5 rounded-lg bg-green-500 text-white font-medium text-sm flex items-center gap-1.5 shadow-sm hover:bg-green-600 transition-colors"
+                            title="อนุมัติ"
+                          >
+                            <Check className="w-4 h-4" /> อนุมัติ
+                          </button>
+                          <button
+                            onClick={() => {
+                              setSelectedCashDonation(donation);
+                              setDonationAction('reject');
+                              setShowCashDonationConfirmModal(true);
+                            }}
+                            className="px-3 py-1.5 rounded-lg bg-red-500 text-white font-medium text-sm flex items-center gap-1.5 shadow-sm hover:bg-red-600 transition-colors"
+                            title="ยกเลิก"
+                          >
+                            <X className="w-4 h-4" /> ยกเลิก
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
             {/* Pending Members Section */}
             <div className="mb-6 md:mb-10">
               <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-4 md:mb-6 gap-2 md:gap-0">
@@ -1046,9 +1522,9 @@ export default function GuildSettingsPage() {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
                 {pendingMembers.length === 0 ? (
-                  <div className="col-span-2 flex items-center justify-center p-8 bg-red-50 rounded-xl border border-red-100">
+                  <div className="col-span-2 flex items-center justify-center p-8 bg-rose-50 rounded-xl border border-rose-100">
                     <div className="text-center">
-                      <UserPlus className="w-8 h-8 text-red-400 mx-auto mb-2" />
+                      <UserPlus className="w-8 h-8 text-rose-400 mx-auto mb-2" />
                       <p className="text-sm text-gray-500">ไม่มีสมาชิกใหม่ที่รออนุมัติ</p>
                     </div>
                   </div>
@@ -1056,58 +1532,56 @@ export default function GuildSettingsPage() {
                   pendingMembers.map((member) => (
                     <div
                       key={member.uid}
-                      className="flex flex-col md:flex-row md:items-center md:justify-between p-4 bg-white rounded-xl border border-red-100 shadow-sm hover:shadow-md transition-shadow gap-2 md:gap-0"
+                      className="bg-white rounded-xl p-4 border border-rose-100 shadow-sm hover:shadow-md transition-shadow"
                     >
-                      <div className="flex items-center gap-4">
-                        <Avatar className="h-9 w-9">
-                          <AvatarImage src={users[member.uid]?.photoURL!} alt={member.discord || 'New Member'} />
-                          <AvatarFallback className="bg-red-200 text-red-800 text-sm font-semibold">
-                            {member.discord ? member.discord.charAt(0).toUpperCase() : 'N'}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="font-medium text-gray-800">{member.discord || 'ไม่ทราบ'}</p>
-                          <p className="text-sm text-gray-500">
-                            เข้าร่วมเมื่อ: {(() => {
-                              const parsed = parseJoinedAt(member.joinedAt);
-                              if (parsed && parsed > 0) {
-                                return new Date(parsed).toLocaleDateString('th-TH');
-                              }
-                              // ถ้า parse ไม่ได้แต่มี string raw ให้แสดง raw
-                              if (typeof member.joinedAt === 'string' && member.joinedAt.trim() !== '') {
-                                return member.joinedAt;
-                              }
-                              return '-';
-                            })()}
-                          </p>
-                          <p className="text-xs text-gray-400">UID: {member.uid}</p>
-                          {Array.isArray(memberCharacters[member.uid]) && memberCharacters[member.uid].length > 0 && (
-                            <div className="mt-1 space-y-0.5">
-                              {memberCharacters[member.uid].map((char, idx) => (
-                                <div key={char.characterId || idx} className="text-xs text-gray-500 flex gap-1 items-center">
-                                  <span>{char.name}</span>
-                                  {char.class && <span className="text-gray-400">({char.class})</span>}
-                                </div>
-                              ))}
+                      <div className="flex flex-col gap-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div className="p-2 bg-rose-100 rounded-lg">
+                              <UserPlus className="w-5 h-5 text-rose-600" />
                             </div>
-                          )}
+                            <div>
+                              <p className="font-medium text-gray-800">{member.discord || 'ไม่ทราบ'}</p>
+                              <p className="text-sm text-gray-500">
+                                {new Date(member.joinedAt).toLocaleDateString('th-TH', {
+                                  year: 'numeric',
+                                  month: 'long',
+                                  day: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="inline-flex items-center px-3 py-1.5 rounded-full bg-rose-100 text-rose-700 text-sm font-semibold">
+                              สมาชิกใหม่
+                            </span>
+                          </div>
                         </div>
-                      </div>
-                      <div className="w-full md:w-auto flex flex-row gap-x-2 md:gap-2">
-                        <button
-                          onClick={() => handleApproveMember(member.uid)}
-                          className="flex-1 md:w-auto p-2 rounded-l-lg md:rounded-lg bg-green-100 text-green-600 hover:bg-green-200 transition-colors"
-                          title="อนุมัติ"
-                        >
-                          <Check className="w-5 h-5" />
-                        </button>
-                        <button
-                          onClick={() => handleRejectMember(member.uid)}
-                          className="flex-1 md:w-auto p-2 rounded-r-lg md:rounded-lg bg-red-100 text-red-600 hover:bg-red-200 transition-colors"
-                          title="ปฏิเสธ"
-                        >
-                          <X className="w-5 h-5" />
-                        </button>
+
+                        <div className="flex gap-2 justify-end">
+                          <button
+                            onClick={() => {
+                              setSelectedPendingMember(member);
+                              setShowMemberApproveModal(true);
+                            }}
+                            className="px-3 py-1.5 rounded-lg bg-green-500 text-white font-medium text-sm flex items-center gap-1.5 shadow-sm hover:bg-green-600 transition-colors"
+                            title="อนุมัติ"
+                          >
+                            <Check className="w-4 h-4" /> อนุมัติ
+                          </button>
+                          <button
+                            onClick={() => {
+                              setSelectedPendingMember(member);
+                              setShowMemberRejectModal(true);
+                            }}
+                            className="px-3 py-1.5 rounded-lg bg-red-500 text-white font-medium text-sm flex items-center gap-1.5 shadow-sm hover:bg-red-600 transition-colors"
+                            title="ยกเลิก"
+                          >
+                            <X className="w-4 h-4" /> ยกเลิก
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ))
@@ -1132,46 +1606,78 @@ export default function GuildSettingsPage() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
             {pendingMerchants.map((merchant) => (
-              <div key={merchant.uid} className="bg-white rounded-xl p-4 md:p-6 border border-yellow-100 shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-2 md:gap-0">
-                  <div className="space-y-2">
-                    <div className="font-semibold text-yellow-600">{merchant.bankAccountName}</div>
-                    <div className="flex items-center gap-2 text-sm text-gray-500">
+              <div 
+                key={merchant.uid} 
+                className="bg-white rounded-xl p-4 border border-purple-100 shadow-sm hover:shadow-md transition-shadow"
+              >
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="p-2 bg-purple-100 rounded-lg">
+                        <Store className="w-5 h-5 text-purple-600" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-800">{merchant.discordName}</p>
+                        <p className="text-sm text-gray-500">
+                          สมัครเมื่อ: {merchant.createdAt ? new Date(merchant.createdAt).toLocaleString('th-TH', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          }) : '-'}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="inline-flex items-center px-3 py-1.5 rounded-full bg-purple-100 text-purple-700 text-sm font-semibold">
+                        ร้านค้าใหม่
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+                    <div className="flex items-center gap-2 text-gray-600">
                       <Users className="w-4 h-4" />
                       <span>{merchant.discord}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-500">
+                    <div className="flex items-center gap-2 text-gray-600">
                       <Building2 className="w-4 h-4" />
                       <span>{merchant.bankName}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-500">
+                    <div className="flex items-center gap-2 text-gray-600">
                       <Shield className="w-4 h-4" />
                       <span>{merchant.bankAccountNumber}</span>
                     </div>
+                    <div className="flex items-center gap-2 text-gray-600">
+                      <CreditCard className="w-4 h-4" />
+                      <span>{merchant.bankAccountName}</span>
+                    </div>
                   </div>
-                  <div className="w-full md:w-auto flex flex-row gap-x-2 md:gap-2">
+
+                  <div className="flex gap-2 justify-end">
                     <button
                       onClick={() => handleApproveMerchant(merchant)}
-                      className="flex-1 md:w-auto p-2 rounded-l-lg md:rounded-lg bg-green-100 text-green-600 hover:bg-green-200 transition-colors"
+                      className="px-3 py-1.5 rounded-lg bg-green-500 text-white font-medium text-sm flex items-center gap-1.5 shadow-sm hover:bg-green-600 transition-colors"
                       title="อนุมัติ"
                     >
-                      <Check className="w-5 h-5" />
+                      <Check className="w-4 h-4" /> อนุมัติ
                     </button>
                     <button
                       onClick={() => handleRejectMerchant(merchant)}
-                      className="flex-1 md:w-auto p-2 rounded-r-lg md:rounded-lg bg-red-100 text-red-600 hover:bg-red-200 transition-colors"
+                      className="px-3 py-1.5 rounded-lg bg-red-500 text-white font-medium text-sm flex items-center gap-1.5 shadow-sm hover:bg-red-600 transition-colors"
                       title="ระงับ"
                     >
-                      <X className="w-5 h-5" />
+                      <X className="w-4 h-4" /> ระงับ
                     </button>
                   </div>
                 </div>
               </div>
             ))}
             {pendingMerchants.length === 0 && (
-              <div className="col-span-2 flex items-center justify-center p-8 bg-yellow-50 rounded-xl border border-yellow-100">
+              <div className="col-span-2 flex items-center justify-center p-8 bg-purple-50 rounded-xl border border-purple-100">
                 <div className="text-center">
-                  <Store className="w-8 h-8 text-yellow-400 mx-auto mb-2" />
+                  <Store className="w-8 h-8 text-purple-400 mx-auto mb-2" />
                   <p className="text-sm text-gray-500">ไม่มีร้านค้าที่รออนุมัติ</p>
                 </div>
               </div>

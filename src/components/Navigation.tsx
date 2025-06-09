@@ -252,7 +252,7 @@ export default function Navigation() {
                             {charactersWithMissingStats}
                           </span>
                           {/* Desktop badge */}
-                          <span className="absolute -top-2 -right-2 w-4 h-4 min-w-4 min-h-4 justify-center items-center rounded-full bg-red-500 text-white text-xs font-bold shadow select-none z-30 hidden lg:flex">
+                          <span className="absolute -top-4 -right-4 w-5 h-5 flex justify-center items-center rounded-full bg-red-500 text-white text-xs font-bold shadow z-30 hidden lg:flex">
                             {charactersWithMissingStats}
                           </span>
                         </>
@@ -310,11 +310,6 @@ export default function Navigation() {
                       <span className={cn("font-medium whitespace-nowrap flex items-center", pathname === "/guild-donate/history" ? "text-yellow-600" : undefined)}>
                         บริจาคกิลด์
                       </span>
-                      {(isGuildLeader && (pendingDonationCount > 0 || pendingCashDonationCount > 0)) && (
-                        <span className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 min-w-4 min-h-4 flex justify-center items-center rounded-full bg-red-500 text-white text-xs font-bold shadow select-none z-30">
-                          {pendingDonationCount + pendingCashDonationCount}
-                        </span>
-                      )}
                     </Link>
                     {isGuildLeader && (
                       <Link href="/guild/settings" onClick={() => setIsMobileMenuOpen(false)} className={cn(
@@ -323,32 +318,9 @@ export default function Navigation() {
                       )}>
                         <Settings className={cn("w-5 h-5", pathname === "/guild/settings" ? "text-emerald-600" : "text-emerald-400")} />
                         <span className={cn("font-medium whitespace-nowrap flex items-center", pathname === "/guild/settings" ? "text-emerald-600" : undefined)}>จัดการกิลด์</span>
-                        {(pendingGuildLoanCount > 0 || pendingMerchantCount > 0 || pendingNewMemberCount > 0) && (
-                          <span className="absolute right-4 top-1/2 -translate-y-1/2 flex gap-1 z-30">
-                            {pendingNewMemberCount > 0 && (
-                              <span
-                                className="w-4 h-4 min-w-4 min-h-4 flex justify-center items-center rounded-full bg-blue-400 text-white text-xs font-bold shadow-md border border-blue-200"
-                                title="มีสมาชิกใหม่รออนุมัติ"
-                              >
-                                {pendingNewMemberCount}
-                              </span>
-                            )}
-                            {pendingMerchantCount > 0 && (
-                              <span
-                                className="w-4 h-4 min-w-4 min-h-4 flex justify-center items-center rounded-full bg-yellow-300 text-yellow-900 text-xs font-bold shadow-md border border-yellow-200"
-                                title="มีร้านค้ารออนุมัติ"
-                              >
-                                {pendingMerchantCount}
-                              </span>
-                            )}
-                            {pendingGuildLoanCount > 0 && (
-                              <span
-                                className="w-4 h-4 min-w-4 min-h-4 flex justify-center items-center rounded-full bg-red-500 text-white text-xs font-bold shadow-md border border-red-400"
-                                title="มีคำขอกู้ยืมใหม่"
-                              >
-                                {pendingGuildLoanCount}
-                              </span>
-                            )}
+                        {(pendingGuildLoanCount > 0 || pendingMerchantCount > 0 || pendingNewMemberCount > 0 || pendingDonationCount > 0 || pendingCashDonationCount > 0) && (
+                          <span className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 min-w-4 min-h-4 flex justify-center items-center rounded-full bg-red-500 text-white text-xs font-bold shadow select-none z-30 lg:hidden">
+                            {pendingGuildLoanCount + pendingMerchantCount + pendingNewMemberCount + pendingDonationCount + pendingCashDonationCount}
                           </span>
                         )}
                       </Link>
@@ -408,7 +380,7 @@ export default function Navigation() {
                           {charactersWithMissingStats}
                         </span>
                         {/* Desktop badge */}
-                        <span className="absolute -top-2 -right-2 w-4 h-4 min-w-4 min-h-4 justify-center items-center rounded-full bg-red-500 text-white text-xs font-bold shadow select-none z-30 hidden lg:flex">
+                        <span className="absolute -top-4 -right-4 w-5 h-5 flex justify-center items-center rounded-full bg-red-500 text-white text-xs font-bold shadow z-30 hidden lg:flex">
                           {charactersWithMissingStats}
                         </span>
                       </>
@@ -670,12 +642,6 @@ export default function Navigation() {
                       บริจาคกิลด์
                     </span>
                   </motion.div>
-                  {isGuildLeader && (pendingDonationCount > 0 || pendingCashDonationCount > 0) && (
-                    <span className="absolute -top-2 -right-2 w-4 h-4 min-w-4 min-h-4 p-0 flex justify-center items-center rounded-full bg-red-500 text-white text-xs font-bold shadow select-none z-30"
-                      style={{ boxSizing: 'border-box' }}>
-                      {pendingDonationCount + pendingCashDonationCount}
-                    </span>
-                  )}
                 </Link>
                 {isGuildLeader && (
                   <Link
@@ -698,32 +664,9 @@ export default function Navigation() {
                     )}>
                       จัดการกิลด์
                     </span>
-                    {(pendingGuildLoanCount > 0 || pendingMerchantCount > 0 || pendingNewMemberCount > 0) && (
-                      <span className="absolute -top-2 -right-2 flex gap-1 z-30">
-                        {pendingNewMemberCount > 0 && (
-                          <span
-                            className="w-4 h-4 min-w-4 min-h-4 p-0 flex justify-center items-center rounded-full bg-blue-400 text-white text-xs font-bold shadow-md border border-blue-200 cursor-pointer hover:bg-blue-300 transition-colors drop-shadow z-30"
-                            title="มีสมาชิกใหม่รออนุมัติ"
-                          >
-                            {pendingNewMemberCount}
-                          </span>
-                        )}
-                        {pendingMerchantCount > 0 && (
-                          <span
-                            className="w-4 h-4 min-w-4 min-h-4 p-0 flex justify-center items-center rounded-full bg-yellow-300 text-yellow-900 text-xs font-bold shadow-md border border-yellow-200 cursor-pointer hover:bg-yellow-200 transition-colors drop-shadow z-30"
-                            title="มีร้านค้ารออนุมัติ"
-                          >
-                            {pendingMerchantCount}
-                          </span>
-                        )}
-                        {pendingGuildLoanCount > 0 && (
-                          <span
-                            className="w-4 h-4 min-w-4 min-h-4 p-0 flex justify-center items-center rounded-full bg-red-500 text-white text-xs font-bold shadow-md border border-red-400 cursor-pointer hover:bg-red-400 transition-colors drop-shadow z-30"
-                            title="มีคำขอกู้ยืมใหม่"
-                          >
-                            {pendingGuildLoanCount}
-                          </span>
-                        )}
+                    {(pendingGuildLoanCount > 0 || pendingMerchantCount > 0 || pendingNewMemberCount > 0 || pendingDonationCount > 0 || pendingCashDonationCount > 0) && (
+                      <span className="absolute -top-2 -right-2 w-5 h-5 flex justify-center items-center rounded-full bg-red-500 text-white text-xs font-bold shadow z-30 hidden lg:flex">
+                        {pendingGuildLoanCount + pendingMerchantCount + pendingNewMemberCount + pendingDonationCount + pendingCashDonationCount}
                       </span>
                     )}
                   </Link>
