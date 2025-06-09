@@ -803,7 +803,7 @@ export default function EventDetailPage() {
                 <Button
                   variant="outline"
                   className="flex items-center gap-2 border-red-400 text-red-600 hover:bg-red-50 px-4 sm:px-8 py-3 rounded-xl shadow text-lg w-full sm:w-auto"
-                  onClick={handleLeave}
+                  onClick={() => setConfirmModal({ open: true, type: 'leave' })}
                   disabled={rewardGiven || event.isEnded}
                   id="event-participant-leave-btn"
                 >
@@ -1292,52 +1292,54 @@ export default function EventDetailPage() {
             )}
             {/* Modal เลือกตัวละคร */}
             <Dialog open={showCharModal} onOpenChange={setShowCharModal}>
-              <DialogContent className="max-w-sm px-2">
+              <DialogContent className="max-w-sm p-0 rounded-2xl overflow-hidden border-2 border-pink-100 shadow-xl bg-gradient-to-br from-pink-50 via-purple-50 to-white bg-white/80 backdrop-blur-sm">
                 <DialogHeader>
                   <DialogTitle>เลือกตัวละครเข้าร่วมกิจกรรม</DialogTitle>
                 </DialogHeader>
-                <div className="grid grid-cols-2 gap-2 py-2 w-full max-w-sm mx-auto">
-                  {myCharacters.length === 0 && <div className="col-span-2 text-center text-gray-400">คุณยังไม่มีตัวละคร</div>}
-                  {myCharacters.map(char => {
-                    const mainClass = getMainClass(char);
-                    const colors = getColors(mainClass);
-                    return (
-                      <div
-                        key={char.id}
-                        className={`rounded-lg shadow-sm p-1 flex items-center gap-1 cursor-pointer border ${colors.bg} ${colors.border} hover:scale-105 transition text-xs min-h-[36px]` + (selectedChar?.id === char.id ? ' ring-2 ring-pink-400' : '')}
-                        onClick={() => setSelectedChar(char)}
-                      >
-                        <span className="text-lg">{getClassIcon(char.class)}</span>
-                        <div>
-                          <div className={`font-bold text-xs ${colors.text}`}>{char.name}</div>
-                          <div className={`text-[10px] ${colors.text}`}>{char.class}</div>
+                <div className="relative px-2 min-h-[200px]">
+                  <div className="grid grid-cols-2 gap-2 py-2 w-full max-w-sm mx-auto">
+                    {myCharacters.length === 0 && <div className="col-span-2 text-center text-gray-400">คุณยังไม่มีตัวละคร</div>}
+                    {myCharacters.map(char => {
+                      const mainClass = getMainClass(char);
+                      const colors = getColors(mainClass);
+                      return (
+                        <div
+                          key={char.id}
+                          className={`rounded-lg shadow-sm p-1 flex items-center gap-1 cursor-pointer border ${colors.bg} ${colors.border} hover:scale-105 transition text-xs min-h-[36px]` + (selectedChar?.id === char.id ? ' ring-2 ring-pink-400' : '')}
+                          onClick={() => setSelectedChar(char)}
+                        >
+                          <span className="text-lg">{getClassIcon(char.class)}</span>
+                          <div>
+                            <div className={`font-bold text-xs ${colors.text}`}>{char.name}</div>
+                            <div className={`text-[10px] ${colors.text}`}>{char.class}</div>
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })}
-                </div>
-                {selectedChar && (
-                  <div className="mt-3 p-2 rounded-lg bg-white/90 border flex flex-col items-center gap-1 w-full max-w-[260px] mx-auto">
-                    <div className="text-sm font-bold mb-1">ยืนยันการเข้าร่วม</div>
-                    <div className="flex flex-row items-center gap-1 mb-1">
-                      <span className="font-semibold text-pink-600 text-xs">{(users?.[user.uid]?.meta?.discord) || user.displayName || user.email}</span>
-                      <span className="text-gray-300 text-[10px]">/</span>
-                      <span className="flex items-center gap-1">
-                        {getClassIcon(selectedChar.class)}
-                        <span className={"text-xs font-bold " + getColors(getMainClass(selectedChar)).text}>{selectedChar.name}</span>
-                        <span className="text-[10px] text-gray-400">({selectedChar.class})</span>
-                      </span>
-                    </div>
-                    <span className="text-[10px] text-green-600 font-semibold">จะเข้าร่วมกิจกรรมนี้</span>
-                    <Button className="mt-2 w-full text-xs py-1" onClick={async () => {
-                      if (!params?.id || !user) return;
-                      const partRef = doc(firestore, 'events', params.id as string, 'participants', user.uid);
-                      await setDoc(partRef, { joinedAt: serverTimestamp(), characterId: selectedChar.id });
-                      setShowCharModal(false);
-                      setConfirmModal({ open: false, type: null });
-                    }}>ยืนยันเข้าร่วม</Button>
+                      );
+                    })}
                   </div>
-                )}
+                  {selectedChar && (
+                    <div className="mt-3 p-2 rounded-lg bg-white/90 border flex flex-col items-center gap-1 w-full max-w-[260px] mx-auto">
+                      <div className="text-sm font-bold mb-1">ยืนยันการเข้าร่วม</div>
+                      <div className="flex flex-row items-center gap-1 mb-1">
+                        <span className="font-semibold text-pink-600 text-xs">{(users?.[user.uid]?.meta?.discord) || user.displayName || user.email}</span>
+                        <span className="text-gray-300 text-[10px]">/</span>
+                        <span className="flex items-center gap-1">
+                          {getClassIcon(selectedChar.class)}
+                          <span className={"text-xs font-bold " + getColors(getMainClass(selectedChar)).text}>{selectedChar.name}</span>
+                          <span className="text-[10px] text-gray-400">({selectedChar.class})</span>
+                        </span>
+                      </div>
+                      <span className="text-[10px] text-green-600 font-semibold">จะเข้าร่วมกิจกรรมนี้</span>
+                      <Button className="mt-2 w-full text-xs py-1" onClick={async () => {
+                        if (!params?.id || !user) return;
+                        const partRef = doc(firestore, 'events', params.id as string, 'participants', user.uid);
+                        await setDoc(partRef, { joinedAt: serverTimestamp(), characterId: selectedChar.id });
+                        setShowCharModal(false);
+                        setConfirmModal({ open: false, type: null });
+                      }}>ยืนยันเข้าร่วม</Button>
+                    </div>
+                  )}
+                </div>
               </DialogContent>
             </Dialog>
             {/* Modal ยืนยันการเข้ากลุ่ม */}
