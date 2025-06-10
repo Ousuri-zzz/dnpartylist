@@ -62,12 +62,12 @@ const ROLE_BALANCE: Record<string, RoleConstants> = {
   Mercenary: {
     statWeights: { 
       atk: 1.4,    // 1 STR = 0.5 Physical Damage
-      hp: 0.6,     // HP ทำง่าย เพราะมาจาก VIT
-      fd: 1.2,     // Equal FD weight for all
+      hp: 0.7,     // HP ทำง่าย เพราะมาจาก VIT
+      fd: 1.3,     // Equal FD weight for all
       cri: 1.6,    // Critical ทำยาก เพราะมาจาก AGI และมี cap
       ele: 0.0,    // No elemental damage
-      pdef: 0.6,   // Defense ทำง่าย เพราะมาจาก VIT
-      mdef: 0.7    // Defense ทำง่ายมาก เพราะมาจาก INT
+      pdef: 0.7,   // Defense ทำง่าย เพราะมาจาก VIT
+      mdef: 0.8    // Defense ทำง่ายมาก เพราะมาจาก INT
     }
   },
   Acrobat: {
@@ -186,12 +186,12 @@ const ROLE_BALANCE: Record<string, RoleConstants> = {
   },
   Bowmaster: {
     statWeights: { 
-      atk: 1.4,    // 1 AGI = 0.5 Physical Damage
+      atk: 1.5,    // 1 AGI = 0.5 Physical Damage
       hp: 0.8,     // HP ทำยากกว่า เพราะมี VIT ต่ำ
       fd: 1.2,
-      cri: 1.55,    // Critical ทำง่ายกว่า เพราะมี AGI สูง
+      cri: 1.5,    // Critical ทำง่ายกว่า เพราะมี AGI สูง
       ele: 0.0,    
-      pdef: 0.7,   // Defense ทำยากกว่า เพราะมี VIT ต่ำ
+      pdef: 0.9,   // Defense ทำยากกว่า เพราะมี VIT ต่ำ
       mdef: 0.8
     }
   },

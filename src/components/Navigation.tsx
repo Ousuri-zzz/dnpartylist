@@ -204,7 +204,7 @@ export default function Navigation() {
             <>
               {/* Mobile Menu Button */}
               <button
-                className="lg:hidden p-2 rounded-md hover:bg-pink-100/60 transition-all relative"
+                className="lg:hidden p-2 rounded-md bg-white/60 backdrop-blur-md border border-white/30 hover:bg-pink-100/60 transition-all relative"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
               >
