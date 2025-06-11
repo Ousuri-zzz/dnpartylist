@@ -74,6 +74,31 @@ function getCurrentMonthDonations(donates: Donate[], members: Record<string, any
     .slice(0, 3);
 }
 
+// ฟังก์ชันคำนวณยอดรวมเดือนนี้ เดือนที่แล้ว และทุกเดือน
+function getDonationSums(donates: Donate[]) {
+  const now = new Date();
+  const thisMonth = now.getMonth();
+  const thisYear = now.getFullYear();
+  const lastMonth = thisMonth === 0 ? 11 : thisMonth - 1;
+  const lastMonthYear = thisMonth === 0 ? thisYear - 1 : thisYear;
+  let sumThisMonth = 0;
+  let sumLastMonth = 0;
+  let sumAll = 0;
+  donates.forEach(donate => {
+    if (donate.status === 'active') {
+      const d = new Date(donate.createdAt);
+      if (d.getMonth() === thisMonth && d.getFullYear() === thisYear) {
+        sumThisMonth += donate.amount;
+      }
+      if (d.getMonth() === lastMonth && d.getFullYear() === lastMonthYear) {
+        sumLastMonth += donate.amount;
+      }
+      sumAll += donate.amount;
+    }
+  });
+  return { sumThisMonth, sumLastMonth, sumAll };
+}
+
 export default function GuildDonateHistoryPage() {
   const { user } = useAuth();
   const { isGuildLeader } = useGuild();
@@ -244,6 +269,8 @@ export default function GuildDonateHistoryPage() {
 
   // Top 3 ของเดือนนี้
   const top3 = getCurrentMonthDonations(donates, members);
+  // Summary donation values
+  const { sumThisMonth, sumLastMonth, sumAll } = getDonationSums(donates);
   // ใช้ไอคอน Award จาก lucide-react เพื่อความชัวร์
   const medalIcons = [
     <Award key="gold" className="w-5 h-5 text-yellow-400" />, 
@@ -301,17 +328,17 @@ export default function GuildDonateHistoryPage() {
             {/* อันดับ 2 */}
             {top3[1] && (
               <div
-                className="flex flex-col items-center bg-gradient-to-t from-gray-50 to-white border-2 border-gray-300 rounded-xl px-2 py-2 md:px-4 md:py-3 shadow-md min-w-[110px] md:min-w-[140px] relative z-10"
+                className="flex flex-col items-center bg-gradient-to-t from-gray-50 to-white border-2 border-gray-300 rounded-xl px-2 py-2 md:px-4 md:py-3 shadow-md min-w-[110px] md:min-w-[140px] relative z-10 hover:shadow-lg hover:scale-105 transition-all duration-300"
                 style={{marginTop: '16px'}}
                 onMouseEnter={() => setHoveredPodiumIdx(1)}
                 onMouseLeave={() => setHoveredPodiumIdx(null)}
               >
-                <Award className="w-6 h-6 md:w-7 md:h-7 text-gray-400 mb-1" />
-                <span className="font-semibold text-gray-500 truncate max-w-[90px] md:max-w-[120px] text-sm md:text-base mb-1 text-center cursor-pointer">
+                <Award className="w-6 h-6 md:w-7 md:h-7 text-gray-400 mb-1 animate-pulse" />
+                <span className="font-semibold text-gray-500 truncate max-w-[90px] md:max-w-[120px] text-sm md:text-base mb-1 text-center cursor-pointer hover:text-gray-700 transition-colors">
                   {top3[1].discordName}
                 </span>
                 <span className="text-green-600 font-bold text-base md:text-lg">{top3[1].amount.toLocaleString()}G</span>
-                <span className="absolute -top-4 md:-top-5 left-1/2 -translate-x-1/2 bg-gray-200 text-gray-700 px-2 py-0.5 rounded-full text-xs font-bold shadow">2</span>
+                <span className="absolute -top-4 md:-top-5 left-1/2 -translate-x-1/2 bg-gray-200 text-gray-700 px-2 py-0.5 rounded-full text-xs font-bold shadow-md border border-gray-300">2</span>
                 {hoveredPodiumIdx === 1 && (
                   <div
                     className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-full bg-white border border-pink-200 rounded-xl shadow-lg px-3 py-2 min-w-fit max-w-xs inline-block animate-fade-in z-[9999] text-xs text-center">
@@ -322,7 +349,7 @@ export default function GuildDonateHistoryPage() {
                           const role = CLASS_TO_ROLE[char.class as import('@/types/character').CharacterClass] || 'Warrior';
                           const color = getClassColors(role);
                           return (
-                            <div key={char.id || i} className="flex items-center gap-2">
+                            <div key={char.id || i} className="flex items-center gap-2 whitespace-nowrap">
                               <span className={`font-semibold ${color.text} text-xs md:text-base`}>{char.name}</span>
                               <span className={`text-xs px-2 py-0.5 rounded-full border ${color.text} ${color.border} bg-white`}>{char.class}</span>
                             </div>
@@ -339,17 +366,17 @@ export default function GuildDonateHistoryPage() {
             {/* อันดับ 1 */}
             {top3[0] && (
               <div
-                className="flex flex-col items-center bg-gradient-to-t from-yellow-100 via-yellow-50 to-white border-2 border-yellow-300 rounded-2xl px-3 py-3 md:px-6 md:py-5 shadow-xl min-w-[120px] md:min-w-[170px] scale-110 relative z-20"
+                className="flex flex-col items-center bg-gradient-to-t from-yellow-100 via-yellow-50 to-white border-2 border-yellow-300 rounded-2xl px-3 py-3 md:px-6 md:py-5 shadow-xl min-w-[120px] md:min-w-[170px] scale-110 relative z-20 hover:shadow-2xl hover:scale-115 transition-all duration-300"
                 style={{marginTop: '0px'}}
                 onMouseEnter={() => setHoveredPodiumIdx(0)}
                 onMouseLeave={() => setHoveredPodiumIdx(null)}
               >
-                <Award className="w-7 h-7 md:w-9 md:h-9 text-yellow-400 mb-1 drop-shadow" />
-                <span className="font-bold text-yellow-700 truncate max-w-[100px] md:max-w-[140px] text-base md:text-lg mb-1 text-center cursor-pointer">
+                <Award className="w-7 h-7 md:w-9 md:h-9 text-yellow-400 mb-1 drop-shadow animate-bounce" />
+                <span className="font-bold text-yellow-700 truncate max-w-[100px] md:max-w-[140px] text-base md:text-lg mb-1 text-center cursor-pointer hover:text-yellow-800 transition-colors">
                   {top3[0].discordName}
                 </span>
                 <span className="text-green-700 font-extrabold text-lg md:text-2xl drop-shadow">{top3[0].amount.toLocaleString()}G</span>
-                <span className="absolute -top-5 md:-top-6 left-1/2 -translate-x-1/2 bg-yellow-300 text-yellow-900 px-3 py-1 rounded-full text-base font-extrabold shadow-lg border-2 border-yellow-400">1</span>
+                <span className="absolute -top-5 md:-top-6 left-1/2 -translate-x-1/2 bg-gradient-to-r from-yellow-300 to-yellow-400 text-yellow-900 px-3 py-1 rounded-full text-base font-extrabold shadow-lg border-2 border-yellow-400">1</span>
                 {hoveredPodiumIdx === 0 && (
                   <div
                     className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-full bg-white border border-pink-200 rounded-xl shadow-lg px-3 py-2 min-w-fit max-w-xs inline-block animate-fade-in z-[9999] text-xs text-center">
@@ -360,7 +387,7 @@ export default function GuildDonateHistoryPage() {
                           const role = CLASS_TO_ROLE[char.class as import('@/types/character').CharacterClass] || 'Warrior';
                           const color = getClassColors(role);
                           return (
-                            <div key={char.id || i} className="flex items-center gap-2">
+                            <div key={char.id || i} className="flex items-center gap-2 whitespace-nowrap">
                               <span className={`font-semibold ${color.text} text-xs md:text-base`}>{char.name}</span>
                               <span className={`text-xs px-2 py-0.5 rounded-full border ${color.text} ${color.border} bg-white`}>{char.class}</span>
                             </div>
@@ -377,17 +404,17 @@ export default function GuildDonateHistoryPage() {
             {/* อันดับ 3 */}
             {top3[2] && (
               <div
-                className="flex flex-col items-center bg-gradient-to-t from-orange-50 to-white border-2 border-orange-200 rounded-xl px-2 py-2 md:px-4 md:py-3 shadow-md min-w-[110px] md:min-w-[140px] relative z-10"
+                className="flex flex-col items-center bg-gradient-to-t from-orange-50 to-white border-2 border-orange-200 rounded-xl px-2 py-2 md:px-4 md:py-3 shadow-md min-w-[110px] md:min-w-[140px] relative z-10 hover:shadow-lg hover:scale-105 transition-all duration-300"
                 style={{marginTop: '24px'}}
                 onMouseEnter={() => setHoveredPodiumIdx(2)}
                 onMouseLeave={() => setHoveredPodiumIdx(null)}
               >
-                <Award className="w-6 h-6 md:w-7 md:h-7 text-orange-400 mb-1" />
-                <span className="font-semibold text-orange-500 truncate max-w-[90px] md:max-w-[120px] text-sm md:text-base mb-1 text-center cursor-pointer">
+                <Award className="w-6 h-6 md:w-7 md:h-7 text-orange-400 mb-1 animate-pulse" />
+                <span className="font-semibold text-orange-500 truncate max-w-[90px] md:max-w-[120px] text-sm md:text-base mb-1 text-center cursor-pointer hover:text-orange-600 transition-colors">
                   {top3[2].discordName}
                 </span>
                 <span className="text-green-600 font-bold text-base md:text-lg">{top3[2].amount.toLocaleString()}G</span>
-                <span className="absolute -top-4 md:-top-5 left-1/2 -translate-x-1/2 bg-orange-200 text-orange-700 px-2 py-0.5 rounded-full text-xs font-bold shadow">3</span>
+                <span className="absolute -top-4 md:-top-5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-orange-200 to-orange-300 text-orange-700 px-2 py-0.5 rounded-full text-xs font-bold shadow-md border border-orange-300">3</span>
                 {hoveredPodiumIdx === 2 && (
                   <div
                     className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-full bg-white border border-pink-200 rounded-xl shadow-lg px-3 py-2 min-w-fit max-w-xs inline-block animate-fade-in z-[9999] text-xs text-center">
@@ -398,7 +425,7 @@ export default function GuildDonateHistoryPage() {
                           const role = CLASS_TO_ROLE[char.class as import('@/types/character').CharacterClass] || 'Warrior';
                           const color = getClassColors(role);
                           return (
-                            <div key={char.id || i} className="flex items-center gap-2">
+                            <div key={char.id || i} className="flex items-center gap-2 whitespace-nowrap">
                               <span className={`font-semibold ${color.text} text-xs md:text-base`}>{char.name}</span>
                               <span className={`text-xs px-2 py-0.5 rounded-full border ${color.text} ${color.border} bg-white`}>{char.class}</span>
                             </div>
@@ -446,8 +473,8 @@ export default function GuildDonateHistoryPage() {
                             const role = CLASS_TO_ROLE[char.class as import('@/types/character').CharacterClass] || 'Warrior';
                             const color = getClassColors(role);
                             return (
-                              <div key={char.id || i} className="flex items-center gap-2">
-                                <span className={`font-semibold ${color.text} text-xs`}>{char.name}</span>
+                              <div key={char.id || i} className="flex items-center gap-2 whitespace-nowrap">
+                                <span className={`font-semibold ${color.text} text-xs md:text-base`}>{char.name}</span>
                                 <span className={`text-xs px-2 py-0.5 rounded-full border ${color.text} ${color.border} bg-white`}>{char.class}</span>
                               </div>
                             );
@@ -466,21 +493,33 @@ export default function GuildDonateHistoryPage() {
             )}
           </div>
         </div>
-        {/* Search */}
-        <div className="mb-6">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+        {/* Responsive search bar and summary boxes (mobile & desktop) */}
+        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-2 mb-4 w-full">
+          <div className="relative flex-1 min-w-0">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-pink-400 w-5 h-5" />
             <input
               type="text"
               placeholder="ค้นหาด้วยชื่อ Discord หรือชื่อตัวละคร..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border-2 border-pink-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-200 focus:border-pink-300"
+              className="w-full pl-10 pr-4 py-2 border-2 border-pink-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-300 focus:border-pink-400 bg-pink-50 text-gray-700 placeholder:text-pink-300 transition"
             />
           </div>
+          <div className="flex flex-col md:flex-row gap-2 mt-2 md:mt-0 w-full md:w-auto">
+            <div className="bg-white/80 border border-pink-200 rounded-lg px-4 py-2 flex flex-col items-center shadow-sm min-w-[110px]">
+              <span className="text-xs text-gray-500 flex items-center gap-1"><svg className="w-4 h-4 text-pink-400 inline-block" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 4h10a2 2 0 012 2v10a2 2 0 01-2 2H7a2 2 0 01-2-2V9a2 2 0 012-2z" /></svg>เดือนนี้</span>
+              <span className="font-bold text-pink-600 text-lg">{sumThisMonth.toLocaleString()}G</span>
+            </div>
+            <div className="bg-white/80 border border-pink-200 rounded-lg px-4 py-2 flex flex-col items-center shadow-sm min-w-[110px]">
+              <span className="text-xs text-gray-500 flex items-center gap-1"><svg className="w-4 h-4 text-yellow-400 inline-block" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 4h10a2 2 0 012 2v10a2 2 0 01-2 2H7a2 2 0 01-2-2V9a2 2 0 012-2z" /></svg>เดือนที่แล้ว</span>
+              <span className="font-bold text-yellow-600 text-lg">{sumLastMonth.toLocaleString()}G</span>
+            </div>
+            <div className="bg-white/80 border border-pink-200 rounded-lg px-4 py-2 flex flex-col items-center shadow-sm min-w-[110px]">
+              <span className="text-xs text-gray-500 flex items-center gap-1"><svg className="w-4 h-4 text-green-400 inline-block" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>รวมทั้งหมด</span>
+              <span className="font-bold text-green-600 text-lg">{sumAll.toLocaleString()}G</span>
+            </div>
+          </div>
         </div>
-
-        {/* Table (Desktop only) */}
         <div className="overflow-x-auto hidden md:block">
           <table className="w-full">
             <thead>
@@ -548,82 +587,76 @@ export default function GuildDonateHistoryPage() {
                     </span>
                   </td>
                   <td className="px-3 py-3">
-                    <div className="flex items-center gap-2 flex-nowrap">
-                      <span className="font-medium text-gray-700 flex-shrink min-w-0 whitespace-nowrap max-w-[120px] truncate" title={member.discordName}>
-                        {member.discordName}
-                      </span>
-                      <div
-                        className="hidden md:flex flex-nowrap gap-1 relative flex-shrink-0"
-                        style={{ maxWidth: BADGE_CONTAINER_WIDTH }}
-                        ref={el => { containerRefs.current[member.userId] = el; }}
+                    <div className="flex items-center gap-2 flex-nowrap min-w-0">
+                      <span 
+                        className="font-medium text-gray-700 flex-shrink min-w-0 w-full truncate" 
+                        title={member.discordName}
                       >
+                        {member.discordName}
                         {(() => {
                           const chars = allCharactersByUserId[member.userId] || [];
-                          const count = showCount[member.userId] ?? chars.length;
-                          badgeRefs.current[member.userId] = [];
-                          return (
-                            <>
-                              {chars.slice(0, count).map((char, idx) => (
-                                <span
-                                  key={char.id}
-                                  ref={el => { badgeRefs.current[member.userId][idx] = el; }}
-                                  className="px-1.5 py-0.5 bg-pink-50 text-pink-500 rounded-full text-xs border border-pink-100 hover:bg-pink-100 transition-colors whitespace-nowrap flex-shrink-0"
-                                  title={`${char.name} (${char.class})`}
-                                >
-                                  {char.name} <span className="text-gray-400">({char.class})</span>
-                                </span>
-                              ))}
-                              {chars.length > count && (
-                                <span
-                                  ref={el => { plusNRefs.current[member.userId] = el; }}
-                                  className="px-1.5 py-0.5 bg-white/80 backdrop-blur-sm text-pink-600 rounded-full text-xs border border-pink-200 cursor-pointer select-none flex-shrink-0"
-                                  onClick={e => {
-                                    if (openPopoverUser === member.userId) {
-                                      setOpenPopoverUser(null);
-                                      setHoveredPodiumIdx(null);
-                                    } else {
-                                      setOpenPopoverUser(member.userId);
-                                      const rect = e.currentTarget.getBoundingClientRect();
-                                      const popoverHeight = 220; // px
-                                      const margin = 8;
-                                      let top = rect.bottom + window.scrollY;
-                                      let left = rect.left;
-                                      if (rect.bottom + popoverHeight + margin > window.innerHeight) {
-                                        top = rect.top + window.scrollY - popoverHeight - margin;
-                                      }
-                                      setHoveredPodiumIdx(null);
-                                    }
-                                  }}
-                                >
-                                  +{chars.length - count}
-                                </span>
-                              )}
-                              {/* Popover */}
-                              {openPopoverUser === member.userId && chars.length > count && typeof window !== 'undefined' && createPortal(
-                                <div style={{ position: 'absolute', zIndex: 9999, maxHeight: 220, overflowY: 'auto' }}
-                                  className="bg-white border border-pink-200 rounded-lg shadow-lg p-3 min-w-[200px] max-w-xs">
-                                  <div className="text-sm font-semibold text-pink-600 mb-2">ตัวละครเพิ่มเติม:</div>
-                                  <div className="space-y-1">
-                                    {chars.slice(count).map(char => (
-                                      <div key={char.id} className="flex items-center gap-2 text-sm">
-                                        <span className="text-gray-600">{char.name}</span>
-                                        <span className="text-gray-400">({char.class})</span>
-                                      </div>
-                                    ))}
-                                  </div>
-                                  <button
-                                    className="mt-2 px-3 py-1 bg-pink-50 text-pink-500 rounded text-xs border border-pink-100 hover:bg-pink-100"
-                                    onClick={() => { setOpenPopoverUser(null); setHoveredPodiumIdx(null); }}
-                                  >
-                                    ปิด
-                                  </button>
-                                </div>,
-                                document.body
-                              )}
-                            </>
+                          return chars.length > 0 && (
+                            <span
+                              ref={el => { plusNRefs.current[member.userId] = el; }}
+                              className="ml-2 px-1.5 py-0.5 bg-white/80 backdrop-blur-sm text-pink-600 rounded-full text-xs border border-pink-200 cursor-pointer select-none inline-block align-middle"
+                              onMouseEnter={() => setOpenPopoverUser(member.userId)}
+                              onMouseLeave={(e) => {
+                                const tooltip = document.querySelector(`[data-tooltip-for=\"${member.userId}\"]`);
+                                if (!tooltip?.contains(e.relatedTarget as Node)) {
+                                  setOpenPopoverUser(null);
+                                }
+                              }}
+                            >
+                              +{chars.length}
+                            </span>
                           );
                         })()}
-                      </div>
+                      </span>
+                      {(() => {
+                        const chars = allCharactersByUserId[member.userId] || [];
+                        return openPopoverUser === member.userId && chars.length > 0 && typeof window !== 'undefined' && createPortal(
+                          <div 
+                            data-tooltip-for={member.userId}
+                            style={{ 
+                              position: 'fixed',
+                              zIndex: 9999,
+                              maxHeight: 220,
+                              overflowY: 'auto',
+                              top: (plusNRefs.current[member.userId]?.getBoundingClientRect().bottom ?? 0) + window.scrollY - 4,
+                              left: (plusNRefs.current[member.userId]?.getBoundingClientRect().left ?? 0)
+                            }}
+                            className="bg-white/95 backdrop-blur-sm border border-pink-200 rounded-lg shadow-lg p-3 min-w-[200px] max-w-xs animate-fade-in"
+                            onMouseEnter={() => setOpenPopoverUser(member.userId)}
+                            onMouseLeave={(e) => {
+                              const plusButton = plusNRefs.current[member.userId];
+                              const tooltip = document.querySelector(`[data-tooltip-for=\"${member.userId}\"]`);
+                              const rect = tooltip?.getBoundingClientRect();
+                              const mouseY = e.clientY;
+                              if (rect && mouseY >= rect.top - 4 && mouseY <= rect.top + 4) {
+                                return;
+                              }
+                              if (!plusButton?.contains(e.relatedTarget as Node)) {
+                                setOpenPopoverUser(null);
+                              }
+                            }}
+                          >
+                            <div className="text-sm font-semibold text-pink-600 mb-2 border-b border-pink-100 pb-2">ตัวละครทั้งหมด:</div>
+                            <div className="space-y-1.5">
+                              {chars.map(char => {
+                                const role = CLASS_TO_ROLE[char.class as import('@/types/character').CharacterClass] || 'Warrior';
+                                const color = getClassColors(role);
+                                return (
+                                  <div key={char.id} className="flex items-center gap-2 group">
+                                    <span className={`font-semibold ${color.text} text-sm group-hover:scale-105 transition-transform select-text`}>{char.name}</span>
+                                    <span className={`text-xs px-2 py-0.5 rounded-full border ${color.text} ${color.border} bg-white/80 backdrop-blur-sm group-hover:bg-white transition-colors select-text`}>{char.class}</span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>,
+                          document.body
+                        );
+                      })()}
                     </div>
                   </td>
                   <td className="px-3 py-3 w-36 whitespace-nowrap text-center">
