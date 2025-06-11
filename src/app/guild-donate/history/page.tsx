@@ -11,6 +11,7 @@ import { Crown, Search, Calendar, Users, Coins, CreditCard, Award, Trophy } from
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { createPortal } from 'react-dom';
+import { getClassColors, CLASS_TO_ROLE } from '@/config/theme';
 
 interface Donate {
   id: string;
@@ -91,7 +92,7 @@ export default function GuildDonateHistoryPage() {
   const containerRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const [showCount, setShowCount] = useState<Record<string, number>>({});
   const plusNRefs = useRef<Record<string, HTMLSpanElement | null>>({});
-  const [popoverPos, setPopoverPos] = useState<{left: number, top: number} | null>(null);
+  const [hoveredPodiumIdx, setHoveredPodiumIdx] = useState<number | null>(null);
 
   useEffect(() => {
     if (!user) {
@@ -284,26 +285,185 @@ export default function GuildDonateHistoryPage() {
         </div>
         {/* Top 3 Ranking */}
         <div className="mb-6 flex flex-col items-center">
-          <div className="flex items-center gap-2 mb-2">
-            <Trophy className="w-6 h-6 text-yellow-400" />
-            <span className="font-bold text-pink-700 text-lg">อันดับ 1-3 ยอดบริจาคประจำเดือนนี้</span>
-            <Trophy className="w-6 h-6 text-yellow-400" />
+          <div className="flex items-center justify-center gap-3 mb-4 px-4 py-3 rounded-2xl bg-gradient-to-r from-yellow-50 via-pink-50 to-blue-50 shadow-sm border border-pink-100">
+            <Trophy className="w-8 h-8 md:w-10 md:h-10 text-yellow-400 drop-shadow" />
+            <span className="font-extrabold text-transparent text-base md:text-xl lg:text-2xl bg-clip-text bg-gradient-to-r from-pink-600 via-yellow-600 to-pink-500 tracking-wide drop-shadow-sm text-center flex items-center gap-2">
+              <span>
+                อันดับ 1-3
+                <br className="block md:hidden" />
+                {' '}ยอดบริจาคประจำเดือนนี้
+              </span>
+              <Trophy className="w-8 h-8 md:w-10 md:h-10 text-yellow-400 drop-shadow inline-block ml-2" />
+            </span>
           </div>
-          <div className="flex flex-wrap gap-4 justify-center">
+          {/* Desktop podium (แนวนอน) */}
+          <div className="hidden md:flex flex-row gap-4 justify-center items-end w-full max-w-xl">
+            {/* อันดับ 2 */}
+            {top3[1] && (
+              <div
+                className="flex flex-col items-center bg-gradient-to-t from-gray-50 to-white border-2 border-gray-300 rounded-xl px-2 py-2 md:px-4 md:py-3 shadow-md min-w-[110px] md:min-w-[140px] relative z-10"
+                style={{marginTop: '16px'}}
+                onMouseEnter={() => setHoveredPodiumIdx(1)}
+                onMouseLeave={() => setHoveredPodiumIdx(null)}
+              >
+                <Award className="w-6 h-6 md:w-7 md:h-7 text-gray-400 mb-1" />
+                <span className="font-semibold text-gray-500 truncate max-w-[90px] md:max-w-[120px] text-sm md:text-base mb-1 text-center cursor-pointer">
+                  {top3[1].discordName}
+                </span>
+                <span className="text-green-600 font-bold text-base md:text-lg">{top3[1].amount.toLocaleString()}G</span>
+                <span className="absolute -top-4 md:-top-5 left-1/2 -translate-x-1/2 bg-gray-200 text-gray-700 px-2 py-0.5 rounded-full text-xs font-bold shadow">2</span>
+                {hoveredPodiumIdx === 1 && (
+                  <div
+                    className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-full bg-white border border-pink-200 rounded-xl shadow-lg px-3 py-2 min-w-fit max-w-xs inline-block animate-fade-in z-[9999] text-xs text-center">
+                    <div className="font-bold text-pink-600 mb-2 text-center text-sm md:text-base">ตัวละครทั้งหมด</div>
+                    {allCharactersByUserId[top3[1].userId]?.length ? (
+                      <div className="flex flex-col gap-1">
+                        {allCharactersByUserId[top3[1].userId].map((char, i) => {
+                          const role = CLASS_TO_ROLE[char.class as import('@/types/character').CharacterClass] || 'Warrior';
+                          const color = getClassColors(role);
+                          return (
+                            <div key={char.id || i} className="flex items-center gap-2">
+                              <span className={`font-semibold ${color.text} text-xs md:text-base`}>{char.name}</span>
+                              <span className={`text-xs px-2 py-0.5 rounded-full border ${color.text} ${color.border} bg-white`}>{char.class}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <div className="text-gray-400 text-center text-xs md:text-base">ไม่มีข้อมูลตัวละคร</div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+            {/* อันดับ 1 */}
+            {top3[0] && (
+              <div
+                className="flex flex-col items-center bg-gradient-to-t from-yellow-100 via-yellow-50 to-white border-2 border-yellow-300 rounded-2xl px-3 py-3 md:px-6 md:py-5 shadow-xl min-w-[120px] md:min-w-[170px] scale-110 relative z-20"
+                style={{marginTop: '0px'}}
+                onMouseEnter={() => setHoveredPodiumIdx(0)}
+                onMouseLeave={() => setHoveredPodiumIdx(null)}
+              >
+                <Award className="w-7 h-7 md:w-9 md:h-9 text-yellow-400 mb-1 drop-shadow" />
+                <span className="font-bold text-yellow-700 truncate max-w-[100px] md:max-w-[140px] text-base md:text-lg mb-1 text-center cursor-pointer">
+                  {top3[0].discordName}
+                </span>
+                <span className="text-green-700 font-extrabold text-lg md:text-2xl drop-shadow">{top3[0].amount.toLocaleString()}G</span>
+                <span className="absolute -top-5 md:-top-6 left-1/2 -translate-x-1/2 bg-yellow-300 text-yellow-900 px-3 py-1 rounded-full text-base font-extrabold shadow-lg border-2 border-yellow-400">1</span>
+                {hoveredPodiumIdx === 0 && (
+                  <div
+                    className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-full bg-white border border-pink-200 rounded-xl shadow-lg px-3 py-2 min-w-fit max-w-xs inline-block animate-fade-in z-[9999] text-xs text-center">
+                    <div className="font-bold text-pink-600 mb-2 text-center text-sm md:text-base">ตัวละครทั้งหมด</div>
+                    {allCharactersByUserId[top3[0].userId]?.length ? (
+                      <div className="flex flex-col gap-1">
+                        {allCharactersByUserId[top3[0].userId].map((char, i) => {
+                          const role = CLASS_TO_ROLE[char.class as import('@/types/character').CharacterClass] || 'Warrior';
+                          const color = getClassColors(role);
+                          return (
+                            <div key={char.id || i} className="flex items-center gap-2">
+                              <span className={`font-semibold ${color.text} text-xs md:text-base`}>{char.name}</span>
+                              <span className={`text-xs px-2 py-0.5 rounded-full border ${color.text} ${color.border} bg-white`}>{char.class}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <div className="text-gray-400 text-center text-xs md:text-base">ไม่มีข้อมูลตัวละคร</div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+            {/* อันดับ 3 */}
+            {top3[2] && (
+              <div
+                className="flex flex-col items-center bg-gradient-to-t from-orange-50 to-white border-2 border-orange-200 rounded-xl px-2 py-2 md:px-4 md:py-3 shadow-md min-w-[110px] md:min-w-[140px] relative z-10"
+                style={{marginTop: '24px'}}
+                onMouseEnter={() => setHoveredPodiumIdx(2)}
+                onMouseLeave={() => setHoveredPodiumIdx(null)}
+              >
+                <Award className="w-6 h-6 md:w-7 md:h-7 text-orange-400 mb-1" />
+                <span className="font-semibold text-orange-500 truncate max-w-[90px] md:max-w-[120px] text-sm md:text-base mb-1 text-center cursor-pointer">
+                  {top3[2].discordName}
+                </span>
+                <span className="text-green-600 font-bold text-base md:text-lg">{top3[2].amount.toLocaleString()}G</span>
+                <span className="absolute -top-4 md:-top-5 left-1/2 -translate-x-1/2 bg-orange-200 text-orange-700 px-2 py-0.5 rounded-full text-xs font-bold shadow">3</span>
+                {hoveredPodiumIdx === 2 && (
+                  <div
+                    className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-full bg-white border border-pink-200 rounded-xl shadow-lg px-3 py-2 min-w-fit max-w-xs inline-block animate-fade-in z-[9999] text-xs text-center">
+                    <div className="font-bold text-pink-600 mb-2 text-center text-sm md:text-base">ตัวละครทั้งหมด</div>
+                    {allCharactersByUserId[top3[2].userId]?.length ? (
+                      <div className="flex flex-col gap-1">
+                        {allCharactersByUserId[top3[2].userId].map((char, i) => {
+                          const role = CLASS_TO_ROLE[char.class as import('@/types/character').CharacterClass] || 'Warrior';
+                          const color = getClassColors(role);
+                          return (
+                            <div key={char.id || i} className="flex items-center gap-2">
+                              <span className={`font-semibold ${color.text} text-xs md:text-base`}>{char.name}</span>
+                              <span className={`text-xs px-2 py-0.5 rounded-full border ${color.text} ${color.border} bg-white`}>{char.class}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <div className="text-gray-400 text-center text-xs md:text-base">ไม่มีข้อมูลตัวละคร</div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
             {top3.length === 0 && (
               <span className="text-gray-400">ยังไม่มีข้อมูลบริจาคในเดือนนี้</span>
             )}
-            {top3.map((user, idx) => (
-              <div key={user.userId} className="flex flex-col items-start bg-pink-50 border border-pink-200 rounded-lg px-4 py-2 shadow-sm min-w-[200px] text-left">
-                <div className="font-semibold text-pink-500 truncate text-base mb-1 flex items-center gap-2 min-w-0 max-w-[180px] w-full justify-center">
-                  {medalIcons[idx]}
-                  {user.discordName}
+          </div>
+          {/* Mobile podium (แนวตั้ง) */}
+          <div className="flex flex-col gap-2 w-full max-w-xs md:hidden">
+            {[0,1,2].map(idx => (
+              top3[idx] && (
+                <div
+                  key={idx}
+                  className={`relative flex items-center gap-3 rounded-xl border-2 shadow-md px-3 py-3 ${idx===0 ? 'border-yellow-300 bg-gradient-to-r from-yellow-50 to-white' : idx===1 ? 'border-gray-300 bg-gradient-to-r from-gray-50 to-white' : 'border-orange-200 bg-gradient-to-r from-orange-50 to-white'}`}
+                  onMouseEnter={() => setHoveredPodiumIdx(idx)}
+                  onMouseLeave={() => setHoveredPodiumIdx(null)}
+                  onTouchStart={() => setHoveredPodiumIdx(idx)}
+                  onTouchEnd={() => setTimeout(()=>setHoveredPodiumIdx(null), 300)}
+                >
+                  <div className="flex flex-col items-center justify-center min-w-[40px]">
+                    <Award className={`${idx===0 ? 'text-yellow-400' : idx===1 ? 'text-gray-400' : 'text-orange-400'} w-7 h-7 mb-1`} />
+                    <span className={`absolute -top-3 left-2 px-2 py-0.5 rounded-full text-xs font-bold shadow ${idx===0 ? 'bg-yellow-300 text-yellow-900 border-2 border-yellow-400' : idx===1 ? 'bg-gray-200 text-gray-700' : 'bg-orange-200 text-orange-700'}`}>{idx+1}</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className={`font-bold truncate text-base ${idx===0 ? 'text-yellow-700' : idx===1 ? 'text-gray-500' : 'text-orange-500'}`}>{top3[idx].discordName}</div>
+                    <div className="text-green-700 font-extrabold text-lg">{top3[idx].amount.toLocaleString()}G</div>
+                  </div>
+                  {/* Tooltip (tap/hover) */}
+                  {hoveredPodiumIdx === idx && (
+                    <div className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-full bg-white border border-pink-200 rounded-xl shadow-lg px-3 py-2 min-w-fit max-w-xs inline-block animate-fade-in z-[9999] text-xs text-center">
+                      <div className="font-bold text-pink-600 mb-2 text-center text-sm">ตัวละครทั้งหมด</div>
+                      {allCharactersByUserId[top3[idx].userId]?.length ? (
+                        <div className="flex flex-col gap-1">
+                          {allCharactersByUserId[top3[idx].userId].map((char, i) => {
+                            const role = CLASS_TO_ROLE[char.class as import('@/types/character').CharacterClass] || 'Warrior';
+                            const color = getClassColors(role);
+                            return (
+                              <div key={char.id || i} className="flex items-center gap-2">
+                                <span className={`font-semibold ${color.text} text-xs`}>{char.name}</span>
+                                <span className={`text-xs px-2 py-0.5 rounded-full border ${color.text} ${color.border} bg-white`}>{char.class}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <div className="text-gray-400 text-center text-xs">ไม่มีข้อมูลตัวละคร</div>
+                      )}
+                    </div>
+                  )}
                 </div>
-                <div className="flex items-center gap-1 mt-1 w-full justify-center">
-                  <span className="text-green-600 font-bold text-lg">{user.amount.toLocaleString()}G</span>
-                </div>
-              </div>
+              )
             ))}
+            {top3.length === 0 && (
+              <span className="text-gray-400 text-center">ยังไม่มีข้อมูลบริจาคในเดือนนี้</span>
+            )}
           </div>
         </div>
         {/* Search */}
@@ -420,7 +580,7 @@ export default function GuildDonateHistoryPage() {
                                   onClick={e => {
                                     if (openPopoverUser === member.userId) {
                                       setOpenPopoverUser(null);
-                                      setPopoverPos(null);
+                                      setHoveredPodiumIdx(null);
                                     } else {
                                       setOpenPopoverUser(member.userId);
                                       const rect = e.currentTarget.getBoundingClientRect();
@@ -431,7 +591,7 @@ export default function GuildDonateHistoryPage() {
                                       if (rect.bottom + popoverHeight + margin > window.innerHeight) {
                                         top = rect.top + window.scrollY - popoverHeight - margin;
                                       }
-                                      setPopoverPos({ left, top });
+                                      setHoveredPodiumIdx(null);
                                     }
                                   }}
                                 >
@@ -439,8 +599,8 @@ export default function GuildDonateHistoryPage() {
                                 </span>
                               )}
                               {/* Popover */}
-                              {openPopoverUser === member.userId && chars.length > count && popoverPos && typeof window !== 'undefined' && createPortal(
-                                <div style={{ position: 'absolute', left: popoverPos.left, top: popoverPos.top, zIndex: 9999, maxHeight: 220, overflowY: 'auto' }}
+                              {openPopoverUser === member.userId && chars.length > count && typeof window !== 'undefined' && createPortal(
+                                <div style={{ position: 'absolute', zIndex: 9999, maxHeight: 220, overflowY: 'auto' }}
                                   className="bg-white border border-pink-200 rounded-lg shadow-lg p-3 min-w-[200px] max-w-xs">
                                   <div className="text-sm font-semibold text-pink-600 mb-2">ตัวละครเพิ่มเติม:</div>
                                   <div className="space-y-1">
@@ -453,7 +613,7 @@ export default function GuildDonateHistoryPage() {
                                   </div>
                                   <button
                                     className="mt-2 px-3 py-1 bg-pink-50 text-pink-500 rounded text-xs border border-pink-100 hover:bg-pink-100"
-                                    onClick={() => { setOpenPopoverUser(null); setPopoverPos(null); }}
+                                    onClick={() => { setOpenPopoverUser(null); setHoveredPodiumIdx(null); }}
                                   >
                                     ปิด
                                   </button>

@@ -1599,8 +1599,8 @@ export default function GuildSettingsPage() {
         <div className="mb-6 md:mb-10">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-4 md:mb-6 gap-2 md:gap-0">
             <div className="flex items-center gap-2 md:gap-3">
-              <div className="p-1.5 md:p-2 bg-yellow-100 rounded-lg">
-                <Store className="w-5 h-5 text-yellow-600" />
+              <div className="p-1.5 md:p-2 bg-purple-100 rounded-lg">
+                <Store className="w-5 h-5 text-purple-600" />
               </div>
               <h2 className="text-lg md:text-xl font-semibold text-gray-800">ร้านค้าที่รออนุมัติ</h2>
             </div>
