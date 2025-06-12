@@ -478,8 +478,13 @@ export default function EventDetailPage() {
         setToast({ show: true, message: `กลุ่มนี้เต็มแล้ว (สูงสุด ${event.maxGroupSize} คน)` });
         return;
       }
+      // ดึงชื่อกลุ่มจากสมาชิกที่มีอยู่
+      const existingGroupName = groupMembers[0]?.groupName || '';
       const partRef = doc(firestore, 'events', params.id as string, 'participants', user.uid);
-      await updateDoc(partRef, { groupId });
+      await updateDoc(partRef, { 
+        groupId,
+        groupName: existingGroupName // ใช้ชื่อกลุ่มที่มีอยู่
+      });
       setToast({ show: true, message: 'เข้าร่วมกลุ่มเรียบร้อย!' });
     } else {
       // ทั้งสองคนยังไม่มีกลุ่ม สร้างกลุ่มใหม่
@@ -515,7 +520,7 @@ export default function EventDetailPage() {
       // คนสุดท้ายในกลุ่ม ลบ groupId และ groupName ตัวเอง (กลุ่มจะหายไป)
       await updateDoc(partRef, { groupId: null, groupName: null });
     } else {
-      // มีคนอื่นในกลุ่ม แค่ลบ groupId ตัวเอง
+      // มีคนอื่นในกลุ่ม แค่ลบ groupId ตัวเอง แต่เก็บ groupName ไว้
       await updateDoc(partRef, { groupId: null });
     }
     setToast({ show: true, message: 'ออกจากกลุ่มเรียบร้อย!' });
