@@ -1457,7 +1457,7 @@ export default function PartyPage({ params }: { params: { id: string } }) {
         </Dialog>
 
         <Dialog open={confirmLeaveOpen} onOpenChange={setConfirmLeaveOpen}>
-          <DialogContent className="max-w-md p-4">
+          <DialogContent className="max-w-md p-4 bg-white/95">
             <DialogHeader className="mb-4">
               <DialogTitle>ยืนยันการออกจากปาร์ตี้</DialogTitle>
             </DialogHeader>
@@ -1476,7 +1476,7 @@ export default function PartyPage({ params }: { params: { id: string } }) {
         </Dialog>
 
         <Dialog open={!!kickTarget} onOpenChange={(open) => { if (!open) setKickTarget(null); }}>
-          <DialogContent className="max-w-md p-4">
+          <DialogContent className="max-w-md p-4 bg-white/95">
             <DialogHeader className="mb-4">
               <DialogTitle>ยืนยันการเตะสมาชิก</DialogTitle>
             </DialogHeader>
@@ -1627,7 +1627,7 @@ ${typeof window !== 'undefined' ? window.location.href : ''}`;
 
         {/* Dialog ยืนยันการเพิ่มตัวละคร */}
         <Dialog open={isAddCharacterConfirmOpen} onOpenChange={setIsAddCharacterConfirmOpen}>
-          <DialogContent className="sm:max-w-[425px]">
+          <DialogContent className="sm:max-w-[425px] bg-white/95">
             <DialogHeader>
               <DialogTitle>ยืนยันการเพิ่มตัวละคร</DialogTitle>
               <DialogDescription>
