@@ -21,6 +21,12 @@ interface DonationHistoryModalProps {
   }>;
 }
 
+const isCurrentMonth = (timestamp: number) => {
+  const date = new Date(timestamp);
+  const now = new Date();
+  return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+};
+
 export function DonationHistoryModal({ isOpen, onClose, donations }: DonationHistoryModalProps) {
   const [selectedDonation, setSelectedDonation] = useState<typeof donations[0] | null>(null);
 
@@ -37,7 +43,9 @@ export function DonationHistoryModal({ isOpen, onClose, donations }: DonationHis
         </DialogHeader>
         
         <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-2">
-          {donations.map((donation) => (
+          {[...donations]
+            .sort((a, b) => b.createdAt - a.createdAt)
+            .map((donation) => (
             <button
               key={donation.id}
               onClick={() => setSelectedDonation(donation)}
@@ -76,7 +84,12 @@ export function DonationHistoryModal({ isOpen, onClose, donations }: DonationHis
                   {donation.characters.map(char => `${char.name} (${char.class})`).join(', ')}
                 </div>
               )}
-              <div className="text-xs text-gray-500 flex items-center gap-1">
+              <div className={cn(
+                "text-sm font-medium flex items-center gap-1 px-3 py-1.5 rounded-lg w-fit",
+                isCurrentMonth(donation.createdAt)
+                  ? "text-pink-700 bg-pink-50"
+                  : "text-gray-700 bg-gray-100"
+              )}>
                 <span className="text-lg">⏰</span> {new Date(donation.createdAt).toLocaleString()}
               </div>
             </button>
@@ -137,7 +150,12 @@ export function DonationHistoryModal({ isOpen, onClose, donations }: DonationHis
                   )}
                   <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                     <span className="font-medium">วันที่:</span>
-                    <span className="text-sm text-gray-600">
+                    <span className={cn(
+                      "font-medium px-3 py-1.5 rounded-lg",
+                      isCurrentMonth(selectedDonation.createdAt)
+                        ? "text-pink-700 bg-pink-50"
+                        : "text-gray-700 bg-gray-100"
+                    )}>
                       {new Date(selectedDonation.createdAt).toLocaleString()}
                     </span>
                   </div>
