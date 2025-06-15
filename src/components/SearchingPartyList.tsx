@@ -60,6 +60,16 @@ const CharacterCard = ({ char }: CharacterCardProps) => {
     minute: '2-digit'
   });
 
+  // Get latest stats from user's character data
+  const latestStats = useMemo(() => {
+    const userData = users[char.userId];
+    const characterData = userData?.characters?.[char.characterId];
+    if (characterData?.stats) {
+      return characterData.stats;
+    }
+    return char.stats || { atk: 0, hp: 0, pdef: 0, mdef: 0, cri: 0, ele: 0, fd: 0 }; // Fallback to saved stats or default values if not found
+  }, [users, char.userId, char.characterId, char.stats]);
+
   const handleRemoveCharacter = async () => {
     try {
       await remove(ref(db, `searchingParties/${char.characterId}`));
@@ -87,13 +97,13 @@ const CharacterCard = ({ char }: CharacterCardProps) => {
             </div>
           </div>
           <div className="flex flex-wrap gap-2 text-sm items-center w-full mb-2">
-            <span className="bg-pink-100 text-pink-700 px-3 py-1 rounded font-medium">⚔️ ATK: <span className="font-bold">{char.stats.atk}</span></span>
-            <span className="bg-red-100 text-red-700 px-3 py-1 rounded font-medium">❤️ HP: <span className="font-bold">{char.stats.hp}</span></span>
-            <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded font-medium">🛡️ P.DEF: <span className="font-bold">{char.stats.pdef}%</span></span>
-            <span className="bg-purple-100 text-purple-700 px-3 py-1 rounded font-medium">🛡️ M.DEF: <span className="font-bold">{char.stats.mdef}%</span></span>
-            <span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded font-medium">💥 CRI: <span className="font-bold">{char.stats.cri}%</span></span>
-            <span className="bg-green-100 text-green-700 px-3 py-1 rounded font-medium">✨ ELE: <span className="font-bold">{char.stats.ele}%</span></span>
-            <span className="bg-orange-100 text-orange-700 px-3 py-1 rounded font-medium">💥 FD: <span className="font-bold">{char.stats.fd}%</span></span>
+            <span className="bg-pink-100 text-pink-700 px-3 py-1 rounded font-medium">⚔️ ATK: <span className="font-bold">{latestStats.atk}</span></span>
+            <span className="bg-red-100 text-red-700 px-3 py-1 rounded font-medium">❤️ HP: <span className="font-bold">{latestStats.hp}</span></span>
+            <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded font-medium">🛡️ P.DEF: <span className="font-bold">{latestStats.pdef}%</span></span>
+            <span className="bg-purple-100 text-purple-700 px-3 py-1 rounded font-medium">🛡️ M.DEF: <span className="font-bold">{latestStats.mdef}%</span></span>
+            <span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded font-medium">💥 CRI: <span className="font-bold">{latestStats.cri}%</span></span>
+            <span className="bg-green-100 text-green-700 px-3 py-1 rounded font-medium">✨ ELE: <span className="font-bold">{latestStats.ele}%</span></span>
+            <span className="bg-orange-100 text-orange-700 px-3 py-1 rounded font-medium">💥 FD: <span className="font-bold">{latestStats.fd}%</span></span>
           </div>
           {char.message && (
             <div className="w-full mb-2">
@@ -127,13 +137,13 @@ const CharacterCard = ({ char }: CharacterCardProps) => {
           <p className="text-xs text-gray-500">อัพเดทล่าสุด: {lastUpdate}</p>
         </div>
         <div className="flex flex-wrap gap-1 ml-4 text-xs items-center">
-          <span className="bg-pink-100 text-pink-700 px-2 py-0.5 rounded">⚔️ ATK: <span className="font-bold">{char.stats.atk}</span></span>
-          <span className="bg-red-100 text-red-700 px-2 py-0.5 rounded">❤️ HP: <span className="font-bold">{char.stats.hp}</span></span>
-          <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded">🛡️ P.DEF: <span className="font-bold">{char.stats.pdef}%</span></span>
-          <span className="bg-purple-100 text-purple-700 px-2 py-0.5 rounded">🛡️ M.DEF: <span className="font-bold">{char.stats.mdef}%</span></span>
-          <span className="bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded">💥 CRI: <span className="font-bold">{char.stats.cri}%</span></span>
-          <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded">✨ ELE: <span className="font-bold">{char.stats.ele}%</span></span>
-          <span className="bg-orange-100 text-orange-700 px-2 py-0.5 rounded">💥 FD: <span className="font-bold">{char.stats.fd}%</span></span>
+          <span className="bg-pink-100 text-pink-700 px-2 py-0.5 rounded">⚔️ ATK: <span className="font-bold">{latestStats.atk}</span></span>
+          <span className="bg-red-100 text-red-700 px-2 py-0.5 rounded">❤️ HP: <span className="font-bold">{latestStats.hp}</span></span>
+          <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded">🛡️ P.DEF: <span className="font-bold">{latestStats.pdef}%</span></span>
+          <span className="bg-purple-100 text-purple-700 px-2 py-0.5 rounded">🛡️ M.DEF: <span className="font-bold">{latestStats.mdef}%</span></span>
+          <span className="bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded">💥 CRI: <span className="font-bold">{latestStats.cri}%</span></span>
+          <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded">✨ ELE: <span className="font-bold">{latestStats.ele}%</span></span>
+          <span className="bg-orange-100 text-orange-700 px-2 py-0.5 rounded">💥 FD: <span className="font-bold">{latestStats.fd}%</span></span>
         </div>
         {char.message && (
           <div className="ml-4 max-w-xl">
