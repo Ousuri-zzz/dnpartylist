@@ -12,6 +12,7 @@ import { getClassColors, CLASS_TO_ROLE } from '@/config/theme';
 import Link from 'next/link';
 import { Crown, CreditCard } from 'lucide-react';
 import QRPaymentModal from '@/components/QRPaymentModal';
+import { DonationHistoryModal } from '@/components/DonationHistoryModal';
 
 interface Donate {
   id: string;
@@ -48,6 +49,7 @@ export default function GuildDonatePage() {
   const [loading, setLoading] = useState(false);
   const [usersLoading, setUsersLoading] = useState(false);
   const [authLoading, setAuthLoading] = useState(false);
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
 
   useEffect(() => {
     const donatesRef = ref(db, 'guilddonate');
@@ -289,6 +291,14 @@ export default function GuildDonatePage() {
           <div className="flex items-center gap-2 mb-4 bg-white/90 backdrop-blur-sm rounded-xl px-4 py-2 shadow border border-pink-100">
             <span className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-pink-100 text-pink-500 shadow"><span className="text-2xl">💖</span></span>
             ส่งคำขอบริจาคกิลด์
+            <button
+              type="button"
+              onClick={() => setShowHistoryModal(true)}
+              className="ml-auto text-sm text-pink-600 hover:text-pink-700 font-medium flex items-center gap-1"
+            >
+              <span>ประวัติการบริจาค</span>
+              <span className="text-lg">📜</span>
+            </button>
           </div>
           <div className="flex gap-4">
             <div className="flex-1">
@@ -418,6 +428,13 @@ export default function GuildDonatePage() {
           setShowQRPayment(false);
           // Refresh data if needed
         }}
+      />
+
+      {/* Donation History Modal */}
+      <DonationHistoryModal
+        isOpen={showHistoryModal}
+        onClose={() => setShowHistoryModal(false)}
+        donations={myHistory}
       />
     </div>
   );

@@ -511,6 +511,15 @@ export default function MyPage() {
     // อนุญาตให้ใส่ได้เฉพาะตัวเลขและจุดทศนิยม
     if (!/^[0-9]*\.?[0-9]*$/.test(value) && value !== '') return;
 
+    // ตรวจสอบค่าสูงสุดสำหรับสเตตัสที่เป็นเปอร์เซ็นต์
+    const percentageStats = ['cri', 'pdef', 'mdef', 'ele', 'fd'];
+    if (percentageStats.includes(stat)) {
+      const numValue = parseFloat(value);
+      if (!isNaN(numValue) && numValue > 100) {
+        value = '100';
+      }
+    }
+
     // ถ้าค่าปัจจุบันเป็น "0" และมีการพิมพ์ตัวเลขใหม่ ให้แทนที่เลข 0 ด้วยตัวเลขใหม่
     if (editingCharacter.stats[stat] === '0' && value !== '0' && value !== '') {
       value = value.replace(/^0+/, '');
@@ -1100,7 +1109,7 @@ export default function MyPage() {
                 </span>
                 <h1 className="text-2xl md:text-4xl font-extrabold bg-gradient-to-r from-violet-600 via-pink-500 to-blue-600 bg-clip-text text-transparent drop-shadow-lg tracking-tight">ตัวละครของฉัน</h1>
               </div>
-              <p className="text-gray-600 text-sm md:text-lg font-medium drop-shadow-sm">จัดการตัวละครและติดตามความคืบหน้าของคุณในโลกแฟนตาซี</p>
+              <p className="text-gray-600 text-sm md:text-lg font-medium drop-shadow-sm">เพิ่มตัวละครได้อย่างอิสระ ไม่จำกัดกิลด์ พร้อมระบบติดตามความคืบหน้า และจัดปาร์ตี้ได้อย่างสะดวก</p>
               <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-2 mt-2 w-full">
                 <div className="flex flex-row gap-2 w-full sm:w-auto">
                   <Button

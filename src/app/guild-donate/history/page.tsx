@@ -12,6 +12,7 @@ import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { createPortal } from 'react-dom';
 import { getClassColors, CLASS_TO_ROLE } from '@/config/theme';
+import { DonationHistoryModal } from '@/components/DonationHistoryModal';
 
 interface Donate {
   id: string;
@@ -118,6 +119,8 @@ export default function GuildDonateHistoryPage() {
   const [showCount, setShowCount] = useState<Record<string, number>>({});
   const plusNRefs = useRef<Record<string, HTMLSpanElement | null>>({});
   const [hoveredPodiumIdx, setHoveredPodiumIdx] = useState<number | null>(null);
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) {
@@ -277,6 +280,14 @@ export default function GuildDonateHistoryPage() {
     <Award key="silver" className="w-5 h-5 text-gray-400" />, 
     <Award key="bronze" className="w-5 h-5 text-orange-400" />
   ];
+
+  // เตรียมข้อมูลบริจาคของ userId ที่เลือก
+  const userDonations = selectedUserId
+    ? donates.filter(d => d.userId === selectedUserId).map(d => ({
+        ...d,
+        type: 'gold' as const, // แก้ type ให้ตรงกับที่ modal ต้องการ
+      }))
+    : [];
 
   return (
     <div className="max-w-6xl mx-auto p-6">
@@ -579,12 +590,19 @@ export default function GuildDonateHistoryPage() {
               {filteredDonations.map((member) => (
                 <tr key={member.userId} className="hover:bg-pink-50/50">
                   <td className="px-3 py-3 text-center">
-                    <span className={cn(
-                      "font-medium",
-                      member.donationCount > 0 ? "text-blue-600" : "text-gray-400"
-                    )}>
+                    <button
+                      className={cn(
+                        "font-medium text-blue-600 cursor-pointer focus:outline-none",
+                        member.donationCount > 0 ? "hover:text-pink-600" : "text-gray-400 cursor-default hover:text-gray-400"
+                      )}
+                      disabled={member.donationCount === 0}
+                      onClick={() => {
+                        setSelectedUserId(member.userId);
+                        setShowHistoryModal(true);
+                      }}
+                    >
                       {member.donationCount}
-                    </span>
+                    </button>
                   </td>
                   <td className="px-3 py-3">
                     <div className="flex items-center gap-2 flex-nowrap min-w-0">
@@ -701,7 +719,14 @@ export default function GuildDonateHistoryPage() {
         {/* Mobile Card List (Mobile only) */}
         <div className="block md:hidden space-y-2 px-1">
           {filteredDonations.map((member) => (
-            <div key={member.userId} className="bg-white/90 border border-pink-100 rounded-lg shadow-sm p-2 flex flex-col gap-1">
+            <div
+              key={member.userId}
+              className="bg-white/90 border border-pink-100 rounded-lg shadow-sm p-2 flex flex-col gap-1 cursor-pointer active:bg-pink-50 transition"
+              onClick={() => {
+                setSelectedUserId(member.userId);
+                setShowHistoryModal(true);
+              }}
+            >
               <div className="flex items-center gap-2">
                 <Crown className="w-5 h-5 text-pink-400 shrink-0" />
                 <span className="font-bold text-gray-800 text-base truncate max-w-[120px]">{member.discordName}</span>
@@ -747,6 +772,11 @@ export default function GuildDonateHistoryPage() {
           )}
         </div>
       </div>
+      <DonationHistoryModal
+        isOpen={showHistoryModal}
+        onClose={() => setShowHistoryModal(false)}
+        donations={userDonations}
+      />
     </div>
   );
 } 
