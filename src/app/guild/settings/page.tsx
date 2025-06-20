@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { ref, get, remove, update, onValue, query, orderByChild, equalTo, set, push } from 'firebase/database';
 import { db } from '@/lib/firebase';
 import { toast } from 'sonner';
-import { Settings, UserPlus, KeyRound, X, Check, Ban, DollarSign, Clock, CheckCircle2, XCircle, Crown, ChevronDown, ChevronUp, Bell, Users, Store, Building2, Shield, AlertCircle, Search, RefreshCw, PiggyBank, CreditCard, Coins } from 'lucide-react';
+import { Settings, UserPlus, KeyRound, X, Check, Ban, DollarSign, Clock, CheckCircle2, XCircle, Crown, ChevronDown, ChevronUp, Bell, Users, Store, Building2, Shield, AlertCircle, Search, RefreshCw, PiggyBank, CreditCard, Coins, Pencil } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { GuildSettings, GuildLoan } from '@/types/trade';
 import { GuildService } from '@/lib/guildService';
@@ -149,6 +149,10 @@ export default function GuildSettingsPage() {
 
   // [1] เพิ่ม state สำหรับ modal ยืนยันการบริจาค
   const [showGuildDonateConfirmModal, setShowGuildDonateConfirmModal] = useState(false);
+
+  // เพิ่ม state สำหรับแก้ไขสังกัดกิลด์
+  const [showEditGuildModal, setShowEditGuildModal] = useState(false);
+  const [editingMember, setEditingMember] = useState<{uid: string, member: any} | null>(null);
 
   // [A] เพิ่ม state สำหรับ filteredDonateCharacters และ selectedDonateCharacter
   const [filteredDonateCharacters, setFilteredDonateCharacters] = useState<any[]>([]);
@@ -504,7 +508,7 @@ export default function GuildSettingsPage() {
     });
   }, [activeMerchants, debouncedMerchantSearch]);
 
-  type MemberType = { discordName?: string; joinedAt?: string; [key: string]: any };
+  type MemberType = { discordName?: string; joinedAt?: string; guildBranch?: 1 | 2; [key: string]: any };
 
   const filteredMembers = React.useMemo<[string, MemberType][]>(() => {
     const searchTerm = debouncedMemberSearch.toLowerCase();
@@ -899,6 +903,20 @@ export default function GuildSettingsPage() {
     }
   };
 
+  const handleSetGuildBranch = async (branch: 1 | 2) => {
+    if (!editingMember) return;
+    try {
+      await update(ref(db, `guild/members/${editingMember.uid}`), { guildBranch: branch });
+      toast.success(`ตั้งค่าสมาชิกให้อยู่กิลด์ ${branch} สำเร็จ`);
+    } catch (error) {
+      console.error('Error setting guild branch:', error);
+      toast.error('ไม่สามารถตั้งค่ากิลด์ได้');
+    } finally {
+      setShowEditGuildModal(false);
+      setEditingMember(null);
+    }
+  };
+
   if (loading || !user) {
     return (
       <div className="flex items-center justify-center py-8">
@@ -932,8 +950,11 @@ export default function GuildSettingsPage() {
               {donationAction === 'approve' ? 'ยืนยันการอนุมัติ' : 'ยืนยันการยกเลิก'}
             </h3>
             <p className="text-gray-600 mb-6">
-              คุณต้องการ{donationAction === 'approve' ? 'อนุมัติ' : 'ยกเลิก'}การบริจาค {selectedDonation.amount} Gold 
-              จาก {selectedDonation.discordName} ใช่หรือไม่?
+              คุณต้องการ{donationAction === 'approve' ? 'อนุมัติ' : 'ยกเลิก'}การบริจาค {selectedDonation.amount} Gold จาก
+              <span className="font-semibold mx-1">{selectedDonation.discordName}</span>
+              {(guild?.members[selectedDonation.userId] as MemberType)?.guildBranch === 1 && <span className="px-1.5 py-0.5 rounded-full bg-pink-200 text-pink-800 text-xs font-bold align-middle">กิลด์ 1</span>}
+              {(guild?.members[selectedDonation.userId] as MemberType)?.guildBranch === 2 && <span className="px-1.5 py-0.5 rounded-full bg-blue-200 text-blue-800 text-xs font-bold align-middle">กิลด์ 2</span>}
+              ใช่หรือไม่?
             </p>
             <div className="flex justify-end gap-3">
               <button
@@ -966,8 +987,11 @@ export default function GuildSettingsPage() {
               {donationAction === 'approve' ? 'ยืนยันการอนุมัติ' : 'ยืนยันการยกเลิก'}
             </h3>
             <p className="text-gray-600 mb-6">
-              คุณต้องการ{donationAction === 'approve' ? 'อนุมัติ' : 'ยกเลิก'}การบริจาคเงินสด {selectedCashDonation.amount} บาท 
-              จาก {cashDonorDiscords[selectedCashDonation.userId] || '...'} ใช่หรือไม่?
+              คุณต้องการ{donationAction === 'approve' ? 'อนุมัติ' : 'ยกเลิก'}การบริจาคเงินสด {selectedCashDonation.amount} บาท จาก
+              <span className="font-semibold mx-1">{cashDonorDiscords[selectedCashDonation.userId] || '...'}</span>
+              {(guild?.members[selectedCashDonation.userId] as MemberType)?.guildBranch === 1 && <span className="px-1.5 py-0.5 rounded-full bg-pink-200 text-pink-800 text-xs font-bold align-middle">กิลด์ 1</span>}
+              {(guild?.members[selectedCashDonation.userId] as MemberType)?.guildBranch === 2 && <span className="px-1.5 py-0.5 rounded-full bg-blue-200 text-blue-800 text-xs font-bold align-middle">กิลด์ 2</span>}
+              ใช่หรือไม่?
             </p>
             <div className="flex justify-end gap-3">
               <button
@@ -1364,7 +1388,11 @@ export default function GuildSettingsPage() {
                               <Coins className="w-5 h-5 text-amber-600" />
                             </div>
                             <div>
-                              <p className="font-medium text-gray-800">{donation.discordName}</p>
+                              <div className="font-medium text-gray-800 flex items-center gap-2">
+                                <span>{donation.discordName}</span>
+                                {(guild?.members[donation.userId] as MemberType)?.guildBranch === 1 && <span className="px-2 py-0.5 rounded-full bg-pink-200 text-pink-800 text-xs font-bold">กิลด์ 1</span>}
+                                {(guild?.members[donation.userId] as MemberType)?.guildBranch === 2 && <span className="px-2 py-0.5 rounded-full bg-blue-200 text-blue-800 text-xs font-bold">กิลด์ 2</span>}
+                              </div>
                               <p className="text-sm text-gray-500">
                                 {new Date(donation.createdAt).toLocaleDateString('th-TH', {
                                   year: 'numeric',
@@ -1461,7 +1489,11 @@ export default function GuildSettingsPage() {
                               <CreditCard className="w-5 h-5 text-green-600" />
                             </div>
                             <div>
-                              <p className="font-medium text-gray-800">{cashDonorDiscords[donation.userId] || 'ไม่ทราบ'}</p>
+                              <div className="font-medium text-gray-800 flex items-center gap-2">
+                                <span>{cashDonorDiscords[donation.userId] || 'ไม่ทราบ'}</span>
+                                {(guild?.members[donation.userId] as MemberType)?.guildBranch === 1 && <span className="px-2 py-0.5 rounded-full bg-pink-200 text-pink-800 text-xs font-bold">กิลด์ 1</span>}
+                                {(guild?.members[donation.userId] as MemberType)?.guildBranch === 2 && <span className="px-2 py-0.5 rounded-full bg-blue-200 text-blue-800 text-xs font-bold">กิลด์ 2</span>}
+                              </div>
                               <p className="text-sm text-gray-500">
                                 {new Date(donation.createdAt).toLocaleDateString('th-TH', {
                                   year: 'numeric',
@@ -1794,12 +1826,13 @@ export default function GuildSettingsPage() {
               </div>
             ) : (
               filteredMembers.map(([uid, member]) => {
-                const m = member as { discordName: string; joinedAt: string };
+                const m = member as { discordName: string; joinedAt: string; guildBranch?: 1 | 2; };
                 return (
                   <div
                     key={uid}
                     className={cn(
-                      "flex flex-col md:flex-row md:items-center md:justify-between p-4 bg-white rounded-xl border border-blue-100 shadow-sm hover:shadow-md transition-shadow gap-2 md:gap-0",
+                      "flex flex-col md:flex-row md:items-center md:justify-between p-4 bg-white rounded-xl border shadow-sm hover:shadow-md transition-shadow gap-2 md:gap-0",
+                      m.guildBranch === 1 ? "border-pink-200" : m.guildBranch === 2 ? "border-blue-200" : "border-blue-100",
                       users[uid]?.meta && (users[uid]?.meta as UserMeta).approved === false && "border-2 border-yellow-400 bg-yellow-50/60"
                     )}
                   >
@@ -1813,6 +1846,8 @@ export default function GuildSettingsPage() {
                       <div>
                         <p className="font-medium text-gray-800 flex items-center gap-2">
                           {m.discordName || 'ไม่ทราบ'}
+                          {m.guildBranch === 1 && <span className="ml-2 px-2 py-0.5 rounded-full bg-pink-200 text-pink-800 text-xs font-bold">กิลด์ 1</span>}
+                          {m.guildBranch === 2 && <span className="ml-2 px-2 py-0.5 rounded-full bg-blue-200 text-blue-800 text-xs font-bold">กิลด์ 2</span>}
                           {users[uid]?.meta && (users[uid]?.meta as UserMeta).approved === false && (
                             <span className="ml-2 px-2 py-0.5 rounded-full bg-yellow-300 text-yellow-900 text-xs font-bold animate-pulse">รออนุมัติ</span>
                           )}
@@ -1845,8 +1880,15 @@ export default function GuildSettingsPage() {
                     {uid !== user?.uid && (
                       <div className="w-full md:w-auto flex flex-row gap-x-2 md:gap-2">
                         <button
+                          onClick={() => { setEditingMember({ uid, member: m }); setShowEditGuildModal(true); }}
+                          className="flex-1 md:w-auto p-2 rounded-lg text-blue-500 hover:bg-blue-50 transition-colors"
+                          title="แก้ไขสังกัดกิลด์"
+                        >
+                          <Pencil className="w-5 h-5" />
+                        </button>
+                        <button
                           onClick={() => handleRemoveMember(uid)}
-                          className="flex-1 md:w-auto p-2 rounded-l-lg md:rounded-lg text-red-500 hover:bg-red-50 transition-colors"
+                          className="flex-1 md:w-auto p-2 rounded-lg text-red-500 hover:bg-red-50 transition-colors"
                           title="ลบสมาชิก"
                         >
                           <X className="w-5 h-5" />
@@ -1854,7 +1896,7 @@ export default function GuildSettingsPage() {
                         {isGuildLeader && (
                           <button
                             onClick={() => handleResetStats(uid)}
-                            className="flex-1 md:w-auto p-2 rounded-r-lg md:rounded-lg text-orange-500 hover:bg-orange-50 transition-colors"
+                            className="flex-1 md:w-auto p-2 rounded-lg text-orange-500 hover:bg-orange-50 transition-colors"
                             title="รีเซ็ตสเตตัสตัวละคร"
                           >
                             <RefreshCw className="w-5 h-5" />
@@ -2129,6 +2171,50 @@ export default function GuildSettingsPage() {
                     className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
                   >
                     ยืนยัน
+                  </button>
+                </div>
+              </div>
+            </div>
+          </ConfirmModalPortal>
+        )}
+
+        {/* Edit Guild Branch Modal */}
+        {showEditGuildModal && editingMember && (
+          <ConfirmModalPortal>
+            <div className="!fixed !inset-0 !z-[9999] h-screen w-screen flex items-center justify-center bg-black bg-opacity-50">
+              <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl pointer-events-auto">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2 bg-blue-100 rounded-lg">
+                    <Pencil className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900">แก้ไขสังกัดกิลด์</h3>
+                </div>
+                <p className="text-gray-600 mb-6">
+                  เลือกกิลด์สำหรับสมาชิก: <span className="font-semibold">{editingMember.member.discordName}</span>
+                </p>
+                <div className="flex justify-center gap-4">
+                  <button
+                    onClick={() => handleSetGuildBranch(1)}
+                    className="flex-1 px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 shadow-sm"
+                  >
+                    กิลด์ 1
+                  </button>
+                  <button
+                    onClick={() => handleSetGuildBranch(2)}
+                    className="flex-1 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 shadow-sm"
+                  >
+                    กิลด์ 2
+                  </button>
+                </div>
+                <div className="flex justify-end gap-4 mt-6">
+                  <button
+                    onClick={() => {
+                      setShowEditGuildModal(false);
+                      setEditingMember(null);
+                    }}
+                    className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    ยกเลิก
                   </button>
                 </div>
               </div>
