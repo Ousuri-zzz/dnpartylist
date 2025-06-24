@@ -679,6 +679,240 @@ export default function EventsPage() {
           scrollbar-width: thin;
           scrollbar-color: #f9a8d4 #fce7f3;
         }
+        /* ===== DARK MODE THEME ===== */
+        [data-theme="dark"] .calendar-pink-labels .react-calendar__navigation__label {
+          color: #f9a8d4 !important;
+          background: linear-gradient(90deg,#f9a8d4,#cba6f7 80%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+        }
+        [data-theme="dark"] .calendar-pastel-nav {
+          background: #232136;
+          color: #f9a8d4 !important;
+          box-shadow: 0 2px 8px #181825aa;
+        }
+        [data-theme="dark"] .calendar-pastel-nav:hover {
+          background: #f9a8d4;
+          color: #232136 !important;
+        }
+        [data-theme="dark"] .calendar-pink-labels .react-calendar__month-view__weekdays__weekday {
+          color: #cba6f7 !important;
+          text-shadow: 0 1px 2px #232136;
+        }
+        [data-theme="dark"] .calendar-pastel-tile {
+          color: #f9a8d4 !important;
+          background: transparent !important;
+        }
+        [data-theme="dark"] .calendar-pastel-tile-event {
+          color: #f9a8d4 !important;
+        }
+        [data-theme="dark"] .calendar-pastel-tile-event-outside {
+          color: #6e6a86 !important;
+        }
+        [data-theme="dark"] .calendar-pastel-tile-outside {
+          color: #575268 !important;
+        }
+        [data-theme="dark"] .calendar-pastel-tile-start {
+          border: 2.5px solid #a6e3a1 !important;
+          color: #a6e3a1 !important;
+          background: #232136 !important;
+        }
+        [data-theme="dark"] .calendar-pastel-tile-end {
+          border: 2.5px solid #f38ba8 !important;
+          color: #f38ba8 !important;
+          background: #232136 !important;
+        }
+        [data-theme="dark"] .calendar-pastel-tile-today {
+          border: 2.5px solid #cba6f7 !important;
+          background: #232136 !important;
+          color: #f9a8d4 !important;
+        }
+        [data-theme="dark"] .calendar-pastel-tile-today:not(.calendar-pastel-tile-start):not(.calendar-pastel-tile-end):not(.calendar-pastel-tile-event) {
+          color: #cba6f7 !important;
+        }
+        [data-theme="dark"] .calendar-pastel-tile-current-month,
+        [data-theme="dark"] .calendar-pastel-tile-current-year {
+          color: #f9a8d4 !important;
+          background: #232136 !important;
+          box-shadow: 0 0 0 2px #f9a8d4;
+        }
+        [data-theme="dark"] .react-calendar__year-view .react-calendar__tile {
+          color: #f9a8d4 !important;
+          background: transparent !important;
+        }
+        [data-theme="dark"] .react-calendar__year-view .react-calendar__tile--active {
+          color: #f9a8d4 !important;
+          background: #232136 !important;
+          box-shadow: 0 0 0 2px #cba6f7;
+        }
+        /* กล่อง/การ์ด/พื้นหลัง */
+        [data-theme="dark"] .bg-white,
+        [data-theme="dark"] .bg-white\/30,
+        [data-theme="dark"] .bg-white\/70,
+        [data-theme="dark"] .bg-white\/80 {
+          background-color: #232136 !important;
+          color: #f9a8d4 !important;
+        }
+        [data-theme="dark"] .backdrop-blur-md {
+          backdrop-filter: blur(8px) brightness(0.8);
+        }
+        [data-theme="dark"] .border-pink-200\/50 {
+          border-color: #cba6f7 !important;
+        }
+        [data-theme="dark"] .text-pink-700,
+        [data-theme="dark"] .text-pink-600 {
+          color: #f9a8d4 !important;
+        }
+        [data-theme="dark"] .text-red-500 {
+          color: #f38ba8 !important;
+        }
+        [data-theme="dark"] .text-green-600 {
+          color: #a6e3a1 !important;
+        }
+        [data-theme="dark"] .text-blue-700 {
+          color: #89b4fa !important;
+        }
+        [data-theme="dark"] .text-yellow-700 {
+          color: #f9e2af !important;
+        }
+        [data-theme="dark"] .bg-yellow-50 {
+          background: #45475a !important;
+        }
+        [data-theme="dark"] .bg-blue-50 {
+          background: #313244 !important;
+        }
+        [data-theme="dark"] .bg-red-50 {
+          background: #3b2f3e !important;
+        }
+        [data-theme="dark"] .shadow-lg,
+        [data-theme="dark"] .shadow-xl,
+        [data-theme="dark"] .shadow-2xl {
+          box-shadow: 0 4px 32px 0 #181825cc !important;
+        }
+        /* ปรับ scrollbar */
+        [data-theme="dark"] .event-scrollbar::-webkit-scrollbar {
+          background: #232136;
+        }
+        [data-theme="dark"] .event-scrollbar::-webkit-scrollbar-thumb {
+          background: #cba6f7;
+        }
+        [data-theme="dark"] .event-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #f9a8d4;
+        }
+        [data-theme="dark"] .event-scrollbar {
+          scrollbar-color: #cba6f7 #232136;
+        }
+        /* ===== DARK MODE THEME (เพิ่มเติม 2: ปฏิทิน กล่องกิจกรรม กล่องสรุป ปุ่ม) ===== */
+        [data-theme="dark"] .bg-gradient-to-br {
+          background: #181825 !important;
+        }
+        [data-theme="dark"] .react-calendar {
+          background: #181825 !important;
+          border-radius: 1.5rem;
+          box-shadow: 0 2px 16px #181825cc;
+        }
+        [data-theme="dark"] .calendar-pastel-nav {
+          background: #232136 !important;
+          color: #f9a8d4 !important;
+          border: 1.5px solid #cba6f7 !important;
+        }
+        [data-theme="dark"] .bg-white,
+        [data-theme="dark"] .bg-white\/30,
+        [data-theme="dark"] .bg-white\/80,
+        [data-theme="dark"] .bg-white\/70,
+        [data-theme="dark"] .backdrop-blur-md {
+          background: #232136 !important;
+          color: #f9a8d4 !important;
+          box-shadow: 0 4px 32px 0 #181825cc !important;
+        }
+        [data-theme="dark"] .border,
+        [data-theme="dark"] .border-pink-200\/50 {
+          border-color: #cba6f7 !important;
+        }
+        [data-theme="dark"] .rounded-xl,
+        [data-theme="dark"] .rounded-lg {
+          background: #232136cc !important;
+          color: #f9a8d4 !important;
+          border-color: #cba6f7 !important;
+        }
+        [data-theme="dark"] .bg-gradient-to-r.from-pink-500.to-purple-500 {
+          background: linear-gradient(90deg, #cba6f7, #f9a8d4 80%) !important;
+          color: #232136 !important;
+          border: 1.5px solid #cba6f7 !important;
+        }
+        [data-theme="dark"] .bg-gradient-to-r.from-pink-500.to-purple-500:hover {
+          background: linear-gradient(90deg, #f9a8d4, #cba6f7 80%) !important;
+          color: #232136 !important;
+        }
+        [data-theme="dark"] .bg-yellow-50,
+        [data-theme="dark"] .bg-blue-50,
+        [data-theme="dark"] .bg-red-50 {
+          background: #1e1e2e !important;
+          color: #f9a8d4 !important;
+        }
+        /* ===== DARK MODE THEME (force override, เฉพาะ dark mode) ===== */
+        [data-theme="dark"] .bg-gradient-to-br.from-pink-50.via-white.to-blue-50\\/80,
+        [data-theme="dark"] .bg-gradient-to-br {
+          background: #181825 !important;
+        }
+        [data-theme="dark"] .react-calendar {
+          background: #181825 !important;
+          border-radius: 1.5rem;
+          box-shadow: 0 2px 16px #181825cc;
+        }
+        [data-theme="dark"] .calendar-pastel-nav {
+          background: #232136 !important;
+          color: #f9a8d4 !important;
+          border: 1.5px solid #cba6f7 !important;
+        }
+        [data-theme="dark"] .border,
+        [data-theme="dark"] .border-pink-200\/50 {
+          border-color: #cba6f7 !important;
+        }
+        [data-theme="dark"] .bg-white,
+        [data-theme="dark"] .bg-white\/30,
+        [data-theme="dark"] .bg-white\/80,
+        [data-theme="dark"] .bg-white\/70,
+        [data-theme="dark"] .backdrop-blur-md {
+          background: #232136 !important;
+          color: #f9a8d4 !important;
+          box-shadow: 0 4px 32px 0 #181825cc !important;
+        }
+        /* กล่องกิจกรรมที่ใช้ inline style background */
+        [data-theme="dark"] [style*='background: linear-gradient'],
+        [data-theme="dark"] [style*='background: #f9a8d4'],
+        [data-theme="dark"] [style*='background: #fff'],
+        [data-theme="dark"] [style*='background: #FFB5E8'] {
+          background: #232136 !important;
+          color: #f9a8d4 !important;
+        }
+        /* overlay สีขาวโปร่งใส ให้เป็น overlay สีเข้ม */
+        [data-theme="dark"] [style*='background: rgba(255,255,255,0.7)'] {
+          background: rgba(24,24,37,0.7) !important;
+        }
+        [data-theme="dark"] .rounded-xl,
+        [data-theme="dark"] .rounded-lg {
+          background: #232136cc !important;
+          color: #f9a8d4 !important;
+          border-color: #cba6f7 !important;
+        }
+        /* ปุ่มสร้างกิจกรรม (gradient) */
+        [data-theme="dark"] [class*='bg-gradient-to-r'][class*='from-pink-500'][class*='to-purple-500'] {
+          background: linear-gradient(90deg, #cba6f7, #f9a8d4 80%) !important;
+          color: #232136 !important;
+          border: 1.5px solid #cba6f7 !important;
+        }
+        [data-theme="dark"] [class*='bg-gradient-to-r'][class*='from-pink-500'][class*='to-purple-500']:hover {
+          background: linear-gradient(90deg, #f9a8d4, #cba6f7 80%) !important;
+          color: #232136 !important;
+        }
+        /* กล่องรายละเอียดกิจกรรม (reward, วันเวลา) */
+        [data-theme="dark"] .bg-yellow-50,
+        [data-theme="dark"] .bg-blue-50,
+        [data-theme="dark"] .bg-red-50 {
+          background: #1e1e2e !important;
+          color: #f9a8d4 !important;
+        }
       `}</style>
     </div>
   );

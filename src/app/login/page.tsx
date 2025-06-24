@@ -31,14 +31,16 @@ export default function LoginPage() {
 
   return (
     <div
-      className="flex flex-col items-center justify-center min-h-screen px-4 bg-cover bg-center bg-no-repeat bg-fixed"
+      className="flex flex-col items-center justify-center min-h-screen px-4 bg-cover bg-center bg-no-repeat bg-fixed relative"
       style={{ backgroundImage: "url('/images/background.jpg')" }}
     >
+      {/* Overlay for dark mode */}
+      <div className="pointer-events-none absolute inset-0 z-0 dark:block hidden" style={{background: 'rgba(0,0,0,0.85)'}} />
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full max-w-md"
+        className="w-full max-w-md z-10"
       >
         <div className="relative group">
           <div className="relative p-6 sm:p-10 space-y-6 bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl border border-pink-200">

@@ -361,7 +361,14 @@ export default function EventDetailPage() {
       .replace(/<\s*br\s*\/?>(?![^<]*>)/gi, '\n')
       .replace(/<\/?(div|p|li|ul|ol|h[1-6])[^>]*>/gi, '\n');
     const descLinesCopy = stripHtml(descHtml).split(/\n+/);
-    let descPreviewCopy = descLinesCopy.length > 0 ? `📝 ${descLinesCopy.join('\n')}` : '📝';
+    let descPreviewCopy = '📝';
+    const firstLineCopyIndex = descLinesCopy.findIndex(line => line.trim() !== '');
+    if (firstLineCopyIndex !== -1) {
+      descPreviewCopy = `📝${descLinesCopy[firstLineCopyIndex].trimStart()}`;
+      if (descLinesCopy.length > firstLineCopyIndex + 1) {
+        descPreviewCopy += '\n' + descLinesCopy.slice(firstLineCopyIndex + 1).join('\n');
+      }
+    }
     const endDateStr = endDate ? endDate.toLocaleString('th-TH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-';
     const previewString =
       (announce ? announce + '\n\n' : '') +
@@ -370,7 +377,7 @@ export default function EventDetailPage() {
       `🗓️ วันเวลาเริ่ม: ${startDate ? startDate.toLocaleString('th-TH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}` +
       `\n⏰ วันเวลาสิ้นสุด: ${endDateStr}` +
       `\n🎁 ของรางวัล: ${event.rewardInfo}` +
-      `\n\n[เช็คชื่อเข้าร่วมกิจกรรมที่นี่](https://galaxycat.vercel.app/events/${event.id})`;
+      `\n\n👉 [เช็คชื่อเข้าร่วมกิจกรรมที่นี่](https://galaxycat.vercel.app/events/${event.id}) 👈`;
     copyToClipboard(previewString.replace(/\\n/g, '\n'));
     setToast({ show: true, message: 'คัดลอกข้อความประกาศเรียบร้อย!' });
   };
@@ -615,10 +622,20 @@ export default function EventDetailPage() {
     });
 
   // Template ข้อความประกาศ Discord (ถ้าไม่มีข้อความเดิม)
-  const descLines = (event.description || '').split('\n');
-  const descPreview = descLines.length > 0
-    ? `📝 ${descLines.join('\n')}`
-    : '📝';
+  let descHtml = event.description || '';
+  descHtml = descHtml
+    .replace(/<\s*br\s*\/?>(?![^<]*>)/gi, '\n')
+    .replace(/<\/?(div|p|li|ul|ol|h[1-6])[^>]*>/gi, '\n');
+  const descPlain = stripHtml(descHtml);
+  const descLines = descPlain.split(/\n+/);
+  let descPreview = '📝';
+  const firstLineIndex = descLines.findIndex(line => line.trim() !== '');
+  if (firstLineIndex !== -1) {
+    descPreview = `📝${descLines[firstLineIndex].trimStart()}`;
+    if (descLines.length > firstLineIndex + 1) {
+      descPreview += '\n' + descLines.slice(firstLineIndex + 1).join('\n');
+    }
+  }
   const defaultAnnounce =
     `🎉 ${event.name}\n` +
     `${descPreview}\n` +
@@ -631,6 +648,33 @@ export default function EventDetailPage() {
       .filter(p => p.groupId === selectedParticipant)
       .map(p => users?.[p.uid]?.meta?.discord || p.uid);
   }
+
+  // ก่อน return JSX (ใน EventDetailPage)
+  // --- เตรียม previewString ---
+  let announce = announceMsg ? `📢 ${announceMsg}` : '';
+  let descHtmlPreview = event.description || '';
+  descHtmlPreview = descHtmlPreview
+    .replace(/<\s*br\s*\/?>(?![^<]*>)/gi, '\n')
+    .replace(/<\/?(div|p|li|ul|ol|h[1-6])[^>]*>/gi, '\n');
+  const descPlainPreview = stripHtml(descHtmlPreview);
+  const descLinesPreview = descPlainPreview.split(/\n+/);
+  let descPreviewForPreview = '📝';
+  const firstLinePreviewIndex = descLinesPreview.findIndex(line => line.trim() !== '');
+  if (firstLinePreviewIndex !== -1) {
+    descPreviewForPreview = `📝${descLinesPreview[firstLinePreviewIndex].trimStart()}`;
+    if (descLinesPreview.length > firstLinePreviewIndex + 1) {
+      descPreviewForPreview += '\n' + descLinesPreview.slice(firstLinePreviewIndex + 1).join('\n');
+    }
+  }
+  const endDateStrPreview = endDate ? endDate.toLocaleString('th-TH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-';
+  const previewString =
+    (announce ? announce + '\n\n' : '') +
+    `🎉 ${event.name}\n` +
+    descPreviewForPreview +
+    `🗓️ วันเวลาเริ่ม: ${startDate ? startDate.toLocaleString('th-TH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}` +
+    `\n⏰ วันเวลาสิ้นสุด: ${endDateStrPreview}` +
+    `\n🎁 ของรางวัล: ${event.rewardInfo}` +
+    `\n\n👉 [เช็คชื่อเข้าร่วมกิจกรรมที่นี่](https://galaxycat.vercel.app/events/${event.id}) 👈`;
 
   return (
     <React.Fragment>
@@ -760,35 +804,7 @@ export default function EventDetailPage() {
                 <div className="bg-white/70 border border-blue-100 rounded p-2 text-xs text-gray-600 shadow-inner">
                   <div className="font-semibold mb-1 flex items-center gap-1">👁️‍🗨️ Preview:</div>
                   <pre className="whitespace-pre-wrap font-mono text-gray-800 break-words">
-                    {
-                      (() => {
-                        // เตรียมข้อความประกาศ
-                        let announce = announceMsg ? `📢 ${announceMsg}` : '';
-                        // เตรียม description: แปลง block tag ทั้งหมดเป็น \n ก่อน stripHtml
-                        let descHtml = event.description || '';
-                        descHtml = descHtml
-                          .replace(/<\s*br\s*\/?>(?![^<]*>)/gi, '\n')
-                          .replace(/<\/?(div|p|li|ul|ol|h[1-6])[^>]*>/gi, '\n');
-                        const descPlain = stripHtml(descHtml);
-                        const descLines = descPlain.split(/\n+/);
-                        let descPreview = descLines.length > 0 ? `📝 ${descLines.join('\n')}` : '📝';
-                        const endDateStr = endDate ? endDate.toLocaleString('th-TH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-';
-                        const previewString =
-                          (announce ? announce + '\n\n' : '') +
-                          `🎉 ${event.name}\n` +
-                          descPreview +
-                          `🗓️ วันเวลาเริ่ม: ${startDate ? startDate.toLocaleString('th-TH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}` +
-                          `\n⏰ วันเวลาสิ้นสุด: ${endDateStr}` +
-                          `\n🎁 ของรางวัล: ${event.rewardInfo}` +
-                          `\n\n[เช็คชื่อเข้าร่วมกิจกรรมที่นี่](https://galaxycat.vercel.app/events/${event.id})`;
-                        return previewString.split('\n').map((line, i, arr) => (
-                          <React.Fragment key={i}>
-                            {line}
-                            {i !== arr.length - 1 && <br />}
-                          </React.Fragment>
-                        ));
-                      })()
-                    }
+                    {previewString.replace(/^\n+/, '')}
                   </pre>
                 </div>
               </motion.div>

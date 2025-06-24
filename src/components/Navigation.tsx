@@ -15,6 +15,7 @@ import { useGuildLoanNotification } from '@/hooks/useGuildLoanNotification';
 import ReactDOM from 'react-dom';
 import { FaCat, FaCoins } from 'react-icons/fa';
 import { toast } from 'sonner';
+import { ThemeToggle } from './ThemeToggle';
 
 export default function Navigation() {
   const pathname = usePathname();
@@ -239,6 +240,10 @@ export default function Navigation() {
                     </button>
                   </div>
                   <nav className="flex-1 flex flex-col gap-2 p-4 overflow-y-auto">
+                    <div className="flex items-center gap-3 mb-3 p-2 rounded-lg bg-white/60 backdrop-blur-md border border-pink-100">
+                      <ThemeToggle />
+                      <span className="text-sm font-medium text-gray-700">สลับธีม</span>
+                    </div>
                     <Link href="/mypage" onClick={() => setIsMobileMenuOpen(false)} className={cn(
                       "flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-pink-50/50 relative",
                       pathname === "/mypage" ? "bg-pink-50" : "text-gray-700"
@@ -348,6 +353,7 @@ export default function Navigation() {
 
               {/* Desktop Navigation */}
               <div className="hidden lg:flex items-center gap-2">
+                <ThemeToggle />
                 <Link
                   href="/mypage"
                   className={cn(
@@ -559,6 +565,14 @@ export default function Navigation() {
                   }
                   .shimmer-pastel:hover {
                     filter: drop-shadow(0 2px 6px #fff9) brightness(1.18);
+                  }
+                  /* Force GalaxyCat gradient in dark mode */
+                  [data-theme="dark"] .shimmer-text {
+                    background: linear-gradient(90deg, #f9a8d4, #c4b5fd 60%, #a5b4fc 100%) !important;
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                    background-clip: text;
+                    color: transparent;
                   }
                 `}</style>
               </div>
