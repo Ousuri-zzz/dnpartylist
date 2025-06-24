@@ -5,14 +5,23 @@ import { useState, useEffect } from 'react';
 export type Theme = 'light' | 'dark' | 'system';
 
 export function useTheme() {
-  const [theme, setTheme] = useState<Theme>('system');
+  const [theme, setTheme] = useState<Theme>('light');
   const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('light');
 
   useEffect(() => {
-    // ดึง theme จาก localStorage หรือใช้ system เป็นค่าเริ่มต้น
+    // ดึง theme จาก localStorage หรือใช้ light เป็นค่าเริ่มต้น
     const savedTheme = localStorage.getItem('theme') as Theme;
     if (savedTheme) {
-      setTheme(savedTheme);
+      // Migrate 'system' theme to 'light' for better default experience
+      if (savedTheme === 'system') {
+        setTheme('light');
+        localStorage.setItem('theme', 'light');
+      } else {
+        setTheme(savedTheme);
+      }
+    } else {
+      // ถ้าไม่มี theme ที่บันทึกไว้ ให้ใช้ light เป็นค่าเริ่มต้น
+      localStorage.setItem('theme', 'light');
     }
   }, []);
 
