@@ -25,6 +25,7 @@ import { WEEKLY_MAX_VALUES } from '@/constants/checklist';
 import { motion } from 'framer-motion';
 import { ClipboardCheck, ClipboardCopy } from 'lucide-react';
 import { resetChecklist } from '@/lib/checklist';
+import Link from 'next/link';
 
 const CHARACTER_CLASSES: CharacterClass[] = [
   'Sword Master',
@@ -1063,18 +1064,14 @@ export default function MyPage() {
 
   return (
     <div className="min-h-screen">
-      <motion.div 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.3, ease: "easeOut" }}
-        className="container mx-auto py-8 px-4"
-      >
-        {/* Header Section */}
+      <div className="container mx-auto py-8 px-4">
+        <div className="flex flex-col md:flex-row w-full gap-2">
+          {/* ซ้าย: แบนเนอร์ 80% */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, ease: "easeOut" }}
-          className="relative w-full mt-1 mb-8 rounded-3xl bg-white/30 backdrop-blur-md border border-white/30 shadow-2xl overflow-hidden"
+            className="w-full md:w-4/5 relative mt-1 rounded-3xl bg-white/30 backdrop-blur-md border border-white/30 shadow-2xl overflow-hidden"
           style={{
             minHeight: '120px',
             boxShadow: '0 8px 40px 0 rgba(124, 58, 237, 0.18)',
@@ -1208,14 +1205,26 @@ export default function MyPage() {
             </motion.div>
           </div>
         </motion.div>
-
+          {/* ขวา: ปุ่ม 20% */}
+          <div className="w-full md:w-1/5 flex items-start md:justify-center justify-start mt-3 md:mt-0 order-last md:order-none">
+            <Link href="/mypage/Status" className="w-full md:w-full">
+              <Button
+                className="w-full h-14 md:h-16 bg-white text-blue-700 font-bold rounded-xl shadow-xl border-2 border-blue-500 flex items-center justify-center gap-2 transition-all duration-200 hover:bg-blue-50 hover:scale-105 focus:ring-2 focus:ring-blue-200 focus:outline-none md:w-full md:max-w-none drop-shadow-lg"
+                style={{ boxShadow: '0 6px 24px 0 rgba(30, 64, 175, 0.10)' }}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 drop-shadow-sm text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z" /></svg>
+                <span className="text-base font-semibold tracking-wide drop-shadow-sm">ดูข้อมูล Status</span>
+              </Button>
+            </Link>
+          </div>
+        </div>
         {/* Character Grid */}
         {characters.length === 0 ? (
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.2, ease: "easeOut" }}
-            className="bg-white/30 backdrop-blur-sm rounded-2xl shadow-lg p-8 text-center"
+            className="bg-white/30 backdrop-blur-sm rounded-2xl shadow-lg p-8 text-center mt-4"
           >
             <div className="w-20 h-20 mx-auto mb-4 bg-violet-100 text-violet-500 rounded-full flex items-center justify-center">
               <svg xmlns="http://www.w3.org/2000/svg" className="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -1243,7 +1252,7 @@ export default function MyPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3, delay: 0.2, ease: "easeOut" }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-4"
           >
             {[...characters]
               .sort((a, b) => a.name.localeCompare(b.name, 'th', {sensitivity: 'base'}))
@@ -1262,7 +1271,7 @@ export default function MyPage() {
             ))}
           </motion.div>
         )}
-      </motion.div>
+      </div>
 
       {/* Add Character Modal */}
       <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
