@@ -1074,7 +1074,6 @@ export default function MyPage() {
             className="w-full md:w-4/5 relative mt-1 rounded-3xl bg-white/30 backdrop-blur-md border border-white/30 shadow-2xl overflow-hidden"
           style={{
             minHeight: '120px',
-            boxShadow: '0 8px 40px 0 rgba(124, 58, 237, 0.18)',
           }}
         >
           {/* Animated Shine Effect */}
@@ -1209,11 +1208,13 @@ export default function MyPage() {
           <div className="w-full md:w-1/5 flex items-start md:justify-center justify-start mt-3 md:mt-0 order-last md:order-none">
             <Link href="/mypage/Status" className="w-full md:w-full">
               <Button
-                className="w-full h-14 md:h-16 bg-white text-blue-700 font-bold rounded-xl shadow-xl border-2 border-blue-500 flex items-center justify-center gap-2 transition-all duration-200 hover:bg-blue-50 hover:scale-105 focus:ring-2 focus:ring-blue-200 focus:outline-none md:w-full md:max-w-none drop-shadow-lg"
-                style={{ boxShadow: '0 6px 24px 0 rgba(30, 64, 175, 0.10)' }}
+                className="w-full h-14 md:h-16 bg-white/80 border border-blue-200 rounded-2xl flex items-center justify-center gap-3 text-blue-700 font-semibold text-lg md:text-xl shadow-sm hover:shadow-lg hover:border-blue-400 hover:bg-blue-50 transition-all duration-200 focus:ring-2 focus:ring-blue-200"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 drop-shadow-sm text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z" /></svg>
-                <span className="text-base font-semibold tracking-wide drop-shadow-sm">ดูข้อมูล Status</span>
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                  <rect x="3" y="3" width="18" height="18" rx="2"/>
+                  <path d="M8 6h8M8 10h8M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"/>
+                </svg>
+                <span>Stat Calculator</span>
               </Button>
             </Link>
           </div>
