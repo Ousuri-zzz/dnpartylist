@@ -79,12 +79,10 @@ export default function Status() {
     return v + (v * p / 100);
   }
   
-  // ฟังก์ชันสำหรับหักลบค่าจาก stat แบบ realtime
-  function statWithPercentNet(val: string, percent: string, statValue: number) {
+  // ฟังก์ชันสำหรับหักลบค่าจาก stat แบบ realtime (ไม่รวม +%)
+  function statWithPercentNet(val: string, statValue: number) {
     const v = Number(val) || 0;
-    const p = Number(percent) || 0;
-    const total = v + (v * p / 100);
-    return total - statValue;
+    return v - statValue;
   }
   
   // คำนวณค่าจาก stat (ไม่มี % สำหรับ base stats)
@@ -103,14 +101,14 @@ export default function Status() {
   const agiToCrit = Math.floor(agi * AGI_TO_CRIT);
   const agiToCritRes = Math.floor(agi * AGI_TO_CRITRES);
   
-  // คำนวณ bonus ที่หักลบค่าจาก stat แล้ว
-  const patk = statWithPercentNet(stats.patk, stats.patkPercent, strToPatk + agiToPatk);
-  const matk = statWithPercentNet(stats.matk, stats.matkPercent, intToMatk);
-  const pdef = statWithPercentNet(stats.pdef, stats.pdefPercent, vitToPdef);
-  const mdef = statWithPercentNet(stats.mdef, stats.mdefPercent, intToMdef);
-  const hp = statWithPercentNet(stats.hp, stats.hpPercent, vitToHp);
-  const crit = statWithPercentNet(stats.crit, stats.critPercent, agiToCrit);
-  const critres = statWithPercentNet(stats.critres, stats.critresPercent, agiToCritRes);
+  // คำนวณ bonus ที่หักลบค่าจาก stat แล้ว (ไม่รวม +%)
+  const patk = statWithPercentNet(stats.patk, strToPatk + agiToPatk);
+  const matk = statWithPercentNet(stats.matk, intToMatk);
+  const pdef = statWithPercentNet(stats.pdef, vitToPdef);
+  const mdef = statWithPercentNet(stats.mdef, intToMdef);
+  const hp = statWithPercentNet(stats.hp, vitToHp);
+  const crit = statWithPercentNet(stats.crit, agiToCrit);
+  const critres = statWithPercentNet(stats.critres, agiToCritRes);
   const fd = statWithPercent(stats.fd, stats.fdPercent);
 
   // คำนวณค่าจาก % ที่บวกจาก stat
@@ -554,7 +552,7 @@ export default function Status() {
                         <div className="flex items-center gap-2 p-2 bg-orange-50 rounded-lg border border-orange-200">
                           <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
                           <span className="text-orange-800 font-medium">จาก Bonus (หัก Stat):</span>
-                          <span className="font-bold text-orange-900">{matk.toLocaleString()}</span>
+                          <span className="font-bold text-orange-900">{Math.max(0, matk).toLocaleString()}</span>
                         </div>
                         
                         {Number(stats.matkPercent) > 0 && (
@@ -642,7 +640,7 @@ export default function Status() {
                         <div className="flex items-center gap-2 p-2 bg-orange-50 rounded-lg border border-orange-200">
                           <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
                           <span className="text-orange-800 font-medium">จาก Bonus (หัก Stat):</span>
-                          <span className="font-bold text-orange-900">{hp.toLocaleString()}</span>
+                          <span className="font-bold text-orange-900">{Math.max(0, hp).toLocaleString()}</span>
                         </div>
                         
                         {Number(stats.hpPercent) > 0 && (
