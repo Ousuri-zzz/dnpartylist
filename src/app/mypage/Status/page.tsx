@@ -490,7 +490,7 @@ export default function Status() {
                         </div>
                         <div className="text-xs text-gray-600 space-y-1">
                           <div>• จาก Stat: STR × {formula.str} + AGI × {formula.agi} = {strToPatk} + {agiToPatk} = {(strToPatk + agiToPatk).toLocaleString()}</div>
-                          <div>• จาก Bonus: {Number(stats.patk) || 0} (หัก Stat แล้ว)</div>
+                          <div>• จาก Bonus: {Math.max(0, patk).toLocaleString()} (หัก Stat แล้ว)</div>
                           <div>• จาก %: {(strToPatk + agiToPatk).toLocaleString()} × {Number(stats.patkPercent) || 0}% = {patkFromPercent.toLocaleString()}</div>
                           <div>• รวม: {(strToPatk + agiToPatk).toLocaleString()} + {Math.max(0, patk).toLocaleString()} + {patkFromPercent.toLocaleString()} = {calcPatk.toLocaleString()}</div>
                         </div>
@@ -578,7 +578,7 @@ export default function Status() {
                         </div>
                         <div className="text-xs text-gray-600 space-y-1">
                           <div>• จาก Stat: INT × {['Force User','Elemental Lord'].includes(charClass) ? 0.75 : 0.5} = {intToMatk.toLocaleString()}</div>
-                          <div>• จาก Bonus: {Number(stats.matk) || 0} (หัก Stat แล้ว)</div>
+                          <div>• จาก Bonus: {Math.max(0, matk).toLocaleString()} (หัก Stat แล้ว)</div>
                           <div>• จาก %: {intToMatk.toLocaleString()} × {Number(stats.matkPercent) || 0}% = {matkFromPercent.toLocaleString()}</div>
                           <div>• รวม: {intToMatk.toLocaleString()} + {Math.max(0, matk).toLocaleString()} + {matkFromPercent.toLocaleString()} = {calcMatk.toLocaleString()}</div>
                         </div>
@@ -666,7 +666,7 @@ export default function Status() {
                         </div>
                         <div className="text-xs text-gray-600 space-y-1">
                           <div>• จาก Stat: VIT × 30 = {vitToHp.toLocaleString()}</div>
-                          <div>• จาก Bonus: {Number(stats.hp) || 0} (หัก Stat แล้ว)</div>
+                          <div>• จาก Bonus: {Math.max(0, hp).toLocaleString()} (หัก Stat แล้ว)</div>
                           <div>• จาก %: {vitToHp.toLocaleString()} × {Number(stats.hpPercent) || 0}% = {hpFromPercent.toLocaleString()}</div>
                           <div>• รวม: {vitToHp.toLocaleString()} + {Math.max(0, hp).toLocaleString()} + {hpFromPercent.toLocaleString()} = {calcHP.toLocaleString()}</div>
                         </div>
@@ -880,7 +880,7 @@ export default function Status() {
                             </div>
                             <div className="text-xs text-gray-600 space-y-1">
                               <div>• จาก Stat: AGI × 3.5 = {agiToCrit.toLocaleString()}</div>
-                              <div>• จาก Bonus: {Number(stats.crit) || 0} (หัก Stat แล้ว)</div>
+                              <div>• จาก Bonus: {Math.max(0, crit).toLocaleString()} (หัก Stat แล้ว)</div>
                               <div>• จาก %: {agiToCrit.toLocaleString()} × {Number(stats.critPercent) || 0}% = {critFromPercent.toLocaleString()}</div>
                               <div>• รวม: {agiToCrit.toLocaleString()} + {Math.max(0, crit).toLocaleString()} + {critFromPercent.toLocaleString()} = {calcCrit.toLocaleString()}</div>
                             </div>
@@ -896,7 +896,7 @@ export default function Status() {
                             </div>
                             <div className="text-xs text-gray-600 space-y-1">
                               <div>• จาก Stat: AGI × 10.5 = {agiToCritRes.toLocaleString()}</div>
-                              <div>• จาก Bonus: {Number(stats.critres) || 0} (หัก Stat แล้ว)</div>
+                              <div>• จาก Bonus: {Math.max(0, critres).toLocaleString()} (หัก Stat แล้ว)</div>
                               <div>• จาก %: {agiToCritRes.toLocaleString()} × {Number(stats.critresPercent) || 0}% = {critresFromPercent.toLocaleString()}</div>
                               <div>• รวม: {agiToCritRes.toLocaleString()} + {Math.max(0, critres).toLocaleString()} + {critresFromPercent.toLocaleString()} = {calcCritRes.toLocaleString()}</div>
                             </div>
@@ -912,7 +912,7 @@ export default function Status() {
                             </div>
                             <div className="text-xs text-gray-600 space-y-1">
                               <div>• จาก Stat: VIT × {['Force User','Elemental Lord','Engineer','Alchemist'].includes(charClass) ? 0.72 : 0.6} = {vitToPdef.toLocaleString()}</div>
-                              <div>• จาก Bonus: {Number(stats.pdef) || 0} (หัก Stat แล้ว)</div>
+                              <div>• จาก Bonus: {Math.max(0, pdef).toLocaleString()} (หัก Stat แล้ว)</div>
                               <div>• จาก %: {vitToPdef.toLocaleString()} × {Number(stats.pdefPercent) || 0}% = {pdefFromPercent.toLocaleString()}</div>
                               <div>• รวม: {vitToPdef.toLocaleString()} + {Math.max(0, pdef).toLocaleString()} + {pdefFromPercent.toLocaleString()} = {calcPdef.toLocaleString()}</div>
                             </div>
@@ -928,7 +928,7 @@ export default function Status() {
                             </div>
                             <div className="text-xs text-gray-600 space-y-1">
                               <div>• จาก Stat: INT × 0.8 = {intToMdef.toLocaleString()}</div>
-                              <div>• จาก Bonus: {Number(stats.mdef) || 0} (หัก Stat แล้ว)</div>
+                              <div>• จาก Bonus: {Math.max(0, mdef).toLocaleString()} (หัก Stat แล้ว)</div>
                               <div>• จาก %: {intToMdef.toLocaleString()} × {Number(stats.mdefPercent) || 0}% = {mdefFromPercent.toLocaleString()}</div>
                               <div>• รวม: {intToMdef.toLocaleString()} + {Math.max(0, mdef).toLocaleString()} + {mdefFromPercent.toLocaleString()} = {calcMdef.toLocaleString()}</div>
                             </div>
