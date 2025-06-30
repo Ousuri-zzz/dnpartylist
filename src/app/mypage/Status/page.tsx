@@ -1,7 +1,12 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { CharacterClass } from '@/types/character';
-import { InformationCircleIcon, BoltIcon, FireIcon, HeartIcon, SparklesIcon, ShieldCheckIcon, ShieldExclamationIcon, ArrowTrendingUpIcon, EyeDropperIcon, UserIcon, TrophyIcon, ChartBarIcon, CalculatorIcon } from '@heroicons/react/24/outline';
+import {
+  InformationCircleIcon, BoltIcon, FireIcon, HeartIcon, SparklesIcon, ShieldCheckIcon, ShieldExclamationIcon, ArrowTrendingUpIcon, EyeDropperIcon, UserIcon, TrophyIcon, ChartBarIcon, CalculatorIcon,
+  WrenchScrewdriverIcon,
+  BeakerIcon
+} from '@heroicons/react/24/outline';
+import { Listbox } from '@headlessui/react';
 
 const CHARACTER_CLASSES: CharacterClass[] = [
   'Sword Master',
@@ -48,35 +53,200 @@ const AGI_TO_CRITRES = 10.5;
 const INT_TO_MDEF = 0.8;
 const VIT_TO_HP = 30;
 
+// Map class name to icon
+const CLASS_ICONS: Record<string, JSX.Element> = {
+  'Sword Master': <BoltIcon className="w-5 h-5 text-yellow-500 dark:text-yellow-300 inline-block mr-1" />, // or custom
+  'Mercenary': <BoltIcon className="w-5 h-5 text-orange-500 dark:text-orange-300 inline-block mr-1" />,
+  'Bowmaster': <ArrowTrendingUpIcon className="w-5 h-5 text-green-500 dark:text-green-300 inline-block mr-1" />,
+  'Acrobat': <ArrowTrendingUpIcon className="w-5 h-5 text-lime-500 dark:text-lime-300 inline-block mr-1" />,
+  'Force User': <FireIcon className="w-5 h-5 text-violet-500 dark:text-violet-300 inline-block mr-1" />,
+  'Elemental Lord': <FireIcon className="w-5 h-5 text-pink-500 dark:text-pink-300 inline-block mr-1" />,
+  'Paladin': <ShieldCheckIcon className="w-5 h-5 text-blue-500 dark:text-blue-300 inline-block mr-1" />,
+  'Priest': <UserIcon className="w-5 h-5 text-amber-500 dark:text-amber-300 inline-block mr-1" />,
+  'Engineer': <WrenchScrewdriverIcon className="w-5 h-5 text-cyan-500 dark:text-cyan-300 inline-block mr-1" />,
+  'Alchemist': <BeakerIcon className="w-5 h-5 text-emerald-500 dark:text-emerald-300 inline-block mr-1" />,
+};
+
+const LEVEL_ICONS = (level: number) => (
+  <TrophyIcon
+    className={`w-5 h-5 mr-2 ${
+      level >= 90 ? 'text-yellow-500 dark:text-yellow-300'
+      : level >= 60 ? 'text-blue-500 dark:text-blue-300'
+      : 'text-gray-400 dark:text-gray-500'
+    }`}
+  />
+);
+
+// Add a utility for compact number formatting
+function formatCompact(num: number) {
+  if (Math.abs(num) >= 1e6) return (num / 1e6).toFixed(2).replace(/\.00$/, '') + 'M';
+  if (Math.abs(num) >= 1e3) return (num / 1e3).toFixed(2).replace(/\.00$/, '') + 'k';
+  return num.toLocaleString();
+}
+
+// Add a color mapping for class names
+const CLASS_COLORS: Record<string, string> = {
+  'Sword Master': 'text-yellow-600 dark:text-yellow-300',
+  'Mercenary': 'text-orange-600 dark:text-orange-300',
+  'Bowmaster': 'text-green-600 dark:text-green-300',
+  'Acrobat': 'text-lime-600 dark:text-lime-300',
+  'Force User': 'text-violet-600 dark:text-violet-300',
+  'Elemental Lord': 'text-pink-600 dark:text-pink-300',
+  'Paladin': 'text-blue-600 dark:text-blue-300',
+  'Priest': 'text-amber-600 dark:text-amber-300',
+  'Engineer': 'text-cyan-600 dark:text-cyan-300',
+  'Alchemist': 'text-emerald-600 dark:text-emerald-300',
+};
+
+// Utility สำหรับแสดง % เทียบ cap
+function getStatPercent(statKey: string, value: number, cap: any) {
+  if (!cap) return null;
+  let capVal = 0;
+  let percent = 0;
+  let capPercent = 0;
+  if (statKey === 'crit' || statKey === 'critres') {
+    capPercent = 90;
+    capVal = cap?.crit ? Math.floor(cap.crit * capPercent / 100) : 0;
+    percent = capVal ? Math.floor((value / capVal) * 100) : 0;
+    return { percent, capVal, capPercent };
+  }
+  if (statKey === 'pdef' || statKey === 'mdef') {
+    capPercent = 85;
+    capVal = cap?.def ? Math.floor(cap.def * capPercent / 100) : 0;
+    percent = capVal ? Math.floor((value / capVal) * 100) : 0;
+    return { percent, capVal, capPercent };
+  }
+  if (statKey === 'fd') {
+    capPercent = 100;
+    capVal = cap?.fd || 0;
+    percent = capVal ? Math.ceil((value / capVal) * 100) : 0;
+    return { percent, capVal, capPercent };
+  }
+  return null;
+}
+
 export default function Status() {
   const [charClass, setCharClass] = useState('');
   const [capLevel, setCapLevel] = useState(40);
   const [stats, setStats] = useState({
-    str: '', strPercent: '',
-    agi: '', agiPercent: '',
-    int: '', intPercent: '',
-    vit: '', vitPercent: '',
-    patk: '', patkPercent: '',
-    matk: '', matkPercent: '',
-    pdef: '', pdefPercent: '',
-    mdef: '', mdefPercent: '',
-    hp: '', hpPercent: '',
-    crit: '', critPercent: '',
-    critres: '', critresPercent: '',
-    fd: '', fdPercent: '',
+    str: '',
+    agi: '',
+    int: '',
+    vit: '',
+    patk: '',
+    matk: '',
+    pdef: '',
+    mdef: '',
+    hp: '',
+    crit: '',
+    critres: '',
+    fd: '',
   });
   const [open, setOpen] = useState(false);
   const [showTooltip, setShowTooltip] = useState<{[key:string]:boolean}>({});
   const [tooltipPosition, setTooltipPosition] = useState<{[key:string]:'left'|'right'}>({});
   const [tooltipVertical, setTooltipVertical] = useState<{[key:string]:'top'|'bottom'}>({});
+  const [savedBuilds, setSavedBuilds] = useState<any[]>([]);
+  const [selectedBuildId, setSelectedBuildId] = useState<number|null>(null);
+  const [showSaveModal, setShowSaveModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState<{open: boolean, id: number|null}>({open: false, id: null});
+  const [pendingLoadBuild, setPendingLoadBuild] = useState<any|null>(null);
+  const [showLoadModal, setShowLoadModal] = useState(false);
+  const [showSidebar, setShowSidebar] = useState(false);
+  const [hasLoaded, setHasLoaded] = useState(false);
+
+  // Robust localStorage load
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const data = localStorage.getItem('dnpartylist-stat-saves');
+      if (data) {
+        const parsed = JSON.parse(data);
+        if (Array.isArray(parsed)) setSavedBuilds(parsed);
+      }
+    } catch (e) {
+      // ถ้า error ให้ reset
+      setSavedBuilds([]);
+    }
+    setHasLoaded(true);
+  }, []);
+
+  // Robust localStorage save
+  useEffect(() => {
+    if (!hasLoaded) return;
+    if (typeof window === 'undefined') return;
+    try {
+      localStorage.setItem('dnpartylist-stat-saves', JSON.stringify(savedBuilds));
+    } catch (e) {
+      // ignore
+    }
+  }, [savedBuilds, hasLoaded]);
+
+  function handleSave() {
+    if (!charClass) return;
+    setShowSaveModal(true);
+  }
+
+  function confirmSave() {
+    if (!charClass) return;
+    const build = {
+      id: Date.now(),
+      charClass,
+      capLevel,
+      stats: { ...stats },
+      results: {
+        patk: calcPatk,
+        matk: calcMatk,
+        hp: calcHP,
+        crit: calcCrit,
+        critres: calcCritRes,
+        pdef: calcPdef,
+        mdef: calcMdef,
+        fd: fd,
+      },
+    };
+    setSavedBuilds([build, ...savedBuilds]);
+    setShowSaveModal(false);
+  }
+
+  function handleDeleteSaveWithModal(id: number) {
+    setShowDeleteModal({open: true, id});
+  }
+
+  function confirmDeleteSave() {
+    if (showDeleteModal.id !== null) {
+      setSavedBuilds(savedBuilds.filter(b => b.id !== showDeleteModal.id));
+    }
+    setShowDeleteModal({open: false, id: null});
+  }
+
+  function handleLoadBuild(build: any) {
+    setPendingLoadBuild(build);
+    setShowLoadModal(true);
+  }
+
+  function confirmLoadBuild() {
+    if (pendingLoadBuild) {
+      setCharClass(pendingLoadBuild.charClass);
+      setCapLevel(pendingLoadBuild.capLevel);
+      setStats({ ...pendingLoadBuild.stats });
+      setSelectedBuildId(pendingLoadBuild.id);
+    }
+    setShowLoadModal(false);
+    setPendingLoadBuild(null);
+  }
+
+  function cancelLoadBuild() {
+    setShowLoadModal(false);
+    setPendingLoadBuild(null);
+  }
 
   // คำนวณค่าต่างๆ
   const formula = charClass && CLASS_FORMULA[charClass as keyof typeof CLASS_FORMULA] ? CLASS_FORMULA[charClass as keyof typeof CLASS_FORMULA] : { str: 0, agi: 0, int: 0, vit: 0 };
   const cap = CAP_LEVELS.find(l => l.level === Number(capLevel));
   function statWithPercent(val: string, percent: string) {
     const v = Number(val) || 0;
-    const p = Number(percent) || 0;
-    return v + (v * p / 100);
+    return v;
   }
   
   // ฟังก์ชันสำหรับหักลบค่าจาก stat แบบ realtime (ไม่รวม +%)
@@ -109,25 +279,19 @@ export default function Status() {
   const hp = statWithPercentNet(stats.hp, vitToHp);
   const crit = statWithPercentNet(stats.crit, agiToCrit);
   const critres = statWithPercentNet(stats.critres, agiToCritRes);
-  const fd = statWithPercent(stats.fd, stats.fdPercent);
+  const fd = statWithPercent(stats.fd, stats.fd);
 
   // คำนวณค่าจาก % ที่บวกจาก stat
-  const patkFromPercent = Math.floor((strToPatk + agiToPatk) * (Number(stats.patkPercent) || 0) / 100);
-  const matkFromPercent = Math.floor(intToMatk * (Number(stats.matkPercent) || 0) / 100);
-  const pdefFromPercent = Math.floor(vitToPdef * (Number(stats.pdefPercent) || 0) / 100);
-  const mdefFromPercent = Math.floor(intToMdef * (Number(stats.mdefPercent) || 0) / 100);
-  const hpFromPercent = Math.floor(vitToHp * (Number(stats.hpPercent) || 0) / 100);
-  const critFromPercent = Math.floor(agiToCrit * (Number(stats.critPercent) || 0) / 100);
-  const critresFromPercent = Math.floor(agiToCritRes * (Number(stats.critresPercent) || 0) / 100);
+  // (Removed percent-based calculations)
 
   // ผลลัพธ์คำนวณ (รวมค่าจาก stat + ค่าดิบ + % จาก stat) - จะคำนวณเฉพาะเมื่อเลือกอาชีพแล้ว
-  const calcPatk = charClass ? strToPatk + agiToPatk + Math.max(0, Math.floor(patk)) + patkFromPercent : 0;
-  const calcMatk = charClass ? intToMatk + Math.max(0, Math.floor(matk)) + matkFromPercent : 0;
-  const calcPdef = charClass ? vitToPdef + Math.max(0, Math.floor(pdef)) + pdefFromPercent : 0;
-  const calcMdef = charClass ? intToMdef + Math.max(0, Math.floor(mdef)) + mdefFromPercent : 0;
-  const calcHP = charClass ? vitToHp + Math.max(0, Math.floor(hp)) + hpFromPercent : 0;
-  const calcCrit = charClass ? agiToCrit + Math.max(0, Math.floor(crit)) + critFromPercent : 0;
-  const calcCritRes = charClass ? agiToCritRes + Math.max(0, Math.floor(critres)) + critresFromPercent : 0;
+  const calcPatk = charClass ? strToPatk + agiToPatk + Math.max(0, Math.floor(patk)) : 0;
+  const calcMatk = charClass ? intToMatk + Math.max(0, Math.floor(matk)) : 0;
+  const calcPdef = charClass ? vitToPdef + Math.max(0, Math.floor(pdef)) : 0;
+  const calcMdef = charClass ? intToMdef + Math.max(0, Math.floor(mdef)) : 0;
+  const calcHP = charClass ? vitToHp + Math.max(0, Math.floor(hp)) : 0;
+  const calcCrit = charClass ? agiToCrit + Math.max(0, Math.floor(crit)) : 0;
+  const calcCritRes = charClass ? agiToCritRes + Math.max(0, Math.floor(critres)) : 0;
 
   // เทียบกับ cap
   function capColor(val: number, capVal: number|undefined) {
@@ -272,19 +436,76 @@ export default function Status() {
               <UserIcon className="w-5 h-5 text-blue-400" />
               เลือกอาชีพ
             </label>
-            <select value={charClass} onChange={e=>setCharClass(e.target.value)} className="w-full rounded-lg border-gray-300 focus:ring-blue-400">
-              <option value="" disabled>กรุณาเลือกอาชีพ</option>
-              {CHARACTER_CLASSES.map(c=>(<option key={c} value={c}>{c}</option>))}
-            </select>
+            <Listbox value={charClass} onChange={setCharClass}>
+              <div className="relative">
+                <Listbox.Button className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 py-2 pl-3 pr-10 text-left focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition">
+                  <span className="flex items-center">
+                    {charClass && CLASS_ICONS[charClass]}
+                    <span className="ml-2">{charClass || 'กรุณาเลือกอาชีพ'}</span>
+                  </span>
+                </Listbox.Button>
+                <Listbox.Options className="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 shadow-lg max-h-fit min-h-0 rounded-lg py-1 text-base ring-1 ring-black ring-opacity-5 overflow-y-auto focus:outline-none">
+                  <Listbox.Option
+                    key="empty"
+                    value=""
+                    disabled
+                    className="text-gray-400 cursor-not-allowed px-4 py-2"
+                  >
+                    กรุณาเลือกอาชีพ
+                  </Listbox.Option>
+                  {CHARACTER_CLASSES.map((c) => (
+                    <Listbox.Option
+                      key={c}
+                      value={c}
+                      className={({ active, selected }) =>
+                        `cursor-pointer select-none relative py-2 pl-8 pr-4 flex items-center ${
+                          active ? 'bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-100' : 'text-gray-900 dark:text-gray-100'
+                        } ${selected ? 'font-bold' : ''}`
+                      }
+                    >
+                      <span className="absolute left-2 flex items-center">
+                        {CLASS_ICONS[c]}
+                      </span>
+                      <span className="ml-2">{c}</span>
+                    </Listbox.Option>
+                  ))}
+                </Listbox.Options>
+              </div>
+            </Listbox>
           </div>
           <div>
             <label className="block font-medium text-blue-800 mb-1 flex items-center gap-1">
               <TrophyIcon className="w-5 h-5 text-amber-500" />
               เลือก Cap Level
             </label>
-            <select value={capLevel} onChange={e=>setCapLevel(Number(e.target.value))} className="w-full rounded-lg border-gray-300 focus:ring-blue-400">
-              {CAP_LEVELS.map(l=>(<option key={l.level} value={l.level}>Lv.{l.level}</option>))}
-            </select>
+            <Listbox value={capLevel} onChange={setCapLevel}>
+              <div className="relative">
+                <Listbox.Button className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 py-2 pl-3 pr-10 text-left focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition">
+                  <span className="flex items-center">
+                    {LEVEL_ICONS(Number(capLevel))}
+                    <span className="ml-2">Lv.{capLevel}</span>
+                  </span>
+                </Listbox.Button>
+                <Listbox.Options className="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 shadow-lg max-h-fit min-h-0 rounded-lg py-1 text-base ring-1 ring-black ring-opacity-5 overflow-y-auto focus:outline-none">
+                  {CAP_LEVELS.map((l) => (
+                    <Listbox.Option
+                      key={l.level}
+                      value={l.level}
+                      className={({ active, selected }) =>
+                        `cursor-pointer select-none relative py-2 pl-8 pr-4 flex items-center ${
+                          active ? 'bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-100' : 'text-gray-900 dark:text-gray-100'
+                        } ${selected ? 'font-bold' : ''}`
+                      }
+                    >
+                      <span className="absolute left-2 flex items-center">
+                        {LEVEL_ICONS(l.level)}
+                      </span>
+                      <span className="ml-2">Lv.{l.level}</span>
+                    </Listbox.Option>
+                  ))}
+                </Listbox.Options>
+              </div>
+            </Listbox>
           </div>
           <div className="md:col-span-2">
             <label className="block font-medium text-blue-800 mb-1">Base Stats</label>
@@ -294,28 +515,28 @@ export default function Status() {
                   <BoltIcon className="w-4 h-4 text-yellow-500" />
                   STR
             </label>
-                <input type="number" className="w-full rounded-lg border-gray-300 focus:ring-blue-400 text-sm" placeholder="จำนวน" value={stats.str} onChange={e=>setStats(s=>({...s,str:e.target.value}))} />
+                <input type="number" className="w-full rounded-lg border-gray-300 dark:border-gray-600 focus:ring-blue-400 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100" placeholder="จำนวน" value={stats.str} onChange={e=>setStats(s=>({...s,str:e.target.value}))} />
           </div>
           <div>
                 <label className="block text-xs text-blue-600 mb-1 flex items-center gap-1">
                   <SparklesIcon className="w-4 h-4 text-yellow-400" />
                   AGI
             </label>
-                <input type="number" className="w-full rounded-lg border-gray-300 focus:ring-blue-400 text-sm" placeholder="จำนวน" value={stats.agi} onChange={e=>setStats(s=>({...s,agi:e.target.value}))} />
+                <input type="number" className="w-full rounded-lg border-gray-300 dark:border-gray-600 focus:ring-blue-400 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100" placeholder="จำนวน" value={stats.agi} onChange={e=>setStats(s=>({...s,agi:e.target.value}))} />
           </div>
           <div>
                 <label className="block text-xs text-blue-600 mb-1 flex items-center gap-1">
                   <FireIcon className="w-4 h-4 text-pink-500" />
                   INT
             </label>
-                <input type="number" className="w-full rounded-lg border-gray-300 focus:ring-blue-400 text-sm" placeholder="จำนวน" value={stats.int} onChange={e=>setStats(s=>({...s,int:e.target.value}))} />
+                <input type="number" className="w-full rounded-lg border-gray-300 dark:border-gray-600 focus:ring-blue-400 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100" placeholder="จำนวน" value={stats.int} onChange={e=>setStats(s=>({...s,int:e.target.value}))} />
           </div>
           <div>
                 <label className="block text-xs text-blue-600 mb-1 flex items-center gap-1">
                   <HeartIcon className="w-4 h-4 text-red-400" />
                   VIT
             </label>
-                <input type="number" className="w-full rounded-lg border-gray-300 focus:ring-blue-400 text-sm" placeholder="จำนวน" value={stats.vit} onChange={e=>setStats(s=>({...s,vit:e.target.value}))} />
+                <input type="number" className="w-full rounded-lg border-gray-300 dark:border-gray-600 focus:ring-blue-400 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100" placeholder="จำนวน" value={stats.vit} onChange={e=>setStats(s=>({...s,vit:e.target.value}))} />
               </div>
             </div>
           </div>
@@ -324,88 +545,73 @@ export default function Status() {
               <BoltIcon className="w-5 h-5 text-yellow-500" />
               Physical Damage
             </label>
-            <div className="flex gap-2">
-              <input type="number" className="w-full rounded-lg border-gray-300 focus:ring-blue-400" placeholder="จำนวน" value={stats.patk} onChange={e=>setStats(s=>({...s,patk:e.target.value}))} />
-              <input type="number" className="w-24 rounded-lg border-gray-300 focus:ring-blue-400 text-sm" placeholder="โบนัส %" value={stats.patkPercent} onChange={e=>setStats(s=>({...s,patkPercent:e.target.value}))} />
-            </div>
+            <input type="number" className="w-full rounded-lg border-gray-300 dark:border-gray-600 focus:ring-blue-400 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100" placeholder="จำนวน" value={stats.patk} onChange={e=>setStats(s=>({...s,patk:e.target.value}))} />
           </div>
           <div>
             <label className="block font-medium text-blue-800 mb-1 flex items-center gap-1">
               <FireIcon className="w-5 h-5 text-pink-500" />
               Magic Damage
             </label>
-            <div className="flex gap-2">
-              <input type="number" className="w-full rounded-lg border-gray-300 focus:ring-blue-400" placeholder="จำนวน" value={stats.matk} onChange={e=>setStats(s=>({...s,matk:e.target.value}))} />
-              <input type="number" className="w-24 rounded-lg border-gray-300 focus:ring-blue-400 text-sm" placeholder="โบนัส %" value={stats.matkPercent} onChange={e=>setStats(s=>({...s,matkPercent:e.target.value}))} />
-            </div>
+            <input type="number" className="w-full rounded-lg border-gray-300 dark:border-gray-600 focus:ring-blue-400 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100" placeholder="จำนวน" value={stats.matk} onChange={e=>setStats(s=>({...s,matk:e.target.value}))} />
           </div>
           <div>
             <label className="block font-medium text-blue-800 mb-1 flex items-center gap-1">
               <ShieldCheckIcon className="w-5 h-5 text-blue-400" />
               Physical Defense
             </label>
-            <div className="flex gap-2">
-              <input type="number" className="w-full rounded-lg border-gray-300 focus:ring-blue-400" placeholder="จำนวน" value={stats.pdef} onChange={e=>setStats(s=>({...s,pdef:e.target.value}))} />
-              <input type="number" className="w-24 rounded-lg border-gray-300 focus:ring-blue-400 text-sm" placeholder="โบนัส %" value={stats.pdefPercent} onChange={e=>setStats(s=>({...s,pdefPercent:e.target.value}))} />
-            </div>
+            <input type="number" className="w-full rounded-lg border-gray-300 dark:border-gray-600 focus:ring-blue-400 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100" placeholder="จำนวน" value={stats.pdef} onChange={e=>setStats(s=>({...s,pdef:e.target.value}))} />
           </div>
           <div>
             <label className="block font-medium text-blue-800 mb-1 flex items-center gap-1">
               <ShieldExclamationIcon className="w-5 h-5 text-violet-500" />
               Magic Defense
             </label>
-            <div className="flex gap-2">
-              <input type="number" className="w-full rounded-lg border-gray-300 focus:ring-blue-400" placeholder="จำนวน" value={stats.mdef} onChange={e=>setStats(s=>({...s,mdef:e.target.value}))} />
-              <input type="number" className="w-24 rounded-lg border-gray-300 focus:ring-blue-400 text-sm" placeholder="โบนัส %" value={stats.mdefPercent} onChange={e=>setStats(s=>({...s,mdefPercent:e.target.value}))} />
-            </div>
+            <input type="number" className="w-full rounded-lg border-gray-300 dark:border-gray-600 focus:ring-blue-400 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100" placeholder="จำนวน" value={stats.mdef} onChange={e=>setStats(s=>({...s,mdef:e.target.value}))} />
           </div>
           <div>
             <label className="block font-medium text-blue-800 mb-1 flex items-center gap-1">
               <HeartIcon className="w-5 h-5 text-red-400" />
               HP
             </label>
-            <div className="flex gap-2">
-              <input type="number" className="w-full rounded-lg border-gray-300 focus:ring-blue-400" placeholder="จำนวน" value={stats.hp} onChange={e=>setStats(s=>({...s,hp:e.target.value}))} />
-              <input type="number" className="w-24 rounded-lg border-gray-300 focus:ring-blue-400 text-sm" placeholder="โบนัส %" value={stats.hpPercent} onChange={e=>setStats(s=>({...s,hpPercent:e.target.value}))} />
-            </div>
+            <input type="number" className="w-full rounded-lg border-gray-300 dark:border-gray-600 focus:ring-blue-400 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100" placeholder="จำนวน" value={stats.hp} onChange={e=>setStats(s=>({...s,hp:e.target.value}))} />
           </div>
           <div>
             <label className="block font-medium text-blue-800 mb-1 flex items-center gap-1">
               <SparklesIcon className="w-5 h-5 text-yellow-400" />
               Critical
             </label>
-            <div className="flex gap-2">
-              <input type="number" className="w-full rounded-lg border-gray-300 focus:ring-blue-400" placeholder="จำนวน" value={stats.crit} onChange={e=>setStats(s=>({...s,crit:e.target.value}))} />
-              <input type="number" className="w-24 rounded-lg border-gray-300 focus:ring-blue-400 text-sm" placeholder="โบนัส %" value={stats.critPercent} onChange={e=>setStats(s=>({...s,critPercent:e.target.value}))} />
-            </div>
+            <input type="number" className="w-full rounded-lg border-gray-300 dark:border-gray-600 focus:ring-blue-400 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100" placeholder="จำนวน" value={stats.crit} onChange={e=>setStats(s=>({...s,crit:e.target.value}))} />
           </div>
           <div>
             <label className="block font-medium text-blue-800 mb-1 flex items-center gap-1">
               <EyeDropperIcon className="w-5 h-5 text-green-500" />
               Crit Resist
             </label>
-            <div className="flex gap-2">
-              <input type="number" className="w-full rounded-lg border-gray-300 focus:ring-blue-400" placeholder="จำนวน" value={stats.critres} onChange={e=>setStats(s=>({...s,critres:e.target.value}))} />
-              <input type="number" className="w-24 rounded-lg border-gray-300 focus:ring-blue-400 text-sm" placeholder="โบนัส %" value={stats.critresPercent} onChange={e=>setStats(s=>({...s,critresPercent:e.target.value}))} />
-            </div>
+            <input type="number" className="w-full rounded-lg border-gray-300 dark:border-gray-600 focus:ring-blue-400 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100" placeholder="จำนวน" value={stats.critres} onChange={e=>setStats(s=>({...s,critres:e.target.value}))} />
           </div>
           <div>
             <label className="block font-medium text-blue-800 mb-1 flex items-center gap-1">
               <ArrowTrendingUpIcon className="w-5 h-5 text-pink-400" />
               Final Damage
             </label>
-            <div className="flex gap-2">
-              <input type="number" className="w-full rounded-lg border-gray-300 focus:ring-blue-400" placeholder="จำนวน" value={stats.fd} onChange={e=>setStats(s=>({...s,fd:e.target.value}))} />
-              <input type="number" className="w-24 rounded-lg border-gray-300 focus:ring-blue-400 text-sm" placeholder="โบนัส %" value={stats.fdPercent} onChange={e=>setStats(s=>({...s,fdPercent:e.target.value}))} />
-            </div>
+            <input type="number" className="w-full rounded-lg border-gray-300 dark:border-gray-600 focus:ring-blue-400 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100" placeholder="จำนวน" value={stats.fd} onChange={e=>setStats(s=>({...s,fd:e.target.value}))} />
           </div>
         </div>
         {/* ผลลัพธ์ */}
         <div className="mt-6 grid grid-cols-1 md:grid-cols-1 gap-4">
           <div className="bg-blue-50/60 rounded-xl p-3 md:p-4 border border-blue-100 shadow flex flex-col gap-2 md:gap-3 relative">
-            <div className="font-bold text-blue-700 mb-2 text-base md:text-lg flex items-center gap-2">
-              <ChartBarIcon className="w-4 h-4 md:w-5 md:h-5 text-blue-500" />
-              ผลลัพธ์
+            <div className="font-bold text-blue-700 mb-2 text-base md:text-lg flex items-center gap-2 justify-between">
+              <span className="flex items-center gap-2">
+                <ChartBarIcon className="w-4 h-4 md:w-5 md:h-5 text-blue-500" />
+                ผลลัพธ์
+              </span>
+              <button
+                onClick={handleSave}
+                disabled={!charClass}
+                className="px-3 py-1 rounded-lg bg-blue-600 text-white font-bold shadow hover:bg-blue-700 disabled:bg-gray-300 disabled:text-gray-400 transition text-sm"
+              >
+                Save Build
+              </button>
             </div>
             {!charClass ? (
               <div className="text-center py-6 md:py-8">
@@ -432,11 +638,6 @@ export default function Status() {
                   </span>
                   <div className="text-right">
                     <div className="text-base md:text-lg font-bold text-yellow-600">{calcPatk.toLocaleString()}</div>
-                    {Number(stats.patkPercent) > 0 && (
-                      <div className="text-xs text-green-600">
-                        +{patkFromPercent.toLocaleString()} ({stats.patkPercent}%)
-                      </div>
-                    )}
                   </div>
                   
                   {/* Tooltip แยกออกมา */}
@@ -466,20 +667,6 @@ export default function Status() {
                           <span className="text-orange-800 font-medium">จาก Bonus (หัก Stat):</span>
                           <span className="font-bold text-orange-900">{Math.max(0, patk).toLocaleString()}</span>
                         </div>
-                        
-                        {Number(stats.patkPercent) > 0 && (
-                          <div className="flex items-center gap-2 p-2 bg-blue-50 rounded-lg border border-blue-200">
-                            <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                            <span className="text-blue-800 font-medium">จาก Bonus %:</span>
-                            <span className="font-bold text-blue-900">+{patkFromPercent.toLocaleString()} ({stats.patkPercent}%)</span>
-                          </div>
-                        )}
-                        
-                        <div className="flex items-center gap-2 p-2 bg-purple-50 rounded-lg border border-purple-200">
-                          <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
-                          <span className="text-purple-800 font-medium">รวมทั้งหมด:</span>
-                          <span className="font-bold text-purple-900">{calcPatk.toLocaleString()}</span>
-                        </div>
                       </div>
 
                       {/* การคำนวณแบบละเอียด */}
@@ -491,8 +678,7 @@ export default function Status() {
                         <div className="text-xs text-gray-600 space-y-1">
                           <div>• จาก Stat: STR × {formula.str} + AGI × {formula.agi} = {strToPatk} + {agiToPatk} = {(strToPatk + agiToPatk).toLocaleString()}</div>
                           <div>• จาก Bonus: {Math.max(0, patk).toLocaleString()} (หัก Stat แล้ว)</div>
-                          <div>• จาก %: {(strToPatk + agiToPatk).toLocaleString()} × {Number(stats.patkPercent) || 0}% = {patkFromPercent.toLocaleString()}</div>
-                          <div>• รวม: {(strToPatk + agiToPatk).toLocaleString()} + {Math.max(0, patk).toLocaleString()} + {patkFromPercent.toLocaleString()} = {calcPatk.toLocaleString()}</div>
+                          <div>• รวม: {(strToPatk + agiToPatk).toLocaleString()} + {Math.max(0, patk).toLocaleString()} = {calcPatk.toLocaleString()}</div>
                         </div>
                       </div>
                     </div>
@@ -520,11 +706,6 @@ export default function Status() {
                   </span>
                   <div className="text-right">
                     <div className="text-base md:text-lg font-bold text-pink-600">{calcMatk.toLocaleString()}</div>
-                    {Number(stats.matkPercent) > 0 && (
-                      <div className="text-xs text-green-600">
-                        +{matkFromPercent.toLocaleString()} ({stats.matkPercent}%)
-                      </div>
-                    )}
                   </div>
                   
                   {/* Tooltip แยกออกมา */}
@@ -554,20 +735,6 @@ export default function Status() {
                           <span className="text-orange-800 font-medium">จาก Bonus (หัก Stat):</span>
                           <span className="font-bold text-orange-900">{Math.max(0, matk).toLocaleString()}</span>
                         </div>
-                        
-                        {Number(stats.matkPercent) > 0 && (
-                          <div className="flex items-center gap-2 p-2 bg-blue-50 rounded-lg border border-blue-200">
-                            <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                            <span className="text-blue-800 font-medium">จาก Bonus %:</span>
-                            <span className="font-bold text-blue-900">+{matkFromPercent.toLocaleString()} ({stats.matkPercent}%)</span>
-                          </div>
-                        )}
-                        
-                        <div className="flex items-center gap-2 p-2 bg-purple-50 rounded-lg border border-purple-200">
-                          <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
-                          <span className="text-purple-800 font-medium">รวมทั้งหมด:</span>
-                          <span className="font-bold text-purple-900">{calcMatk.toLocaleString()}</span>
-                        </div>
                       </div>
 
                       {/* การคำนวณแบบละเอียด */}
@@ -579,8 +746,7 @@ export default function Status() {
                         <div className="text-xs text-gray-600 space-y-1">
                           <div>• จาก Stat: INT × {['Force User','Elemental Lord'].includes(charClass) ? 0.75 : 0.5} = {intToMatk.toLocaleString()}</div>
                           <div>• จาก Bonus: {Math.max(0, matk).toLocaleString()} (หัก Stat แล้ว)</div>
-                          <div>• จาก %: {intToMatk.toLocaleString()} × {Number(stats.matkPercent) || 0}% = {matkFromPercent.toLocaleString()}</div>
-                          <div>• รวม: {intToMatk.toLocaleString()} + {Math.max(0, matk).toLocaleString()} + {matkFromPercent.toLocaleString()} = {calcMatk.toLocaleString()}</div>
+                          <div>• รวม: {intToMatk.toLocaleString()} + {Math.max(0, matk).toLocaleString()} = {calcMatk.toLocaleString()}</div>
                         </div>
                       </div>
                     </div>
@@ -608,11 +774,6 @@ export default function Status() {
                   </span>
                   <div className="text-right">
                     <div className="text-base md:text-lg font-bold text-red-600">{calcHP.toLocaleString()}</div>
-                    {Number(stats.hpPercent) > 0 && (
-                      <div className="text-xs text-green-600">
-                        +{hpFromPercent.toLocaleString()} ({stats.hpPercent}%)
-                      </div>
-                    )}
                   </div>
                   
                   {/* Tooltip แยกออกมา */}
@@ -642,20 +803,6 @@ export default function Status() {
                           <span className="text-orange-800 font-medium">จาก Bonus (หัก Stat):</span>
                           <span className="font-bold text-orange-900">{Math.max(0, hp).toLocaleString()}</span>
                         </div>
-                        
-                        {Number(stats.hpPercent) > 0 && (
-                          <div className="flex items-center gap-2 p-2 bg-blue-50 rounded-lg border border-blue-200">
-                            <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                            <span className="text-blue-800 font-medium">จาก Bonus %:</span>
-                            <span className="font-bold text-blue-900">+{hpFromPercent.toLocaleString()} ({stats.hpPercent}%)</span>
-                          </div>
-                        )}
-                        
-                        <div className="flex items-center gap-2 p-2 bg-purple-50 rounded-lg border border-purple-200">
-                          <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
-                          <span className="text-purple-800 font-medium">รวมทั้งหมด:</span>
-                          <span className="font-bold text-purple-900">{calcHP.toLocaleString()}</span>
-                        </div>
                       </div>
 
                       {/* การคำนวณแบบละเอียด */}
@@ -667,8 +814,7 @@ export default function Status() {
                         <div className="text-xs text-gray-600 space-y-1">
                           <div>• จาก Stat: VIT × 30 = {vitToHp.toLocaleString()}</div>
                           <div>• จาก Bonus: {Math.max(0, hp).toLocaleString()} (หัก Stat แล้ว)</div>
-                          <div>• จาก %: {vitToHp.toLocaleString()} × {Number(stats.hpPercent) || 0}% = {hpFromPercent.toLocaleString()}</div>
-                          <div>• รวม: {vitToHp.toLocaleString()} + {Math.max(0, hp).toLocaleString()} + {hpFromPercent.toLocaleString()} = {calcHP.toLocaleString()}</div>
+                          <div>• รวม: {vitToHp.toLocaleString()} + {Math.max(0, hp).toLocaleString()} = {calcHP.toLocaleString()}</div>
                         </div>
                       </div>
                     </div>
@@ -730,20 +876,6 @@ export default function Status() {
                             </span>
                           </div>
                         </div>
-                        {/* แสดงค่าจากเปอร์เซ็นต์แยก */}
-                        {Number(stats[`${key}Percent` as keyof typeof stats]) > 0 && (
-                          <div className="text-xs text-green-600">
-                            +{(() => {
-                              switch(key) {
-                                case 'crit': return critFromPercent;
-                                case 'critres': return critresFromPercent;
-                                case 'pdef': return pdefFromPercent;
-                                case 'mdef': return mdefFromPercent;
-                                default: return 0;
-                              }
-                            })().toLocaleString()} ({stats[`${key}Percent` as keyof typeof stats]}%)
-                          </div>
-                        )}
                       </div>
                     </div>
                     
@@ -775,13 +907,6 @@ export default function Status() {
                                 <span className="text-orange-800 font-medium">จาก Bonus (หัก Stat):</span>
                                 <span className="font-bold text-orange-900">{Math.max(0, crit).toLocaleString()}</span>
                               </div>
-                              {Number(stats.critPercent) > 0 && (
-                                <div className="flex items-center gap-2 p-2 bg-blue-50 rounded-lg border border-blue-200">
-                                  <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                                  <span className="text-blue-800 font-medium">จาก Bonus %:</span>
-                                  <span className="font-bold text-blue-900">+{critFromPercent.toLocaleString()} ({stats.critPercent}%)</span>
-                                </div>
-                              )}
                             </>
                           )}
                           {key === 'critres' && (
@@ -796,13 +921,6 @@ export default function Status() {
                                 <span className="text-orange-800 font-medium">จาก Bonus (หัก Stat):</span>
                                 <span className="font-bold text-orange-900">{Math.max(0, critres).toLocaleString()}</span>
                               </div>
-                              {Number(stats.critresPercent) > 0 && (
-                                <div className="flex items-center gap-2 p-2 bg-blue-50 rounded-lg border border-blue-200">
-                                  <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                                  <span className="text-blue-800 font-medium">จาก Bonus %:</span>
-                                  <span className="font-bold text-blue-900">+{critresFromPercent.toLocaleString()} ({stats.critresPercent}%)</span>
-                                </div>
-                              )}
                             </>
                           )}
                           {key === 'pdef' && (
@@ -817,13 +935,6 @@ export default function Status() {
                                 <span className="text-orange-800 font-medium">จาก Bonus (หัก Stat):</span>
                                 <span className="font-bold text-orange-900">{Math.max(0, pdef).toLocaleString()}</span>
                               </div>
-                              {Number(stats.pdefPercent) > 0 && (
-                                <div className="flex items-center gap-2 p-2 bg-blue-50 rounded-lg border border-blue-200">
-                                  <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                                  <span className="text-blue-800 font-medium">จาก Bonus %:</span>
-                                  <span className="font-bold text-blue-900">+{pdefFromPercent.toLocaleString()} ({stats.pdefPercent}%)</span>
-                                </div>
-                              )}
                             </>
                           )}
                           {key === 'mdef' && (
@@ -838,13 +949,6 @@ export default function Status() {
                                 <span className="text-orange-800 font-medium">จาก Bonus (หัก Stat):</span>
                                 <span className="font-bold text-orange-900">{Math.max(0, mdef).toLocaleString()}</span>
                               </div>
-                              {Number(stats.mdefPercent) > 0 && (
-                                <div className="flex items-center gap-2 p-2 bg-blue-50 rounded-lg border border-blue-200">
-                                  <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                                  <span className="text-blue-800 font-medium">จาก Bonus %:</span>
-                                  <span className="font-bold text-blue-900">+{mdefFromPercent.toLocaleString()} ({stats.mdefPercent}%)</span>
-                                </div>
-                              )}
                             </>
                           )}
                           {key === 'fd' && (
@@ -854,13 +958,6 @@ export default function Status() {
                                 <span className="text-orange-800 font-medium">จาก Bonus:</span>
                                 <span className="font-bold text-orange-900">{fd.toLocaleString()}</span>
                               </div>
-                              {Number(stats.fdPercent) > 0 && (
-                                <div className="flex items-center gap-2 p-2 bg-blue-50 rounded-lg border border-blue-200">
-                                  <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                                  <span className="text-blue-800 font-medium">จาก Bonus %:</span>
-                                  <span className="font-bold text-blue-900">+{((Number(stats.fd) || 0) * Number(stats.fdPercent) / 100).toLocaleString()} ({stats.fdPercent}%)</span>
-                                </div>
-                              )}
                             </>
                           )}
                           
@@ -881,8 +978,7 @@ export default function Status() {
                             <div className="text-xs text-gray-600 space-y-1">
                               <div>• จาก Stat: AGI × 3.5 = {agiToCrit.toLocaleString()}</div>
                               <div>• จาก Bonus: {Math.max(0, crit).toLocaleString()} (หัก Stat แล้ว)</div>
-                              <div>• จาก %: {agiToCrit.toLocaleString()} × {Number(stats.critPercent) || 0}% = {critFromPercent.toLocaleString()}</div>
-                              <div>• รวม: {agiToCrit.toLocaleString()} + {Math.max(0, crit).toLocaleString()} + {critFromPercent.toLocaleString()} = {calcCrit.toLocaleString()}</div>
+                              <div>• รวม: {agiToCrit.toLocaleString()} + {Math.max(0, crit).toLocaleString()} = {calcCrit.toLocaleString()}</div>
                             </div>
                           </div>
                         )}
@@ -897,8 +993,7 @@ export default function Status() {
                             <div className="text-xs text-gray-600 space-y-1">
                               <div>• จาก Stat: AGI × 10.5 = {agiToCritRes.toLocaleString()}</div>
                               <div>• จาก Bonus: {Math.max(0, critres).toLocaleString()} (หัก Stat แล้ว)</div>
-                              <div>• จาก %: {agiToCritRes.toLocaleString()} × {Number(stats.critresPercent) || 0}% = {critresFromPercent.toLocaleString()}</div>
-                              <div>• รวม: {agiToCritRes.toLocaleString()} + {Math.max(0, critres).toLocaleString()} + {critresFromPercent.toLocaleString()} = {calcCritRes.toLocaleString()}</div>
+                              <div>• รวม: {agiToCritRes.toLocaleString()} + {Math.max(0, critres).toLocaleString()} = {calcCritRes.toLocaleString()}</div>
                             </div>
                           </div>
                         )}
@@ -913,8 +1008,7 @@ export default function Status() {
                             <div className="text-xs text-gray-600 space-y-1">
                               <div>• จาก Stat: VIT × {['Force User','Elemental Lord','Engineer','Alchemist'].includes(charClass) ? 0.72 : 0.6} = {vitToPdef.toLocaleString()}</div>
                               <div>• จาก Bonus: {Math.max(0, pdef).toLocaleString()} (หัก Stat แล้ว)</div>
-                              <div>• จาก %: {vitToPdef.toLocaleString()} × {Number(stats.pdefPercent) || 0}% = {pdefFromPercent.toLocaleString()}</div>
-                              <div>• รวม: {vitToPdef.toLocaleString()} + {Math.max(0, pdef).toLocaleString()} + {pdefFromPercent.toLocaleString()} = {calcPdef.toLocaleString()}</div>
+                              <div>• รวม: {vitToPdef.toLocaleString()} + {Math.max(0, pdef).toLocaleString()} = {calcPdef.toLocaleString()}</div>
                             </div>
                           </div>
                         )}
@@ -929,8 +1023,7 @@ export default function Status() {
                             <div className="text-xs text-gray-600 space-y-1">
                               <div>• จาก Stat: INT × 0.8 = {intToMdef.toLocaleString()}</div>
                               <div>• จาก Bonus: {Math.max(0, mdef).toLocaleString()} (หัก Stat แล้ว)</div>
-                              <div>• จาก %: {intToMdef.toLocaleString()} × {Number(stats.mdefPercent) || 0}% = {mdefFromPercent.toLocaleString()}</div>
-                              <div>• รวม: {intToMdef.toLocaleString()} + {Math.max(0, mdef).toLocaleString()} + {mdefFromPercent.toLocaleString()} = {calcMdef.toLocaleString()}</div>
+                              <div>• รวม: {intToMdef.toLocaleString()} + {Math.max(0, mdef).toLocaleString()} = {calcMdef.toLocaleString()}</div>
                             </div>
                           </div>
                         )}
@@ -1072,6 +1165,260 @@ export default function Status() {
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Floating button for mobile */}
+      <button
+        className="fixed bottom-4 right-4 z-40 bg-blue-600 text-white rounded-full p-3 shadow-lg lg:hidden"
+        onClick={() => setShowSidebar(true)}
+        title="Saved Builds"
+      >
+        <ChartBarIcon className="w-6 h-6" />
+      </button>
+
+      {/* Sidebar Drawer/Modal for mobile */}
+      {showSidebar && (
+        <div className="fixed inset-0 z-50 flex items-end lg:items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="bg-white dark:bg-gray-900 w-full max-w-md rounded-t-2xl lg:rounded-2xl shadow-xl p-4 flex flex-col gap-3 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-2">
+              <div className="flex flex-col gap-0">
+                <div className="flex items-center gap-2 font-bold text-blue-700 dark:text-blue-200 text-lg mb-0">
+                  <ChartBarIcon className="w-5 h-5 text-blue-500" />
+                  <span>Saved Builds</span>
+                </div>
+                <span className="text-xs font-normal text-gray-400 dark:text-gray-400 mt-1 mb-2 block">ข้อมูลที่บันทึกจะถูกเก็บไว้ในเครื่องของคุณเท่านั้น</span>
+              </div>
+              <button onClick={() => setShowSidebar(false)} className="text-gray-400 hover:text-blue-500 text-2xl font-bold">×</button>
+            </div>
+            <div className="flex-1 overflow-y-auto max-h-[70vh] pr-1">
+              {savedBuilds.length === 0 && (
+                <div className="text-gray-400 text-sm">No saved builds yet.</div>
+              )}
+              {savedBuilds.map((b) => (
+                <div
+                  key={b.id}
+                  className={`relative bg-white dark:bg-gray-800 border border-blue-100 dark:border-gray-700 rounded-xl shadow-md px-4 py-3 mb-3 transition cursor-pointer hover:shadow-lg ${selectedBuildId === b.id ? 'ring-2 ring-blue-400 dark:ring-blue-300 border-blue-400 dark:border-blue-300' : ''}`}
+                  onClick={() => handleLoadBuild(b)}
+                  title="คลิกเพื่อโหลดข้อมูลนี้"
+                >
+                  <button
+                    onClick={e => { e.stopPropagation(); handleDeleteSaveWithModal(b.id); }}
+                    className="absolute top-2 right-2 text-red-400 hover:text-red-600 dark:hover:text-red-300 p-1 rounded-full text-lg"
+                    title="Delete"
+                  >
+                    ×
+                  </button>
+                  <div className="flex items-center gap-2 mb-1">
+                    {CLASS_ICONS[b.charClass]}
+                    <span className={`font-bold text-base ${CLASS_COLORS[b.charClass] || 'text-blue-900 dark:text-blue-100'}`}>{b.charClass}</span>
+                    <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">Lv.{b.capLevel}</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-sm divide-y-0">
+                    {/* P.Atk */}
+                    <div className="flex items-center justify-between py-1">
+                      <span className="flex items-center gap-1 text-yellow-600 dark:text-yellow-300"><BoltIcon className="w-4 h-4" />P.Atk</span>
+                      <span className="font-bold">{formatCompact(b.results.patk)}</span>
+                    </div>
+                    {/* M.Atk */}
+                    <div className="flex items-center justify-between py-1">
+                      <span className="flex items-center gap-1 text-pink-600 dark:text-pink-300"><FireIcon className="w-4 h-4" />M.Atk</span>
+                      <span className="font-bold">{formatCompact(b.results.matk)}</span>
+                    </div>
+                    {/* HP */}
+                    <div className="flex items-center justify-between py-1">
+                      <span className="flex items-center gap-1 text-red-600 dark:text-red-300"><HeartIcon className="w-4 h-4" />HP</span>
+                      <span className="font-bold">{formatCompact(b.results.hp)}</span>
+                    </div>
+                    {/* FD */}
+                    <div className="flex items-center justify-between py-1">
+                      <span className="flex items-center gap-1 text-pink-500 dark:text-pink-200"><ArrowTrendingUpIcon className="w-4 h-4" />FD</span>
+                      {(() => { const p = getStatPercent('fd', b.results.fd, CAP_LEVELS.find(l => l.level === b.capLevel));
+                        if (!p) return <span className="font-bold">{formatCompact(b.results.fd)}</span>;
+                        if (p.percent >= p.capPercent) return <span className="font-bold text-xs text-red-500 dark:text-red-400">{p.capPercent}%</span>;
+                        return <span className="font-bold text-xs text-gray-700 dark:text-gray-100">{p.percent}%</span>;
+                      })()}
+                    </div>
+                    {/* P.Def */}
+                    <div className="flex items-center justify-between py-1">
+                      <span className="flex items-center gap-1 text-blue-600 dark:text-blue-300"><ShieldCheckIcon className="w-4 h-4" />P.Def</span>
+                      {(() => { const p = getStatPercent('pdef', b.results.pdef, CAP_LEVELS.find(l => l.level === b.capLevel));
+                        if (!p) return <span className="font-bold">{formatCompact(b.results.pdef)}</span>;
+                        if (p.percent >= p.capPercent) return <span className="font-bold text-xs text-red-500 dark:text-red-400">{p.capPercent}%</span>;
+                        return <span className="font-bold text-xs text-gray-700 dark:text-gray-100">{p.percent}%</span>;
+                      })()}
+                    </div>
+                    {/* M.Def */}
+                    <div className="flex items-center justify-between py-1">
+                      <span className="flex items-center gap-1 text-violet-600 dark:text-violet-300"><ShieldExclamationIcon className="w-4 h-4" />M.Def</span>
+                      {(() => { const p = getStatPercent('mdef', b.results.mdef, CAP_LEVELS.find(l => l.level === b.capLevel));
+                        if (!p) return <span className="font-bold">{formatCompact(b.results.mdef)}</span>;
+                        if (p.percent >= p.capPercent) return <span className="font-bold text-xs text-red-500 dark:text-red-400">{p.capPercent}%</span>;
+                        return <span className="font-bold text-xs text-gray-700 dark:text-gray-100">{p.percent}%</span>;
+                      })()}
+                    </div>
+                    {/* Crit */}
+                    <div className="flex items-center justify-between py-1">
+                      <span className="flex items-center gap-1 text-yellow-500 dark:text-yellow-200"><SparklesIcon className="w-4 h-4" />Crit</span>
+                      {(() => { const p = getStatPercent('crit', b.results.crit, CAP_LEVELS.find(l => l.level === b.capLevel));
+                        if (!p) return <span className="font-bold">{formatCompact(b.results.crit)}</span>;
+                        if (p.percent >= p.capPercent) return <span className="font-bold text-xs text-red-500 dark:text-red-400">{p.capPercent}%</span>;
+                        return <span className="font-bold text-xs text-gray-700 dark:text-gray-100">{p.percent}%</span>;
+                      })()}
+                    </div>
+                    {/* Resist */}
+                    <div className="flex items-center justify-between py-1">
+                      <span className="flex items-center gap-1 text-green-600 dark:text-green-300"><EyeDropperIcon className="w-4 h-4" />Resist</span>
+                      {(() => { const p = getStatPercent('critres', b.results.critres, CAP_LEVELS.find(l => l.level === b.capLevel));
+                        if (!p) return <span className="font-bold">{formatCompact(b.results.critres)}</span>;
+                        if (p.percent >= p.capPercent) return <span className="font-bold text-xs text-red-500 dark:text-red-400">{p.capPercent}%</span>;
+                        return <span className="font-bold text-xs text-gray-700 dark:text-gray-100">{p.percent}%</span>;
+                      })()}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Sidebar (desktop) */}
+      <div className="hidden lg:block fixed top-24 right-4 w-80 max-h-[calc(100vh-7rem)] overflow-y-auto z-30">
+        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-blue-100 dark:border-gray-700 p-4 flex flex-col gap-3">
+        <div className="text-xs font-normal text-gray-400 dark:text-gray-400 mt-0 mb-0 -mt-1 block">ข้อมูลที่บันทึกจะถูกเก็บไว้ในเครื่องของคุณเท่านั้น</div>
+          <div className="flex items-center gap-2 font-bold text-blue-700 dark:text-blue-200 text-lg mb-0 relative">
+            <ChartBarIcon className="w-5 h-5 text-blue-500" />
+            <span>Saved Builds</span>
+          </div>
+          <div className="flex-1 overflow-y-auto max-h-[60vh] pr-1">
+            {savedBuilds.length === 0 && (
+              <div className="text-gray-400 text-sm">No saved builds yet.</div>
+            )}
+            {savedBuilds.map((b) => (
+              <div
+                key={b.id}
+                className={`relative bg-white dark:bg-gray-800 border border-blue-100 dark:border-gray-700 rounded-xl shadow-md px-4 py-3 mb-3 transition cursor-pointer hover:shadow-lg ${selectedBuildId === b.id ? 'ring-2 ring-blue-400 dark:ring-blue-300 border-blue-400 dark:border-blue-300' : ''}`}
+                onClick={() => handleLoadBuild(b)}
+                title="คลิกเพื่อโหลดข้อมูลนี้"
+              >
+                <button
+                  onClick={e => { e.stopPropagation(); handleDeleteSaveWithModal(b.id); }}
+                  className="absolute top-2 right-2 text-red-400 hover:text-red-600 dark:hover:text-red-300 p-1 rounded-full text-lg"
+                  title="Delete"
+                >
+                  ×
+                </button>
+                <div className="flex items-center gap-2 mb-1">
+                  {CLASS_ICONS[b.charClass]}
+                  <span className={`font-bold text-base ${CLASS_COLORS[b.charClass] || 'text-blue-900 dark:text-blue-100'}`}>{b.charClass}</span>
+                  <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">Lv.{b.capLevel}</span>
+                </div>
+                <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-sm divide-y-0">
+                  {/* P.Atk */}
+                  <div className="flex items-center justify-between py-1">
+                    <span className="flex items-center gap-1 text-yellow-600 dark:text-yellow-300"><BoltIcon className="w-4 h-4" />P.Atk</span>
+                    <span className="font-bold">{formatCompact(b.results.patk)}</span>
+                  </div>
+                  {/* M.Atk */}
+                  <div className="flex items-center justify-between py-1">
+                    <span className="flex items-center gap-1 text-pink-600 dark:text-pink-300"><FireIcon className="w-4 h-4" />M.Atk</span>
+                    <span className="font-bold">{formatCompact(b.results.matk)}</span>
+                  </div>
+                  {/* HP */}
+                  <div className="flex items-center justify-between py-1">
+                    <span className="flex items-center gap-1 text-red-600 dark:text-red-300"><HeartIcon className="w-4 h-4" />HP</span>
+                    <span className="font-bold">{formatCompact(b.results.hp)}</span>
+                  </div>
+                  {/* FD */}
+                  <div className="flex items-center justify-between py-1">
+                    <span className="flex items-center gap-1 text-pink-500 dark:text-pink-200"><ArrowTrendingUpIcon className="w-4 h-4" />FD</span>
+                    {(() => { const p = getStatPercent('fd', b.results.fd, CAP_LEVELS.find(l => l.level === b.capLevel));
+                      if (!p) return <span className="font-bold">{formatCompact(b.results.fd)}</span>;
+                      if (p.percent >= p.capPercent) return <span className="font-bold text-xs text-red-500 dark:text-red-400">{p.capPercent}%</span>;
+                      return <span className="font-bold text-xs text-gray-700 dark:text-gray-100">{p.percent}%</span>;
+                    })()}
+                  </div>
+                  {/* P.Def */}
+                  <div className="flex items-center justify-between py-1">
+                    <span className="flex items-center gap-1 text-blue-600 dark:text-blue-300"><ShieldCheckIcon className="w-4 h-4" />P.Def</span>
+                    {(() => { const p = getStatPercent('pdef', b.results.pdef, CAP_LEVELS.find(l => l.level === b.capLevel));
+                      if (!p) return <span className="font-bold">{formatCompact(b.results.pdef)}</span>;
+                      if (p.percent >= p.capPercent) return <span className="font-bold text-xs text-red-500 dark:text-red-400">{p.capPercent}%</span>;
+                      return <span className="font-bold text-xs text-gray-700 dark:text-gray-100">{p.percent}%</span>;
+                    })()}
+                  </div>
+                  {/* M.Def */}
+                  <div className="flex items-center justify-between py-1">
+                    <span className="flex items-center gap-1 text-violet-600 dark:text-violet-300"><ShieldExclamationIcon className="w-4 h-4" />M.Def</span>
+                    {(() => { const p = getStatPercent('mdef', b.results.mdef, CAP_LEVELS.find(l => l.level === b.capLevel));
+                      if (!p) return <span className="font-bold">{formatCompact(b.results.mdef)}</span>;
+                      if (p.percent >= p.capPercent) return <span className="font-bold text-xs text-red-500 dark:text-red-400">{p.capPercent}%</span>;
+                      return <span className="font-bold text-xs text-gray-700 dark:text-gray-100">{p.percent}%</span>;
+                    })()}
+                  </div>
+                  {/* Crit */}
+                  <div className="flex items-center justify-between py-1">
+                    <span className="flex items-center gap-1 text-yellow-500 dark:text-yellow-200"><SparklesIcon className="w-4 h-4" />Crit</span>
+                    {(() => { const p = getStatPercent('crit', b.results.crit, CAP_LEVELS.find(l => l.level === b.capLevel));
+                      if (!p) return <span className="font-bold">{formatCompact(b.results.crit)}</span>;
+                      if (p.percent >= p.capPercent) return <span className="font-bold text-xs text-red-500 dark:text-red-400">{p.capPercent}%</span>;
+                      return <span className="font-bold text-xs text-gray-700 dark:text-gray-100">{p.percent}%</span>;
+                    })()}
+                  </div>
+                  {/* Resist */}
+                  <div className="flex items-center justify-between py-1">
+                    <span className="flex items-center gap-1 text-green-600 dark:text-green-300"><EyeDropperIcon className="w-4 h-4" />Resist</span>
+                    {(() => { const p = getStatPercent('critres', b.results.critres, CAP_LEVELS.find(l => l.level === b.capLevel));
+                      if (!p) return <span className="font-bold">{formatCompact(b.results.critres)}</span>;
+                      if (p.percent >= p.capPercent) return <span className="font-bold text-xs text-red-500 dark:text-red-400">{p.capPercent}%</span>;
+                      return <span className="font-bold text-xs text-gray-700 dark:text-gray-100">{p.percent}%</span>;
+                    })()}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Modal ยืนยัน Save */}
+      {showSaveModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-6 max-w-xs w-full">
+            <div className="font-bold text-blue-700 dark:text-blue-200 text-lg mb-2">ยืนยันการบันทึก Build?</div>
+            <div className="text-gray-700 dark:text-gray-200 mb-4">คุณต้องการบันทึก Build นี้ไว้ใน Saved Builds หรือไม่?</div>
+            <div className="flex justify-end gap-2">
+              <button onClick={()=>setShowSaveModal(false)} className="px-3 py-1 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 font-semibold">ยกเลิก</button>
+              <button onClick={confirmSave} className="px-3 py-1 rounded-lg bg-blue-600 text-white font-bold hover:bg-blue-700">ยืนยัน</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Modal ยืนยันลบ */}
+      {showDeleteModal.open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-6 max-w-xs w-full">
+            <div className="font-bold text-red-700 dark:text-red-300 text-lg mb-2">ยืนยันการลบ Build?</div>
+            <div className="text-gray-700 dark:text-gray-200 mb-4">คุณต้องการลบ Build นี้ออกจาก Saved Builds หรือไม่?</div>
+            <div className="flex justify-end gap-2">
+              <button onClick={()=>setShowDeleteModal({open:false,id:null})} className="px-3 py-1 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 font-semibold">ยกเลิก</button>
+              <button onClick={confirmDeleteSave} className="px-3 py-1 rounded-lg bg-red-600 text-white font-bold hover:bg-red-700">ยืนยัน</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Modal ยืนยันโหลด Build */}
+      {showLoadModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-6 max-w-xs w-full">
+            <div className="font-bold text-blue-700 dark:text-blue-200 text-lg mb-2">ยืนยันการโหลด Build?</div>
+            <div className="text-gray-700 dark:text-gray-200 mb-4">คุณต้องการโหลด Build นี้มากรอกในฟอร์มหรือไม่? ข้อมูลเดิมจะถูกแทนที่</div>
+            <div className="flex justify-end gap-2">
+              <button onClick={cancelLoadBuild} className="px-3 py-1 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 font-semibold">ยกเลิก</button>
+              <button onClick={confirmLoadBuild} className="px-3 py-1 rounded-lg bg-blue-600 text-white font-bold hover:bg-blue-700">ยืนยัน</button>
             </div>
           </div>
         </div>
