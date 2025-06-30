@@ -26,6 +26,7 @@ import { motion } from 'framer-motion';
 import { ClipboardCheck, ClipboardCopy } from 'lucide-react';
 import { resetChecklist } from '@/lib/checklist';
 import Link from 'next/link';
+import { FaCoins } from 'react-icons/fa';
 
 const CHARACTER_CLASSES: CharacterClass[] = [
   'Sword Master',
@@ -1205,16 +1206,24 @@ export default function MyPage() {
           </div>
         </motion.div>
           {/* ขวา: ปุ่ม 20% */}
-          <div className="w-full md:w-1/5 flex items-start md:justify-center justify-start mt-3 md:mt-0 order-last md:order-none">
+          <div className="w-full md:w-1/5 flex flex-col gap-3 items-start md:justify-center justify-start mt-3 md:mt-0 order-last md:order-none">
             <Link href="/mypage/Status" className="w-full md:w-full">
               <Button
                 className="w-full h-14 md:h-16 bg-white/80 border border-blue-200 rounded-2xl flex items-center justify-center gap-3 text-blue-700 font-semibold text-lg md:text-xl shadow-sm hover:shadow-lg hover:border-blue-400 hover:bg-blue-50 transition-all duration-200 focus:ring-2 focus:ring-blue-200"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <svg xmlns="http://www.w3.org/2000/svg" className="!w-6 !h-6 md:!w-7 md:!h-7 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                   <rect x="3" y="3" width="18" height="18" rx="2"/>
                   <path d="M8 6h8M8 10h8M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"/>
                 </svg>
-                <span>Stat Calculator</span>
+                <span>คำนวณสเตตัส</span>
+              </Button>
+            </Link>
+            <Link href="/split" className="w-full md:w-full">
+              <Button
+                className="w-full h-14 md:h-16 bg-white/80 border border-yellow-200 rounded-2xl flex items-center justify-center gap-3 text-yellow-700 font-semibold text-lg md:text-xl shadow-sm hover:shadow-lg hover:border-yellow-400 hover:bg-yellow-50 transition-all duration-200 focus:ring-2 focus:ring-yellow-200"
+              >
+                <FaCoins className="!w-6 !h-6 md:!w-7 md:!h-7 text-yellow-500" />
+                <span>จัดสรรของดรอปปาร์ตี้</span>
               </Button>
             </Link>
           </div>

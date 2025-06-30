@@ -224,7 +224,7 @@ export default function PartyPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, ease: "easeOut" }}
-          className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-pink-200/50 p-3 sm:p-6 mb-6 sm:mb-8 relative"
+          className="bg-white/90 dark:bg-[#18181b] backdrop-blur-sm rounded-2xl shadow-lg border border-pink-200/50 p-3 sm:p-6 mb-6 sm:mb-8 relative dark:border-gray-700 dark:shadow-none"
         >
           <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
             <motion.div 
@@ -270,8 +270,8 @@ export default function PartyPage() {
                 className={cn(
                   "px-4 py-2 rounded-xl font-semibold text-base transition-all duration-200 border shadow-sm w-full sm:w-auto",
                   activeTab === 'all-parties'
-                    ? "bg-gradient-to-r from-blue-100 to-purple-100 text-blue-800 border-blue-200 shadow-md"
-                    : "bg-white text-gray-600 border-gray-200 hover:bg-blue-50 hover:text-blue-700"
+                    ? "bg-gradient-to-r from-blue-100 to-purple-100 text-blue-800 border-blue-200 shadow-md dark:bg-blue-900 dark:text-blue-100 dark:border-blue-800 dark:shadow-none"
+                    : "bg-white text-gray-600 border-gray-200 hover:bg-blue-50 hover:text-blue-700 dark:bg-gray-900 dark:text-gray-200 dark:border-gray-700 dark:hover:bg-blue-950 dark:hover:text-blue-200"
                 )}
               >
                 ปาร์ตี้ทั้งหมด
@@ -384,7 +384,7 @@ export default function PartyPage() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.3, ease: "easeOut" }}
-                  className="col-span-full flex flex-col items-center justify-center p-6 sm:p-12 text-center bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-pink-200/50"
+                  className="col-span-full flex flex-col items-center justify-center p-6 sm:p-12 text-center bg-white/90 dark:bg-[#18181b] backdrop-blur-sm rounded-2xl shadow-lg border border-pink-200/50 dark:border-gray-700 dark:shadow-none"
                 >
                   <motion.div 
                     initial={{ scale: 0.8 }}

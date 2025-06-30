@@ -13,9 +13,10 @@ import { db } from '@/lib/firebase';
 import React, { useState } from 'react';
 import { useGuildLoanNotification } from '@/hooks/useGuildLoanNotification';
 import ReactDOM from 'react-dom';
-import { FaCat, FaCoins } from 'react-icons/fa';
+import { FaCat } from 'react-icons/fa';
 import { toast } from 'sonner';
 import { ThemeToggle } from './ThemeToggle';
+import { useThemeContext } from './ThemeProvider';
 
 export default function Navigation() {
   const pathname = usePathname();
@@ -30,6 +31,7 @@ export default function Navigation() {
   const [pendingNewMemberCount, setPendingNewMemberCount] = React.useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [charactersWithMissingStats, setCharactersWithMissingStats] = React.useState(0);
+  const { resolvedTheme } = useThemeContext();
 
   useGuildLoanNotification();
 
@@ -200,7 +202,7 @@ export default function Navigation() {
   return (
     <nav className="fixed top-0 left-0 w-full h-14 backdrop-blur-md border-b border-gray-200/50 shadow-sm z-[100000]">
       <div className="container mx-auto px-4">
-        <div className="flex items-center h-14">
+        <div className="flex items-center h-14 w-full">
           {showNavLinks ? (
             <>
               {/* Mobile Menu Button */}
@@ -241,7 +243,7 @@ export default function Navigation() {
                   </div>
                   <nav className="flex-1 flex flex-col gap-2 p-4 overflow-y-auto">
                     <div className="flex items-center gap-3 mb-3 p-2 rounded-lg bg-white/60 backdrop-blur-md border border-pink-100">
-                      <ThemeToggle />
+                      <ThemeToggle isMobile />
                       <span className="text-sm font-medium text-gray-700">สลับธีม</span>
                     </div>
                     <Link href="/mypage" onClick={() => setIsMobileMenuOpen(false)} className={cn(
@@ -249,7 +251,7 @@ export default function Navigation() {
                       pathname === "/mypage" ? "bg-pink-50" : "text-gray-700"
                     )}>
                       <Home className={cn("w-5 h-5", pathname === "/mypage" ? "text-blue-600" : "text-blue-400")} />
-                      <span className={cn("font-medium", pathname === "/mypage" ? "text-blue-600" : undefined)}>My Character</span>
+                      <span className={cn("font-medium", pathname === "/mypage" ? "text-blue-600" : undefined)}>ตัวละคร</span>
                       {charactersWithMissingStats > 0 && (
                         <>
                           {/* Mobile badge */}
@@ -268,50 +270,45 @@ export default function Navigation() {
                       pathname === "/party" ? "bg-purple-50" : "text-gray-700"
                     )}>
                       <Users className={cn("w-5 h-5", pathname === "/party" ? "text-purple-600" : "text-purple-400")} />
-                      <span className={cn("font-medium", pathname === "/party" ? "text-purple-600" : undefined)}>Party List</span>
+                      <span className={cn("font-medium", pathname === "/party" ? "text-purple-600" : undefined)}>ปาร์ตี้</span>
                     </Link>
                     <Link href="/events" onClick={() => setIsMobileMenuOpen(false)} className={cn(
                       "flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-indigo-50/50",
                       pathname === "/events" ? "bg-indigo-50" : "text-gray-700"
                     )}>
                       <Calendar className={cn("w-5 h-5", pathname === "/events" ? "text-indigo-600" : "text-indigo-400")} />
-                      <span className={cn("font-medium", pathname === "/events" ? "text-indigo-600" : undefined)}>Event</span>
+                      <span className={cn("font-medium", pathname === "/events" ? "text-indigo-600" : undefined)}>กิจกรรม</span>
                     </Link>
                     <Link href="/ranking" onClick={() => setIsMobileMenuOpen(false)} className={cn(
                       "flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-blue-50/50",
                       pathname.startsWith("/ranking") ? "bg-blue-50" : "text-gray-700"
                     )}>
                       <BarChart2 className={cn("w-5 h-5", pathname.startsWith("/ranking") ? "text-green-600" : "text-green-400")} />
-                      <span className={cn("font-medium", pathname.startsWith("/ranking") ? "text-green-600" : undefined)}>Ranking</span>
-                    </Link>
-                    <Link
-                      href="/split"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className={cn(
-                        "flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-pink-50/50",
-                        pathname === "/split" ? "bg-yellow-50" : "text-gray-700"
-                      )}
-                    >
-                      <FaCoins className={cn("w-5 h-5", pathname === "/split" ? "text-yellow-500" : "text-yellow-400")} />
-                      <span className={cn("font-medium", pathname === "/split" ? "text-yellow-600" : undefined)}>Loot</span>
+                      <span className={cn("font-medium", pathname.startsWith("/ranking") ? "text-green-600" : undefined)}>จัดอันดับ</span>
                     </Link>
                     <Link href="/trade" onClick={() => setIsMobileMenuOpen(false)} className={cn(
                       "flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-pink-50/50 relative",
                       pathname === "/trade" ? "bg-pink-50" : "text-gray-700"
                     )}>
-                      <ShoppingCart className={cn("w-5 h-5", pathname === "/trade" ? "text-pink-600" : "text-pink-400")} />
-                      <span className={cn("font-medium", pathname === "/trade" ? "text-pink-600" : undefined)}>Trade</span>
-                      {pendingCount > 0 && (
-                        <span className="absolute right-4 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded-full bg-yellow-300 text-yellow-900 text-xs font-bold shadow">
-                          {pendingCount}
-                        </span>
-                      )}
+                      <ShoppingCart className={cn(
+                        "w-5 h-5 transition-colors duration-300 drop-shadow-sm",
+                        pathname === "/trade" ? "text-pink-700" : "group-hover:text-pink-500 text-pink-400"
+                      )} />
+                      <span className={cn(
+                        "text-base font-bold transition-colors duration-300 tracking-wide",
+                        pathname === "/trade" ? "text-pink-700" : "group-hover:text-white text-white/90"
+                      )}>
+                        Trade
+                      </span>
                     </Link>
                     <Link href="/guild-donate/history" onClick={() => setIsMobileMenuOpen(false)} className={cn(
                       "flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-pink-50/50 relative",
                       pathname === "/guild-donate/history" ? "bg-yellow-50" : "text-gray-700"
                     )}>
-                      <Crown className={cn("w-5 h-5", pathname === "/guild-donate/history" ? "text-yellow-600" : "text-yellow-400")} />
+                      <Crown className={cn(
+                        "w-5 h-5 transition-colors duration-300 drop-shadow-sm",
+                        pathname.startsWith("/guild-donate/history") ? "text-white" : "group-hover:text-pink-600 text-pink-500"
+                      )} />
                       <span className={cn("font-medium whitespace-nowrap flex items-center", pathname === "/guild-donate/history" ? "text-yellow-600" : undefined)}>
                         บริจาคกิลด์
                       </span>
@@ -321,7 +318,10 @@ export default function Navigation() {
                         "flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-green-50/50 relative",
                         pathname === "/guild/settings" ? "bg-emerald-50" : "text-gray-700"
                       )}>
-                        <Settings className={cn("w-5 h-5", pathname === "/guild/settings" ? "text-emerald-600" : "text-emerald-400")} />
+                        <Settings className={cn(
+                          "w-5 h-5 transition-colors duration-300 drop-shadow-sm",
+                          pathname === "/guild/settings" ? "text-white" : "group-hover:text-green-600 text-green-500"
+                        )} />
                         <span className={cn("font-medium whitespace-nowrap flex items-center", pathname === "/guild/settings" ? "text-emerald-600" : undefined)}>จัดการกิลด์</span>
                         {(pendingGuildLoanCount > 0 || pendingMerchantCount > 0 || pendingNewMemberCount > 0 || pendingDonationCount > 0 || pendingCashDonationCount > 0) && (
                           <span className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 min-w-4 min-h-4 flex justify-center items-center rounded-full bg-red-500 text-white text-xs font-bold shadow select-none z-30 lg:hidden">
@@ -352,200 +352,67 @@ export default function Navigation() {
               )}
 
               {/* Desktop Navigation */}
-              <div className="hidden lg:flex items-center gap-2">
+              <div className="hidden lg:flex items-center gap-0">
                 <ThemeToggle />
-                <Link
-                  href="/mypage"
-                  className={cn(
-                    "relative group px-3 py-1.5 rounded-lg transition-all duration-300 cursor-pointer",
-                    pathname === "/mypage"
-                      ? "bg-gradient-to-r from-pink-500 to-purple-500 text-white shadow-md shadow-pink-500/20"
-                      : "bg-white/60 border border-pink-100 shadow-sm hover:bg-pink-50/50 hover:shadow-xl hover:scale-105 hover:ring-2 hover:ring-pink-300 hover:border-pink-400 hover:text-pink-600"
-                  )}
-                >
-                  <motion.div
-                    className="flex items-center gap-1.5 relative"
-                    whileHover={{ scale: 1.05, y: -1 }}
-                    whileTap={{ scale: 0.98 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                  >
-                    <Home className={cn(
-                      "w-3.5 h-3.5 transition-colors duration-300",
-                      pathname === "/mypage" ? "text-white" : "group-hover:text-pink-600 text-pink-500"
-                    )} />
-                    <span className={cn(
-                      "text-sm font-medium transition-colors duration-300",
-                      pathname === "/mypage" ? "text-white" : "group-hover:text-pink-600 text-gray-700"
-                    )}>
-                      My Character
-                    </span>
-                    {charactersWithMissingStats > 0 && (
-                      <>
-                        {/* Mobile badge */}
-                        <span className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 min-w-4 min-h-4 flex justify-center items-center rounded-full bg-red-500 text-white text-xs font-bold shadow select-none z-30 lg:hidden">
-                          {charactersWithMissingStats}
-                        </span>
-                        {/* Desktop badge */}
-                        <span className="absolute -top-4 -right-4 w-5 h-5 flex justify-center items-center rounded-full bg-red-500 text-white text-xs font-bold shadow z-30 hidden lg:flex">
-                          {charactersWithMissingStats}
-                        </span>
-                      </>
-                    )}
-                  </motion.div>
-                  {pathname === "/mypage" && (
-                    <motion.div
-                      layoutId="activeNav"
-                      className="absolute inset-0 bg-gradient-to-r from-pink-500 to-purple-500 rounded-lg -z-10"
-                      transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                    />
-                  )}
-                </Link>
-
-                <Link
-                  href="/party"
-                  className={cn(
-                    "relative group px-3 py-1.5 rounded-lg transition-all duration-300 cursor-pointer",
-                    pathname === "/party"
-                      ? "bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-md shadow-purple-500/20"
-                      : "bg-white/60 border border-purple-100 shadow-sm hover:bg-purple-50/50 hover:shadow-xl hover:scale-105 hover:ring-2 hover:ring-purple-300 hover:border-purple-400 hover:text-purple-600"
-                  )}
-                >
-                  <motion.div
-                    className="flex items-center gap-1.5"
-                    whileHover={{ scale: 1.05, y: -1 }}
-                    whileTap={{ scale: 0.98 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                  >
-                    <Users className={cn(
-                      "w-3.5 h-3.5 transition-colors duration-300",
-                      pathname === "/party" ? "text-white" : "group-hover:text-purple-600 text-purple-500"
-                    )} />
-                    <span className={cn(
-                      "text-sm font-medium transition-colors duration-300",
-                      pathname === "/party" ? "text-white" : "group-hover:text-purple-600 text-gray-700"
-                    )}>
-                      Party List
-                    </span>
-                  </motion.div>
-                  {pathname === "/party" && (
-                    <motion.div
-                      layoutId="activeNav"
-                      className="absolute inset-0 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg -z-10"
-                      transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                    />
-                  )}
-                </Link>
-
-                <Link
-                  href="/events"
-                  className={cn(
-                    "relative group px-3 py-1.5 rounded-lg transition-all duration-300 cursor-pointer",
-                    pathname === "/events"
-                      ? "bg-gradient-to-r from-indigo-500 to-violet-500 text-white shadow-md shadow-indigo-500/20"
-                      : "bg-white/60 border border-indigo-100 shadow-sm hover:bg-indigo-50/50 hover:shadow-xl hover:scale-105 hover:ring-2 hover:ring-indigo-300 hover:border-indigo-400 hover:text-indigo-600"
-                  )}
-                >
-                  <motion.div
-                    className="flex items-center gap-1.5"
-                    whileHover={{ scale: 1.05, y: -1 }}
-                    whileTap={{ scale: 0.98 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                  >
-                    <Calendar className={cn(
-                      "w-3.5 h-3.5 transition-colors duration-300",
-                      pathname === "/events" ? "text-white" : "group-hover:text-indigo-600 text-indigo-500"
-                    )} />
-                    <span className={cn(
-                      "text-sm font-medium transition-colors duration-300",
-                      pathname === "/events" ? "text-white" : "group-hover:text-indigo-600 text-gray-700"
-                    )}>
-                      Event
-                    </span>
-                  </motion.div>
-                  {pathname === "/events" && (
-                    <motion.div
-                      layoutId="activeNav"
-                      className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-violet-500 rounded-lg -z-10"
-                      transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                    />
-                  )}
-                </Link>
-
-                <Link
-                  href="/ranking"
-                  className={cn(
-                    "relative group px-3 py-1.5 rounded-lg transition-all duration-300 cursor-pointer",
-                    pathname.startsWith("/ranking")
-                      ? "bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-md shadow-blue-500/20"
-                      : "bg-white/60 border border-blue-100 shadow-sm hover:bg-blue-50/50 hover:shadow-xl hover:scale-105 hover:ring-2 hover:ring-blue-300 hover:border-blue-400 hover:text-blue-600"
-                  )}
-                >
-                  <motion.div
-                    className="flex items-center gap-1.5"
-                    whileHover={{ scale: 1.05, y: -1 }}
-                    whileTap={{ scale: 0.98 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                  >
-                    <BarChart2 className={cn(
-                      "w-3.5 h-3.5 transition-colors duration-300",
-                      pathname.startsWith("/ranking") ? "text-white" : "group-hover:text-blue-600 text-blue-500"
-                    )} />
-                    <span className={cn(
-                      "text-sm font-medium transition-colors duration-300",
-                      pathname.startsWith("/ranking") ? "text-white" : "group-hover:text-blue-600 text-gray-700"
-                    )}>
-                      Ranking
-                    </span>
-                  </motion.div>
-                  {pathname.startsWith("/ranking") && (
-                    <motion.div
-                      layoutId="activeNav"
-                      className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-lg -z-10"
-                      transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                    />
-                  )}
-                </Link>
-
-                <Link
-                  href="/split"
-                  className={cn(
-                    "relative group px-3 py-1.5 rounded-lg transition-all duration-300 cursor-pointer",
-                    pathname === "/split"
-                      ? "bg-gradient-to-r from-amber-400 to-yellow-500 text-white shadow-md shadow-amber-500/20"
-                      : "bg-white/60 border border-amber-100 shadow-sm hover:bg-amber-50/50 hover:shadow-xl hover:scale-105 hover:ring-2 hover:ring-amber-300 hover:border-amber-400 hover:text-amber-600"
-                  )}
-                >
-                  <motion.div
-                    className="flex items-center gap-1.5"
-                    whileHover={{ scale: 1.05, y: -1 }}
-                    whileTap={{ scale: 0.98 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                  >
-                    <FaCoins className={cn(
-                      "w-5 h-5 text-yellow-500 transition-colors duration-300",
-                      pathname === "/split" ? "text-white" : "group-hover:text-amber-600 text-amber-500"
-                    )} />
-                    <span className={cn(
-                      "text-sm font-medium transition-colors duration-300",
-                      pathname === "/split" ? "text-white" : "group-hover:text-amber-600 text-gray-700"
-                    )}>
-                      Loot
-                    </span>
-                  </motion.div>
-                  {pathname === "/split" && (
-                    <motion.div
-                      layoutId="activeNav"
-                      className="absolute inset-0 bg-gradient-to-r from-amber-400 to-yellow-500 rounded-lg -z-10"
-                      transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                    />
-                  )}
-                </Link>
+                <div className="flex items-center gap-0 rounded-xl shadow-lg px-1 py-0.5">
+                  {[
+                    { href: "/mypage", icon: <Home />, label: "ตัวละคร", color: "pink", activeBg: "bg-pink-700", hoverBg: "hover:bg-pink-600/30", iconColor: "text-pink-400" },
+                    { href: "/party", icon: <Users />, label: "ปาร์ตี้", color: "purple", activeBg: "bg-purple-700", hoverBg: "hover:bg-purple-600/30", iconColor: "text-purple-400" },
+                    { href: "/events", icon: <Calendar />, label: "กิจกรรม", color: "indigo", activeBg: "bg-indigo-700", hoverBg: "hover:bg-indigo-600/30", iconColor: "text-indigo-400" },
+                    { href: "/ranking", icon: <BarChart2 />, label: "จัดอันดับ", color: "green", activeBg: "bg-green-700", hoverBg: "hover:bg-green-600/30", iconColor: "text-green-400" },
+                  ].map((tab, idx) => {
+                    const isActive = pathname === tab.href || (tab.href === "/ranking" && pathname.startsWith("/ranking"));
+                    return (
+                      <Link
+                        key={tab.href}
+                        href={tab.href}
+                        className={cn(
+                          "flex items-center gap-2 px-3 py-1 transition-all text-base rounded-xl relative font-bold",
+                          isActive
+                            ? `${tab.activeBg} text-white shadow-lg scale-105 font-bold`
+                            : `text-white/90 ${tab.hoverBg} hover:text-white`
+                        )}
+                        style={{
+                          borderTopLeftRadius: idx === 0 ? "0.75rem" : undefined,
+                          borderBottomLeftRadius: idx === 0 ? "0.75rem" : undefined,
+                          borderTopRightRadius: idx === 3 ? "0.75rem" : undefined,
+                          borderBottomRightRadius: idx === 3 ? "0.75rem" : undefined,
+                        }}
+                      >
+                        {React.cloneElement(tab.icon, {
+                          className: cn(
+                            "w-5 h-5 transition-colors",
+                            isActive ? "text-white" : tab.iconColor
+                          ),
+                        })}
+                        <span>{tab.label}</span>
+                        {/* Badge/แจ้งเตือนเฉพาะปุ่มตัวละคร */}
+                        {tab.href === "/mypage" && charactersWithMissingStats > 0 && (
+                          <span className="absolute -top-2 -right-2 w-5 h-5 flex justify-center items-center rounded-full bg-red-500 text-white text-xs font-bold shadow z-30">
+                            {charactersWithMissingStats}
+                          </span>
+                        )}
+                      </Link>
+                    );
+                  })}
+                </div>
               </div>
 
-              <div className="flex-1 text-center">
+              {/* โลโก้ GalaxyCat กึ่งกลาง container จริง */}
+              <div className="flex-1 flex justify-center items-center">
                 <div className="flex items-center justify-center gap-3 group relative">
                   <FaCat className="w-6 h-6 text-pink-300 drop-shadow-sm shimmer-pastel" />
-                  <span className="text-xl lg:text-2xl font-extrabold tracking-wide bg-gradient-to-r from-pink-300 via-purple-300 to-blue-300 bg-clip-text text-transparent px-1 drop-shadow-sm shimmer-text">
+                  <span
+                    className="text-xl lg:text-2xl font-extrabold tracking-wide bg-gradient-to-r from-pink-300 via-purple-300 to-blue-300 bg-clip-text text-transparent px-1 drop-shadow-sm shimmer-text"
+                    style={typeof window !== 'undefined' && document?.documentElement?.getAttribute('data-theme') === 'dark' ? {
+                      background: 'linear-gradient(90deg, #fff 0%, #e0e7ff 40%, #bae6fd 80%, #fff1fa 100%)',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                      backgroundClip: 'text',
+                      color: 'transparent',
+                      filter: 'drop-shadow(0 0 12px #fff) drop-shadow(0 0 24px #fff) brightness(2.2)'
+                    } : {}}
+                  >
                     GalaxyCat
                   </span>
                   <FaCat className="w-6 h-6 text-blue-300 drop-shadow-sm shimmer-pastel" />
@@ -553,7 +420,7 @@ export default function Navigation() {
                 <style jsx global>{`
                   .shimmer-text {
                     background-size: 200% 100%;
-                    animation: shimmer-gradient 3.5s linear infinite;
+                    animation: shimmer-gradient 4s linear infinite;
                   }
                   @keyframes shimmer-gradient {
                     0% { background-position: 0% 50%; }
@@ -561,46 +428,38 @@ export default function Navigation() {
                   }
                   .shimmer-pastel {
                     filter: drop-shadow(0 1px 2px #fff6) brightness(1.08);
+                    animation: pastel-gradient 4s linear infinite;
                     transition: filter 0.3s;
                   }
-                  .shimmer-pastel:hover {
-                    filter: drop-shadow(0 2px 6px #fff9) brightness(1.18);
-                  }
-                  /* Force GalaxyCat gradient in dark mode */
-                  [data-theme="dark"] .shimmer-text {
-                    background: linear-gradient(90deg, #f9a8d4, #c4b5fd 60%, #a5b4fc 100%) !important;
-                    -webkit-background-clip: text;
-                    -webkit-text-fill-color: transparent;
-                    background-clip: text;
-                    color: transparent;
+                  @keyframes pastel-gradient {
+                    0% { filter: hue-rotate(0deg) brightness(1.08) drop-shadow(0 1px 2px #fff6); }
+                    100% { filter: hue-rotate(360deg) brightness(1.08) drop-shadow(0 1px 2px #fff6); }
                   }
                 `}</style>
               </div>
 
-              {/* Desktop Right Side */}
-              <div className="hidden lg:flex items-center gap-2 w-1/3 justify-end">
+              {/* ปุ่มขวา (Desktop Right Side) */}
+              <div className="hidden lg:flex items-center gap-2">
                 <Link
                   href="/trade"
                   className={cn(
-                    "relative group px-5 py-2 rounded-2xl transition-all duration-300 cursor-pointer",
+                    "relative group px-3 py-1 rounded-xl transition-all duration-300 cursor-pointer",
                     pathname === "/trade"
-                      ? "bg-gradient-to-r from-pink-200 via-yellow-100 to-purple-200 text-pink-700 shadow-lg shadow-pink-200/30 border-2 border-pink-200"
-                      : "bg-gradient-to-r from-pink-50 via-yellow-50 to-purple-50 text-pink-600 border border-pink-100 shadow hover:bg-pink-100/40 hover:shadow-xl hover:scale-105 hover:ring-2 hover:ring-pink-200"
+                      ? "bg-gradient-to-r from-pink-200 via-yellow-100 to-purple-200 text-pink-700 shadow-lg shadow-pink-200/30 border-2 border-pink-200 dark:!bg-gradient-to-r dark:!from-pink-300 dark:!via-yellow-200 dark:!to-purple-300 dark:!text-pink-700 dark:shadow-pink-900/30 dark:border-pink-900"
+                      : "bg-transparent text-white/90 border-2 border-transparent shadow-none hover:bg-pink-100/20 hover:shadow-xl hover:ring-2 hover:ring-pink-200 -ml-px"
                   )}
                 >
                   <motion.div
                     className="flex items-center gap-2"
-                    whileHover={{ scale: 1.05, y: -1 }}
-                    whileTap={{ scale: 0.98 }}
                     transition={{ type: "spring", stiffness: 400, damping: 17 }}
                   >
                     <ShoppingCart className={cn(
                       "w-5 h-5 transition-colors duration-300 drop-shadow-sm",
-                      pathname === "/trade" ? "text-pink-600" : "group-hover:text-pink-500 text-pink-400"
+                      pathname === "/trade" ? "text-pink-700" : "group-hover:text-pink-500 text-pink-400"
                     )} />
                     <span className={cn(
                       "text-base font-bold transition-colors duration-300 tracking-wide",
-                      pathname === "/trade" ? "text-pink-700" : "group-hover:text-pink-600 text-pink-500"
+                      pathname === "/trade" ? "text-pink-700" : "group-hover:text-white text-white/90"
                     )}>
                       Trade
                     </span>
@@ -633,25 +492,23 @@ export default function Navigation() {
                 <Link
                   href="/guild-donate/history"
                   className={cn(
-                    "relative group px-3 py-1.5 rounded-lg transition-all duration-300 cursor-pointer",
+                    "relative group px-3 py-1 rounded-xl transition-all text-base font-bold cursor-pointer",
                     pathname.startsWith("/guild-donate/history")
-                      ? "bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-md shadow-pink-500/20"
-                      : "bg-white/60 border border-pink-100 shadow-sm hover:bg-pink-50/50 hover:shadow-xl hover:scale-105 hover:ring-2 hover:ring-pink-300 hover:border-pink-400 hover:text-pink-600"
+                      ? "bg-gradient-to-r from-yellow-400 via-pink-400 to-rose-400 text-white shadow-lg border-2 border-yellow-200"
+                      : "bg-transparent text-white/90 border-2 border-transparent shadow-none hover:bg-pink-100/20 hover:shadow-xl hover:ring-2 hover:ring-yellow-200 -ml-px"
                   )}
                 >
                   <motion.div
-                    className="flex items-center gap-1.5"
-                    whileHover={{ scale: 1.05, y: -1 }}
-                    whileTap={{ scale: 0.98 }}
+                    className="flex items-center gap-2"
                     transition={{ type: "spring", stiffness: 400, damping: 17 }}
                   >
                     <Crown className={cn(
-                      "w-3.5 h-3.5 transition-colors duration-300",
+                      "w-5 h-5 transition-colors duration-300 drop-shadow-sm",
                       pathname.startsWith("/guild-donate/history") ? "text-white" : "group-hover:text-pink-600 text-pink-500"
                     )} />
                     <span className={cn(
-                      "text-sm font-medium transition-colors duration-300 whitespace-nowrap flex items-center",
-                      pathname.startsWith("/guild-donate/history") ? "text-white" : "group-hover:text-pink-600 text-gray-700"
+                      "transition-colors duration-300 whitespace-nowrap flex items-center",
+                      pathname.startsWith("/guild-donate/history") ? "text-white" : "group-hover:text-white text-white/90"
                     )}>
                       บริจาคกิลด์
                     </span>
@@ -661,23 +518,24 @@ export default function Navigation() {
                   <Link
                     href="/guild/settings"
                     className={cn(
-                      "guild-settings-desktop-right",
-                      "relative group px-3 py-1.5 rounded-lg transition-all duration-300 cursor-pointer flex items-center gap-2",
+                      "relative group px-3 py-1 rounded-xl transition-all text-base font-bold cursor-pointer flex items-center gap-0",
                       pathname === "/guild/settings"
-                        ? "bg-gradient-to-r from-green-400 to-green-600 text-white shadow-md shadow-green-500/20"
-                        : "bg-white/60 border border-green-100 shadow-sm hover:bg-green-50/50 hover:shadow-xl hover:scale-105 hover:ring-2 hover:ring-green-300 hover:border-green-400 hover:text-green-600"
+                        ? "bg-gradient-to-r from-green-400 to-green-600 text-white shadow-lg border-2 border-green-200"
+                        : "bg-transparent text-white/90 border-2 border-transparent shadow-none hover:bg-green-100/20 hover:ring-2 hover:ring-green-200 -ml-px"
                     )}
                   >
-                    <Settings className={cn(
-                      "w-4 h-4 transition-colors duration-300",
-                      pathname === "/guild/settings" ? "text-white" : "group-hover:text-green-600 text-green-500"
-                    )} />
-                    <span className={cn(
-                      "text-sm font-medium transition-colors duration-300 whitespace-nowrap flex items-center",
-                      pathname === "/guild/settings" ? "text-white" : "group-hover:text-green-600 text-gray-700"
-                    )}>
-                      จัดการกิลด์
-                    </span>
+                    <motion.div className="flex items-center gap-2" transition={{ type: "spring", stiffness: 400, damping: 17 }}>
+                      <Settings className={cn(
+                        "w-5 h-5 transition-colors duration-300 drop-shadow-sm",
+                        pathname === "/guild/settings" ? "text-white" : "group-hover:text-green-600 text-green-500"
+                      )} />
+                      <span className={cn(
+                        "transition-colors duration-300 whitespace-nowrap flex items-center",
+                        pathname === "/guild/settings" ? "text-white" : "group-hover:text-white text-white/90"
+                      )}>
+                        จัดการกิลด์
+                      </span>
+                    </motion.div>
                     {(pendingGuildLoanCount > 0 || pendingMerchantCount > 0 || pendingNewMemberCount > 0 || pendingDonationCount > 0 || pendingCashDonationCount > 0) && (
                       <span className="absolute -top-2 -right-2 w-5 h-5 flex justify-center items-center rounded-full bg-red-500 text-white text-xs font-bold shadow z-30 hidden lg:flex">
                         {pendingGuildLoanCount + pendingMerchantCount + pendingNewMemberCount + pendingDonationCount + pendingCashDonationCount}

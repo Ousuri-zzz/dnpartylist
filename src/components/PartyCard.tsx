@@ -38,6 +38,70 @@ function getClassStyle(characterClass: string) {
   return CLASS_GRADIENTS[role] || CLASS_GRADIENTS.Default;
 }
 
+// เพิ่มฟังก์ชันสำหรับ dark mode สีอาชีพ
+function getDarkClassBgColor(className: string) {
+  switch (className) {
+    case 'Sword Master':
+    case 'Mercenary':
+      return 'bg-red-500/80';
+    case 'Bowmaster':
+    case 'Acrobat':
+      return 'bg-emerald-800';
+    case 'Force User':
+    case 'Elemental Lord':
+      return 'bg-purple-500/80';
+    case 'Paladin':
+    case 'Priest':
+      return 'bg-sky-700';
+    case 'Engineer':
+    case 'Alchemist':
+      return 'bg-yellow-200/40';
+    default:
+      return 'bg-gray-700';
+  }
+}
+function getDarkClassText(className: string) {
+  switch (className) {
+    case 'Sword Master':
+    case 'Mercenary':
+    case 'Force User':
+    case 'Elemental Lord':
+      return 'text-white';
+    case 'Bowmaster':
+    case 'Acrobat':
+      return 'text-emerald-200';
+    case 'Paladin':
+    case 'Priest':
+      return 'text-sky-200';
+    case 'Engineer':
+    case 'Alchemist':
+      return 'text-yellow-100';
+    default:
+      return 'text-gray-100';
+  }
+}
+function getDarkClassBorder(className: string) {
+  switch (className) {
+    case 'Sword Master':
+    case 'Mercenary':
+      return 'border-red-300';
+    case 'Force User':
+    case 'Elemental Lord':
+      return 'border-purple-300';
+    case 'Bowmaster':
+    case 'Acrobat':
+      return 'border-emerald-700';
+    case 'Paladin':
+    case 'Priest':
+      return 'border-sky-700';
+    case 'Engineer':
+    case 'Alchemist':
+      return 'border-yellow-700';
+    default:
+      return 'border-gray-700';
+  }
+}
+
 export function PartyCard({ party }: PartyCardProps) {
   const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -171,7 +235,7 @@ export function PartyCard({ party }: PartyCardProps) {
 
   return (
     <>
-      <Card className="group relative overflow-hidden bg-white/80 backdrop-blur-md border border-white/60 shadow-lg hover:shadow-2xl transition-all duration-500 rounded-2xl">
+      <Card className="group relative overflow-hidden bg-white/80 dark:bg-[#18181b] backdrop-blur-md border border-white/60 shadow-lg hover:shadow-2xl transition-all duration-500 rounded-2xl">
         {/* Gradient overlay for depth */}
         <div className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-br from-pink-100/40 via-purple-100/30 to-blue-100/30 opacity-80 group-hover:opacity-100 transition-opacity duration-700 rounded-2xl" />
         {/* Shine effect */}
@@ -200,14 +264,20 @@ export function PartyCard({ party }: PartyCardProps) {
               )}
               <Link href={`/party/${party.id}`}>
                 <h3 className="text-xl font-bold">
-                  <span className={styles.partyName}>
+                  <span className={cn(
+                    styles.partyName,
+                    "text-gray-900 dark:text-pink-200"
+                  )}>
                     {party.name}
                   </span>
                 </h3>
                 <div className="flex items-center gap-4">
                   <div className="flex items-center gap-2">
                     <Clock className="w-4 h-4 text-blue-400" />
-                    <span className={styles.nestName}>
+                    <span className={cn(
+                      styles.nestName,
+                      "text-purple-700 dark:text-blue-300 dark:font-semibold dark:drop-shadow"
+                    )}>
                       {party.nest}
                     </span>
                   </div>
@@ -232,7 +302,10 @@ export function PartyCard({ party }: PartyCardProps) {
                   <div
                     key={charId}
                     onClick={() => handleCharacterClick(info)}
-                    className="flex items-center justify-between p-2 rounded-xl bg-gradient-to-r from-white/50 to-white/30 border border-white/50 backdrop-blur-sm transition-all duration-300 hover:shadow-md group/member cursor-pointer"
+                    className={cn(
+                      "flex items-center justify-between p-2 rounded-xl bg-gradient-to-r from-white/50 to-white/30 border border-white/50 backdrop-blur-sm transition-all duration-300 hover:shadow-md group/member cursor-pointer",
+                      "dark:bg-[#23232b] dark:border-gray-700"
+                    )}
                   >
                     <div className="flex items-center gap-2">
                       <div className={`w-8 h-8 flex items-center justify-center rounded-lg ${classStyle.bg} ${classStyle.border}`}>
@@ -245,7 +318,7 @@ export function PartyCard({ party }: PartyCardProps) {
                         <p className="text-sm text-gray-500 -mt-1">{info.name}</p>
                       </div>
                     </div>
-                    <div className={`px-1.5 py-0.5 rounded-md font-normal border ${getClassBgColor(info.class)} ${classStyle.border} ${classStyle.text.replace('from-', 'text-').replace('to-', '')}`}>
+                    <div className={`px-1.5 py-0.5 rounded-md font-normal border ${getClassBgColor(info.class)} ${classStyle.border} ${classStyle.text.replace('from-', 'text-').replace('to-', '')} dark:${getDarkClassBgColor(info.class)} dark:${getDarkClassText(info.class)} dark:${getDarkClassBorder(info.class)} dark:shadow-sm`}>
                       <span className="text-[10px]">{info.class}</span>
                     </div>
                   </div>

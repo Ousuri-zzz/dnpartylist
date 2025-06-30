@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useThemeContext } from './ThemeProvider';
 import { motion } from 'framer-motion';
 
-export function ThemeToggle() {
+export function ThemeToggle({ isMobile = false }: { isMobile?: boolean }) {
   const { theme, setTheme, resolvedTheme } = useThemeContext();
 
   const toggleTheme = () => {
@@ -33,10 +33,13 @@ export function ThemeToggle() {
       transition={{ type: "spring", stiffness: 400, damping: 17 }}
     >
       <Button 
-        variant="outline" 
-        size="icon" 
         onClick={toggleTheme}
-        className="h-8 w-8 bg-white/60 backdrop-blur-md border border-pink-100 shadow-sm hover:bg-pink-50/50 hover:shadow-xl hover:ring-2 hover:ring-pink-300 hover:border-pink-400 transition-all duration-300"
+        className={
+          `h-8 w-8 px-1 py-1 rounded-lg font-bold ${isMobile ? '' : 'text-white/90'} bg-transparent shadow-lg transition-all duration-200
+          hover:bg-gray-600/60 focus:bg-gray-700 active:bg-gray-700
+          flex items-center justify-center`
+        }
+        style={{ minWidth: '32px', minHeight: '32px' }}
         title={`โหมด${resolvedTheme === 'dark' ? 'มืด' : 'สว่าง'} - คลิกเพื่อสลับเป็นโหมด${resolvedTheme === 'dark' ? 'สว่าง' : 'มืด'}`}
       >
         <motion.div
@@ -45,7 +48,10 @@ export function ThemeToggle() {
           animate={{ rotate: 0, opacity: 1 }}
           transition={{ duration: 0.3, ease: "easeInOut" }}
         >
-          {getIcon()}
+          {resolvedTheme === 'dark'
+            ? <Moon className={`h-4 w-4 ${isMobile ? 'text-white' : 'text-white'}`} />
+            : <Sun className={`h-4 w-4 ${isMobile ? 'text-black' : 'text-white'}`} />
+          }
         </motion.div>
         <span className="sr-only">Toggle theme</span>
       </Button>

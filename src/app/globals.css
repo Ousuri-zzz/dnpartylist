@@ -3146,12 +3146,12 @@ button, input, textarea, select {
 }
 
 [data-theme="dark"] .shimmer-text {
-  background: linear-gradient(90deg, #f472b6 0%, #c4b5fd 60%, #60a5fa 100%, #fff 120%) !important;
+  background: linear-gradient(90deg, #fff 0%, #e0e7ff 40%, #bae6fd 80%, #fff1fa 100%) !important;
   -webkit-background-clip: text !important;
   -webkit-text-fill-color: transparent !important;
   background-clip: text !important;
   color: transparent !important;
-  filter: drop-shadow(0 1px 6px #fff8) !important;
+  filter: drop-shadow(0 0 12px #fff) drop-shadow(0 0 24px #fff) brightness(2.2) !important;
 }
 
 [data-theme="dark"] .shimmer-pastel,

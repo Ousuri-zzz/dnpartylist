@@ -71,42 +71,42 @@ export function DiscordDropdown({ inMobileMenu = false }: { inMobileMenu?: boole
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          "flex items-center gap-2 rounded-lg transition-all duration-200",
+          "flex items-center gap-2 rounded-2xl transition-all duration-200 font-bold text-base",
           inMobileMenu
             ? "justify-between text-gray-700 hover:bg-gray-100 px-2 py-1"
-            : "bg-white/60 border border-pink-100 shadow-sm hover:bg-pink-50/50 hover:shadow-xl hover:scale-105 hover:ring-2 hover:ring-pink-300 hover:border-pink-400 hover:text-pink-600 px-3 py-1.5"
+            : "bg-gradient-to-r from-blue-50 via-pink-50 to-purple-50 border border-pink-100 shadow hover:bg-pink-100/40 hover:shadow-xl hover:scale-105 hover:ring-2 hover:ring-pink-200 px-5 py-2"
         )}
       >
         <div className="flex items-center gap-2 flex-1 min-w-0">
-          <Avatar className="h-6 w-6 flex-shrink-0">
+          <Avatar className="h-7 w-7 flex-shrink-0 ring-2 ring-pink-200">
             <AvatarImage src={user.photoURL || ''} alt={user.displayName || user.email || 'User'} />
             <AvatarFallback>{user.displayName?.[0] || discordName?.[0] || 'U'}</AvatarFallback>
           </Avatar>
-          <span className="text-sm font-semibold flex-1 text-left whitespace-nowrap overflow-hidden text-ellipsis text-blue-600 tracking-wide drop-shadow-sm transition-all duration-200">
+          <span className="text-base font-bold flex-1 text-left whitespace-nowrap overflow-hidden text-ellipsis text-blue-600 tracking-wide drop-shadow-sm transition-all duration-200">
             {discordName || user.displayName || 'กรุณาตั้งชื่อ'}
           </span>
         </div>
         <ChevronDown className={cn(
-          "w-4 h-4 transition-transform duration-200 flex-shrink-0",
+          "w-5 h-5 transition-transform duration-200 flex-shrink-0 text-pink-400",
           isOpen && "transform rotate-180"
         )} />
       </button>
 
       {isOpen && (
         <div className={cn(
-          "absolute right-0 w-60 bg-white/90 rounded-2xl shadow-2xl shadow-pink-200/40 py-2 z-[100000] border border-pink-200 backdrop-blur-md max-h-72 overflow-y-auto animate-fade-in backdrop-blur-md",
+          "absolute right-0 w-64 bg-white/80 rounded-2xl shadow-2xl shadow-pink-200/40 py-3 z-[100000] border border-pink-200 backdrop-blur-md max-h-80 overflow-y-auto animate-fade-in",
           openUpwards ? 'bottom-12 mb-2' : 'mt-2 top-full'
         )}>
           {discordName && (
             <button
-              className="w-full flex items-center gap-2 px-4 py-3 text-left text-sm text-pink-600 hover:bg-pink-50/70 hover:text-pink-700 transition-all duration-200 rounded-xl"
+              className="w-full flex items-center gap-2 px-5 py-3 text-left text-base text-pink-600 hover:bg-pink-100/60 hover:text-pink-700 transition-all duration-200 rounded-2xl font-bold"
               onClick={() => {
                 setShowChangeName(true);
                 setNewDiscordName(discordName);
                 setIsOpen(false);
               }}
             >
-              <FaDiscord className="w-4 h-4 text-pink-400" />
+              <FaDiscord className="w-5 h-5 text-pink-400" />
               เปลี่ยนชื่อ Discord
             </button>
           )}
@@ -114,17 +114,17 @@ export function DiscordDropdown({ inMobileMenu = false }: { inMobileMenu?: boole
             href="https://discord.com/users/1163943838826631258"
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full flex items-center gap-2 px-4 py-3 text-left text-sm text-purple-400 hover:bg-purple-50/70 hover:text-purple-700 transition-all duration-200 rounded-xl"
+            className="w-full flex items-center gap-2 px-5 py-3 text-left text-base text-purple-400 hover:bg-purple-100/60 hover:text-purple-700 transition-all duration-200 rounded-2xl font-bold"
             style={{ textDecoration: 'none' }}
           >
-            <FaDiscord className="w-4 h-4 text-purple-300" />
+            <FaDiscord className="w-5 h-5 text-purple-300" />
             ติดต่อหัวกิลด์
           </a>
           <button
-            className="w-full flex items-center gap-2 px-4 py-3 text-left text-sm text-red-400 hover:bg-red-50/70 hover:text-red-600 transition-all duration-200 rounded-xl"
+            className="w-full flex items-center gap-2 px-5 py-3 text-left text-base text-red-400 hover:bg-red-100/60 hover:text-red-600 transition-all duration-200 rounded-2xl font-bold"
             onClick={handleLogout}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
               <polyline points="16 17 21 12 16 7"/>
               <line x1="21" y1="12" x2="9" y2="12"/>
