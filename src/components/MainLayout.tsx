@@ -22,11 +22,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
   return (
     <ErrorBoundary fallback={<div>Something went wrong</div>}>
       <ThemeProvider>
-        <div className="fixed inset-0 -z-10 bg-cover bg-center bg-no-repeat bg-fixed transition-all duration-300" 
-             style={{
-               backgroundImage: "url('/images/background.jpg')",
-               filter: "var(--background-filter, none)"
-             }} />
+        <BackgroundImage />
         <div className="min-h-screen">
           <Navigation />
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-full pt-14">

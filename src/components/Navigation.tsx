@@ -248,10 +248,10 @@ export default function Navigation() {
                     </div>
                     <Link href="/mypage" onClick={() => setIsMobileMenuOpen(false)} className={cn(
                       "flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-pink-50/50 dark:hover:bg-pink-900/40 relative",
-                      pathname === "/mypage" ? "bg-pink-50 dark:bg-pink-900 text-pink-700 dark:text-pink-300" : "text-gray-700 dark:text-gray-200"
+                      (pathname === "/mypage" || pathname.startsWith("/mypage") || pathname.startsWith("/split")) ? "bg-pink-50 dark:bg-pink-900 text-pink-700 dark:text-pink-300" : "text-gray-700 dark:text-gray-200"
                     )}>
-                      <Home className={cn("w-5 h-5", pathname === "/mypage" ? "text-pink-700 dark:text-pink-300" : "text-pink-400 dark:text-pink-300/70")}/>
-                      <span className={cn("font-medium", pathname === "/mypage" ? "text-pink-700 dark:text-pink-300" : undefined)}>ตัวละคร</span>
+                      <Home className={cn("w-5 h-5", (pathname === "/mypage" || pathname.startsWith("/mypage") || pathname.startsWith("/split")) ? "text-pink-700 dark:text-pink-300" : "text-pink-400 dark:text-pink-300/70")}/>
+                      <span className={cn("font-medium", (pathname === "/mypage" || pathname.startsWith("/mypage") || pathname.startsWith("/split")) ? "text-pink-700 dark:text-pink-300" : undefined)}>ตัวละคร</span>
                       {charactersWithMissingStats > 0 && (
                         <>
                           {/* Mobile badge */}
@@ -267,17 +267,17 @@ export default function Navigation() {
                     </Link>
                     <Link href="/party" onClick={() => setIsMobileMenuOpen(false)} className={cn(
                       "flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-purple-50/50 dark:hover:bg-purple-900/40",
-                      pathname === "/party" ? "bg-purple-50 dark:bg-purple-900 text-purple-600 dark:text-purple-300" : "text-gray-700 dark:text-gray-200"
+                      (pathname === "/party" || pathname.startsWith("/party")) ? "bg-purple-50 dark:bg-purple-900 text-purple-600 dark:text-purple-300" : "text-gray-700 dark:text-gray-200"
                     )}>
-                      <Users className={cn("w-5 h-5", pathname === "/party" ? "text-purple-600 dark:text-purple-300" : "text-purple-400 dark:text-purple-300/70")}/>
-                      <span className={cn("font-medium", pathname === "/party" ? "text-purple-600 dark:text-purple-300" : undefined)}>ปาร์ตี้</span>
+                      <Users className={cn("w-5 h-5", (pathname === "/party" || pathname.startsWith("/party")) ? "text-purple-600 dark:text-purple-300" : "text-purple-400 dark:text-purple-300/70")}/>
+                      <span className={cn("font-medium", (pathname === "/party" || pathname.startsWith("/party")) ? "text-purple-600 dark:text-purple-300" : undefined)}>ปาร์ตี้</span>
                     </Link>
                     <Link href="/events" onClick={() => setIsMobileMenuOpen(false)} className={cn(
                       "flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/40",
-                      pathname === "/events" ? "bg-indigo-50 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-300" : "text-gray-700 dark:text-gray-200"
+                      (pathname === "/events" || pathname.startsWith("/events")) ? "bg-indigo-50 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-300" : "text-gray-700 dark:text-gray-200"
                     )}>
-                      <Calendar className={cn("w-5 h-5", pathname === "/events" ? "text-indigo-600 dark:text-indigo-300" : "text-indigo-400 dark:text-indigo-300/70")}/>
-                      <span className={cn("font-medium", pathname === "/events" ? "text-indigo-600 dark:text-indigo-300" : undefined)}>กิจกรรม</span>
+                      <Calendar className={cn("w-5 h-5", (pathname === "/events" || pathname.startsWith("/events")) ? "text-indigo-600 dark:text-indigo-300" : "text-indigo-400 dark:text-indigo-300/70")}/>
+                      <span className={cn("font-medium", (pathname === "/events" || pathname.startsWith("/events")) ? "text-indigo-600 dark:text-indigo-300" : undefined)}>กิจกรรม</span>
                     </Link>
                     <Link href="/ranking" onClick={() => setIsMobileMenuOpen(false)} className={cn(
                       "flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-blue-50/50 dark:hover:bg-blue-900/40",
@@ -303,13 +303,13 @@ export default function Navigation() {
                     </Link>
                     <Link href="/guild-donate/history" onClick={() => setIsMobileMenuOpen(false)} className={cn(
                       "flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-pink-50/50 dark:hover:bg-yellow-900/40 relative",
-                      pathname === "/guild-donate/history" ? "bg-yellow-50 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-300" : "text-gray-700 dark:text-gray-200"
+                      (pathname.startsWith("/guild-donate") || pathname.startsWith("/guild-donate-cash")) ? "bg-yellow-50 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-300" : "text-gray-700 dark:text-gray-200"
                     )}>
                       <Crown className={cn(
                         "w-5 h-5 transition-colors duration-300 drop-shadow-sm",
-                        pathname.startsWith("/guild-donate/history") ? "text-yellow-600 dark:text-yellow-300" : "group-hover:text-pink-600 text-pink-500 dark:text-yellow-300/70"
+                        (pathname.startsWith("/guild-donate") || pathname.startsWith("/guild-donate-cash")) ? "text-yellow-600 dark:text-yellow-300" : "group-hover:text-pink-600 text-pink-500 dark:text-yellow-300/70"
                       )} />
-                      <span className={cn("font-medium whitespace-nowrap flex items-center", pathname === "/guild-donate/history" ? "text-yellow-600 dark:text-yellow-300" : undefined)}>
+                      <span className={cn("font-medium whitespace-nowrap flex items-center", (pathname.startsWith("/guild-donate") || pathname.startsWith("/guild-donate-cash")) ? "text-yellow-600 dark:text-yellow-300" : undefined)}>
                         บริจาคกิลด์
                       </span>
                     </Link>
@@ -361,7 +361,18 @@ export default function Navigation() {
                     { href: "/events", icon: <Calendar />, label: "กิจกรรม", color: "indigo", activeBg: "bg-indigo-700", hoverBg: "hover:bg-indigo-600/30", iconColor: "text-indigo-400", border: "hover:border-indigo-400" },
                     { href: "/ranking", icon: <BarChart2 />, label: "จัดอันดับ", color: "green", activeBg: "bg-green-700", hoverBg: "hover:bg-green-600/30", iconColor: "text-green-400", border: "hover:border-green-400" },
                   ].map((tab, idx) => {
-                    const isActive = pathname === tab.href || (tab.href === "/ranking" && pathname.startsWith("/ranking"));
+                    const isActive =
+                      tab.href === "/mypage"
+                        ? pathname === "/mypage" || pathname.startsWith("/mypage") || pathname.startsWith("/split")
+                        : tab.href === "/party"
+                          ? pathname === "/party" || pathname.startsWith("/party")
+                          : tab.href === "/events"
+                            ? pathname === "/events" || pathname.startsWith("/events")
+                            : tab.href === "/ranking"
+                              ? pathname === "/ranking" || pathname.startsWith("/ranking")
+                              : tab.href === "/guild-donate/history"
+                                ? pathname.startsWith("/guild-donate") || pathname.startsWith("/guild-donate-cash")
+                                : pathname === tab.href;
                     return (
                       <Link
                         key={tab.href}
@@ -491,7 +502,7 @@ export default function Navigation() {
                   href="/guild-donate/history"
                   className={cn(
                     "relative group px-3 py-1 rounded-xl transition-all text-base font-bold cursor-pointer",
-                    pathname.startsWith("/guild-donate/history")
+                    (pathname.startsWith("/guild-donate") || pathname.startsWith("/guild-donate-cash"))
                       ? "bg-gradient-to-r from-yellow-400 via-pink-400 to-rose-400 text-white shadow-lg border-2 border-yellow-200"
                       : "bg-transparent text-white/90 border-2 border-transparent shadow-none hover:bg-pink-100/20 hover:shadow-xl hover:ring-2 hover:ring-yellow-200 -ml-px"
                   )}
@@ -502,11 +513,11 @@ export default function Navigation() {
                   >
                     <Crown className={cn(
                       "w-5 h-5 transition-colors duration-300 drop-shadow-sm",
-                      pathname.startsWith("/guild-donate/history") ? "text-white" : "group-hover:text-pink-600 text-pink-500"
+                      (pathname.startsWith("/guild-donate") || pathname.startsWith("/guild-donate-cash")) ? "text-white" : "group-hover:text-pink-600 text-pink-500"
                     )} />
                     <span className={cn(
                       "transition-colors duration-300 whitespace-nowrap flex items-center",
-                      pathname.startsWith("/guild-donate/history") ? "text-white" : "group-hover:text-white text-white/90"
+                      (pathname.startsWith("/guild-donate") || pathname.startsWith("/guild-donate-cash")) ? "text-white" : "group-hover:text-white text-white/90"
                     )}>
                       บริจาคกิลด์
                     </span>

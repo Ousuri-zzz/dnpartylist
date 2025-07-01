@@ -11,7 +11,7 @@
 body {
   font-family: var(--font-prompt);
   min-height: 100vh;
-  background-color: #f8f9fa;
+  background-color: #f3f4f6;
   background-image: url('/images/background.jpg');
   background-size: cover;
   background-position: center;
@@ -128,14 +128,13 @@ body {
 }
 
 /* Dark mode background */
-.dark body {
-  background-color: #0a0a0a;
-  background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('/images/background.jpg');
+html.dark body {
+  background-color: #18181b !important;
+  background-image: url('/images/background-dark.jpg') !important;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   background-attachment: fixed;
-  --background-filter: brightness(0.3) contrast(1.2);
 }
 
 /* Smooth transitions for theme changes */
@@ -3179,4 +3178,12 @@ button, input, textarea, select {
   color: #ffe066 !important;
   border-color: #bfae3c !important;
 }
-  
+/* === FORCE dark mode background image for body (must be last) === */
+html.dark body {
+  background-color: #18181b !important;
+  background-image: url('/images/background-dark.jpg') !important;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
