@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { cn } from '../lib/utils';
 import { DiscordDropdown } from './DiscordDropdown';
 import { motion } from 'framer-motion';
-import { Home, Users, BarChart2, Calendar, ShoppingCart, PiggyBank, Settings, Crown, LogOut, CreditCard, MessageSquare, SplitSquareHorizontal, Menu } from 'lucide-react';
+import { Home, Users, BarChart2, Calendar, ShoppingCart, PiggyBank, Settings, LogOut, CreditCard, MessageSquare, SplitSquareHorizontal, Menu, Crown } from 'lucide-react';
 import { useGuild } from '@/hooks/useGuild';
 import { useAuth } from '@/hooks/useAuth';
 import { ref, onValue } from 'firebase/database';
@@ -202,7 +202,7 @@ export default function Navigation() {
   return (
     <nav className="fixed top-0 left-0 w-full h-14 backdrop-blur-md border-b border-gray-200/50 shadow-sm z-[100000]">
       <div className="container mx-auto px-4">
-        <div className="flex items-center h-14 w-full">
+        <div className="relative flex items-center h-14 w-full">
           {showNavLinks ? (
             <>
               {/* Mobile Menu Button */}
@@ -247,11 +247,11 @@ export default function Navigation() {
                       <span className="text-sm font-medium text-gray-700">สลับธีม</span>
                     </div>
                     <Link href="/mypage" onClick={() => setIsMobileMenuOpen(false)} className={cn(
-                      "flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-pink-50/50 relative",
-                      pathname === "/mypage" ? "bg-pink-50" : "text-gray-700"
+                      "flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-pink-50/50 dark:hover:bg-pink-900/40 relative",
+                      pathname === "/mypage" ? "bg-pink-50 dark:bg-pink-900 text-pink-700 dark:text-pink-300" : "text-gray-700 dark:text-gray-200"
                     )}>
-                      <Home className={cn("w-5 h-5", pathname === "/mypage" ? "text-blue-600" : "text-blue-400")} />
-                      <span className={cn("font-medium", pathname === "/mypage" ? "text-blue-600" : undefined)}>ตัวละคร</span>
+                      <Home className={cn("w-5 h-5", pathname === "/mypage" ? "text-pink-700 dark:text-pink-300" : "text-pink-400 dark:text-pink-300/70")}/>
+                      <span className={cn("font-medium", pathname === "/mypage" ? "text-pink-700 dark:text-pink-300" : undefined)}>ตัวละคร</span>
                       {charactersWithMissingStats > 0 && (
                         <>
                           {/* Mobile badge */}
@@ -266,63 +266,63 @@ export default function Navigation() {
                       )}
                     </Link>
                     <Link href="/party" onClick={() => setIsMobileMenuOpen(false)} className={cn(
-                      "flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-purple-50/50",
-                      pathname === "/party" ? "bg-purple-50" : "text-gray-700"
+                      "flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-purple-50/50 dark:hover:bg-purple-900/40",
+                      pathname === "/party" ? "bg-purple-50 dark:bg-purple-900 text-purple-600 dark:text-purple-300" : "text-gray-700 dark:text-gray-200"
                     )}>
-                      <Users className={cn("w-5 h-5", pathname === "/party" ? "text-purple-600" : "text-purple-400")} />
-                      <span className={cn("font-medium", pathname === "/party" ? "text-purple-600" : undefined)}>ปาร์ตี้</span>
+                      <Users className={cn("w-5 h-5", pathname === "/party" ? "text-purple-600 dark:text-purple-300" : "text-purple-400 dark:text-purple-300/70")}/>
+                      <span className={cn("font-medium", pathname === "/party" ? "text-purple-600 dark:text-purple-300" : undefined)}>ปาร์ตี้</span>
                     </Link>
                     <Link href="/events" onClick={() => setIsMobileMenuOpen(false)} className={cn(
-                      "flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-indigo-50/50",
-                      pathname === "/events" ? "bg-indigo-50" : "text-gray-700"
+                      "flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/40",
+                      pathname === "/events" ? "bg-indigo-50 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-300" : "text-gray-700 dark:text-gray-200"
                     )}>
-                      <Calendar className={cn("w-5 h-5", pathname === "/events" ? "text-indigo-600" : "text-indigo-400")} />
-                      <span className={cn("font-medium", pathname === "/events" ? "text-indigo-600" : undefined)}>กิจกรรม</span>
+                      <Calendar className={cn("w-5 h-5", pathname === "/events" ? "text-indigo-600 dark:text-indigo-300" : "text-indigo-400 dark:text-indigo-300/70")}/>
+                      <span className={cn("font-medium", pathname === "/events" ? "text-indigo-600 dark:text-indigo-300" : undefined)}>กิจกรรม</span>
                     </Link>
                     <Link href="/ranking" onClick={() => setIsMobileMenuOpen(false)} className={cn(
-                      "flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-blue-50/50",
-                      pathname.startsWith("/ranking") ? "bg-blue-50" : "text-gray-700"
+                      "flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-blue-50/50 dark:hover:bg-blue-900/40",
+                      pathname.startsWith("/ranking") ? "bg-blue-50 dark:bg-blue-900 text-green-600 dark:text-green-300" : "text-gray-700 dark:text-gray-200"
                     )}>
-                      <BarChart2 className={cn("w-5 h-5", pathname.startsWith("/ranking") ? "text-green-600" : "text-green-400")} />
-                      <span className={cn("font-medium", pathname.startsWith("/ranking") ? "text-green-600" : undefined)}>จัดอันดับ</span>
+                      <BarChart2 className={cn("w-5 h-5", pathname.startsWith("/ranking") ? "text-green-600 dark:text-green-300" : "text-green-400 dark:text-green-300/70")}/>
+                      <span className={cn("font-medium", pathname.startsWith("/ranking") ? "text-green-600 dark:text-green-300" : undefined)}>จัดอันดับ</span>
                     </Link>
                     <Link href="/trade" onClick={() => setIsMobileMenuOpen(false)} className={cn(
-                      "flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-pink-50/50 relative",
-                      pathname === "/trade" ? "bg-pink-50" : "text-gray-700"
+                      "flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-pink-50/50 dark:hover:bg-pink-900/40 relative",
+                      pathname === "/trade" ? "bg-pink-50 dark:bg-pink-900 text-pink-700 dark:text-pink-300" : "text-gray-700 dark:text-gray-200"
                     )}>
                       <ShoppingCart className={cn(
                         "w-5 h-5 transition-colors duration-300 drop-shadow-sm",
-                        pathname === "/trade" ? "text-pink-700" : "group-hover:text-pink-500 text-pink-400"
+                        pathname === "/trade" ? "text-pink-700 dark:text-pink-300" : "text-pink-400 dark:text-pink-300/70"
                       )} />
                       <span className={cn(
-                        "text-base font-bold transition-colors duration-300 tracking-wide",
-                        pathname === "/trade" ? "text-pink-700" : "group-hover:text-white text-white/90"
+                        "font-medium",
+                        pathname === "/trade" ? "text-pink-700 dark:text-pink-300" : undefined
                       )}>
                         Trade
                       </span>
                     </Link>
                     <Link href="/guild-donate/history" onClick={() => setIsMobileMenuOpen(false)} className={cn(
-                      "flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-pink-50/50 relative",
-                      pathname === "/guild-donate/history" ? "bg-yellow-50" : "text-gray-700"
+                      "flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-pink-50/50 dark:hover:bg-yellow-900/40 relative",
+                      pathname === "/guild-donate/history" ? "bg-yellow-50 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-300" : "text-gray-700 dark:text-gray-200"
                     )}>
                       <Crown className={cn(
                         "w-5 h-5 transition-colors duration-300 drop-shadow-sm",
-                        pathname.startsWith("/guild-donate/history") ? "text-white" : "group-hover:text-pink-600 text-pink-500"
+                        pathname.startsWith("/guild-donate/history") ? "text-yellow-600 dark:text-yellow-300" : "group-hover:text-pink-600 text-pink-500 dark:text-yellow-300/70"
                       )} />
-                      <span className={cn("font-medium whitespace-nowrap flex items-center", pathname === "/guild-donate/history" ? "text-yellow-600" : undefined)}>
+                      <span className={cn("font-medium whitespace-nowrap flex items-center", pathname === "/guild-donate/history" ? "text-yellow-600 dark:text-yellow-300" : undefined)}>
                         บริจาคกิลด์
                       </span>
                     </Link>
                     {isGuildLeader && (
                       <Link href="/guild/settings" onClick={() => setIsMobileMenuOpen(false)} className={cn(
-                        "flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-green-50/50 relative",
-                        pathname === "/guild/settings" ? "bg-emerald-50" : "text-gray-700"
+                        "flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-green-50/50 dark:hover:bg-green-900/40 relative",
+                        pathname === "/guild/settings" ? "bg-emerald-50 dark:bg-emerald-900 text-emerald-600 dark:text-emerald-300" : "text-gray-700 dark:text-gray-200"
                       )}>
                         <Settings className={cn(
                           "w-5 h-5 transition-colors duration-300 drop-shadow-sm",
-                          pathname === "/guild/settings" ? "text-white" : "group-hover:text-green-600 text-green-500"
+                          pathname === "/guild/settings" ? "text-emerald-600 dark:text-emerald-300" : "group-hover:text-green-600 text-green-500 dark:text-emerald-300/70"
                         )} />
-                        <span className={cn("font-medium whitespace-nowrap flex items-center", pathname === "/guild/settings" ? "text-emerald-600" : undefined)}>จัดการกิลด์</span>
+                        <span className={cn("font-medium whitespace-nowrap flex items-center", pathname === "/guild/settings" ? "text-emerald-600 dark:text-emerald-300" : undefined)}>จัดการกิลด์</span>
                         {(pendingGuildLoanCount > 0 || pendingMerchantCount > 0 || pendingNewMemberCount > 0 || pendingDonationCount > 0 || pendingCashDonationCount > 0) && (
                           <span className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 min-w-4 min-h-4 flex justify-center items-center rounded-full bg-red-500 text-white text-xs font-bold shadow select-none z-30 lg:hidden">
                             {pendingGuildLoanCount + pendingMerchantCount + pendingNewMemberCount + pendingDonationCount + pendingCashDonationCount}
@@ -336,12 +336,12 @@ export default function Navigation() {
                       rel="noopener noreferrer"
                       onClick={() => setIsMobileMenuOpen(false)}
                       className={cn(
-                        "flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-sky-50/50",
-                        pathname === "/contact-guild-leader" ? "bg-sky-50" : "text-gray-700"
+                        "flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-sky-50/50 dark:hover:bg-sky-900/40",
+                        pathname === "/contact-guild-leader" ? "bg-sky-50 dark:bg-sky-900 text-sky-600 dark:text-sky-300" : "text-gray-700 dark:text-gray-200"
                       )}
                     >
-                      <MessageSquare className={cn("w-5 h-5", pathname === "/contact-guild-leader" ? "text-sky-600" : "text-sky-400")} />
-                      <span className={cn("font-medium", pathname === "/contact-guild-leader" ? "text-sky-600" : undefined)}>ติดต่อหัวกิลด์</span>
+                      <MessageSquare className={cn("w-5 h-5", pathname === "/contact-guild-leader" ? "text-sky-600 dark:text-sky-300" : "text-sky-400 dark:text-sky-300/70")}/>
+                      <span className={cn("font-medium", pathname === "/contact-guild-leader" ? "text-sky-600 dark:text-sky-300" : undefined)}>ติดต่อหัวกิลด์</span>
                     </a>
                   </nav>
                   <div className="p-4 border-t border-pink-100 bg-white/95 backdrop-blur-md">
@@ -351,15 +351,15 @@ export default function Navigation() {
                 document.body
               )}
 
-              {/* Desktop Navigation */}
-              <div className="hidden lg:flex items-center gap-0">
+              {/* Desktop Navigation (Left) */}
+              <div className="hidden lg:flex items-center gap-0 flex-1 min-w-0">
                 <ThemeToggle />
                 <div className="flex items-center gap-0 rounded-xl shadow-lg px-1 py-0.5">
                   {[
-                    { href: "/mypage", icon: <Home />, label: "ตัวละคร", color: "pink", activeBg: "bg-pink-700", hoverBg: "hover:bg-pink-600/30", iconColor: "text-pink-400" },
-                    { href: "/party", icon: <Users />, label: "ปาร์ตี้", color: "purple", activeBg: "bg-purple-700", hoverBg: "hover:bg-purple-600/30", iconColor: "text-purple-400" },
-                    { href: "/events", icon: <Calendar />, label: "กิจกรรม", color: "indigo", activeBg: "bg-indigo-700", hoverBg: "hover:bg-indigo-600/30", iconColor: "text-indigo-400" },
-                    { href: "/ranking", icon: <BarChart2 />, label: "จัดอันดับ", color: "green", activeBg: "bg-green-700", hoverBg: "hover:bg-green-600/30", iconColor: "text-green-400" },
+                    { href: "/mypage", icon: <Home />, label: "ตัวละคร", color: "pink", activeBg: "bg-pink-700", hoverBg: "hover:bg-pink-600/30", iconColor: "text-pink-400", border: "hover:border-pink-400" },
+                    { href: "/party", icon: <Users />, label: "ปาร์ตี้", color: "purple", activeBg: "bg-purple-700", hoverBg: "hover:bg-purple-600/30", iconColor: "text-purple-400", border: "hover:border-purple-400" },
+                    { href: "/events", icon: <Calendar />, label: "กิจกรรม", color: "indigo", activeBg: "bg-indigo-700", hoverBg: "hover:bg-indigo-600/30", iconColor: "text-indigo-400", border: "hover:border-indigo-400" },
+                    { href: "/ranking", icon: <BarChart2 />, label: "จัดอันดับ", color: "green", activeBg: "bg-green-700", hoverBg: "hover:bg-green-600/30", iconColor: "text-green-400", border: "hover:border-green-400" },
                   ].map((tab, idx) => {
                     const isActive = pathname === tab.href || (tab.href === "/ranking" && pathname.startsWith("/ranking"));
                     return (
@@ -367,10 +367,10 @@ export default function Navigation() {
                         key={tab.href}
                         href={tab.href}
                         className={cn(
-                          "flex items-center gap-2 px-3 py-1 transition-all text-base rounded-xl relative font-bold",
+                          "flex items-center gap-2 px-3 py-1 transition-all text-base rounded-xl relative font-bold border-2 border-transparent",
                           isActive
-                            ? `${tab.activeBg} text-white shadow-lg scale-105 font-bold`
-                            : `text-white/90 ${tab.hoverBg} hover:text-white`
+                            ? `${tab.activeBg} text-white shadow-lg scale-105 font-bold ${tab.border.replace('hover:', '')}`
+                            : `text-white/90 ${tab.hoverBg} hover:text-white ${tab.border}`
                         )}
                         style={{
                           borderTopLeftRadius: idx === 0 ? "0.75rem" : undefined,
@@ -398,25 +398,23 @@ export default function Navigation() {
                 </div>
               </div>
 
-              {/* โลโก้ GalaxyCat กึ่งกลาง container จริง */}
-              <div className="flex-1 flex justify-center items-center">
-                <div className="flex items-center justify-center gap-3 group relative">
-                  <FaCat className="w-6 h-6 text-pink-300 drop-shadow-sm shimmer-pastel" />
-                  <span
-                    className="text-xl lg:text-2xl font-extrabold tracking-wide bg-gradient-to-r from-pink-300 via-purple-300 to-blue-300 bg-clip-text text-transparent px-1 drop-shadow-sm shimmer-text"
-                    style={typeof window !== 'undefined' && document?.documentElement?.getAttribute('data-theme') === 'dark' ? {
-                      background: 'linear-gradient(90deg, #fff 0%, #e0e7ff 40%, #bae6fd 80%, #fff1fa 100%)',
-                      WebkitBackgroundClip: 'text',
-                      WebkitTextFillColor: 'transparent',
-                      backgroundClip: 'text',
-                      color: 'transparent',
-                      filter: 'drop-shadow(0 0 12px #fff) drop-shadow(0 0 24px #fff) brightness(2.2)'
-                    } : {}}
-                  >
-                    GalaxyCat
-                  </span>
-                  <FaCat className="w-6 h-6 text-blue-300 drop-shadow-sm shimmer-pastel" />
-                </div>
+              {/* โลโก้ GalaxyCat กึ่งกลางจริง (Absolute Center) */}
+              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 flex items-center justify-center gap-3 group pointer-events-none select-none">
+                <FaCat className="w-6 h-6 text-pink-300 drop-shadow-sm shimmer-pastel" />
+                <span
+                  className="text-xl lg:text-2xl font-extrabold tracking-wide bg-gradient-to-r from-pink-300 via-purple-300 to-blue-300 bg-clip-text text-transparent px-1 drop-shadow-sm shimmer-text"
+                  style={typeof window !== 'undefined' && document?.documentElement?.getAttribute('data-theme') === 'dark' ? {
+                    background: 'linear-gradient(90deg, #fff 0%, #e0e7ff 40%, #bae6fd 80%, #fff1fa 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
+                    color: 'transparent',
+                    filter: 'drop-shadow(0 0 12px #fff) drop-shadow(0 0 24px #fff) brightness(2.2)'
+                  } : {}}
+                >
+                  GalaxyCat
+                </span>
+                <FaCat className="w-6 h-6 text-blue-300 drop-shadow-sm shimmer-pastel" />
                 <style jsx global>{`
                   .shimmer-text {
                     background-size: 200% 100%;
@@ -439,7 +437,7 @@ export default function Navigation() {
               </div>
 
               {/* ปุ่มขวา (Desktop Right Side) */}
-              <div className="hidden lg:flex items-center gap-2">
+              <div className="hidden lg:flex items-center gap-2 flex-1 justify-end min-w-0">
                 <Link
                   href="/trade"
                   className={cn(

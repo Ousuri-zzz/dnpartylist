@@ -82,7 +82,7 @@ export function DiscordDropdown({ inMobileMenu = false }: { inMobileMenu?: boole
             <AvatarImage src={user.photoURL || ''} alt={user.displayName || user.email || 'User'} />
             <AvatarFallback>{user.displayName?.[0] || discordName?.[0] || 'U'}</AvatarFallback>
           </Avatar>
-          <span className="text-base font-bold flex-1 text-left whitespace-nowrap overflow-hidden text-ellipsis text-blue-600 tracking-wide drop-shadow-sm transition-all duration-200">
+          <span className="text-base font-bold flex-1 text-left whitespace-nowrap overflow-hidden text-ellipsis text-blue-600 tracking-wide drop-shadow-sm transition-all duration-200 max-w-[56px] lg:max-w-[72px]">
             {discordName || user.displayName || 'กรุณาตั้งชื่อ'}
           </span>
         </div>
@@ -94,8 +94,9 @@ export function DiscordDropdown({ inMobileMenu = false }: { inMobileMenu?: boole
 
       {isOpen && (
         <div className={cn(
-          "absolute right-0 w-64 bg-white/80 rounded-2xl shadow-2xl shadow-pink-200/40 py-3 z-[100000] border border-pink-200 backdrop-blur-md max-h-80 overflow-y-auto animate-fade-in",
-          openUpwards ? 'bottom-12 mb-2' : 'mt-2 top-full'
+          "absolute right-0 w-64 rounded-2xl shadow-2xl shadow-pink-200/40 py-3 z-[100000] border border-pink-200 backdrop-blur-md max-h-80 overflow-y-auto animate-fade-in",
+          openUpwards ? 'bottom-12 mb-2' : 'mt-2 top-full',
+          "bg-white dark:bg-white/80"
         )}>
           {discordName && (
             <button
