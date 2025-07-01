@@ -38,7 +38,8 @@ export function BackgroundImage() {
         quality={100}
         style={{
           objectFit: 'cover',
-          objectPosition: 'center'
+          objectPosition: 'center',
+          filter: resolvedTheme === 'dark' ? 'brightness(0.95)' : undefined
         }}
         onLoad={() => setIsLoaded(true)}
       />
