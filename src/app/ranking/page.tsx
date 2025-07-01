@@ -514,6 +514,18 @@ export default function RankingPage() {
                   'Engineer': {icon: '🔧', glow: '#fbbf24'},
                   'Alchemist': {icon: '🔧', glow: '#fbbf24'},
                 };
+                const jobDarkModeColors: Record<string, string> = {
+                  'Sword Master': 'dark:text-pink-200 dark:drop-shadow-[0_0_16px_#fbcfe8]',
+                  'Mercenary': 'dark:text-pink-200 dark:drop-shadow-[0_0_16px_#fbcfe8]',
+                  'Bowmaster': 'dark:text-emerald-200 dark:drop-shadow-[0_0_16px_#bbf7d0]',
+                  'Acrobat': 'dark:text-emerald-200 dark:drop-shadow-[0_0_16px_#bbf7d0]',
+                  'Force User': 'dark:text-purple-200 dark:drop-shadow-[0_0_16px_#ddd6fe]',
+                  'Elemental Lord': 'dark:text-purple-200 dark:drop-shadow-[0_0_16px_#ddd6fe]',
+                  'Paladin': 'dark:text-sky-200 dark:drop-shadow-[0_0_16px_#bae6fd]',
+                  'Priest': 'dark:text-sky-200 dark:drop-shadow-[0_0_16px_#bae6fd]',
+                  'Engineer': 'dark:text-amber-200 dark:drop-shadow-[0_0_16px_#fde68a]',
+                  'Alchemist': 'dark:text-amber-200 dark:drop-shadow-[0_0_16px_#fde68a]',
+                };
                 return (
                   <div
                     key={job}
@@ -530,10 +542,13 @@ export default function RankingPage() {
                     onMouseLeave={() => setHoveredCard(null)}
                   >
                     <span
-                      className="text-3xl mb-1 drop-shadow-glow animate-pulse"
+                      className={cn(
+                        "text-3xl mb-1 drop-shadow-glow animate-pulse",
+                        jobDarkModeColors[job] || ''
+                      )}
                       style={{
                         color: colors.text,
-                        filter: `drop-shadow(0 0 8px #fff8) drop-shadow(0 0 16px ${jobIcons[job].glow})`
+                        filter: `drop-shadow(0 0 8px #fff8) drop-shadow(0 0 16px ${jobIcons[job].glow})`,
                       }}
                     >
                       {getClassIcon(job)}

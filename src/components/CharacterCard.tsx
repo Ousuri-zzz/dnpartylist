@@ -102,23 +102,56 @@ export function CharacterCard({ character, onEdit, onDelete, onChecklistChange }
     return defaultColors;
   };
 
-  // ฟังก์ชันสำหรับเลือก Icon ตามอาชีพ
-  const getClassIcon = (subClass: string) => {
-    const mainClass = CLASS_TO_MAIN_CLASS[subClass as CharacterClass] || subClass;
-    
-    switch (mainClass) {
-      case 'Warrior':
-        return <Sword className="h-5 w-5 text-red-500" />;
-      case 'Archer':
-        return <Zap className="h-5 w-5 text-emerald-500" />;
-      case 'Sorceress':
-        return <Sparkles className="h-5 w-5 text-purple-500" />;
-      case 'Cleric':
-        return <Shield className="h-5 w-5 text-sky-500" />;
-      case 'Academic':
-        return <Star className="h-5 w-5 text-amber-500" />;
+  // ฟังก์ชันคืนไอคอนประจำอาชีพ (ใช้ RPG-Awesome)
+  const getClassIcon = (className: string) => {
+    let colorClass = '';
+    switch (className) {
+      case 'Sword Master':
+      case 'Mercenary':
+        colorClass = 'text-red-600';
+        break;
+      case 'Bowmaster':
+      case 'Acrobat':
+        colorClass = 'text-emerald-600';
+        break;
+      case 'Force User':
+      case 'Elemental Lord':
+        colorClass = 'text-purple-600';
+        break;
+      case 'Paladin':
+      case 'Priest':
+        colorClass = 'text-sky-600';
+        break;
+      case 'Engineer':
+      case 'Alchemist':
+        colorClass = 'text-amber-600';
+        break;
       default:
-        return <Crown className="h-5 w-5 text-gray-500" />;
+        colorClass = 'text-gray-700';
+    }
+    switch (className) {
+      case 'Sword Master':
+        return <i className={`ra ra-sword text-2xl ${colorClass}`} title="Sword Master" />;
+      case 'Mercenary':
+        return <i className={`ra ra-axe text-2xl ${colorClass}`} title="Mercenary" />;
+      case 'Bowmaster':
+        return <i className={`ra ra-archer text-2xl ${colorClass}`} title="Bowmaster" />;
+      case 'Acrobat':
+        return <i className={`ra ra-player-dodge text-2xl ${colorClass}`} title="Acrobat" />;
+      case 'Force User':
+        return <i className={`ra ra-crystal-ball text-2xl ${colorClass}`} title="Force User" />;
+      case 'Elemental Lord':
+        return <i className={`ra ra-fire-symbol text-2xl ${colorClass}`} title="Elemental Lord" />;
+      case 'Paladin':
+        return <i className={`ra ra-shield text-2xl ${colorClass}`} title="Paladin" />;
+      case 'Priest':
+        return <i className={`ra ra-hospital-cross text-2xl ${colorClass}`} title="Priest" />;
+      case 'Engineer':
+        return <i className={`ra ra-gear-hammer text-2xl ${colorClass}`} title="Engineer" />;
+      case 'Alchemist':
+        return <i className={`ra ra-flask text-2xl ${colorClass}`} title="Alchemist" />;
+      default:
+        return <i className={`ra ra-player text-2xl ${colorClass}`} title="Unknown" />;
     }
   };
 
