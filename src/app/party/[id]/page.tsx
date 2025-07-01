@@ -801,7 +801,7 @@ export default function PartyPage({ params }: { params: { id: string } }) {
               )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
-                <Card className="bg-white/90 backdrop-blur-sm">
+                <Card className="bg-white/90 dark:bg-[#23232b] backdrop-blur-sm">
                   <CardHeader className="flex flex-row items-center space-y-0 pb-3">
                     <div className="flex items-center gap-3">
                       <CardTitle className="text-lg font-bold text-violet-700 flex items-center gap-2">
@@ -955,7 +955,7 @@ export default function PartyPage({ params }: { params: { id: string } }) {
                   </CardContent>
                 </Card>
 
-                <Card className="bg-white/90 backdrop-blur-sm">
+                <Card className="bg-white/90 dark:bg-[#23232b] backdrop-blur-sm">
                   <CardHeader className="flex flex-row items-center space-y-0 pb-3">
                     <div className="flex items-center gap-3">
                       <CardTitle className="text-base font-bold text-gray-800 tracking-wide">ค่าเฉลี่ย</CardTitle>
@@ -967,7 +967,7 @@ export default function PartyPage({ params }: { params: { id: string } }) {
                 </Card>
               </div>
 
-              <Card className="bg-white/90 backdrop-blur-sm mb-2">
+              <Card className="bg-white/90 dark:bg-[#23232b]/80 backdrop-blur-sm mb-2">
                 <CardContent className="pt-8 pb-6">
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
                     {members.map((member) => {
@@ -1057,7 +1057,7 @@ export default function PartyPage({ params }: { params: { id: string } }) {
 
               {/* Party Message Box (description) moved inside snapshot area */}
               <div className="mt-6">
-                <Card className="bg-white/70 backdrop-blur-sm border border-pink-100/30 shadow-lg">
+                <Card className="bg-white/70 dark:bg-[#23232b]/80 backdrop-blur-sm border border-pink-100/30 shadow-lg">
                   <CardHeader className="pb-2">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">

@@ -352,9 +352,9 @@ export default function Navigation() {
               )}
 
               {/* Desktop Navigation (Left) */}
-              <div className="hidden lg:flex items-center gap-0 flex-1 min-w-0">
+              <div className="hidden lg:flex items-center gap-1 flex-1 min-w-0">
                 <ThemeToggle />
-                <div className="flex items-center gap-0 rounded-xl shadow-lg px-1 py-0.5">
+                <div className="flex items-center gap-1">
                   {[
                     { href: "/mypage", icon: <Home />, label: "ตัวละคร", color: "pink", activeBg: "bg-pink-700", hoverBg: "hover:bg-pink-600/30", iconColor: "text-pink-400", border: "hover:border-pink-400" },
                     { href: "/party", icon: <Users />, label: "ปาร์ตี้", color: "purple", activeBg: "bg-purple-700", hoverBg: "hover:bg-purple-600/30", iconColor: "text-purple-400", border: "hover:border-purple-400" },

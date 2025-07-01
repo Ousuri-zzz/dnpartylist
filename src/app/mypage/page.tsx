@@ -1085,15 +1085,7 @@ export default function MyPage() {
           <div className="absolute inset-0 bg-white/80 rounded-3xl z-0" />
           {/* Fantasy cloud/shine effect (softer) */}
           <div className="absolute inset-0 z-0 pointer-events-none">
-            <svg width="100%" height="100%" viewBox="0 0 1440 200" fill="none" xmlns="http://www.w3.org/2000/svg" className="absolute top-0 left-0 w-full h-20 md:h-32 opacity-30">
-              <ellipse cx="720" cy="100" rx="720" ry="80" fill="url(#cloudGradient)" />
-              <defs>
-                <linearGradient id="cloudGradient" x1="0" y1="0" x2="1440" y2="0" gradientUnits="userSpaceOnUse">
-                  <stop stopColor="#f3e8ff" />
-                  <stop offset="1" stopColor="#e0e7ff" />
-                </linearGradient>
-              </defs>
-            </svg>
+            {/* ลบ SVG วงรีขาวออก */}
             <div className="absolute right-2 md:right-10 top-2 md:top-6 w-16 h-16 md:w-32 md:h-32 bg-pink-200/20 rounded-full blur-2xl opacity-30 animate-none" />
             <div className="absolute left-2 md:left-10 bottom-0 w-12 h-12 md:w-24 md:h-24 bg-blue-200/20 rounded-full blur-2xl opacity-20 animate-none" />
           </div>

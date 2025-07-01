@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useMemo, useState } from 'react';
 import { Users, Clock, Trash2 } from 'lucide-react';
 import styles from './PartyCard.module.css';
-import { CLASS_TO_ROLE, getClassColors } from '@/config/theme';
+import { CLASS_TO_ROLE, getClassColors, ROLE_COLORS } from '@/config/theme';
 import { CharacterClass, Role } from '@/types/character';
 import { Button } from './ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from './ui/dialog';
@@ -33,74 +33,23 @@ const CLASS_GRADIENTS: Record<string, { bg: string; text: string; border: string
   Default:   { bg: 'from-gray-100/80 to-gray-100/50', text: 'text-gray-700', border: 'border-gray-200', icon: '👤' }
 };
 
-function getClassStyle(characterClass: string) {
-  const role = CLASS_TO_ROLE[characterClass as keyof typeof CLASS_TO_ROLE];
-  return CLASS_GRADIENTS[role] || CLASS_GRADIENTS.Default;
-}
+// เพิ่ม pastel color mapping
+const PASTEL_BADGE_COLORS = {
+  Warrior:   { bg: 'bg-[#ffe5e5]', text: 'text-[#b85c5c]', border: 'border-[#ffd6d6]' },
+  Archer:    { bg: 'bg-[#e5ffe5]', text: 'text-[#5cb85c]', border: 'border-[#d6ffd6]' },
+  Sorceress: { bg: 'bg-[#f3e5ff]', text: 'text-[#8e5cb8]', border: 'border-[#e6d6ff]' },
+  Cleric:    { bg: 'bg-[#e5f6ff]', text: 'text-[#5c8eb8]', border: 'border-[#d6f0ff]' },
+  Academic:  { bg: 'bg-[#fffbe5]', text: 'text-[#b8a05c]', border: 'border-[#fff6d6]' }
+};
 
-// เพิ่มฟังก์ชันสำหรับ dark mode สีอาชีพ
-function getDarkClassBgColor(className: string) {
-  switch (className) {
-    case 'Sword Master':
-    case 'Mercenary':
-      return 'bg-red-500/80';
-    case 'Bowmaster':
-    case 'Acrobat':
-      return 'bg-emerald-800';
-    case 'Force User':
-    case 'Elemental Lord':
-      return 'bg-purple-500/80';
-    case 'Paladin':
-    case 'Priest':
-      return 'bg-sky-700';
-    case 'Engineer':
-    case 'Alchemist':
-      return 'bg-yellow-200/40';
-    default:
-      return 'bg-gray-700';
-  }
-}
-function getDarkClassText(className: string) {
-  switch (className) {
-    case 'Sword Master':
-    case 'Mercenary':
-    case 'Force User':
-    case 'Elemental Lord':
-      return 'text-white';
-    case 'Bowmaster':
-    case 'Acrobat':
-      return 'text-emerald-200';
-    case 'Paladin':
-    case 'Priest':
-      return 'text-sky-200';
-    case 'Engineer':
-    case 'Alchemist':
-      return 'text-yellow-100';
-    default:
-      return 'text-gray-100';
-  }
-}
-function getDarkClassBorder(className: string) {
-  switch (className) {
-    case 'Sword Master':
-    case 'Mercenary':
-      return 'border-red-300';
-    case 'Force User':
-    case 'Elemental Lord':
-      return 'border-purple-300';
-    case 'Bowmaster':
-    case 'Acrobat':
-      return 'border-emerald-700';
-    case 'Paladin':
-    case 'Priest':
-      return 'border-sky-700';
-    case 'Engineer':
-    case 'Alchemist':
-      return 'border-yellow-700';
-    default:
-      return 'border-gray-700';
-  }
-}
+// เพิ่มขอบสีเข้ม
+const PASTEL_BADGE_DARK_BORDER = {
+  Warrior:   'border-[#b85c5c]',
+  Archer:    'border-[#5cb85c]',
+  Sorceress: 'border-[#8e5cb8]',
+  Cleric:    'border-[#5c8eb8]',
+  Academic:  'border-[#b8a05c]'
+};
 
 export function PartyCard({ party }: PartyCardProps) {
   const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(null);
@@ -297,7 +246,7 @@ export function PartyCard({ party }: PartyCardProps) {
             <div className="flex flex-col gap-[1px] -space-y-1">
               {sortedMembers.map(({ charId, info }) => {
                 if (!info) return null;
-                const classStyle = getClassStyle(info.class);
+                const classStyle = CLASS_GRADIENTS[info.class] || CLASS_GRADIENTS.Default;
                 return (
                   <div
                     key={charId}
@@ -318,8 +267,8 @@ export function PartyCard({ party }: PartyCardProps) {
                         <p className="text-sm text-gray-500 -mt-1">{info.name}</p>
                       </div>
                     </div>
-                    <div className={`px-1.5 py-0.5 rounded-md font-normal border ${getClassBgColor(info.class)} ${classStyle.border} ${classStyle.text.replace('from-', 'text-').replace('to-', '')} dark:${getDarkClassBgColor(info.class)} dark:${getDarkClassText(info.class)} dark:${getDarkClassBorder(info.class)} dark:shadow-sm`}>
-                      <span className="text-[10px]">{info.class}</span>
+                    <div className={`px-1.5 py-0.5 rounded-md font-normal border ${PASTEL_BADGE_COLORS[CLASS_TO_ROLE[info.class]].bg} ${PASTEL_BADGE_DARK_BORDER[CLASS_TO_ROLE[info.class]]}`}>
+                      <span className={`text-[10px] font-bold ${PASTEL_BADGE_DARK_BORDER[CLASS_TO_ROLE[info.class]].replace('border-', 'text-')}`}>{info.class}</span>
                     </div>
                   </div>
                 );
@@ -383,36 +332,36 @@ export function PartyCard({ party }: PartyCardProps) {
                   "relative overflow-hidden rounded-xl border-2 transition-all duration-300",
                   "bg-gradient-to-br from-white/90 to-white/70",
                   "shadow-[0_8px_32px_0_rgba(31,38,135,0.1)]",
-                  getClassStyle(selectedCharacter.class).border,
+                  CLASS_GRADIENTS[selectedCharacter.class].border,
                   "hover:shadow-lg p-4 sm:p-6 pb-4"
                 )}>
                   {/* Decorative corner elements */}
-                  <div className={cn("absolute top-0 left-0 w-6 h-6 sm:w-8 sm:h-8 border-t-2 border-l-2 rounded-tl-lg", getClassStyle(selectedCharacter.class).border)}></div>
-                  <div className={cn("absolute top-0 right-0 w-6 h-6 sm:w-8 sm:h-8 border-t-2 border-r-2 rounded-tr-lg", getClassStyle(selectedCharacter.class).border)}></div>
-                  <div className={cn("absolute bottom-0 left-0 w-6 h-6 sm:w-8 sm:h-8 border-b-2 border-l-2 rounded-bl-lg", getClassStyle(selectedCharacter.class).border)}></div>
-                  <div className={cn("absolute bottom-0 right-0 w-6 h-6 sm:w-8 sm:h-8 border-b-2 border-r-2 rounded-br-lg", getClassStyle(selectedCharacter.class).border)}></div>
+                  <div className={cn("absolute top-0 left-0 w-6 h-6 sm:w-8 sm:h-8 border-t-2 border-l-2 rounded-tl-lg", CLASS_GRADIENTS[selectedCharacter.class].border)}></div>
+                  <div className={cn("absolute top-0 right-0 w-6 h-6 sm:w-8 sm:h-8 border-t-2 border-r-2 rounded-tr-lg", CLASS_GRADIENTS[selectedCharacter.class].border)}></div>
+                  <div className={cn("absolute bottom-0 left-0 w-6 h-6 sm:w-8 sm:h-8 border-b-2 border-l-2 rounded-bl-lg", CLASS_GRADIENTS[selectedCharacter.class].border)}></div>
+                  <div className={cn("absolute bottom-0 right-0 w-6 h-6 sm:w-8 sm:h-8 border-b-2 border-r-2 rounded-br-lg", CLASS_GRADIENTS[selectedCharacter.class].border)}></div>
 
                   {/* Character Info */}
                   <div className="flex items-center gap-3 mb-4">
                     <div className={cn(
                       "w-12 h-12 sm:w-16 sm:h-16 rounded-lg flex items-center justify-center",
                       "bg-gradient-to-br from-pink-200 to-purple-200 border shadow-inner",
-                      getClassStyle(selectedCharacter.class).border
+                      CLASS_GRADIENTS[selectedCharacter.class].border
                     )}>
                       <span className="text-2xl sm:text-3xl">
-                        {getClassStyle(selectedCharacter.class).icon}
+                        {CLASS_GRADIENTS[selectedCharacter.class].icon}
                       </span>
                     </div>
                     <div>
                       <h3 className={cn(
                         "text-lg sm:text-xl font-bold",
-                        getClassStyle(selectedCharacter.class).text
+                        CLASS_GRADIENTS[selectedCharacter.class].text
                       )}>
                         {selectedCharacter.name}
                       </h3>
                       <p className={cn(
                         "text-sm sm:text-base font-medium",
-                        getClassStyle(selectedCharacter.class).text
+                        CLASS_GRADIENTS[selectedCharacter.class].text
                       )}>
                         {selectedCharacter.class}
                       </p>
@@ -426,12 +375,12 @@ export function PartyCard({ party }: PartyCardProps) {
                       <div className={cn(
                         "p-2 rounded-lg border",
                         "bg-gradient-to-br from-red-50/90 to-red-100/50",
-                        getClassStyle(selectedCharacter.class).border
+                        CLASS_GRADIENTS[selectedCharacter.class].border
                       )}>
                         <div className="flex items-center gap-1 text-xs sm:text-sm">
                           <span className="text-red-500">⚔️</span>
                           <span className="text-gray-600">ATK:</span>
-                          <span className={cn("font-medium", getClassStyle(selectedCharacter.class).text)}>
+                          <span className={cn("font-medium", CLASS_GRADIENTS[selectedCharacter.class].text)}>
                             {selectedCharacter.stats?.atk || 0}
                           </span>
                         </div>
@@ -440,12 +389,12 @@ export function PartyCard({ party }: PartyCardProps) {
                       <div className={cn(
                         "p-2 rounded-lg border",
                         "bg-gradient-to-br from-green-50/90 to-green-100/50",
-                        getClassStyle(selectedCharacter.class).border
+                        CLASS_GRADIENTS[selectedCharacter.class].border
                       )}>
                         <div className="flex items-center gap-1 text-xs sm:text-sm">
                           <span className="text-green-500">❤️</span>
                           <span className="text-gray-600">HP:</span>
-                          <span className={cn("font-medium", getClassStyle(selectedCharacter.class).text)}>
+                          <span className={cn("font-medium", CLASS_GRADIENTS[selectedCharacter.class].text)}>
                             {selectedCharacter.stats?.hp || 0}
                           </span>
                         </div>
@@ -454,18 +403,18 @@ export function PartyCard({ party }: PartyCardProps) {
                       <div className={cn(
                         "p-2 rounded-lg border",
                         "bg-gradient-to-br from-blue-50/90 to-blue-100/50",
-                        getClassStyle(selectedCharacter.class).border
+                        CLASS_GRADIENTS[selectedCharacter.class].border
                       )}>
                         <div className="flex items-center gap-1 text-xs sm:text-sm">
                           <span className="text-blue-500">🛡️</span>
                           <span className="text-gray-600">DEF:</span>
                           <div className="flex items-center gap-1">
                             <span className="text-blue-600">P</span>
-                            <span className={cn("font-medium", getClassStyle(selectedCharacter.class).text)}>
+                            <span className={cn("font-medium", CLASS_GRADIENTS[selectedCharacter.class].text)}>
                               {selectedCharacter.stats?.pdef || 0}%
                             </span>
                             <span className="text-purple-600">M</span>
-                            <span className={cn("font-medium", getClassStyle(selectedCharacter.class).text)}>
+                            <span className={cn("font-medium", CLASS_GRADIENTS[selectedCharacter.class].text)}>
                               {selectedCharacter.stats?.mdef || 0}%
                             </span>
                           </div>
@@ -478,12 +427,12 @@ export function PartyCard({ party }: PartyCardProps) {
                       <div className={cn(
                         "p-2 rounded-lg border",
                         "bg-gradient-to-br from-yellow-50/90 to-yellow-100/50",
-                        getClassStyle(selectedCharacter.class).border
+                        CLASS_GRADIENTS[selectedCharacter.class].border
                       )}>
                         <div className="flex items-center gap-1 text-xs sm:text-sm">
                           <span className="text-yellow-500">💥</span>
                           <span className="text-gray-600">CRI:</span>
-                          <span className={cn("font-medium", getClassStyle(selectedCharacter.class).text)}>
+                          <span className={cn("font-medium", CLASS_GRADIENTS[selectedCharacter.class].text)}>
                             {selectedCharacter.stats?.cri || 0}%
                           </span>
                         </div>
@@ -492,12 +441,12 @@ export function PartyCard({ party }: PartyCardProps) {
                       <div className={cn(
                         "p-2 rounded-lg border",
                         "bg-gradient-to-br from-emerald-50/90 to-emerald-100/50",
-                        getClassStyle(selectedCharacter.class).border
+                        CLASS_GRADIENTS[selectedCharacter.class].border
                       )}>
                         <div className="flex items-center gap-1 text-xs sm:text-sm">
                           <span className="text-emerald-500">✨</span>
                           <span className="text-gray-600">ELE:</span>
-                          <span className={cn("font-medium", getClassStyle(selectedCharacter.class).text)}>
+                          <span className={cn("font-medium", CLASS_GRADIENTS[selectedCharacter.class].text)}>
                             {selectedCharacter.stats?.ele || 0}%
                           </span>
                         </div>
@@ -506,12 +455,12 @@ export function PartyCard({ party }: PartyCardProps) {
                       <div className={cn(
                         "p-2 rounded-lg border",
                         "bg-gradient-to-br from-orange-50/90 to-orange-100/50",
-                        getClassStyle(selectedCharacter.class).border
+                        CLASS_GRADIENTS[selectedCharacter.class].border
                       )}>
                         <div className="flex items-center gap-1 text-xs sm:text-sm">
                           <span className="text-orange-500">💥</span>
                           <span className="text-gray-600">FD:</span>
-                          <span className={cn("font-medium", getClassStyle(selectedCharacter.class).text)}>
+                          <span className={cn("font-medium", CLASS_GRADIENTS[selectedCharacter.class].text)}>
                             {selectedCharacter.stats?.fd || 0}%
                           </span>
                         </div>
@@ -524,7 +473,7 @@ export function PartyCard({ party }: PartyCardProps) {
                     <CharacterChecklist
                       checklist={selectedCharacter.checklist}
                       onChange={() => {}}
-                      accentColor={getClassStyle(selectedCharacter.class).text}
+                      accentColor={CLASS_GRADIENTS[selectedCharacter.class].text}
                       readOnly={true}
                     />
                   </div>

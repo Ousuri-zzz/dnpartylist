@@ -24,7 +24,7 @@ export function StatDisplay({ label, value = 0, icon, values, suffix = '', class
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ scale: 1.02 }}
       className={cn(
-        "relative overflow-hidden rounded-xl border border-white/50 backdrop-blur-sm shadow-lg",
+        "relative overflow-hidden rounded-xl border border-white/50 dark:border-gray-700 backdrop-blur-sm shadow-lg dark:bg-white/10",
         "p-3 transition-all duration-300",
         className
       )}
@@ -36,25 +36,25 @@ export function StatDisplay({ label, value = 0, icon, values, suffix = '', class
       <div className="relative z-10">
         <div className="flex items-center gap-2 mb-2">
           <span className="text-lg">{icon}</span>
-          <span className="text-sm font-medium text-gray-600">{label}</span>
+          <span className="text-sm font-medium text-gray-600 dark:text-gray-200">{label}</span>
         </div>
         
         {values ? (
           <div className="flex items-center gap-1">
-            <span className="text-xs font-medium text-blue-500">P</span>
-            <span className="text-base font-semibold text-blue-700">{formatValue(values[0])}{suffix}</span>
-            <span className="text-xs font-medium text-purple-500 ml-1">M</span>
-            <span className="text-base font-semibold text-purple-700">{formatValue(values[1])}{suffix}</span>
+            <span className="text-xs font-medium text-blue-500 dark:text-blue-300">P</span>
+            <span className="text-base font-semibold text-blue-700 dark:text-blue-200">{formatValue(values[0])}{suffix}</span>
+            <span className="text-xs font-medium text-purple-500 dark:text-purple-300 ml-1">M</span>
+            <span className="text-base font-semibold text-purple-700 dark:text-purple-200">{formatValue(values[1])}{suffix}</span>
           </div>
         ) : (
           <div className="flex items-center gap-1">
             <span className={cn(
               "text-base font-semibold",
-              label === "ATK" && "text-rose-600",
-              label === "HP" && "text-emerald-600",
-              label === "CRI" && "text-amber-600",
-              label === "ELE" && "text-violet-600",
-              label === "FD" && "text-orange-600"
+              label === "ATK" && "text-rose-600 dark:text-rose-300",
+              label === "HP" && "text-emerald-600 dark:text-emerald-300",
+              label === "CRI" && "text-amber-600 dark:text-amber-300",
+              label === "ELE" && "text-violet-600 dark:text-violet-300",
+              label === "FD" && "text-orange-600 dark:text-orange-300"
             )}>{formatValue(value)}{suffix}</span>
           </div>
         )}
