@@ -7,6 +7,8 @@ import {
   BeakerIcon
 } from '@heroicons/react/24/outline';
 import { Listbox } from '@headlessui/react';
+// --- Add RPG-Awesome icon font support for job/class ---
+import 'rpg-awesome/css/rpg-awesome.min.css';
 
 const CHARACTER_CLASSES: CharacterClass[] = [
   'Sword Master',
@@ -124,6 +126,59 @@ function getStatPercent(statKey: string, value: number, cap: any) {
   }
   return null;
 }
+
+// --- Add getClassIcon function (reuse from PartyCard) ---
+const getClassIcon = (className: string) => {
+  let colorClass = '';
+  switch (className) {
+    case 'Sword Master':
+    case 'Mercenary':
+      colorClass = 'text-red-600';
+      break;
+    case 'Bowmaster':
+    case 'Acrobat':
+      colorClass = 'text-emerald-600';
+      break;
+    case 'Force User':
+    case 'Elemental Lord':
+      colorClass = 'text-purple-600';
+      break;
+    case 'Paladin':
+    case 'Priest':
+      colorClass = 'text-sky-600';
+      break;
+    case 'Engineer':
+    case 'Alchemist':
+      colorClass = 'text-amber-600';
+      break;
+    default:
+      colorClass = 'text-gray-700';
+  }
+  switch (className) {
+    case 'Sword Master':
+      return <i className={`ra ra-sword ${colorClass} mr-2`} title="Sword Master" />;
+    case 'Mercenary':
+      return <i className={`ra ra-axe ${colorClass} mr-2`} title="Mercenary" />;
+    case 'Bowmaster':
+      return <i className={`ra ra-archer ${colorClass} mr-2`} title="Bowmaster" />;
+    case 'Acrobat':
+      return <i className={`ra ra-player-dodge ${colorClass} mr-2`} title="Acrobat" />;
+    case 'Force User':
+      return <i className={`ra ra-crystal-ball ${colorClass} mr-2`} title="Force User" />;
+    case 'Elemental Lord':
+      return <i className={`ra ra-fire-symbol ${colorClass} mr-2`} title="Elemental Lord" />;
+    case 'Paladin':
+      return <i className={`ra ra-shield ${colorClass} mr-2`} title="Paladin" />;
+    case 'Priest':
+      return <i className={`ra ra-hospital-cross ${colorClass} mr-2`} title="Priest" />;
+    case 'Engineer':
+      return <i className={`ra ra-gear-hammer ${colorClass} mr-2`} title="Engineer" />;
+    case 'Alchemist':
+      return <i className={`ra ra-flask ${colorClass} mr-2`} title="Alchemist" />;
+    default:
+      return <i className={`ra ra-player ${colorClass} mr-2`} title="Unknown" />;
+  }
+};
 
 export default function Status() {
   const [charClass, setCharClass] = useState('');
@@ -438,35 +493,29 @@ export default function Status() {
             </label>
             <Listbox value={charClass} onChange={setCharClass}>
               <div className="relative">
-                <Listbox.Button className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 py-2 pl-3 pr-10 text-left focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition">
-                  <span className="flex items-center">
-                    {charClass && CLASS_ICONS[charClass]}
-                    <span className="ml-2">{charClass || 'กรุณาเลือกอาชีพ'}</span>
-                  </span>
+                <Listbox.Button className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 py-2 pl-3 pr-10 text-left focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                  {charClass ? (
+                    <span className="flex items-center">
+                      {getClassIcon(charClass)}
+                      {charClass}
+                    </span>
+                  ) : (
+                    <span className="text-gray-400">เลือกอาชีพ</span>
+                  )}
                 </Listbox.Button>
                 <Listbox.Options className="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 shadow-lg max-h-fit min-h-0 rounded-lg py-1 text-base ring-1 ring-black ring-opacity-5 overflow-y-auto focus:outline-none">
-                  <Listbox.Option
-                    key="empty"
-                    value=""
-                    disabled
-                    className="text-gray-400 cursor-not-allowed px-4 py-2"
-                  >
-                    กรุณาเลือกอาชีพ
-                  </Listbox.Option>
                   {CHARACTER_CLASSES.map((c) => (
                     <Listbox.Option
                       key={c}
                       value={c}
-                      className={({ active, selected }) =>
-                        `cursor-pointer select-none relative py-2 pl-8 pr-4 flex items-center ${
-                          active ? 'bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-100' : 'text-gray-900 dark:text-gray-100'
-                        } ${selected ? 'font-bold' : ''}`
+                      className={({ active }) =>
+                        `relative cursor-pointer select-none py-2 pl-10 pr-4 ${active ? 'bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-100' : 'text-gray-900 dark:text-gray-100'}`
                       }
                     >
-                      <span className="absolute left-2 flex items-center">
-                        {CLASS_ICONS[c]}
+                      <span className="flex items-center">
+                        {getClassIcon(c)}
+                        {c}
                       </span>
-                      <span className="ml-2">{c}</span>
                     </Listbox.Option>
                   ))}
                 </Listbox.Options>
@@ -1212,7 +1261,7 @@ export default function Status() {
                     ×
                   </button>
                   <div className="flex items-center gap-2 mb-1">
-                    {CLASS_ICONS[b.charClass]}
+                    {getClassIcon(b.charClass)}
                     <span className={`font-bold text-base ${CLASS_COLORS[b.charClass] || 'text-blue-900 dark:text-blue-100'}`}>{b.charClass}</span>
                     <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">Lv.{b.capLevel}</span>
                   </div>
@@ -1312,7 +1361,7 @@ export default function Status() {
                   ×
                 </button>
                 <div className="flex items-center gap-2 mb-1">
-                  {CLASS_ICONS[b.charClass]}
+                  {getClassIcon(b.charClass)}
                   <span className={`font-bold text-base ${CLASS_COLORS[b.charClass] || 'text-blue-900 dark:text-blue-100'}`}>{b.charClass}</span>
                   <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">Lv.{b.capLevel}</span>
                 </div>

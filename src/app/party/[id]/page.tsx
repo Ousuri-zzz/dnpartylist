@@ -55,6 +55,60 @@ const CLASS_GRADIENTS: Record<string, { bg: string; text: string; border: string
   Default:   { bg: 'from-gray-100/80 to-gray-100/50', text: 'text-gray-700', border: 'border-gray-200', icon: '👤' }
 };
 
+// --- Add getClassIcon function (reuse from PartyCard) ---
+const getClassIcon = (className: string) => {
+  let colorClass = '';
+  switch (className) {
+    case 'Sword Master':
+    case 'Mercenary':
+      colorClass = 'text-red-600';
+      break;
+    case 'Bowmaster':
+    case 'Acrobat':
+      colorClass = 'text-emerald-600';
+      break;
+    case 'Force User':
+    case 'Elemental Lord':
+      colorClass = 'text-purple-600';
+      break;
+    case 'Paladin':
+    case 'Priest':
+      colorClass = 'text-sky-600';
+      break;
+    case 'Engineer':
+    case 'Alchemist':
+      colorClass = 'text-amber-600';
+      break;
+    default:
+      colorClass = 'text-gray-700';
+  }
+  switch (className) {
+    case 'Sword Master':
+      return <i className={`ra ra-sword ${colorClass}`} title="Sword Master" />;
+    case 'Mercenary':
+      return <i className={`ra ra-axe ${colorClass}`} title="Mercenary" />;
+    case 'Bowmaster':
+      return <i className={`ra ra-archer ${colorClass}`} title="Bowmaster" />;
+    case 'Acrobat':
+      return <i className={`ra ra-player-dodge ${colorClass}`} title="Acrobat" />;
+    case 'Force User':
+      return <i className={`ra ra-crystal-ball ${colorClass}`} title="Force User" />;
+    case 'Elemental Lord':
+      return <i className={`ra ra-fire-symbol ${colorClass}`} title="Elemental Lord" />;
+    case 'Paladin':
+      return <i className={`ra ra-shield ${colorClass}`} title="Paladin" />;
+    case 'Priest':
+      return <i className={`ra ra-hospital-cross ${colorClass}`} title="Priest" />;
+    case 'Engineer':
+      return <i className={`ra ra-gear-hammer ${colorClass}`} title="Engineer" />;
+    case 'Alchemist':
+      return <i className={`ra ra-flask ${colorClass}`} title="Alchemist" />;
+    default:
+      return <i className={`ra ra-player ${colorClass}`} title="Unknown" />;
+  }
+};
+// ... existing code ...
+
 export default function PartyPage({ params }: { params: { id: string } }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -999,7 +1053,7 @@ export default function PartyPage({ params }: { params: { id: string } }) {
                                   {member.character.name}
                                 </span>
                                 <div className={`px-2 py-0.5 rounded-md bg-white/90 border ${colors.border} flex items-center justify-center shadow-sm`}>
-                                  <span className="text-base mr-1">{colors.icon}</span>
+                                  <span className="text-base mr-1">{getClassIcon(member.character.class)}</span>
                                   <span className="text-xs font-medium text-gray-700">{member.character.class}</span>
                                 </div>
                               </div>
@@ -1390,33 +1444,23 @@ export default function PartyPage({ params }: { params: { id: string } }) {
                       getClassColors(CLASS_TO_ROLE[selectedMember.character.class]).border
                     )} />
 
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className={cn(
-                        "w-12 h-12 rounded-lg flex items-center justify-center",
-                        "bg-gradient-to-br from-pink-200 to-purple-200 border shadow-inner",
-                        getClassColors(CLASS_TO_ROLE[selectedMember.character.class]).border
+                    {/* NEW: Centered job icon + info */}
+                    <div className="flex flex-col items-center gap-2 mb-4">
+                      <span className="text-4xl mb-1">{getClassIcon(selectedMember.character.class)}</span>
+                      <h3 className={cn(
+                        "text-xl font-bold text-black drop-shadow-sm truncate text-center"
                       )}>
-                        <span className="text-2xl">
-                          {getClassColors(CLASS_TO_ROLE[selectedMember.character.class]).icon}
-                        </span>
-                      </div>
-                      <div>
-                        <h3 className={cn(
-                          "text-xl font-bold",
-                          getClassColors(CLASS_TO_ROLE[selectedMember.character.class]).text
-                        )}>
-                          {selectedMember.character.name}
-                        </h3>
-                        <p className={cn(
-                          "text-sm font-medium",
-                          getClassColors(CLASS_TO_ROLE[selectedMember.character.class]).text
-                        )}>
-                          {selectedMember.character.class}
-                        </p>
-                        <p className="text-sm text-gray-600 mt-1">
-                          {selectedMember.discordName}
-                        </p>
-                      </div>
+                        {selectedMember.character.name}
+                      </h3>
+                      <p className={cn(
+                        "text-sm font-medium text-center",
+                        getClassColors(CLASS_TO_ROLE[selectedMember.character.class]).text
+                      )}>
+                        {selectedMember.character.class}
+                      </p>
+                      <p className="text-sm text-gray-600 mt-1 text-center">
+                        {selectedMember.discordName}
+                      </p>
                     </div>
 
                     <CharacterChecklist
@@ -1424,6 +1468,7 @@ export default function PartyPage({ params }: { params: { id: string } }) {
                       onChange={handleChecklistChange}
                       accentColor={getClassColors(CLASS_TO_ROLE[selectedMember.character.class]).text}
                       readOnly={true}
+                      lineThroughOnComplete={true}
                     />
                   </div>
                 </motion.div>

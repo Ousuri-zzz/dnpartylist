@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap');
+@import 'rpg-awesome/css/rpg-awesome.min.css';
 
 @tailwind base;
 @tailwind components;
@@ -3144,7 +3145,7 @@ button, input, textarea, select {
   border: 2px solid #f9a8d4 !important;
 }
 
-[data-theme="dark"] .shimmer-text {
+/* [data-theme="dark"] .shimmer-text {
   background: linear-gradient(90deg, #fff 0%, #e0e7ff 40%, #bae6fd 80%, #fff1fa 100%) !important;
   -webkit-background-clip: text !important;
   -webkit-text-fill-color: transparent !important;
@@ -3153,7 +3154,7 @@ button, input, textarea, select {
   filter: drop-shadow(0 0 12px #fff) drop-shadow(0 0 24px #fff) brightness(2.2) !important;
 }
 
-[data-theme="dark"] .shimmer-pastel,
+/* [data-theme="dark"] .shimmer-pastel,
 [data-theme="dark"] .fa-cat,
 [data-theme="dark"] .faCat,
 [data-theme="dark"] .FaCat {
@@ -3165,19 +3166,8 @@ button, input, textarea, select {
 [data-theme="dark"] .faCat:last-child,
 [data-theme="dark"] .FaCat:last-child {
   color: #60a5fa !important;
-}
+} */
 
-/* Dark mode: Stat box yellow (CRI%) */
-.dark .bg-yellow-50,
-.dark .bg-yellow-50\/90,
-.dark .bg-yellow-100,
-.dark .bg-yellow-100\/50,
-.dark .bg-yellow-100\/60,
-.dark .bg-yellow-100\/70 {
-  background-color: #665c1a !important;
-  color: #ffe066 !important;
-  border-color: #bfae3c !important;
-}
 /* === FORCE dark mode background image for body (must be last) === */
 html.dark body {
   background-color: #18181b !important;

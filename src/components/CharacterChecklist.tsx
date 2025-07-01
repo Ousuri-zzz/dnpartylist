@@ -36,6 +36,7 @@ interface CharacterChecklistProps {
   onChange: (checklist: CharacterChecklistType) => void;
   accentColor?: string;
   readOnly?: boolean;
+  lineThroughOnComplete?: boolean;
 }
 
 // กำหนดกลุ่มรายการสำหรับแต่ละแท็บ
@@ -59,7 +60,7 @@ const TAB2_ITEMS = [
   'chaosRiftKamala'
 ];
 
-export function CharacterChecklist({ checklist, onChange, accentColor = "text-blue-500", readOnly = false }: CharacterChecklistProps) {
+export function CharacterChecklist({ checklist, onChange, accentColor = "text-blue-500", readOnly = false, lineThroughOnComplete = false }: CharacterChecklistProps) {
   const [activeTab, setActiveTab] = useState<number>(2);
 
   const handleDailyToggle = (key: keyof CharacterChecklistType['daily']) => {
@@ -256,7 +257,8 @@ export function CharacterChecklist({ checklist, onChange, accentColor = "text-bl
             )}
             <span className={cn(
               "text-sm font-medium",
-              checklist.daily.dailyQuest ? "text-gray-400 line-through" : accentColor
+              accentColor,
+              lineThroughOnComplete && checklist.daily.dailyQuest && ["line-through", "text-gray-400"]
             )}>Daily Quest</span>
           </Button>
 
@@ -278,7 +280,8 @@ export function CharacterChecklist({ checklist, onChange, accentColor = "text-bl
             )}
             <span className={cn(
               "text-sm font-medium",
-              checklist.daily.ftg ? "text-gray-400 line-through" : accentColor
+              accentColor,
+              lineThroughOnComplete && checklist.daily.ftg && ["line-through", "text-gray-400"]
             )}>FTG 700</span>
           </Button>
         </div>
@@ -335,9 +338,8 @@ export function CharacterChecklist({ checklist, onChange, accentColor = "text-bl
               <div key={key} className="flex items-center gap-2 bg-muted/5 rounded-lg p-1.5 hover:bg-muted/10 transition-colors">
                 <span className={cn(
                   "text-sm flex-1 font-medium",
-                  isCompleted 
-                    ? "text-gray-400 line-through" 
-                    : accentColor
+                  accentColor,
+                  lineThroughOnComplete && isCompleted && ["line-through", "text-gray-400"]
                 )}>
                   {displayName}
                 </span>

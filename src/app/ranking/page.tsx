@@ -281,6 +281,59 @@ const calculateScore = (character: Character): number => {
   return Math.round((damagePart * 0.6 + survivalPart * 0.4) * 30);
 };
 
+// --- Add getClassIcon function (reuse from PartyCard) ---
+const getClassIcon = (className: string) => {
+  let colorClass = '';
+  switch (className) {
+    case 'Sword Master':
+    case 'Mercenary':
+      colorClass = 'text-red-600';
+      break;
+    case 'Bowmaster':
+    case 'Acrobat':
+      colorClass = 'text-emerald-600';
+      break;
+    case 'Force User':
+    case 'Elemental Lord':
+      colorClass = 'text-purple-600';
+      break;
+    case 'Paladin':
+    case 'Priest':
+      colorClass = 'text-sky-600';
+      break;
+    case 'Engineer':
+    case 'Alchemist':
+      colorClass = 'text-amber-600';
+      break;
+    default:
+      colorClass = 'text-gray-700';
+  }
+  switch (className) {
+    case 'Sword Master':
+      return <i className={`ra ra-sword ${colorClass}`} title="Sword Master" />;
+    case 'Mercenary':
+      return <i className={`ra ra-axe ${colorClass}`} title="Mercenary" />;
+    case 'Bowmaster':
+      return <i className={`ra ra-archer ${colorClass}`} title="Bowmaster" />;
+    case 'Acrobat':
+      return <i className={`ra ra-player-dodge ${colorClass}`} title="Acrobat" />;
+    case 'Force User':
+      return <i className={`ra ra-crystal-ball ${colorClass}`} title="Force User" />;
+    case 'Elemental Lord':
+      return <i className={`ra ra-fire-symbol ${colorClass}`} title="Elemental Lord" />;
+    case 'Paladin':
+      return <i className={`ra ra-shield ${colorClass}`} title="Paladin" />;
+    case 'Priest':
+      return <i className={`ra ra-hospital-cross ${colorClass}`} title="Priest" />;
+    case 'Engineer':
+      return <i className={`ra ra-gear-hammer ${colorClass}`} title="Engineer" />;
+    case 'Alchemist':
+      return <i className={`ra ra-flask ${colorClass}`} title="Alchemist" />;
+    default:
+      return <i className={`ra ra-player ${colorClass}`} title="Unknown" />;
+  }
+};
+
 export default function RankingPage() {
   const { characters, loading: charactersLoading } = useAllCharacters();
   const { user } = useAuth();
@@ -483,7 +536,7 @@ export default function RankingPage() {
                         filter: `drop-shadow(0 0 8px #fff8) drop-shadow(0 0 16px ${jobIcons[job].glow})`
                       }}
                     >
-                      {jobIcons[job].icon}
+                      {getClassIcon(job)}
                     </span>
                     <span className="font-extrabold text-base md:text-lg text-pink-500 drop-shadow" style={{textShadow:'0 2px 8px #fff'}}>
                       {char.name}
@@ -855,8 +908,8 @@ export default function RankingPage() {
                             {character.rank === 2 && <span className="ml-1 align-middle">🥈</span>}
                             {character.rank === 3 && <span className="ml-1 align-middle">🥉</span>}
                           </td>
-                          <td className="px-4 py-3 text-sm whitespace-nowrap">
-                            <span className="text-black font-medium group-hover:text-gray-800">
+                          <td className="px-4 py-3 text-sm whitespace-nowrap max-w-[220px] overflow-hidden text-ellipsis">
+                            <span className="text-black font-medium group-hover:text-gray-800 block truncate" title={character.discordName}>
                               {character.discordName}
                             </span>
                           </td>
@@ -869,11 +922,9 @@ export default function RankingPage() {
                             </span>
                           </td>
                           <td className="px-4 py-3 text-sm whitespace-nowrap">
-                            <span className={cn(
-                              "font-medium group-hover:opacity-90",
-                              getClassColors(CLASS_TO_ROLE[character.class]).text
-                            )}>
-                              {character.class}
+                            <span className="inline-flex items-center gap-1 font-medium group-hover:opacity-90">
+                              <span className="text-base">{getClassIcon(character.class)}</span>
+                              <span className={cn(getClassColors(CLASS_TO_ROLE[character.class]).text)}>{character.class}</span>
                             </span>
                           </td>
                           <td className="px-4 py-3 text-sm text-pink-600 font-bold group-hover:text-pink-700 whitespace-nowrap">
@@ -955,11 +1006,12 @@ export default function RankingPage() {
                         colors.gradientText
                       )}>{openCharacter.name}</span>
                       <span className={cn(
-                        "text-base font-semibold px-3 py-1 rounded-full border shadow",
+                        "text-base font-semibold px-3 py-1 rounded-full border shadow inline-flex items-center gap-1",
                         colors.border,
                         colors.bgVeryLight,
                         colors.text
                       )}>
+                        <span className="text-base">{getClassIcon(openCharacter.class)}</span>
                         {openCharacter.class}
                       </span>
                     </DialogTitle>

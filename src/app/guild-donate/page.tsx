@@ -30,6 +30,58 @@ interface Donate {
   }>;
 }
 
+const getClassIcon = (className: string) => {
+  let colorClass = '';
+  switch (className) {
+    case 'Sword Master':
+    case 'Mercenary':
+      colorClass = 'text-red-600';
+      break;
+    case 'Bowmaster':
+    case 'Acrobat':
+      colorClass = 'text-emerald-600';
+      break;
+    case 'Force User':
+    case 'Elemental Lord':
+      colorClass = 'text-purple-600';
+      break;
+    case 'Paladin':
+    case 'Priest':
+      colorClass = 'text-sky-600';
+      break;
+    case 'Engineer':
+    case 'Alchemist':
+      colorClass = 'text-amber-600';
+      break;
+    default:
+      colorClass = 'text-gray-700';
+  }
+  switch (className) {
+    case 'Sword Master':
+      return <i className={`ra ra-sword ${colorClass}`} title="Sword Master" />;
+    case 'Mercenary':
+      return <i className={`ra ra-axe ${colorClass}`} title="Mercenary" />;
+    case 'Bowmaster':
+      return <i className={`ra ra-archer ${colorClass}`} title="Bowmaster" />;
+    case 'Acrobat':
+      return <i className={`ra ra-player-dodge ${colorClass}`} title="Acrobat" />;
+    case 'Force User':
+      return <i className={`ra ra-crystal-ball ${colorClass}`} title="Force User" />;
+    case 'Elemental Lord':
+      return <i className={`ra ra-fire-symbol ${colorClass}`} title="Elemental Lord" />;
+    case 'Paladin':
+      return <i className={`ra ra-shield ${colorClass}`} title="Paladin" />;
+    case 'Priest':
+      return <i className={`ra ra-hospital-cross ${colorClass}`} title="Priest" />;
+    case 'Engineer':
+      return <i className={`ra ra-gear-hammer ${colorClass}`} title="Engineer" />;
+    case 'Alchemist':
+      return <i className={`ra ra-flask ${colorClass}`} title="Alchemist" />;
+    default:
+      return <i className={`ra ra-player ${colorClass}`} title="Unknown" />;
+  }
+};
+
 export default function GuildDonatePage() {
   const { user } = useAuth();
   const { isGuildLeader } = useGuild();
@@ -331,13 +383,19 @@ export default function GuildDonatePage() {
                     className={cn(
                       "flex flex-col items-center justify-center rounded-xl border-2 p-3 cursor-pointer transition-all shadow-sm",
                       classColors.bg,
+                      classColors.bg === 'bg-red-100' ? 'dark:bg-red-900/60' :
+                      classColors.bg === 'bg-emerald-100' ? 'dark:bg-emerald-900/60' :
+                      classColors.bg === 'bg-purple-100' ? 'dark:bg-purple-900/60' :
+                      classColors.bg === 'bg-sky-100' ? 'dark:bg-sky-900/60' :
+                      classColors.bg === 'bg-amber-100' ? 'dark:bg-amber-900/60' :
+                      classColors.bg === 'bg-gray-100' ? 'dark:bg-gray-800/60' : '',
                       classColors.border,
                       selected ? "ring-2 ring-pink-300 scale-105" : "hover:scale-105 hover:shadow-md",
                       "focus:outline-none"
                     )}
                     aria-pressed={selected}
                   >
-                    <span className="text-2xl mb-1" title={role}>{classColors.icon}</span>
+                    <span className="text-2xl mb-1" title={role}>{getClassIcon(c.class)}</span>
                     <span className={cn("font-bold text-base", classColors.text)}>{c.name}</span>
                     <span className={cn("text-xs", classColors.text)}>{c.class}</span>
                     {selected && <span className="mt-1 text-pink-500 text-lg">✔️</span>}

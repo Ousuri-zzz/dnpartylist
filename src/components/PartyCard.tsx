@@ -121,26 +121,56 @@ export function PartyCard({ party }: PartyCardProps) {
     }
   };
 
-  // ฟังก์ชันคืนไอคอนประจำอาชีพ
+  // ฟังก์ชันคืนไอคอนประจำอาชีพ (ใช้ RPG-Awesome)
   const getClassIcon = (className: string) => {
+    let colorClass = '';
     switch (className) {
       case 'Sword Master':
       case 'Mercenary':
-        return getClassColors('Warrior').icon || '⚔️';
+        colorClass = CLASS_GRADIENTS.Warrior.text;
+        break;
       case 'Bowmaster':
       case 'Acrobat':
-        return getClassColors('Archer').icon || '🏹';
+        colorClass = CLASS_GRADIENTS.Archer.text;
+        break;
       case 'Force User':
       case 'Elemental Lord':
-        return getClassColors('Sorceress').icon || '🔮';
+        colorClass = CLASS_GRADIENTS.Sorceress.text;
+        break;
       case 'Paladin':
       case 'Priest':
-        return getClassColors('Cleric').icon || '✨';
+        colorClass = CLASS_GRADIENTS.Cleric.text;
+        break;
       case 'Engineer':
       case 'Alchemist':
-        return getClassColors('Academic').icon || '🔧';
+        colorClass = CLASS_GRADIENTS.Academic.text;
+        break;
       default:
-        return '👤';
+        colorClass = CLASS_GRADIENTS.Default.text;
+    }
+    switch (className) {
+      case 'Sword Master':
+        return <i className={`ra ra-sword ${colorClass}`} title="Sword Master" />;
+      case 'Mercenary':
+        return <i className={`ra ra-axe ${colorClass}`} title="Mercenary" />;
+      case 'Bowmaster':
+        return <i className={`ra ra-archer ${colorClass}`} title="Bowmaster" />;
+      case 'Acrobat':
+        return <i className={`ra ra-player-dodge ${colorClass}`} title="Acrobat" />;
+      case 'Force User':
+        return <i className={`ra ra-crystal-ball ${colorClass}`} title="Force User" />;
+      case 'Elemental Lord':
+        return <i className={`ra ra-fire-symbol ${colorClass}`} title="Elemental Lord" />;
+      case 'Paladin':
+        return <i className={`ra ra-shield ${colorClass}`} title="Paladin" />;
+      case 'Priest':
+        return <i className={`ra ra-hospital-cross ${colorClass}`} title="Priest" />;
+      case 'Engineer':
+        return <i className={`ra ra-gear-hammer ${colorClass}`} title="Engineer" />;
+      case 'Alchemist':
+        return <i className={`ra ra-flask ${colorClass}`} title="Alchemist" />;
+      default:
+        return <i className={`ra ra-player ${colorClass}`} title="Unknown" />;
     }
   };
 
@@ -181,6 +211,29 @@ export function PartyCard({ party }: PartyCardProps) {
       toast.error('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง');
     }
   };
+
+  // Before rendering, define the color for the character class
+  const charClassColor = (() => {
+    switch (selectedCharacter?.class) {
+      case 'Sword Master':
+      case 'Mercenary':
+        return 'text-red-600';
+      case 'Bowmaster':
+      case 'Acrobat':
+        return 'text-emerald-600';
+      case 'Force User':
+      case 'Elemental Lord':
+        return 'text-purple-600';
+      case 'Paladin':
+      case 'Priest':
+        return 'text-sky-600';
+      case 'Engineer':
+      case 'Alchemist':
+        return 'text-amber-600';
+      default:
+        return 'text-gray-700';
+    }
+  })();
 
   return (
     <>
@@ -259,7 +312,7 @@ export function PartyCard({ party }: PartyCardProps) {
                     <div className="flex items-center gap-2">
                       <div className={`w-8 h-8 flex items-center justify-center rounded-lg ${classStyle.bg} ${classStyle.border}`}>
                         <span className="text-xl">
-                          {classStyle.icon}
+                          {getClassIcon(info.class)}
                         </span>
                       </div>
                       <div>
@@ -313,59 +366,57 @@ export function PartyCard({ party }: PartyCardProps) {
                 initial={{ opacity: 0, scale: 0.9, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                transition={{ 
-                  type: "spring",
-                  stiffness: 300,
-                  damping: 30
-                }}
+                transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 className="relative"
               >
-                <motion.div
-                  className="absolute inset-0 bg-gradient-to-br from-pink-500/20 to-purple-500/20 rounded-xl blur-xl"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.3 }}
-                />
-                
+                {/* Header bar */}
                 <div className={cn(
-                  "relative overflow-hidden rounded-xl border-2 transition-all duration-300",
+                  "w-full h-10 rounded-t-2xl flex items-center justify-center relative",
+                  "transition-all duration-500",
+                  selectedCharacter.class === 'Sword Master' || selectedCharacter.class === 'Mercenary' ? 'bg-gradient-to-r from-rose-300/90 to-pink-200/80' :
+                  selectedCharacter.class === 'Bowmaster' || selectedCharacter.class === 'Acrobat' ? 'bg-gradient-to-r from-lime-300/90 to-green-200/80' :
+                  selectedCharacter.class === 'Force User' || selectedCharacter.class === 'Elemental Lord' ? 'bg-gradient-to-r from-fuchsia-300/90 to-purple-200/80' :
+                  selectedCharacter.class === 'Paladin' || selectedCharacter.class === 'Priest' ? 'bg-gradient-to-r from-cyan-300/90 to-blue-200/80' :
+                  selectedCharacter.class === 'Engineer' || selectedCharacter.class === 'Alchemist' ? 'bg-gradient-to-r from-yellow-300/90 to-amber-200/80' :
+                  'bg-gradient-to-r from-gray-200 to-gray-100'
+                )}>
+                  {/* Floating class icon */}
+                  <div className={cn(
+                    "absolute left-1/2 -bottom-7 -translate-x-1/2 z-20 flex items-center justify-center",
+                    "transition-transform duration-500"
+                  )}>
+                    <div className={cn(
+                      "w-16 h-16 rounded-full flex items-center justify-center shadow-lg border-4 border-white",
+                      "transition-all duration-500",
+                      selectedCharacter.class === 'Sword Master' || selectedCharacter.class === 'Mercenary' ? 'bg-rose-100' :
+                      selectedCharacter.class === 'Bowmaster' || selectedCharacter.class === 'Acrobat' ? 'bg-lime-100' :
+                      selectedCharacter.class === 'Force User' || selectedCharacter.class === 'Elemental Lord' ? 'bg-fuchsia-100' :
+                      selectedCharacter.class === 'Paladin' || selectedCharacter.class === 'Priest' ? 'bg-cyan-100' :
+                      selectedCharacter.class === 'Engineer' || selectedCharacter.class === 'Alchemist' ? 'bg-yellow-100' :
+                      'bg-gray-200'
+                    )}>
+                      {getClassIcon(selectedCharacter.class)}
+                    </div>
+                  </div>
+                </div>
+                {/* Card content with top padding for floating icon */}
+                <div className={cn(
+                  "relative overflow-hidden rounded-b-2xl border-2 transition-all duration-300 pt-12",
                   "bg-gradient-to-br from-white/90 to-white/70",
                   "shadow-[0_8px_32px_0_rgba(31,38,135,0.1)]",
-                  CLASS_GRADIENTS[selectedCharacter.class].border,
+                  (CLASS_GRADIENTS[selectedCharacter.class] || CLASS_GRADIENTS.Default).border,
                   "hover:shadow-lg p-4 sm:p-6 pb-4"
                 )}>
                   {/* Decorative corner elements */}
-                  <div className={cn("absolute top-0 left-0 w-6 h-6 sm:w-8 sm:h-8 border-t-2 border-l-2 rounded-tl-lg", CLASS_GRADIENTS[selectedCharacter.class].border)}></div>
-                  <div className={cn("absolute top-0 right-0 w-6 h-6 sm:w-8 sm:h-8 border-t-2 border-r-2 rounded-tr-lg", CLASS_GRADIENTS[selectedCharacter.class].border)}></div>
-                  <div className={cn("absolute bottom-0 left-0 w-6 h-6 sm:w-8 sm:h-8 border-b-2 border-l-2 rounded-bl-lg", CLASS_GRADIENTS[selectedCharacter.class].border)}></div>
-                  <div className={cn("absolute bottom-0 right-0 w-6 h-6 sm:w-8 sm:h-8 border-b-2 border-r-2 rounded-br-lg", CLASS_GRADIENTS[selectedCharacter.class].border)}></div>
+                  <div className={cn("absolute top-0 left-0 w-6 h-6 sm:w-8 sm:h-8 border-t-2 border-l-2 rounded-tl-lg", (CLASS_GRADIENTS[selectedCharacter.class] || CLASS_GRADIENTS.Default).border)}></div>
+                  <div className={cn("absolute top-0 right-0 w-6 h-6 sm:w-8 sm:h-8 border-t-2 border-r-2 rounded-tr-lg", (CLASS_GRADIENTS[selectedCharacter.class] || CLASS_GRADIENTS.Default).border)}></div>
+                  <div className={cn("absolute bottom-0 left-0 w-6 h-6 sm:w-8 sm:h-8 border-b-2 border-l-2 rounded-bl-lg", (CLASS_GRADIENTS[selectedCharacter.class] || CLASS_GRADIENTS.Default).border)}></div>
+                  <div className={cn("absolute bottom-0 right-0 w-6 h-6 sm:w-8 sm:h-8 border-b-2 border-r-2 rounded-br-lg", (CLASS_GRADIENTS[selectedCharacter.class] || CLASS_GRADIENTS.Default).border)}></div>
 
                   {/* Character Info */}
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className={cn(
-                      "w-12 h-12 sm:w-16 sm:h-16 rounded-lg flex items-center justify-center",
-                      "bg-gradient-to-br from-pink-200 to-purple-200 border shadow-inner",
-                      CLASS_GRADIENTS[selectedCharacter.class].border
-                    )}>
-                      <span className="text-2xl sm:text-3xl">
-                        {CLASS_GRADIENTS[selectedCharacter.class].icon}
-                      </span>
-                    </div>
-                    <div>
-                      <h3 className={cn(
-                        "text-lg sm:text-xl font-bold",
-                        CLASS_GRADIENTS[selectedCharacter.class].text
-                      )}>
-                        {selectedCharacter.name}
-                      </h3>
-                      <p className={cn(
-                        "text-sm sm:text-base font-medium",
-                        CLASS_GRADIENTS[selectedCharacter.class].text
-                      )}>
-                        {selectedCharacter.class}
-                      </p>
-                    </div>
+                  <div className="flex flex-col items-center gap-1 mb-4 mt-2">
+                    <h3 className={cn("text-lg sm:text-xl font-bold text-center text-black")}>{selectedCharacter.name}</h3>
+                    <p className={cn("text-sm sm:text-base font-medium text-center", charClassColor)}>{selectedCharacter.class}</p>
                   </div>
 
                   {/* Stats Grid */}
@@ -375,12 +426,12 @@ export function PartyCard({ party }: PartyCardProps) {
                       <div className={cn(
                         "p-2 rounded-lg border",
                         "bg-gradient-to-br from-red-50/90 to-red-100/50",
-                        CLASS_GRADIENTS[selectedCharacter.class].border
+                        (CLASS_GRADIENTS[selectedCharacter.class] || CLASS_GRADIENTS.Default).border
                       )}>
                         <div className="flex items-center gap-1 text-xs sm:text-sm">
                           <span className="text-red-500">⚔️</span>
                           <span className="text-gray-600">ATK:</span>
-                          <span className={cn("font-medium", CLASS_GRADIENTS[selectedCharacter.class].text)}>
+                          <span className={cn("font-medium", (CLASS_GRADIENTS[selectedCharacter.class] || CLASS_GRADIENTS.Default).text)}>
                             {selectedCharacter.stats?.atk || 0}
                           </span>
                         </div>
@@ -389,12 +440,12 @@ export function PartyCard({ party }: PartyCardProps) {
                       <div className={cn(
                         "p-2 rounded-lg border",
                         "bg-gradient-to-br from-green-50/90 to-green-100/50",
-                        CLASS_GRADIENTS[selectedCharacter.class].border
+                        (CLASS_GRADIENTS[selectedCharacter.class] || CLASS_GRADIENTS.Default).border
                       )}>
                         <div className="flex items-center gap-1 text-xs sm:text-sm">
                           <span className="text-green-500">❤️</span>
                           <span className="text-gray-600">HP:</span>
-                          <span className={cn("font-medium", CLASS_GRADIENTS[selectedCharacter.class].text)}>
+                          <span className={cn("font-medium", (CLASS_GRADIENTS[selectedCharacter.class] || CLASS_GRADIENTS.Default).text)}>
                             {selectedCharacter.stats?.hp || 0}
                           </span>
                         </div>
@@ -403,18 +454,18 @@ export function PartyCard({ party }: PartyCardProps) {
                       <div className={cn(
                         "p-2 rounded-lg border",
                         "bg-gradient-to-br from-blue-50/90 to-blue-100/50",
-                        CLASS_GRADIENTS[selectedCharacter.class].border
+                        (CLASS_GRADIENTS[selectedCharacter.class] || CLASS_GRADIENTS.Default).border
                       )}>
                         <div className="flex items-center gap-1 text-xs sm:text-sm">
                           <span className="text-blue-500">🛡️</span>
                           <span className="text-gray-600">DEF:</span>
                           <div className="flex items-center gap-1">
                             <span className="text-blue-600">P</span>
-                            <span className={cn("font-medium", CLASS_GRADIENTS[selectedCharacter.class].text)}>
+                            <span className={cn("font-medium", (CLASS_GRADIENTS[selectedCharacter.class] || CLASS_GRADIENTS.Default).text)}>
                               {selectedCharacter.stats?.pdef || 0}%
                             </span>
                             <span className="text-purple-600">M</span>
-                            <span className={cn("font-medium", CLASS_GRADIENTS[selectedCharacter.class].text)}>
+                            <span className={cn("font-medium", (CLASS_GRADIENTS[selectedCharacter.class] || CLASS_GRADIENTS.Default).text)}>
                               {selectedCharacter.stats?.mdef || 0}%
                             </span>
                           </div>
@@ -427,12 +478,12 @@ export function PartyCard({ party }: PartyCardProps) {
                       <div className={cn(
                         "p-2 rounded-lg border",
                         "bg-gradient-to-br from-yellow-50/90 to-yellow-100/50",
-                        CLASS_GRADIENTS[selectedCharacter.class].border
+                        (CLASS_GRADIENTS[selectedCharacter.class] || CLASS_GRADIENTS.Default).border
                       )}>
                         <div className="flex items-center gap-1 text-xs sm:text-sm">
                           <span className="text-yellow-500">💥</span>
                           <span className="text-gray-600">CRI:</span>
-                          <span className={cn("font-medium", CLASS_GRADIENTS[selectedCharacter.class].text)}>
+                          <span className={cn("font-medium", (CLASS_GRADIENTS[selectedCharacter.class] || CLASS_GRADIENTS.Default).text)}>
                             {selectedCharacter.stats?.cri || 0}%
                           </span>
                         </div>
@@ -441,12 +492,12 @@ export function PartyCard({ party }: PartyCardProps) {
                       <div className={cn(
                         "p-2 rounded-lg border",
                         "bg-gradient-to-br from-emerald-50/90 to-emerald-100/50",
-                        CLASS_GRADIENTS[selectedCharacter.class].border
+                        (CLASS_GRADIENTS[selectedCharacter.class] || CLASS_GRADIENTS.Default).border
                       )}>
                         <div className="flex items-center gap-1 text-xs sm:text-sm">
                           <span className="text-emerald-500">✨</span>
                           <span className="text-gray-600">ELE:</span>
-                          <span className={cn("font-medium", CLASS_GRADIENTS[selectedCharacter.class].text)}>
+                          <span className={cn("font-medium", (CLASS_GRADIENTS[selectedCharacter.class] || CLASS_GRADIENTS.Default).text)}>
                             {selectedCharacter.stats?.ele || 0}%
                           </span>
                         </div>
@@ -455,12 +506,12 @@ export function PartyCard({ party }: PartyCardProps) {
                       <div className={cn(
                         "p-2 rounded-lg border",
                         "bg-gradient-to-br from-orange-50/90 to-orange-100/50",
-                        CLASS_GRADIENTS[selectedCharacter.class].border
+                        (CLASS_GRADIENTS[selectedCharacter.class] || CLASS_GRADIENTS.Default).border
                       )}>
                         <div className="flex items-center gap-1 text-xs sm:text-sm">
                           <span className="text-orange-500">💥</span>
                           <span className="text-gray-600">FD:</span>
-                          <span className={cn("font-medium", CLASS_GRADIENTS[selectedCharacter.class].text)}>
+                          <span className={cn("font-medium", (CLASS_GRADIENTS[selectedCharacter.class] || CLASS_GRADIENTS.Default).text)}>
                             {selectedCharacter.stats?.fd || 0}%
                           </span>
                         </div>
@@ -473,8 +524,9 @@ export function PartyCard({ party }: PartyCardProps) {
                     <CharacterChecklist
                       checklist={selectedCharacter.checklist}
                       onChange={() => {}}
-                      accentColor={CLASS_GRADIENTS[selectedCharacter.class].text}
+                      accentColor={charClassColor}
                       readOnly={true}
+                      lineThroughOnComplete={true}
                     />
                   </div>
                 </div>

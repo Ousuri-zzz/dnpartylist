@@ -411,25 +411,27 @@ export default function Navigation() {
 
               {/* โลโก้ GalaxyCat กึ่งกลางจริง (Absolute Center) */}
               <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 flex items-center justify-center gap-3 group pointer-events-none select-none">
-                <FaCat className="w-6 h-6 text-pink-300 drop-shadow-sm shimmer-pastel" />
+                <FaCat className="w-6 h-6 drop-shadow-sm shimmer-pastel" style={{ color: '#22d3ee', filter: 'drop-shadow(0 1px 2px #fff6) brightness(1.08)' }} />
                 <span
-                  className="text-xl lg:text-2xl font-extrabold tracking-wide bg-gradient-to-r from-pink-300 via-purple-300 to-blue-300 bg-clip-text text-transparent px-1 drop-shadow-sm shimmer-text"
-                  style={typeof window !== 'undefined' && document?.documentElement?.getAttribute('data-theme') === 'dark' ? {
-                    background: 'linear-gradient(90deg, #fff 0%, #e0e7ff 40%, #bae6fd 80%, #fff1fa 100%)',
+                  className="text-xl lg:text-2xl font-extrabold tracking-wide bg-clip-text text-transparent px-1 drop-shadow-sm shimmer-text"
+                  style={{
+                    display: 'inline-block',
+                    background: 'linear-gradient(90deg, #f9a8d4 0%, #fbc2eb 12%, #c4b5fd 25%, #a7ffeb 37%, #7dd3fc 50%, #b9fbc0 62%, #fff1fa 75%, #f9a8d4 87%, #f9a8d4 100%)',
+                    backgroundSize: '400% 100%',
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
                     backgroundClip: 'text',
                     color: 'transparent',
-                    filter: 'drop-shadow(0 0 12px #fff) drop-shadow(0 0 24px #fff) brightness(2.2)'
-                  } : {}}
+                    filter: 'drop-shadow(0 1px 2px #fff6)'
+                  }}
                 >
                   GalaxyCat
                 </span>
-                <FaCat className="w-6 h-6 text-blue-300 drop-shadow-sm shimmer-pastel" />
+                <FaCat className="w-6 h-6 drop-shadow-sm shimmer-pastel" style={{ color: '#f59e42', filter: 'drop-shadow(0 1px 2px #fff6) brightness(1.08)' }} />
                 <style jsx global>{`
                   .shimmer-text {
-                    background-size: 200% 100%;
-                    animation: shimmer-gradient 4s linear infinite;
+                    animation: shimmer-gradient 2.5s linear infinite;
+                    background-size: 400% 100%;
                   }
                   @keyframes shimmer-gradient {
                     0% { background-position: 0% 50%; }
