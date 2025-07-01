@@ -24,6 +24,7 @@ export default function RootLayout({
         <link rel="icon" type="image/png" href="/favicon.png" />
         <link rel="apple-touch-icon" href="/favicon.png" />
         <meta name="theme-color" content="#ffffff" />
+        <meta name="google-site-verification" content="jjWe_j0H4xlf3zDPsmTJfrjEqt2CrEiJqgFu9fXlBYU" />
         <link
           rel="preload"
           href="/images/background.jpg"
