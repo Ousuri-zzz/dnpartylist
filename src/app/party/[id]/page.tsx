@@ -315,14 +315,6 @@ export default function PartyPage({ params }: { params: { id: string } }) {
     return `${(value / 1000000).toFixed(1)}M`;
   };
 
-  // Debug log เฉพาะตอน dev
-  if (process.env.NODE_ENV === 'development') {
-    console.log('members:', members.map(m => ({
-      name: m.character.name,
-      stats: m.character.stats
-    })));
-  }
-
   const handleSetGoals = async () => {
     if (!party || !user || (user.uid !== party.leader && !isGuildLeader)) return;
 

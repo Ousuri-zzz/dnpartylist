@@ -9,7 +9,6 @@ export async function migrateCharacterJobs() {
     const usersSnapshot = await get(usersRef);
     
     if (!usersSnapshot.exists()) {
-      console.log('No users found');
       return;
     }
 
@@ -42,7 +41,6 @@ export async function migrateCharacterJobs() {
         }
 
         if (needsUpdate) {
-          console.log(`Migrating character ${characterId} for user ${userId}`);
         }
       }
     }
@@ -50,12 +48,8 @@ export async function migrateCharacterJobs() {
     // Apply all updates
     if (Object.keys(updates).length > 0) {
       await update(ref(db), updates);
-      console.log('Migration completed successfully');
-    } else {
-      console.log('No characters needed migration');
     }
   } catch (error) {
-    console.error('Error during migration:', error);
     throw error;
   }
 } 

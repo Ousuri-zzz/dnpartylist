@@ -349,8 +349,6 @@ export default function RankingPage() {
 
   // เพิ่ม useEffect เพื่อติดตามการเปลี่ยนแปลง
   useEffect(() => {
-    console.log('Users updated:', users);
-    console.log('Characters updated:', characters);
     setForceUpdate(prev => prev + 1);
   }, [users, characters]);
 
@@ -401,7 +399,6 @@ export default function RankingPage() {
     // First, calculate score and add Discord name for all characters
     let processed = characters.map(char => {
       const discordName = users[char.userId]?.meta?.discord || 'ไม่มีชื่อ Discord';
-      console.log(`Character ${char.name} (${char.userId}): Discord name = ${discordName}`);
       return {
         ...char,
         score: calculateScore(char),

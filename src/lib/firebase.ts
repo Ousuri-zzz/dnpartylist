@@ -45,25 +45,4 @@ const database = getDatabase(app);
 const authentication = getAuth(app);
 const firestore = getFirestore(app);
 
-// Log configuration for debugging (hiding sensitive data)
-console.log('Firebase initialized with config:', {
-  ...firebaseConfig,
-  apiKey: '[HIDDEN]',
-  appId: '[HIDDEN]',
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL
-});
-
-// Check if environment variables are set correctly
-console.log('Environment variables check:');
-console.log('NEXT_PUBLIC_FIREBASE_API_KEY:', process.env.NEXT_PUBLIC_FIREBASE_API_KEY ? 'Set' : 'Not set');
-console.log('NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN:', process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN ? 'Set' : 'Not set');
-console.log('NEXT_PUBLIC_FIREBASE_PROJECT_ID:', process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID ? 'Set' : 'Not set');
-console.log('NEXT_PUBLIC_FIREBASE_DATABASE_URL:', process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL ? 'Set' : 'Not set');
-
-// Check if database URL is correct
-console.log('Database URL check:');
-console.log('Expected URL format: https://[project-id]-default-rtdb.[region].firebasedatabase.app');
-console.log('Actual URL:', process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL);
-
 export { database as db, authentication as auth, firestore }; 

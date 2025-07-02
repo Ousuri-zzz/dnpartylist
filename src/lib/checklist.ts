@@ -97,7 +97,6 @@ export async function resetChecklist(userId: string, type: 'daily' | 'weekly'): 
     const characters = snapshot.val();
 
     if (!characters) {
-      console.log('No characters found for user:', userId);
       return;
     }
 

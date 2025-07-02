@@ -66,7 +66,6 @@ const setupAuthListener = () => {
         if (user.photoURL) {
           try {
             await update(userDbRef, { photoURL: user.photoURL });
-            console.log(`Updated photoURL for user ${user.uid}`);
           } catch (dbError) {
             console.error('Error updating photoURL in database:', dbError);
           }

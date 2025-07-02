@@ -204,9 +204,6 @@ export default function GuildDonateHistoryPage() {
       }
     });
 
-    // เพิ่ม console.log เพื่อตรวจสอบข้อมูล
-    console.log('Processed donations:', sortedDonations);
-
     setMemberDonations(sortedDonations);
   }, [donates, members, sortBy, sortOrder]);
 

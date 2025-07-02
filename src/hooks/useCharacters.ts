@@ -17,13 +17,10 @@ export function useCharacters() {
       return;
     }
 
-    console.log('useCharacters: Starting to fetch characters for user:', user.uid);
     const charactersRef = ref(db, `users/${user.uid}/characters`);
     
     const unsubscribe = onValue(charactersRef, (snapshot) => {
-      console.log('useCharacters: Snapshot received:', snapshot.exists());
       const data = snapshot.val();
-      console.log('useCharacters: Raw characters data:', data);
       
       if (data) {
         const charactersArray = Object.entries(data).map(([id, charData]: [string, any]) => ({
@@ -37,21 +34,17 @@ export function useCharacters() {
           userId: charData.userId,
           discordName: charData.discordName
         } as Character));
-        console.log('useCharacters: Processed characters array:', charactersArray);
         setCharacters(charactersArray);
       } else {
-        console.log('useCharacters: No characters found');
         setCharacters([]);
       }
       setLoading(false);
     }, (error) => {
-      console.error('useCharacters: Error fetching characters:', error);
       setError(error.message);
       setLoading(false);
     });
 
     return () => {
-      console.log('useCharacters: Cleaning up subscription');
       unsubscribe();
     };
   }, [user]);

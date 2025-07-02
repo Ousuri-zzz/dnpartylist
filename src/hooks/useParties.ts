@@ -16,10 +16,7 @@ export function useParties() {
   const db = getDatabase();
 
   useEffect(() => {
-    console.log('useParties: Initializing...');
-    
     const partiesRef = ref(db, 'parties');
-    console.log('useParties: Parties reference:', partiesRef.toString());
 
     // Initial fetch to get data quickly
     get(partiesRef).then((snapshot) => {
@@ -30,29 +27,24 @@ export function useParties() {
       }
       setLoading(false);
     }).catch((error) => {
-      console.error('useParties: Initial fetch error:', error);
       setError(error.message);
       setLoading(false);
     });
 
     // Real-time updates
     const unsubscribe = onValue(partiesRef, (snapshot) => {
-      console.log('useParties: Snapshot received:', snapshot.exists());
       if (snapshot.exists()) {
         const data = snapshot.val();
         const processedParties = processPartiesData(data);
         setParties(processedParties);
       } else {
-        console.log('useParties: No parties found');
         setParties([]);
       }
     }, (error) => {
-      console.error('useParties: Real-time update error:', error);
       setError(error.message);
     });
 
     return () => {
-      console.log('useParties: Cleaning up subscription');
       unsubscribe();
     };
   }, []); // Remove user dependency since we want to listen for parties regardless of auth state
@@ -70,8 +62,6 @@ export function useParties() {
   // Helper function to process parties data
   const processPartiesData = (data: any): Party[] => {
     return Object.entries(data).map(([id, partyData]: [string, any]) => {
-      console.log('useParties: Processing party:', id);
-      
       // Ensure members object exists and is properly formatted
       const members = partyData.members || {};
       const processedMembers = Object.entries(members).reduce((acc, [charId, memberData]) => {
@@ -150,7 +140,6 @@ export function useParties() {
       await set(newPartyRef, partyData);
       return newPartyRef.key;
     } catch (error) {
-      console.error('Error creating party:', error);
       throw error;
     }
   };
@@ -165,7 +154,6 @@ export function useParties() {
       await remove(partyRef);
       return true;
     } catch (error) {
-      console.error('Error deleting party:', error);
       throw error;
     }
   };

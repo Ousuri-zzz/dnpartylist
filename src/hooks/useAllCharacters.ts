@@ -17,7 +17,6 @@ export function useAllCharacters() {
       return;
     }
 
-    console.log('useAllCharacters: Starting to fetch all characters');
     const usersRef = ref(db, 'users');
     
     const unsubscribe = onValue(usersRef, (snapshot) => {
@@ -45,26 +44,21 @@ export function useAllCharacters() {
             }
           });
 
-          console.log('useAllCharacters: Processed characters:', allCharacters);
           setCharacters(allCharacters);
         } else {
-          console.log('useAllCharacters: No users found');
           setCharacters([]);
         }
         setLoading(false);
       } catch (err) {
-        console.error('Error processing all characters:', err);
         setError(err instanceof Error ? err.message : 'Failed to process all characters');
         setLoading(false);
       }
     }, (error) => {
-      console.error('Error fetching all characters:', error);
       setError(error.message);
       setLoading(false);
     });
 
     return () => {
-      console.log('useAllCharacters: Cleaning up subscription');
       unsubscribe();
     };
   }, [user]);

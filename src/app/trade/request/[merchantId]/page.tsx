@@ -33,8 +33,6 @@ export default function LoanRequestPage({ params }: { params: { merchantId: stri
         return;
       }
       setMerchant({ id: params.merchantId, ...data });
-      // Debug log merchant data
-      console.log('merchant:', { id: params.merchantId, ...data });
     });
 
     // ดึง trade ของร้านนี้และรวม Gold ที่เหลือ

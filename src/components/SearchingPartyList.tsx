@@ -325,8 +325,6 @@ export function SearchingPartyList({ searchQuery }: SearchingPartyListProps) {
         userId: user.uid,
       };
 
-      console.log('Adding character:', newCharacter);
-
       // บันทึกลง Firebase
       await set(ref(db, `searchingParties/${selectedCharacter.id}`), newCharacter);
       

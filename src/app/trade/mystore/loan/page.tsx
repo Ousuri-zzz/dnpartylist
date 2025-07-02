@@ -245,7 +245,6 @@ export default function MerchantLoanPage() {
             </div>
           ) : (
             filteredLoans.map((loan, index) => {
-              console.log('loan in list:', loan.id, loan.status);
               return (
                 <motion.div
                   key={loan.id}
@@ -273,7 +272,6 @@ export default function MerchantLoanPage() {
                           <button
                             onClick={() => {
                               alert('Approve clicked: ' + loan.id);
-                              console.log('Approve button clicked', loan.id);
                               handleApprove(loan.id);
                             }}
                             className="flex items-center space-x-1 px-3 py-1 rounded-lg bg-green-50 hover:bg-green-100 text-green-600 transition-colors"
