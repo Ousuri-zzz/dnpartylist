@@ -64,7 +64,7 @@ export default function WaitingApprovalPage() {
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl border border-pink-200 p-10 w-full max-w-md text-center relative overflow-hidden"
+        className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl border border-pink-200 p-8 md:p-12 w-full max-w-xl text-center relative overflow-hidden"
       >
         {/* Discord Icon with floating animation */}
         <motion.div
@@ -79,31 +79,37 @@ export default function WaitingApprovalPage() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.5 }}
-          className="text-3xl font-extrabold text-pink-600 mb-3 tracking-tight drop-shadow"
+          className="text-3xl font-extrabold text-pink-600 mb-4 tracking-tight drop-shadow"
         >
           รอการอนุมัติจาก <span className="text-[#5865F2]">หัวกิลด์</span>
         </motion.h1>
-        <AnimatePresence>
-          {guildName && (
-            <motion.p
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 10 }}
-              transition={{ delay: 0.35, duration: 0.5 }}
-              className="text-base md:text-lg text-gray-500 mb-2 font-medium"
-            >
-              กิลด์: {guildName}
-            </motion.p>
-          )}
-        </AnimatePresence>
+        {guildName && (
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            transition={{ delay: 0.35, duration: 0.5 }}
+            className="text-lg font-bold text-pink-500 mb-4"
+          >
+            กิลด์: {guildName}
+          </motion.p>
+        )}
         <motion.p
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.45, duration: 0.5 }}
-          className="text-lg text-pink-400 mb-6"
+          className="text-base md:text-lg text-gray-600 mb-4 leading-relaxed"
         >
-          กรุณารอหัวกิลด์อนุมัติการเข้าใช้งานระบบ<br />
-          คุณจะได้รับสิทธิ์เข้าถึงระบบหลังจากได้รับการอนุมัติ
+          ขณะนี้ข้อมูลของคุณอยู่ระหว่างการตรวจสอบโดยหัวกิลด์<br />
+          กรุณารอให้หัวกิลด์อนุมัติการเข้าใช้งานระบบ
+        </motion.p>
+        <motion.p
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.55, duration: 0.5 }}
+          className="text-sm text-pink-400 mb-8"
+        >
+          คุณจะได้รับสิทธิ์เข้าถึงระบบทันทีหลังจากได้รับการอนุมัติ
         </motion.p>
         <motion.div
           initial={{ opacity: 0, y: 10 }}

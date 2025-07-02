@@ -743,26 +743,26 @@ export default function MyPage() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: 'easeOut' }}
-      className="bg-gradient-to-br from-violet-50 to-blue-50 rounded-2xl shadow-xl p-4"
+      className="bg-gradient-to-br from-violet-50 to-blue-50 dark:from-gray-900/80 dark:to-gray-800/80 rounded-2xl shadow-xl p-4"
     >
       <div className="grid gap-6 py-4">
         <div className="grid grid-cols-12 items-center gap-4">
-          <Label htmlFor="name" className="col-span-3 text-right font-medium text-gray-600 flex flex-row items-center gap-2 whitespace-nowrap min-w-[120px]">
-            <svg className="w-5 h-5 text-violet-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19.5 2 21l1.5-5L16.5 3.5z"/></svg>
+          <Label htmlFor="name" className="col-span-3 text-right font-medium text-gray-600 dark:text-gray-200 flex flex-row items-center gap-2 whitespace-nowrap min-w-[120px]">
+            <svg className="w-5 h-5 text-violet-400 dark:text-violet-300" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19.5 2 21l1.5-5L16.5 3.5z"/></svg>
             ชื่อตัวละคร
           </Label>
           <Input
             id="name"
             value={newCharacter.name}
             onChange={(e) => setNewCharacter({ ...newCharacter, name: e.target.value })}
-            className="col-span-9 bg-white shadow focus:shadow-lg border-gray-200 focus:border-violet-500 focus:ring-violet-500 transition-all"
+            className="col-span-9 bg-white dark:bg-gray-800 shadow focus:shadow-lg border-gray-200 dark:border-gray-700 focus:border-violet-500 focus:ring-violet-500 transition-all dark:text-gray-100"
             placeholder="ใส่ชื่อตัวละคร เช่น อัศวินสายฟ้า"
             autoFocus
           />
         </div>
         <div className="grid grid-cols-12 items-center gap-4">
-          <Label htmlFor="class" className="col-span-3 text-right font-medium text-gray-600 flex flex-row items-center gap-2 whitespace-nowrap">
-            <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          <Label htmlFor="class" className="col-span-3 text-right font-medium text-gray-600 dark:text-gray-200 flex flex-row items-center gap-2 whitespace-nowrap">
+            <svg className="w-5 h-5 text-blue-400 dark:text-blue-300" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
             คลาส
           </Label>
           <div className="col-span-9">
@@ -777,7 +777,7 @@ export default function MyPage() {
                 });
               }}
             >
-              <SelectTrigger className="bg-white shadow focus:shadow-lg border-gray-200 focus:border-violet-500 focus:ring-violet-500 transition-all">
+              <SelectTrigger className="bg-white dark:bg-gray-800 shadow focus:shadow-lg border-gray-200 dark:border-gray-700 focus:border-violet-500 focus:ring-violet-500 transition-all dark:text-gray-100">
                 <SelectValue placeholder="เลือกคลาส" />
               </SelectTrigger>
               <SelectContent>
@@ -1323,9 +1323,9 @@ export default function MyPage() {
 
       {/* Add Character Modal */}
       <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-        <DialogContent className="sm:max-w-lg min-w-[400px] bg-gradient-to-b from-white to-gray-50 border-0">
+        <DialogContent className="sm:max-w-lg min-w-[400px] bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 dark:bg-gray-900 border-0">
           <DialogHeader className="space-y-3 pb-4 border-b border-gray-200">
-            <DialogTitle className="text-xl font-bold flex items-center gap-2 text-gray-800">
+            <DialogTitle className="text-xl font-bold flex items-center gap-2 text-gray-800 dark:text-gray-100">
               <div className="p-2 rounded-lg bg-violet-100 text-violet-600">
                 <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -1334,7 +1334,7 @@ export default function MyPage() {
               </div>
               เพิ่มตัวละครใหม่
             </DialogTitle>
-            <DialogDescription className="text-gray-600">
+            <DialogDescription className="text-gray-600 dark:text-gray-300">
               กรอกข้อมูลตัวละครของคุณ
             </DialogDescription>
           </DialogHeader>

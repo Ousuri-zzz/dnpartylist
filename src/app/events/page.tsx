@@ -339,7 +339,7 @@ export default function EventsPage() {
             <div className="flex flex-col gap-2 mt-4 w-full">
               <div className="flex flex-col gap-2 w-full">
                 {filteredEvents.length === 0 ? (
-                  <span className="text-xs text-gray-400 text-center">ไม่มีกิจกรรมในช่วงนี้</span>
+                  <span className="text-sm font-medium text-gray-500 dark:text-gray-300 bg-white/60 dark:bg-white/10 px-4 py-2 rounded-full shadow-sm text-center">ไม่มีกิจกรรมในช่วงนี้</span>
                 ) : (
                   filteredEvents.map(ev => {
                     const start = ev.startAt?.seconds ? new Date(ev.startAt.seconds * 1000) : null;
@@ -428,7 +428,9 @@ export default function EventsPage() {
               ) : error ? (
                 <div className="text-center py-8 text-red-500">{error}</div>
               ) : filteredEvents.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">ไม่มีกิจกรรมที่ยังไม่จบ</div>
+                <div className="flex justify-center py-8">
+                  <span className="text-sm font-medium text-gray-500 dark:text-gray-300 bg-white/60 dark:bg-white/10 px-4 py-2 rounded-full shadow-sm text-center">ไม่มีกิจกรรมในช่วงนี้</span>
+                </div>
               ) : (
                 filteredEvents.map((event) => {
                   const startDate = event.startAt && event.startAt.seconds 

@@ -114,7 +114,7 @@ export default function SetDiscordPage() {
           <motion.input
             type="text"
             className="w-full px-5 py-3 border border-pink-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-300 text-center bg-white/90 text-lg font-semibold shadow-sm transition-all duration-200 focus:scale-105 placeholder:text-gray-300"
-            placeholder="กรอก Discord Name ของคุณ"
+            placeholder="ชื่อตัวละคร / ชื่อเล่น"
             value={discordName}
             onChange={e => setDiscordName(e.target.value)}
             disabled={isSubmitting}
@@ -123,6 +123,9 @@ export default function SetDiscordPage() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.7, duration: 0.5 }}
           />
+          <div className="mt-2 text-xs text-gray-500 text-center">
+            ตัวอย่าง: <span className="font-semibold text-pink-500">oDARLINGo</span> <span className="text-gray-400">/</span> <span className="font-semibold text-purple-500">มายู</span>
+          </div>
           <AnimatePresence>
             {error && (
               <motion.div

@@ -147,14 +147,14 @@ export function DiscordDropdown({ inMobileMenu = false, className }: { inMobileM
         )}
         {showChangeName && typeof window !== 'undefined' && createPortal(
           <div className="fixed inset-0 flex items-center justify-center z-[999999] bg-black/30">
-            <div className="bg-white rounded-xl p-6 w-full max-w-xs text-center shadow-xl">
-              <h2 className="text-lg font-bold mb-2 text-purple-600">เปลี่ยนชื่อ Discord</h2>
+            <div className="bg-white dark:bg-neutral-900 rounded-xl p-6 w-full max-w-xs text-center shadow-xl">
+              <h2 className="text-lg font-bold mb-2 text-purple-600 dark:text-purple-300">เปลี่ยนชื่อ Discord</h2>
               <input
                 type="text"
                 value={newDiscordName}
                 onChange={(e) => setNewDiscordName(e.target.value)}
                 placeholder="ใส่ชื่อ Discord ของคุณ"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent mb-4"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent mb-4 bg-white dark:bg-neutral-800 text-gray-900 dark:text-gray-100"
               />
               <div className="flex gap-2 justify-center">
                 <Button onClick={() => { setShowChangeName(false); setIsOpen(true); }} variant="outline" className="rounded-lg">ยกเลิก</Button>
@@ -178,7 +178,7 @@ export function DiscordDropdown({ inMobileMenu = false, className }: { inMobileM
           "flex items-center gap-2 rounded-2xl transition-all duration-200 font-bold text-base",
           inMobileMenu
             ? "justify-between text-gray-700 hover:bg-gray-100 px-2 py-1"
-            : "bg-gradient-to-r from-blue-50 via-pink-50 to-purple-50 border border-pink-100 shadow hover:bg-pink-100/40 hover:shadow-xl hover:scale-105 hover:ring-2 hover:ring-pink-200 px-5 py-2",
+            : "bg-gradient-to-r from-blue-50 via-pink-50 to-purple-50 shadow hover:bg-pink-100/40 hover:shadow-xl hover:scale-105 hover:ring-2 hover:ring-pink-200 px-5 py-2",
           className
         )}
       >
@@ -240,14 +240,14 @@ export function DiscordDropdown({ inMobileMenu = false, className }: { inMobileM
 
       {showChangeName && typeof window !== 'undefined' && createPortal(
         <div className="fixed inset-0 flex items-center justify-center z-[999999] bg-black/30">
-          <div className="bg-white rounded-xl p-6 w-full max-w-xs text-center shadow-xl">
-            <h2 className="text-lg font-bold mb-2 text-purple-600">เปลี่ยนชื่อ Discord</h2>
+          <div className="bg-white dark:bg-neutral-900 rounded-xl p-6 w-full max-w-xs text-center shadow-xl">
+            <h2 className="text-lg font-bold mb-2 text-purple-600 dark:text-purple-300">เปลี่ยนชื่อ Discord</h2>
             <input
               type="text"
               value={newDiscordName}
               onChange={(e) => setNewDiscordName(e.target.value)}
               placeholder="ใส่ชื่อ Discord ของคุณ"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent mb-4"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent mb-4 bg-white dark:bg-neutral-800 text-gray-900 dark:text-gray-100"
             />
             <div className="flex gap-2 justify-center">
               <Button onClick={() => { setShowChangeName(false); setIsOpen(true); }} variant="outline" className="rounded-lg">ยกเลิก</Button>
