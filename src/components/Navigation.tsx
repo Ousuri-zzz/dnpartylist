@@ -289,20 +289,20 @@ export default function Navigation() {
                     <Link
                       key="/events"
                       href="/events"
+                      onClick={() => setIsMobileMenuOpen(false)}
                       className={cn(
-                        "flex items-center gap-2 px-3 py-1 transition-all text-base rounded-xl relative font-bold border-2 border-transparent",
+                        "flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/40",
                         (pathname === "/events" || pathname.startsWith("/events"))
-                          ? "bg-indigo-700 text-white shadow-lg scale-105 font-bold border-indigo-400 dark:border-indigo-400"
-                          : "text-white/90 hover:bg-indigo-600/30 hover:text-white hover:border-indigo-400 dark:hover:border-indigo-400"
+                          ? "bg-indigo-50 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-300"
+                          : "text-gray-700 dark:text-gray-200"
                       )}
-                      style={{ borderTopRightRadius: "0.75rem" }}
                     >
                       <Calendar className={cn("w-5 h-5", (pathname === "/events" || pathname.startsWith("/events")) ? "text-indigo-600 dark:text-indigo-300" : "text-indigo-400 dark:text-indigo-300/70")}/>
                       <span className={cn("font-medium", (pathname === "/events" || pathname.startsWith("/events")) ? "text-indigo-600 dark:text-indigo-300" : undefined)}>กิจกรรม</span>
                     </Link>
                     <Link href="/ranking" onClick={() => setIsMobileMenuOpen(false)} className={cn(
-                      "flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-blue-50/50 dark:hover:bg-blue-900/40",
-                      pathname.startsWith("/ranking") ? "bg-blue-50 dark:bg-blue-900 text-green-600 dark:text-green-300" : "text-gray-700 dark:text-gray-200"
+                      "flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-green-50/50 dark:hover:bg-green-900/40",
+                      pathname.startsWith("/ranking") ? "bg-green-50 dark:bg-green-900 text-green-600 dark:text-green-300" : "text-gray-700 dark:text-gray-200"
                     )}>
                       <BarChart2 className={cn("w-5 h-5", pathname.startsWith("/ranking") ? "text-green-600 dark:text-green-300" : "text-green-400 dark:text-green-300/70")}/>
                       <span className={cn("font-medium", pathname.startsWith("/ranking") ? "text-green-600 dark:text-green-300" : undefined)}>จัดอันดับ</span>
