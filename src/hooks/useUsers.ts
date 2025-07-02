@@ -37,7 +37,7 @@ export function useUsers() {
                       lastResetDaily: userData.meta?.lastResetDaily,
                       lastResetWeekly: userData.meta?.lastResetWeekly
                 },
-                characters: {},
+                characters: userData.characters || {},
                 discordId: userData.meta?.discord || ''
               };
 
