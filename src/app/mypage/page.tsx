@@ -27,6 +27,7 @@ import { ClipboardCheck, ClipboardCopy } from 'lucide-react';
 import { resetChecklist } from '@/lib/checklist';
 import Link from 'next/link';
 import { FaCoins } from 'react-icons/fa';
+import { Wand2 } from 'lucide-react';
 import 'rpg-awesome/css/rpg-awesome.min.css';
 
 const CHARACTER_CLASSES: CharacterClass[] = [
@@ -1256,6 +1257,18 @@ export default function MyPage() {
                 <span>คำนวณสเตตัส</span>
               </Button>
             </Link>
+            <Button
+              className="w-full h-14 md:h-16 bg-white/80 border border-violet-200 rounded-2xl flex flex-col items-center justify-center gap-1 text-violet-700 font-semibold text-lg md:text-xl shadow-sm hover:shadow-lg hover:border-violet-400 hover:bg-violet-50 transition-all duration-200 focus:ring-2 focus:ring-violet-200"
+              onClick={() => { alert('อยู่ระหว่างพัฒนา'); }}
+              type="button"
+            >
+              <span className="flex items-center gap-2">
+                <Wand2 className="!w-6 !h-6 md:!w-7 md:!h-7 text-violet-500" />
+                สกิล & บิ้วแนะนำ
+                <span className="ml-1 text-xs align-middle">🚧</span>
+              </span>
+              <span className="text-xs text-gray-500 mt-0.5">(อยู่ระหว่างพัฒนา)</span>
+            </Button>
             <Link href="/split" className="w-full md:w-full">
               <Button
                 className="w-full h-14 md:h-16 bg-white/80 border border-yellow-200 rounded-2xl flex items-center justify-center gap-3 text-yellow-700 font-semibold text-lg md:text-xl shadow-sm hover:shadow-lg hover:border-yellow-400 hover:bg-yellow-50 transition-all duration-200 focus:ring-2 focus:ring-yellow-200"
