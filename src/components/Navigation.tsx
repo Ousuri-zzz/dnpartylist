@@ -189,6 +189,17 @@ export default function Navigation() {
     return () => unsubscribe();
   }, [user]);
 
+  // ปิดเมนูมือถืออัตโนมัติเมื่อหน้าจอขยายเกิน 1024px
+  React.useEffect(() => {
+    function handleResize() {
+      if (window.innerWidth >= 1024 && isMobileMenuOpen) {
+        setIsMobileMenuOpen(false);
+      }
+    }
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [isMobileMenuOpen]);
+
   const handleLogout = async () => {
     try {
       await logout();
@@ -241,6 +252,9 @@ export default function Navigation() {
                       </svg>
                     </button>
                   </div>
+                  <div className="p-4 border-b border-pink-100 bg-white/95 backdrop-blur-md flex justify-end">
+                    <DiscordDropdown inMobileMenu={true} />
+                  </div>
                   <nav className="flex-1 flex flex-col gap-2 p-4 overflow-y-auto">
                     <div className="flex items-center gap-3 mb-3 p-2 rounded-lg bg-white/60 backdrop-blur-md border border-pink-100">
                       <ThemeToggle isMobile />
@@ -272,10 +286,17 @@ export default function Navigation() {
                       <Users className={cn("w-5 h-5", (pathname === "/party" || pathname.startsWith("/party")) ? "text-purple-600 dark:text-purple-300" : "text-purple-400 dark:text-purple-300/70")}/>
                       <span className={cn("font-medium", (pathname === "/party" || pathname.startsWith("/party")) ? "text-purple-600 dark:text-purple-300" : undefined)}>ปาร์ตี้</span>
                     </Link>
-                    <Link href="/events" onClick={() => setIsMobileMenuOpen(false)} className={cn(
-                      "flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/40",
-                      (pathname === "/events" || pathname.startsWith("/events")) ? "bg-indigo-50 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-300" : "text-gray-700 dark:text-gray-200"
-                    )}>
+                    <Link
+                      key="/events"
+                      href="/events"
+                      className={cn(
+                        "flex items-center gap-2 px-3 py-1 transition-all text-base rounded-xl relative font-bold border-2 border-transparent",
+                        (pathname === "/events" || pathname.startsWith("/events"))
+                          ? "bg-indigo-700 text-white shadow-lg scale-105 font-bold border-indigo-400 dark:border-indigo-400"
+                          : "text-white/90 hover:bg-indigo-600/30 hover:text-white hover:border-indigo-400 dark:hover:border-indigo-400"
+                      )}
+                      style={{ borderTopRightRadius: "0.75rem" }}
+                    >
                       <Calendar className={cn("w-5 h-5", (pathname === "/events" || pathname.startsWith("/events")) ? "text-indigo-600 dark:text-indigo-300" : "text-indigo-400 dark:text-indigo-300/70")}/>
                       <span className={cn("font-medium", (pathname === "/events" || pathname.startsWith("/events")) ? "text-indigo-600 dark:text-indigo-300" : undefined)}>กิจกรรม</span>
                     </Link>
@@ -307,7 +328,9 @@ export default function Navigation() {
                     )}>
                       <Crown className={cn(
                         "w-5 h-5 transition-colors duration-300 drop-shadow-sm",
-                        (pathname.startsWith("/guild-donate") || pathname.startsWith("/guild-donate-cash")) ? "text-yellow-600 dark:text-yellow-300" : "group-hover:text-pink-600 text-pink-500 dark:text-yellow-300/70"
+                        (pathname.startsWith("/guild-donate") || pathname.startsWith("/guild-donate-cash"))
+                          ? (typeof window !== 'undefined' && window.innerWidth < 1024 ? "text-yellow-600 dark:text-yellow-300" : "text-white")
+                          : "group-hover:text-yellow-500 text-yellow-400 dark:text-yellow-300/70"
                       )} />
                       <span className={cn("font-medium whitespace-nowrap flex items-center", (pathname.startsWith("/guild-donate") || pathname.startsWith("/guild-donate-cash")) ? "text-yellow-600 dark:text-yellow-300" : undefined)}>
                         บริจาคกิลด์
@@ -344,9 +367,6 @@ export default function Navigation() {
                       <span className={cn("font-medium", pathname === "/contact-guild-leader" ? "text-sky-600 dark:text-sky-300" : undefined)}>ติดต่อหัวกิลด์</span>
                     </a>
                   </nav>
-                  <div className="p-4 border-t border-pink-100 bg-white/95 backdrop-blur-md">
-                    <DiscordDropdown inMobileMenu={true} />
-                  </div>
                 </div>,
                 document.body
               )}
@@ -356,10 +376,10 @@ export default function Navigation() {
                 <ThemeToggle />
                 <div className="flex items-center gap-1">
                   {[
-                    { href: "/mypage", icon: <Home />, label: "ตัวละคร", color: "pink", activeBg: "bg-pink-700", hoverBg: "hover:bg-pink-600/30", iconColor: "text-pink-400", border: "hover:border-pink-400" },
-                    { href: "/party", icon: <Users />, label: "ปาร์ตี้", color: "purple", activeBg: "bg-purple-700", hoverBg: "hover:bg-purple-600/30", iconColor: "text-purple-400", border: "hover:border-purple-400" },
-                    { href: "/events", icon: <Calendar />, label: "กิจกรรม", color: "indigo", activeBg: "bg-indigo-700", hoverBg: "hover:bg-indigo-600/30", iconColor: "text-indigo-400", border: "hover:border-indigo-400" },
-                    { href: "/ranking", icon: <BarChart2 />, label: "จัดอันดับ", color: "green", activeBg: "bg-green-700", hoverBg: "hover:bg-green-600/30", iconColor: "text-green-400", border: "hover:border-green-400" },
+                    { href: "/mypage", icon: <Home />, label: "ตัวละคร", color: "pink", activeBg: "bg-pink-700", hoverBg: "hover:bg-pink-600/30", iconColor: "text-pink-400", border: "hover:border-pink-400 dark:hover:border-pink-400" },
+                    { href: "/party", icon: <Users />, label: "ปาร์ตี้", color: "purple", activeBg: "bg-purple-700", hoverBg: "hover:bg-purple-600/30", iconColor: "text-purple-400", border: "hover:border-purple-400 dark:hover:border-purple-400" },
+                    { href: "/events", icon: <Calendar />, label: "กิจกรรม", color: "indigo", activeBg: "bg-indigo-700", hoverBg: "hover:bg-indigo-600/30", iconColor: "text-indigo-400", border: "hover:border-indigo-400 dark:hover:border-indigo-400" },
+                    { href: "/ranking", icon: <BarChart2 />, label: "จัดอันดับ", color: "green", activeBg: "bg-green-700", hoverBg: "hover:bg-green-600/30", iconColor: "text-green-400", border: "hover:border-green-400 dark:hover:border-green-400" },
                   ].map((tab, idx) => {
                     const isActive =
                       tab.href === "/mypage"
@@ -456,7 +476,7 @@ export default function Navigation() {
                   className={cn(
                     "relative group px-3 py-1 rounded-xl transition-all duration-300 cursor-pointer",
                     pathname === "/trade"
-                      ? "bg-gradient-to-r from-pink-200 via-yellow-100 to-purple-200 text-pink-700 shadow-lg shadow-pink-200/30 border-2 border-pink-200 dark:!bg-gradient-to-r dark:!from-pink-300 dark:!via-yellow-200 dark:!to-purple-300 dark:!text-pink-700 dark:shadow-pink-900/30 dark:border-pink-900"
+                      ? "bg-gradient-to-r from-pink-200 via-yellow-100 to-purple-200 text-pink-700 shadow-lg shadow-pink-200/30 border-2 !border-pink-200 !dark:!border-pink-200"
                       : "bg-transparent text-white/90 border-2 border-transparent shadow-none hover:bg-pink-100/20 hover:shadow-xl hover:ring-2 hover:ring-pink-200 -ml-px"
                   )}
                 >
@@ -505,7 +525,7 @@ export default function Navigation() {
                   className={cn(
                     "relative group px-3 py-1 rounded-xl transition-all text-base font-bold cursor-pointer",
                     (pathname.startsWith("/guild-donate") || pathname.startsWith("/guild-donate-cash"))
-                      ? "bg-gradient-to-r from-yellow-400 via-pink-400 to-rose-400 text-white shadow-lg border-2 border-yellow-200"
+                      ? "bg-gradient-to-r from-yellow-400 via-pink-400 to-rose-400 text-white shadow-lg border-2 !border-yellow-200 !dark:!border-yellow-200"
                       : "bg-transparent text-white/90 border-2 border-transparent shadow-none hover:bg-pink-100/20 hover:shadow-xl hover:ring-2 hover:ring-yellow-200 -ml-px"
                   )}
                 >
@@ -515,7 +535,7 @@ export default function Navigation() {
                   >
                     <Crown className={cn(
                       "w-5 h-5 transition-colors duration-300 drop-shadow-sm",
-                      (pathname.startsWith("/guild-donate") || pathname.startsWith("/guild-donate-cash")) ? "text-white" : "group-hover:text-pink-600 text-pink-500"
+                      (pathname.startsWith("/guild-donate") || pathname.startsWith("/guild-donate-cash")) ? "text-white" : "group-hover:text-yellow-400 text-yellow-400"
                     )} />
                     <span className={cn(
                       "transition-colors duration-300 whitespace-nowrap flex items-center",
@@ -531,7 +551,7 @@ export default function Navigation() {
                     className={cn(
                       "relative group px-3 py-1 rounded-xl transition-all text-base font-bold cursor-pointer flex items-center gap-0",
                       pathname === "/guild/settings"
-                        ? "bg-gradient-to-r from-green-400 to-green-600 text-white shadow-lg border-2 border-green-200"
+                        ? "bg-gradient-to-r from-green-400 to-green-600 text-white shadow-lg border-2 !border-green-200 !dark:!border-green-200"
                         : "bg-transparent text-white/90 border-2 border-transparent shadow-none hover:bg-green-100/20 hover:ring-2 hover:ring-green-200 -ml-px"
                     )}
                   >
@@ -554,12 +574,14 @@ export default function Navigation() {
                     )}
                   </Link>
                 )}
-                <DiscordDropdown />
+                <DiscordDropdown
+                  className="border-2 !border-pink-400 !dark:!border-pink-400"
+                />
               </div>
 
               {/* Mobile Right Side */}
               <div className="flex lg:hidden items-center ml-auto">
-                <DiscordDropdown />
+                {/* DiscordDropdown removed from here in mobile */}
               </div>
             </>
           ) : (

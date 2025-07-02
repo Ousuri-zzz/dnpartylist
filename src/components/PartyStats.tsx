@@ -75,41 +75,41 @@ export function PartyStats({ members }: PartyStatsProps) {
         label="ATK"
         value={stats.atk}
         icon="⚔️"
-        className="bg-gradient-to-br from-red-50/80 to-pink-50/80 dark:bg-white/10 dark:from-none dark:to-none"
+        className="bg-gradient-to-br from-red-50/80 to-pink-50/80 dark:bg-gray-900/80"
       />
       <StatDisplay
         label="HP"
         value={stats.hp}
         icon="❤️"
-        className="bg-gradient-to-br from-green-50/80 to-emerald-50/80 dark:bg-white/10 dark:from-none dark:to-none"
+        className="bg-gradient-to-br from-green-50/80 to-emerald-50/80 dark:bg-gray-900/80"
       />
       <StatDisplay
         label="DEF"
         values={[stats.pdef, stats.mdef]}
         icon="🛡️"
         suffix="%"
-        className="bg-gradient-to-br from-blue-50/80 to-cyan-50/80 dark:bg-white/10 dark:from-none dark:to-none"
+        className="bg-gradient-to-br from-blue-50/80 to-cyan-50/80 dark:bg-gray-900/80"
       />
       <StatDisplay
         label="CRI"
         value={stats.cri}
         icon="🎯"
         suffix="%"
-        className="bg-gradient-to-br from-yellow-50/80 to-amber-50/80 dark:bg-white/10 dark:from-none dark:to-none"
+        className="bg-gradient-to-br from-yellow-50/80 to-amber-50/80 dark:bg-gray-900/80"
       />
       <StatDisplay
         label="ELE"
         value={stats.ele}
         icon="⚡"
         suffix="%"
-        className="bg-gradient-to-br from-purple-50/80 to-violet-50/80 dark:bg-white/10 dark:from-none dark:to-none"
+        className="bg-gradient-to-br from-purple-50/80 to-violet-50/80 dark:bg-gray-900/80"
       />
       <StatDisplay
         label="FD"
         value={stats.fd}
         icon="💥"
         suffix="%"
-        className="bg-gradient-to-br from-orange-50/80 to-rose-50/80 dark:bg-white/10 dark:from-none dark:to-none"
+        className="bg-gradient-to-br from-orange-50/80 to-rose-50/80 dark:bg-gray-900/80"
       />
     </motion.div>
   );

@@ -24,7 +24,7 @@ export function StatDisplay({ label, value = 0, icon, values, suffix = '', class
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ scale: 1.02 }}
       className={cn(
-        "relative overflow-hidden rounded-xl border border-white/50 dark:border-gray-700 backdrop-blur-sm shadow-lg dark:bg-white/10",
+        "relative overflow-hidden rounded-xl border border-white/50 dark:border-gray-700 backdrop-blur-sm shadow-lg",
         "p-3 transition-all duration-300",
         className
       )}

@@ -237,12 +237,12 @@ export function PartyCard({ party }: PartyCardProps) {
 
   return (
     <>
-      <Card className="group relative overflow-hidden bg-white/80 dark:bg-[#18181b] backdrop-blur-md border border-white/60 shadow-lg hover:shadow-2xl transition-all duration-500 rounded-2xl">
+      <Card className="group relative overflow-hidden bg-white/80 dark:bg-black backdrop-blur-md border border-white/60 shadow-lg hover:shadow-2xl transition-all duration-500 rounded-2xl">
         {/* Gradient overlay for depth */}
-        <div className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-br from-pink-100/40 via-purple-100/30 to-blue-100/30 opacity-80 group-hover:opacity-100 transition-opacity duration-700 rounded-2xl" />
+        <div className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-br from-pink-100/40 via-purple-100/30 to-blue-100/30 opacity-80 group-hover:opacity-100 transition-opacity duration-700 rounded-2xl block dark:hidden" />
         {/* Shine effect */}
         <motion.div
-          className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 z-10"
+          className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 z-10 block dark:hidden"
           initial={false}
         >
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
@@ -305,22 +305,22 @@ export function PartyCard({ party }: PartyCardProps) {
                     key={charId}
                     onClick={() => handleCharacterClick(info)}
                     className={cn(
-                      "flex items-center justify-between p-2 rounded-xl bg-gradient-to-r from-white/50 to-white/30 border border-white/50 backdrop-blur-sm transition-all duration-300 hover:shadow-md group/member cursor-pointer",
-                      "dark:bg-[#23232b] dark:border-gray-700"
+                      "flex items-center justify-between p-2 rounded-xl bg-gradient-to-r from-white/50 to-white/30 border border-white/50 transition-all duration-300 hover:shadow-md group/member cursor-pointer",
+                      "dark:bg-gray-900 dark:border-gray-800"
                     )}
                   >
                     <div className="flex items-center gap-2">
-                      <div className={`w-8 h-8 flex items-center justify-center rounded-lg ${classStyle.bg} ${classStyle.border}`}>
+                      <div className={`w-8 h-8 flex items-center justify-center rounded-lg ${classStyle.bg} ${classStyle.border} dark:bg-gray-800 dark:border-gray-700`}>
                         <span className="text-xl">
                           {getClassIcon(info.class)}
                         </span>
                       </div>
                       <div>
-                        <p className="font-medium text-gray-900">{info.discordName}</p>
-                        <p className="text-sm text-gray-500 -mt-1">{info.name}</p>
+                        <p className="font-medium text-gray-900 dark:text-gray-100">{info.discordName}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 -mt-1">{info.name}</p>
                       </div>
                     </div>
-                    <div className={`px-1.5 py-0.5 rounded-md font-normal border ${PASTEL_BADGE_COLORS[CLASS_TO_ROLE[info.class]].bg} ${PASTEL_BADGE_DARK_BORDER[CLASS_TO_ROLE[info.class]]}`}>
+                    <div className={`px-1.5 py-0.5 rounded-md font-normal border ${PASTEL_BADGE_COLORS[CLASS_TO_ROLE[info.class]].bg} ${PASTEL_BADGE_DARK_BORDER[CLASS_TO_ROLE[info.class]]} dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200`}>
                       <span className={`text-[10px] font-bold ${PASTEL_BADGE_DARK_BORDER[CLASS_TO_ROLE[info.class]].replace('border-', 'text-')}`}>{info.class}</span>
                     </div>
                   </div>
