@@ -2982,18 +2982,6 @@ button, input, textarea, select {
   background-image: none !important;
 }
 
-/* Dark mode fix: Top 1 header (yellow gradient) */
-.dark [class*="from-yellow-200"],
-.dark [class*="via-yellow-100"],
-.dark [class*="to-yellow-300"] {
-  background-color: #23272f !important;
-  background-image: none !important;
-}
-.dark [class*="text-yellow-700"],
-.dark [class*="text-yellow-400"] {
-  color: #fde047 !important;
-}
-
 /* Dark mode fix: ปุ่ม 'ทั้งหมด' (active filter) */
 .dark button[class*="from-pink-100"][class*="to-blue-50"],
 .dark button[class*="bg-white"][class*="border-pink-400"] {
@@ -3004,17 +2992,6 @@ button, input, textarea, select {
 .dark button[class*="from-pink-100"][class*="to-blue-50"] [class*="text-pink-700"],
 .dark button[class*="bg-white"][class*="border-pink-400"] [class*="text-pink-700"] {
   color: #f472b6 !important;
-}
-
-/* Dark mode: พื้นหลังอันดับ 1 ให้เข้มเหมือนอันดับ 2 */
-.dark tr[class*="bg-gradient-to-r"][class*="from-yellow-200"] {
-  background: #111112 !important;
-}
-
-/* Dark mode: พื้นหลังอันดับ 1 ให้เหมือนอันดับ 2-3 (ดำสนิท) */
-.dark tr[class*="bg-gradient-to-r"][class*="from-yellow-200"] {
-  background: #000 !important;
-  background-image: none !important;
 }
 
 /* Dark mode: พื้นหลัง Modal (DialogContent) หน้า ranking */
@@ -3030,11 +3007,6 @@ button, input, textarea, select {
   background: #23272f !important;
 }
 
-/* ===== DARK MODE THEME (force override, เฉพาะ dark mode) ===== */
-[data-theme="dark"] .bg-gradient-to-br.from-pink-50.via-white.to-blue-50\/80,
-[data-theme="dark"] .bg-gradient-to-br {
-  background: #181825 !important;
-}
 [data-theme="dark"] .react-calendar {
   background: #181825 !important;
   border-radius: 1.5rem;

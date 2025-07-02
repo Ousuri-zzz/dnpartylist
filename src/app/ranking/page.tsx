@@ -488,7 +488,7 @@ export default function RankingPage() {
           {/* Top 1 per job (modern glassmorphism, icon effect, gradient name) - MOVE TO TOP */}
           <div className="w-full mt-2 mb-1">
             <div className="mb-2 flex justify-center">
-              <div className="px-6 py-2 rounded-xl bg-gradient-to-r from-yellow-200/80 via-yellow-100/90 to-yellow-300/80 backdrop-blur-md shadow-lg flex items-center gap-2 border border-yellow-200/70">
+              <div className="px-6 py-2 rounded-xl bg-gradient-to-r from-yellow-200/80 via-yellow-100/90 to-yellow-300/80 dark:bg-black dark:bg-opacity-100 dark:bg-none dark:border-neutral-800 shadow-lg flex items-center gap-2 border border-yellow-200/70">
                 <span className="text-2xl md:text-3xl animate-bounce text-yellow-400 drop-shadow-glow">🏆</span>
                 <span className="text-yellow-700 text-lg md:text-2xl font-extrabold tracking-tight drop-shadow-lg" style={{textShadow:'0 2px 12px #fff,0 0 16px #facc15'}}>
                   Top 1 ของแต่ละอาชีพ
@@ -531,7 +531,9 @@ export default function RankingPage() {
                     key={job}
                     ref={el => { cardRefs.current[job] = el; }}
                     className={cn(
-                      "relative group flex flex-col items-center justify-center min-w-[110px] max-w-[140px] px-3 py-3 rounded-2xl border border-yellow-200/70 shadow-xl bg-gradient-to-br from-yellow-50/90 via-white/90 to-yellow-100/80 backdrop-blur-md",
+                      "relative group flex flex-col items-center justify-center min-w-[110px] max-w-[140px] px-3 py-3 rounded-2xl border shadow-xl",
+                      "border-yellow-200/70 bg-gradient-to-br from-yellow-50/90 via-white/90 to-yellow-100/80",
+                      "dark:bg-black dark:border-neutral-800 dark:bg-none",
                       "hover:scale-105 hover:shadow-2xl transition-all duration-200 cursor-pointer"
                     )}
                     style={{ boxShadow: '0 4px 32px 0 rgba(250,204,21,0.10), 0 2px 8px 0 rgba(0,0,0,0.06)' }}
