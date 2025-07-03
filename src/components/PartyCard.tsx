@@ -305,8 +305,21 @@ export function PartyCard({ party }: PartyCardProps) {
                     key={charId}
                     onClick={() => handleCharacterClick(info)}
                     className={cn(
-                      "flex items-center justify-between p-2 rounded-xl bg-gradient-to-r from-white/50 to-white/30 border border-white/50 transition-all duration-300 hover:shadow-md group/member cursor-pointer",
-                      "dark:bg-gray-900 dark:border-gray-800"
+                      "flex items-center justify-between p-2 rounded-xl transition-all duration-300 hover:shadow-md group/member cursor-pointer",
+                      // ปกติ
+                      "bg-gradient-to-r from-white/50 to-white/30 border border-white/50",
+                      // dark mode: ใช้ gradient สีอาชีพแบบ pastel
+                      info.class === 'Sword Master' || info.class === 'Mercenary'
+                        ? "dark:bg-gradient-to-r dark:from-rose-900/70 dark:to-pink-900/60 dark:border-rose-800/60"
+                        : info.class === 'Bowmaster' || info.class === 'Acrobat'
+                          ? "dark:bg-gradient-to-r dark:from-emerald-900/70 dark:to-green-900/60 dark:border-emerald-800/60"
+                          : info.class === 'Force User' || info.class === 'Elemental Lord'
+                            ? "dark:bg-gradient-to-r dark:from-fuchsia-900/70 dark:to-purple-900/60 dark:border-fuchsia-800/60"
+                            : info.class === 'Paladin' || info.class === 'Priest'
+                              ? "dark:bg-gradient-to-r dark:from-cyan-900/70 dark:to-blue-900/60 dark:border-cyan-800/60"
+                              : info.class === 'Engineer' || info.class === 'Alchemist'
+                                ? "dark:bg-gradient-to-r dark:from-yellow-900/70 dark:to-amber-900/60 dark:border-yellow-800/60"
+                                : "dark:bg-gradient-to-r dark:from-gray-900/80 dark:to-gray-800/70 dark:border-gray-700/60"
                     )}
                   >
                     <div className="flex items-center gap-2">

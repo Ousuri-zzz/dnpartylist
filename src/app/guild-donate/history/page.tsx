@@ -100,6 +100,30 @@ function getDonationSums(donates: Donate[]) {
   return { sumThisMonth, sumLastMonth, sumAll };
 }
 
+// เพิ่มฟังก์ชันหายอดบริจาคของเดือนล่าสุดของแต่ละคน
+function getLatestMonthDonationAmount(donates: Donate[], userId: string): number {
+  // หาเดือนล่าสุดที่ userId มีการบริจาค
+  const userDonates = donates.filter(d => d.userId === userId && d.status === 'active');
+  if (userDonates.length === 0) return 0;
+  // หาเดือน/ปีล่าสุด
+  const months = userDonates.map(d => {
+    const date = new Date(d.createdAt);
+    return { month: date.getMonth(), year: date.getFullYear() };
+  });
+  const latest = months.reduce((acc, cur) => {
+    if (!acc) return cur;
+    if (cur.year > acc.year) return cur;
+    if (cur.year === acc.year && cur.month > acc.month) return cur;
+    return acc;
+  }, null as null | { month: number, year: number });
+  if (!latest) return 0;
+  // รวมยอดบริจาคของเดือน/ปีนั้น
+  return userDonates.filter(d => {
+    const date = new Date(d.createdAt);
+    return date.getMonth() === latest.month && date.getFullYear() === latest.year;
+  }).reduce((sum, d) => sum + d.amount, 0);
+}
+
 export default function GuildDonateHistoryPage() {
   const { user } = useAuth();
   const { isGuildLeader } = useGuild();
@@ -563,7 +587,7 @@ export default function GuildDonateHistoryPage() {
                 >
                   <div className="flex items-center gap-1 justify-center">
                     <Coins className="w-4 h-4" />
-                    ยอดล่าสุด
+                    ยอดเดือนล่าสุด
                     {sortBy === 'lastDonationAmount' && (
                       <span className="text-pink-500">{sortOrder === 'desc' ? '↓' : '↑'}</span>
                     )}
@@ -676,28 +700,45 @@ export default function GuildDonateHistoryPage() {
                   </td>
                   <td className="px-3 py-3 w-36 whitespace-nowrap text-center">
                     {member.lastDonation ? (
-                      <span className={cn(
-                        "text-pink-500",
-                        new Date(member.lastDonation).getMonth() !== new Date().getMonth() && "text-gray-600"
-                      )}>
-                        {new Date(member.lastDonation).toLocaleDateString('th-TH', {
+                      (() => {
+                        const d = new Date(member.lastDonation);
+                        const now = new Date();
+                        const isCurrentMonth = d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+                        const isLastMonth = (() => {
+                          const lastMonth = now.getMonth() === 0 ? 11 : now.getMonth() - 1;
+                          const lastMonthYear = now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear();
+                          return d.getMonth() === lastMonth && d.getFullYear() === lastMonthYear;
+                        })();
+                        const dateStr = d.toLocaleDateString('th-TH', {
                           year: 'numeric',
                           month: 'long',
                           day: 'numeric'
-                        })}
-                      </span>
+                        });
+                        if (isCurrentMonth) {
+                          return (
+                            <span className="text-pink-500 bg-pink-50 border border-pink-200 rounded-full px-3 py-1 inline-block">
+                              {dateStr}
+                            </span>
+                          );
+                        }
+                        if (isLastMonth) {
+                          return <span className="text-yellow-600">{dateStr}</span>;
+                        }
+                        return <span className="text-gray-600">{dateStr}</span>;
+                      })()
                     ) : (
                       <span className="text-gray-400">ยังไม่เคยบริจาค</span>
                     )}
                   </td>
                   <td className="px-3 py-3 text-center w-32">
-                    {member.lastDonationAmount ? (
-                      <span className="font-medium text-green-600">
-                        {member.lastDonationAmount.toLocaleString()}G
-                      </span>
-                    ) : (
-                      <span className="text-gray-400">-</span>
-                    )}
+                    {(() => {
+                      const amt = getLatestMonthDonationAmount(donates, member.userId);
+                      return amt > 0 ? (
+                        <span className="font-medium text-green-600">{amt.toLocaleString()}G</span>
+                      ) : (
+                        <span className="text-gray-400">-</span>
+                      );
+                    })()}
                   </td>
                   <td className="px-3 py-3 text-center w-32 whitespace-nowrap">
                     <span className={cn(
@@ -741,7 +782,14 @@ export default function GuildDonateHistoryPage() {
                 <div className="flex items-center gap-1 min-w-[70px]">
                   <Coins className="w-4 h-4 text-green-400" />
                   <span className="text-green-600 font-semibold">
-                    {member.lastDonationAmount ? `${member.lastDonationAmount.toLocaleString()}G` : '-'}
+                    {(() => {
+                      const amt = getLatestMonthDonationAmount(donates, member.userId);
+                      return amt > 0 ? (
+                        <span>{amt.toLocaleString()}G</span>
+                      ) : (
+                        <span>-</span>
+                      );
+                    })()}
                   </span>
                 </div>
                 <div className="flex items-center gap-1 min-w-[70px]">

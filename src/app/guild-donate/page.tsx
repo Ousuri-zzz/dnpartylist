@@ -322,6 +322,23 @@ export default function GuildDonatePage() {
   const totalHistoryPages = Math.ceil(myHistory.length / historyPerPage);
   const pagedHistory = myHistory.slice((historyPage - 1) * historyPerPage, historyPage * historyPerPage);
 
+  // ฟังก์ชันช่วยเช็คเดือน
+  function getDonateMonthType(dateNum: number) {
+    const d = new Date(dateNum);
+    const now = new Date();
+    const thisMonth = now.getMonth();
+    const thisYear = now.getFullYear();
+    let prevMonth = thisMonth - 1;
+    let prevYear = thisYear;
+    if (prevMonth < 0) {
+      prevMonth = 11;
+      prevYear = thisYear - 1;
+    }
+    if (d.getFullYear() === thisYear && d.getMonth() === thisMonth) return 'current';
+    if (d.getFullYear() === prevYear && d.getMonth() === prevMonth) return 'previous';
+    return 'other';
+  }
+
   if (loading || usersLoading || authLoading || !user) {
     return (
       <div className="flex items-center justify-center py-8">
@@ -420,12 +437,17 @@ export default function GuildDonatePage() {
             {pagedHistory.length === 0 && (
               <div className="text-gray-400 text-center">ยังไม่มีประวัติ</div>
             )}
-            {pagedHistory.map(donate => (
+            {pagedHistory.map(donate => {
+              const monthType = getDonateMonthType(donate.createdAt);
+              return (
               <div key={donate.id} className={cn(
                 "rounded-xl p-4 flex flex-wrap gap-4 items-center shadow border-2",
                 donate.status === 'waiting' && 'bg-yellow-50 border-yellow-200',
                 donate.status === 'active' && 'bg-green-50 border-green-200',
-                donate.status === 'rejected' && 'bg-red-50 border-red-200'
+                  donate.status === 'rejected' && 'bg-red-50 border-red-200',
+                  // เพิ่มไฮไลท์เดือน
+                  monthType === 'current' && 'bg-pink-50 border-pink-200',
+                  monthType === 'previous' && 'bg-orange-50 border-orange-200'
               )}>
                 {donate._type === 'gold' ? (
                   <span className="font-bold text-yellow-700 flex items-center gap-1"><span className="text-lg">🎁</span> {donate.amount}G</span>
@@ -442,7 +464,8 @@ export default function GuildDonatePage() {
                 </span>
                 <span className="text-gray-500 text-xs flex items-center gap-1"><span className="text-lg">⏰</span> {new Date(donate.createdAt).toLocaleString()}</span>
               </div>
-            ))}
+              );
+            })}
           </div>
           {/* Pagination */}
           {totalHistoryPages > 1 && (

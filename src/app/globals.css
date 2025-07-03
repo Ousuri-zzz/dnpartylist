@@ -632,7 +632,7 @@ button, input, textarea, select {
 }
 
 .dark .border-pink-200 {
-  border-color: hsl(var(--border)) !important;
+  border-color: #f472b6 !important; /* Tailwind pink-400 */
 }
 
 .dark .border-purple-100 {
