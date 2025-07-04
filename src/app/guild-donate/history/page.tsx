@@ -536,7 +536,13 @@ export default function GuildDonateHistoryPage() {
               top3[idx] && (
                 <div
                   key={idx}
-                  className={`relative flex items-center gap-3 rounded-xl border-2 shadow-md px-3 py-3 ${idx===0 ? 'border-yellow-300 bg-gradient-to-r from-yellow-50 to-white' : idx===1 ? 'border-gray-300 bg-gradient-to-r from-gray-50 to-white' : 'border-orange-200 bg-gradient-to-r from-orange-50 to-white'}`}
+                  className={`relative flex items-center gap-3 rounded-xl border-2 shadow-md px-3 py-3 ${
+                    idx===0
+                      ? 'border-yellow-300 bg-gradient-to-r from-yellow-50 to-white dark:bg-black dark:border-yellow-400'
+                      : idx===1
+                        ? 'border-gray-300 bg-gradient-to-r from-gray-50 to-white dark:border-zinc-700 dark:bg-zinc-800/60'
+                        : 'border-orange-200 bg-gradient-to-r from-orange-50 to-white dark:border-orange-400 dark:bg-orange-900/40'
+                  }`}
                   onMouseEnter={() => setHoveredPodiumIdx(idx)}
                   onMouseLeave={() => setHoveredPodiumIdx(null)}
                   onTouchStart={() => setHoveredPodiumIdx(idx)}
@@ -544,11 +550,21 @@ export default function GuildDonateHistoryPage() {
                 >
                   <div className="flex flex-col items-center justify-center min-w-[40px]">
                     <Award className={`${idx===0 ? 'text-yellow-400' : idx===1 ? 'text-gray-400' : 'text-orange-400'} w-7 h-7 mb-1`} />
-                    <span className={`absolute -top-3 left-2 px-2 py-0.5 rounded-full text-xs font-bold shadow ${idx===0 ? 'bg-yellow-300 text-yellow-900 border-2 border-yellow-400' : idx===1 ? 'bg-gray-200 text-gray-700' : 'bg-orange-200 text-orange-700'}`}>{idx+1}</span>
+                    <span className={`absolute -top-3 left-2 px-2 py-0.5 rounded-full text-xs font-bold shadow ${
+                      idx===0
+                        ? 'bg-yellow-300 text-yellow-900 border-2 border-yellow-400 dark:bg-black dark:text-yellow-300 dark:border-yellow-400'
+                        : idx===1
+                          ? 'bg-gray-200 text-gray-700 dark:bg-zinc-700 dark:text-gray-100'
+                          : 'bg-orange-200 text-orange-700 dark:bg-orange-700 dark:text-orange-100'
+                    }`}>
+                      {idx+1}
+                    </span>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className={`font-bold truncate text-base ${idx===0 ? 'text-yellow-700' : idx===1 ? 'text-gray-500' : 'text-orange-500'}`}>{top3[idx].discordName}</div>
-                    <div className="text-green-700 font-extrabold text-lg">{top3[idx].amount.toLocaleString()}G</div>
+                  <div className={`font-bold truncate text-base ${idx===0 ? 'text-yellow-700 dark:text-yellow-200' : idx===1 ? 'text-gray-500 dark:text-gray-200' : 'text-orange-500 dark:text-orange-200'}`}>
+                    {top3[idx].discordName}
+                  </div>
+                  <div className="text-green-700 font-extrabold text-lg">
+                    {top3[idx].amount.toLocaleString()}G
                   </div>
                   {/* Tooltip (tap/hover) */}
                   {hoveredPodiumIdx === idx && (

@@ -45,6 +45,58 @@ interface CharacterCardProps {
   char: SearchingCharacter;
 }
 
+const getClassIcon = (className: string) => {
+  let colorClass = '';
+  switch (className) {
+    case 'Sword Master':
+    case 'Mercenary':
+      colorClass = 'text-red-600';
+      break;
+    case 'Bowmaster':
+    case 'Acrobat':
+      colorClass = 'text-emerald-600';
+      break;
+    case 'Force User':
+    case 'Elemental Lord':
+      colorClass = 'text-purple-600';
+      break;
+    case 'Paladin':
+    case 'Priest':
+      colorClass = 'text-sky-600';
+      break;
+    case 'Engineer':
+    case 'Alchemist':
+      colorClass = 'text-amber-600';
+      break;
+    default:
+      colorClass = 'text-gray-700';
+  }
+  switch (className) {
+    case 'Sword Master':
+      return <i className={`ra ra-sword ${colorClass}`} title="Sword Master" />;
+    case 'Mercenary':
+      return <i className={`ra ra-axe ${colorClass}`} title="Mercenary" />;
+    case 'Bowmaster':
+      return <i className={`ra ra-archer ${colorClass}`} title="Bowmaster" />;
+    case 'Acrobat':
+      return <i className={`ra ra-player-dodge ${colorClass}`} title="Acrobat" />;
+    case 'Force User':
+      return <i className={`ra ra-crystal-ball ${colorClass}`} title="Force User" />;
+    case 'Elemental Lord':
+      return <i className={`ra ra-fire-symbol ${colorClass}`} title="Elemental Lord" />;
+    case 'Paladin':
+      return <i className={`ra ra-shield ${colorClass}`} title="Paladin" />;
+    case 'Priest':
+      return <i className={`ra ra-hospital-cross ${colorClass}`} title="Priest" />;
+    case 'Engineer':
+      return <i className={`ra ra-gear-hammer ${colorClass}`} title="Engineer" />;
+    case 'Alchemist':
+      return <i className={`ra ra-flask ${colorClass}`} title="Alchemist" />;
+    default:
+      return <i className={`ra ra-player ${colorClass}`} title="Unknown" />;
+  }
+};
+
 const CharacterCard = ({ char }: CharacterCardProps) => {
   const colors = getClassColor(char.characterClass);
   const nests: string[] = Array.isArray(char.nests) ? char.nests : (char.nests ? char.nests.split(',') : []);
@@ -88,7 +140,8 @@ const CharacterCard = ({ char }: CharacterCardProps) => {
         <div className="p-3 bg-white/90 rounded-xl shadow-lg max-w-full">
           <div className="flex items-start gap-3 mb-2">
             <div className={cn('w-12 h-12 flex items-center justify-center', colors.border)}>
-              <span className="text-2xl">{colors.icon}</span>
+              {/* <span className="text-2xl">{colors.icon}</span> */}
+              <span className="text-2xl">{getClassIcon(char.characterClass)}</span>
             </div>
             <div className="flex-1 min-w-0">
               <h4 className={cn('text-base font-bold', colors.text)}>{discordName}</h4>
@@ -129,7 +182,8 @@ const CharacterCard = ({ char }: CharacterCardProps) => {
       {/* PC: flex-row ไม่มี bg ไม่มี shadow ไม่มี rounded ไม่มี padding */}
       <div className="hidden sm:flex items-center gap-3 mb-1 w-full">
         <div className={cn('w-10 h-10 flex items-center justify-center', colors.border)}>
-          <span className="text-xl">{colors.icon}</span>
+          {/* <span className="text-xl">{colors.icon}</span> */}
+          <span className="text-xl">{getClassIcon(char.characterClass)}</span>
         </div>
         <div>
           <h4 className={cn('text-lg font-bold', colors.text)}>{discordName}</h4>
