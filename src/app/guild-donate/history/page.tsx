@@ -354,36 +354,49 @@ export default function GuildDonateHistoryPage() {
 
   return (
     <div className="max-w-6xl mx-auto p-6">
-      <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-pink-200 max-w-2xl mx-auto md:max-w-6xl">
+      <div className="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-10 border border-pink-200 max-w-2xl mx-auto md:max-w-6xl relative overflow-hidden">
+        {/* Gradient Decoration */}
+        <div className="absolute -top-10 -left-10 w-40 h-40 bg-gradient-to-br from-pink-200 via-pink-100 to-yellow-100 rounded-full blur-2xl opacity-60 z-0" />
+        <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-gradient-to-tr from-yellow-100 via-orange-100 to-pink-200 rounded-full blur-2xl opacity-60 z-0" />
         {/* Header */}
-        <div className="flex items-center gap-4 mb-8 pb-6 border-b border-pink-100 relative">
-          <div className="p-3 bg-pink-100 rounded-xl">
-            <Crown className="w-8 h-8 text-pink-600" />
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mb-8 pb-6 border-b border-pink-100 relative">
+          <div className="p-2 sm:p-4 bg-gradient-to-br from-pink-200 via-pink-100 to-yellow-100 rounded-2xl shadow-lg flex-shrink-0">
+            <Crown className="w-8 h-8 sm:w-10 sm:h-10 text-pink-600 drop-shadow" />
           </div>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-800">📊 ประวัติการบริจาคของสมาชิก</h1>
-            <p className="text-sm text-gray-500 mt-1">ดูประวัติการบริจาคของสมาชิกทั้งหมดในกิลด์</p>
+          <div className="flex-1 min-w-0">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-800 tracking-tight">📊 ประวัติการบริจาคของสมาชิก</h1>
+            <p className="text-sm sm:text-base text-gray-500 mt-1 font-medium">ดูประวัติการบริจาคของสมาชิกทั้งหมดในกิลด์</p>
           </div>
           {/* Navigation Buttons */}
-          <div className="ml-auto flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row gap-1 sm:gap-3 w-full sm:w-auto mt-2 sm:mt-0">
             <Link
               href="/guild-donate/cash"
-              className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors shadow-sm"
+              className="flex items-center justify-center gap-2 px-4 py-2 sm:px-5 sm:py-2 bg-gradient-to-r from-green-100 via-yellow-100 to-white text-green-700 rounded-xl font-semibold hover:from-green-200 hover:to-yellow-200 hover:text-green-900 transition-colors shadow-md border border-green-200 text-base drop-shadow-md w-full sm:w-auto"
             >
-              <CreditCard className="w-4 h-4" />
+              <CreditCard className="w-5 h-5 text-yellow-500" />
               <span>ประวัติบริจาคเงินสด</span>
             </Link>
             {/* ปุ่มบริจาคกิลด์: Desktop */}
             <Link
               href="/guild-donate"
-              className="hidden sm:flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-pink-200 via-orange-100 to-yellow-100 text-pink-800 text-sm font-bold rounded-full shadow border-2 border-pink-300 hover:from-pink-400 hover:to-orange-200 hover:text-white hover:shadow-xl transition-all duration-150"
+              className="hidden sm:flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-pink-300 via-orange-100 to-yellow-200 text-pink-800 text-base font-bold rounded-full shadow-lg border-2 border-pink-300 hover:from-pink-400 hover:to-orange-200 hover:text-white hover:shadow-xl transition-all duration-150"
               style={{ minWidth: 'fit-content' }}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" /></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" /></svg>
               บริจาคกิลด์
             </Link>
           </div>
         </div>
+        {/* หลัง header (ก่อน Top 3 Ranking หรือเนื้อหาอื่น) */}
+        <Link
+          href="/guild-donate"
+          className="block sm:hidden w-full mb-2 px-0 py-2 bg-gradient-to-r from-pink-200 via-orange-100 to-yellow-100 text-pink-800 text-base font-bold rounded-2xl shadow-md border border-pink-200 text-center hover:from-pink-400 hover:to-orange-200 hover:text-white hover:shadow transition-all duration-150"
+        >
+          <span className="inline-flex items-center gap-2 justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" /></svg>
+            บริจาคกิลด์
+          </span>
+        </Link>
         {/* Top 3 Ranking */}
         <div className="mb-6 flex flex-col items-center">
           <div className="flex items-center justify-center gap-3 mb-4 px-4 py-3 rounded-2xl bg-gradient-to-r from-yellow-50 via-pink-50 to-blue-50 shadow-sm border border-pink-100">
