@@ -187,9 +187,9 @@ export default function GuildDonateCashPage() {
           <div className="flex flex-col sm:flex-row gap-1 sm:gap-3 w-full sm:w-auto mt-2 sm:mt-0">
             <Link
               href="/guild-donate/history"
-              className="flex items-center justify-center gap-2 px-4 py-2 sm:px-5 sm:py-2 bg-gradient-to-r from-yellow-100 via-pink-100 to-pink-200 text-pink-700 rounded-xl font-semibold hover:from-pink-200 hover:to-yellow-200 hover:text-pink-900 transition-colors shadow-md border border-pink-200 text-base drop-shadow-md w-full sm:w-auto"
+              className="flex items-center justify-center gap-2 px-4 py-2 sm:px-5 sm:py-2 bg-gradient-to-r from-green-100 via-yellow-100 to-white text-green-700 rounded-xl font-semibold hover:from-green-200 hover:to-yellow-200 hover:text-green-900 transition-colors shadow-md border border-green-200 text-base drop-shadow-md w-full sm:w-auto"
             >
-              <Crown className="w-5 h-5" />
+              <Crown className="w-5 h-5 text-yellow-500" />
               <span>ประวัติบริจาค Gold</span>
             </Link>
             {/* ปุ่มบริจาคกิลด์: Desktop */}
@@ -221,16 +221,16 @@ export default function GuildDonateCashPage() {
             {topDonors[0] && (
               <div className="flex justify-center mb-4">
                 <div
-                  className="flex items-center gap-3 px-6 py-4 rounded-2xl shadow-lg border-2 bg-gradient-to-r from-yellow-200 via-yellow-100 to-pink-100 border-yellow-300 min-w-[220px]"
+                  className="flex items-center gap-3 px-6 py-4 rounded-2xl shadow-lg border-2 bg-gradient-to-r from-yellow-200 via-yellow-100 to-pink-100 border-yellow-300 min-w-[220px] dark:bg-gradient-to-r dark:from-yellow-200/10 dark:via-yellow-100/10 dark:to-pink-100/10 dark:border-yellow-300/40"
                 >
-                  <span className="flex items-center justify-center w-12 h-12 rounded-full bg-white/80 shadow text-yellow-500 text-2xl font-extrabold">
-                    <Trophy className="text-yellow-400" size={32} />
+                  <span className="flex items-center justify-center w-12 h-12 rounded-full bg-white/80 shadow text-yellow-500 text-2xl font-extrabold dark:bg-yellow-100/10 dark:text-yellow-200">
+                    <Trophy className="text-yellow-400 dark:text-yellow-300" size={32} />
                   </span>
                   <div className="flex flex-col flex-1 min-w-0">
-                    <span className="font-bold text-lg truncate text-pink-700">{topDonors[0].name}</span>
-                    <span className="text-gray-500 text-sm">อันดับ 1</span>
+                    <span className="font-bold text-lg truncate text-pink-700 dark:text-pink-100">{topDonors[0].name}</span>
+                    <span className="text-gray-500 text-sm dark:text-yellow-100/80">อันดับ 1</span>
                   </div>
-                  <span className="font-extrabold text-pink-600 text-xl text-right min-w-[70px]">{topDonors[0].total.toLocaleString()} <span className="text-gray-400 text-base font-normal">บาท</span></span>
+                  <span className="font-extrabold text-pink-600 text-xl text-right min-w-[70px] dark:text-yellow-100">{topDonors[0].total.toLocaleString()} <span className="text-gray-400 text-base font-normal dark:text-yellow-100/70">บาท</span></span>
                 </div>
               </div>
             )}
@@ -240,21 +240,20 @@ export default function GuildDonateCashPage() {
                 <div
                   key={donor.name + (idx+2)}
                   className={
-                    `flex items-center gap-3 px-6 py-4 rounded-2xl shadow-lg border-2 ` +
+                    `flex items-center gap-3 px-6 py-4 rounded-2xl shadow-lg border-2 min-w-[220px] ` +
                     (idx === 0
-                      ? 'bg-gradient-to-r from-gray-200 via-blue-100 to-pink-50 border-blue-200'
-                      : 'bg-gradient-to-r from-orange-100 via-pink-50 to-yellow-50 border-orange-200')
+                      ? 'bg-gradient-to-r from-gray-200 via-blue-100 to-pink-50 border-blue-200 dark:bg-gradient-to-r dark:from-blue-200/10 dark:via-blue-100/10 dark:to-pink-100/10 dark:border-blue-200/40'
+                      : 'bg-gradient-to-r from-orange-100 via-pink-50 to-yellow-50 border-orange-200 dark:bg-gradient-to-r dark:from-orange-100/10 dark:via-pink-100/10 dark:to-yellow-100/10 dark:border-orange-200/40')
                   }
-                  style={{ minWidth: 220 }}
                 >
-                  <span className="flex items-center justify-center w-12 h-12 rounded-full bg-white/80 shadow text-yellow-500 text-2xl font-extrabold">
-                    <Trophy className={idx === 0 ? 'text-blue-400' : 'text-orange-400'} size={32} />
+                  <span className={`flex items-center justify-center w-12 h-12 rounded-full bg-white/80 shadow text-yellow-500 text-2xl font-extrabold ${idx === 0 ? 'dark:bg-blue-100/10 dark:text-blue-200' : 'dark:bg-orange-100/10 dark:text-orange-200'}`}>
+                    <Trophy className={idx === 0 ? 'text-blue-400 dark:text-blue-200' : 'text-orange-400 dark:text-orange-200'} size={32} />
                   </span>
                   <div className="flex flex-col flex-1 min-w-0">
-                    <span className="font-bold text-lg truncate text-pink-700">{donor.name}</span>
-                    <span className="text-gray-500 text-sm">อันดับ {idx + 2}</span>
+                    <span className={`font-bold text-lg truncate text-pink-700 dark:text-pink-100`}>{donor.name}</span>
+                    <span className={`text-gray-500 text-sm ${idx === 0 ? 'dark:text-blue-100/80' : 'dark:text-orange-100/80'}`}>อันดับ {idx + 2}</span>
                   </div>
-                  <span className="font-extrabold text-pink-600 text-xl text-right min-w-[70px]">{donor.total.toLocaleString()} <span className="text-gray-400 text-base font-normal">บาท</span></span>
+                  <span className={`font-extrabold text-pink-600 text-xl text-right min-w-[70px] ${idx === 0 ? 'dark:text-blue-100' : 'dark:text-orange-100'}`}>{donor.total.toLocaleString()} <span className={`text-gray-400 text-base font-normal ${idx === 0 ? 'dark:text-blue-100/70' : 'dark:text-orange-100/70'}`}>บาท</span></span>
                 </div>
               ))}
             </div>

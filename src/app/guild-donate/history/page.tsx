@@ -616,9 +616,9 @@ export default function GuildDonateHistoryPage() {
         <div className="overflow-x-auto hidden md:block">
           <table className="w-full">
             <thead>
-              <tr className="bg-white/80 backdrop-blur-sm">
+              <tr className="bg-gradient-to-r from-pink-50 via-yellow-50 to-pink-100 dark:from-white/20 dark:via-yellow-100/20 dark:to-pink-100/20 dark:border-b-2 dark:border-pink-400/40">
                 <th 
-                  className="px-3 py-3 text-center text-sm font-semibold text-gray-600 cursor-pointer hover:bg-pink-100 w-16"
+                  className="px-3 py-3 text-center text-sm font-bold text-pink-700 cursor-pointer hover:bg-pink-100 w-16 dark:text-pink-100"
                   onClick={() => handleSort('donationCount')}
                 >
                   <div className="flex items-center justify-center gap-1">
@@ -629,9 +629,9 @@ export default function GuildDonateHistoryPage() {
                     )}
                   </div>
                 </th>
-                <th className="px-3 py-3 text-left text-sm font-semibold text-gray-600 w-64">รายชื่อสมาชิก</th>
+                <th className="px-3 py-3 text-left text-sm font-bold text-pink-700 w-64 dark:text-pink-100">รายชื่อสมาชิก</th>
                 <th 
-                  className="px-3 py-3 text-center text-sm font-semibold text-gray-600 cursor-pointer hover:bg-pink-100 w-36 whitespace-nowrap"
+                  className="px-3 py-3 text-center text-sm font-bold text-pink-700 cursor-pointer hover:bg-pink-100 w-36 whitespace-nowrap dark:text-pink-100"
                   onClick={() => handleSort('lastDonation')}
                 >
                   <div className="flex items-center gap-1 justify-center">
@@ -643,7 +643,7 @@ export default function GuildDonateHistoryPage() {
                   </div>
                 </th>
                 <th 
-                  className="px-3 py-3 text-center text-sm font-semibold text-gray-600 cursor-pointer hover:bg-pink-100 w-32 whitespace-nowrap"
+                  className="px-3 py-3 text-center text-sm font-bold text-pink-700 cursor-pointer hover:bg-pink-100 w-32 whitespace-nowrap dark:text-pink-100"
                   onClick={() => handleSort('lastDonationAmount')}
                 >
                   <div className="flex items-center gap-1 justify-center">
@@ -655,7 +655,7 @@ export default function GuildDonateHistoryPage() {
                   </div>
                 </th>
                 <th 
-                  className="px-3 py-3 text-left text-sm font-semibold text-gray-600 cursor-pointer hover:bg-pink-100 w-32 whitespace-nowrap"
+                  className="px-3 py-3 text-left text-sm font-bold text-pink-700 cursor-pointer hover:bg-pink-100 w-32 whitespace-nowrap dark:text-pink-100"
                   onClick={() => handleSort('totalDonations')}
                 >
                   <div className="flex items-center gap-1 justify-center">

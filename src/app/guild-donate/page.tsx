@@ -423,7 +423,7 @@ export default function GuildDonatePage() {
             <div className="text-xs text-gray-400 mt-2">แตะเพื่อเลือก (เลือกได้ 1 ตัว)</div>
           </div>
           <Button type="submit" className="bg-gradient-to-r from-pink-400 to-yellow-400 text-white font-bold py-2 rounded-xl shadow hover:from-pink-500 hover:to-yellow-500 flex items-center gap-2 justify-center text-lg" disabled={submitting}>
-            <span className="text-xl">🚀</span> ส่งคำขอ
+            <span className="text-xl">🚀</span> บริจาค Gold
           </Button>
         </form>
       </div>
