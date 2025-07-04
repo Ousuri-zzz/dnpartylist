@@ -7,12 +7,13 @@ import { useRouter } from 'next/navigation';
 import { ref, onValue, get } from 'firebase/database';
 import { db } from '@/lib/firebase';
 import { toast } from 'sonner';
-import { Crown, Search, Calendar, Users, Coins, CreditCard, Award, Trophy } from 'lucide-react';
+import { Crown, Search, Calendar, Users, Coins, CreditCard, Award, Trophy, ChevronDown, ChevronUp, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { createPortal } from 'react-dom';
 import { getClassColors, CLASS_TO_ROLE } from '@/config/theme';
 import { DonationHistoryModal } from '@/components/DonationHistoryModal';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 interface Donate {
   id: string;
@@ -124,6 +125,44 @@ function getLatestMonthDonationAmount(donates: Donate[], userId: string): number
   }).reduce((sum, d) => sum + d.amount, 0);
 }
 
+// Group donations by month/year
+function getMonthlySummary(donates: Donate[], members: Record<string, any>) {
+  const summary: Record<string, { year: number, month: number, donations: { userId: string, discordName: string, amount: number }[] }> = {};
+  // Collect all months/years
+  donates.forEach(donate => {
+    if (donate.status !== 'active') return;
+    const d = new Date(donate.createdAt);
+    const key = `${d.getFullYear()}-${d.getMonth()}`;
+    if (!summary[key]) {
+      summary[key] = {
+        year: d.getFullYear(),
+        month: d.getMonth(),
+        donations: []
+      };
+    }
+    let user = summary[key].donations.find(u => u.userId === donate.userId);
+    if (!user) {
+      user = {
+        userId: donate.userId,
+        discordName: members[donate.userId]?.discordName || 'ไม่ทราบ',
+        amount: 0
+      };
+      summary[key].donations.push(user);
+    }
+    user.amount += donate.amount;
+  });
+  // Sort months descending
+  const sorted = Object.values(summary).sort((a, b) => {
+    if (a.year !== b.year) return b.year - a.year;
+    return b.month - a.month;
+  });
+  // Sort donations in each month
+  sorted.forEach(month => {
+    month.donations.sort((a, b) => b.amount - a.amount);
+  });
+  return sorted;
+}
+
 export default function GuildDonateHistoryPage() {
   const { user } = useAuth();
   const { isGuildLeader } = useGuild();
@@ -145,6 +184,8 @@ export default function GuildDonateHistoryPage() {
   const [hoveredPodiumIdx, setHoveredPodiumIdx] = useState<number | null>(null);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [showMonthlySummary, setShowMonthlySummary] = useState(false);
+  const [expandedMonths, setExpandedMonths] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     if (!user) {
@@ -295,13 +336,6 @@ export default function GuildDonateHistoryPage() {
   const top3 = getCurrentMonthDonations(donates, members);
   // Summary donation values
   const { sumThisMonth, sumLastMonth, sumAll } = getDonationSums(donates);
-  // ใช้ไอคอน Award จาก lucide-react เพื่อความชัวร์
-  const medalIcons = [
-    <Award key="gold" className="w-5 h-5 text-yellow-400" />, 
-    <Award key="silver" className="w-5 h-5 text-gray-400" />, 
-    <Award key="bronze" className="w-5 h-5 text-orange-400" />
-  ];
-
   // เตรียมข้อมูลบริจาคของ userId ที่เลือก
   const userDonations = selectedUserId
     ? donates.filter(d => d.userId === selectedUserId).map(d => ({
@@ -309,6 +343,14 @@ export default function GuildDonateHistoryPage() {
         type: 'gold' as const, // แก้ type ให้ตรงกับที่ modal ต้องการ
       }))
     : [];
+
+  const monthlySummary = getMonthlySummary(donates, members);
+
+  useEffect(() => {
+    if (showMonthlySummary) {
+      setExpandedMonths({});
+    }
+  }, [showMonthlySummary]);
 
   return (
     <div className="max-w-6xl mx-auto p-6">
@@ -527,14 +569,14 @@ export default function GuildDonateHistoryPage() {
         </div>
         {/* Responsive search bar and summary boxes (mobile & desktop) */}
         <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-2 mb-4 w-full">
-          <div className="relative flex-1 min-w-0">
+          <div className="relative flex-1 min-w-0 md:pr-2">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-pink-400 w-5 h-5" />
             <input
               type="text"
               placeholder="ค้นหาด้วยชื่อ Discord หรือชื่อตัวละคร..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border-2 border-pink-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-300 focus:border-pink-400 bg-pink-50 text-gray-700 placeholder:text-pink-300 transition"
+              className="w-full pl-10 pr-4 py-2 border-2 border-pink-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-300 focus:border-pink-400 bg-pink-50 text-gray-700 placeholder:text-pink-300 transition md:w-full md:max-w-none"
             />
           </div>
           <div className="flex flex-col md:flex-row gap-2 mt-2 md:mt-0 w-full md:w-auto">
@@ -546,10 +588,16 @@ export default function GuildDonateHistoryPage() {
               <span className="text-xs text-gray-500 flex items-center gap-1"><svg className="w-4 h-4 text-yellow-400 inline-block" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 4h10a2 2 0 012 2v10a2 2 0 01-2 2H7a2 2 0 01-2-2V9a2 2 0 012-2z" /></svg>เดือนที่แล้ว</span>
               <span className="font-bold text-yellow-600 text-lg">{sumLastMonth.toLocaleString()}G</span>
             </div>
-            <div className="bg-white/80 border border-pink-200 rounded-lg px-4 py-2 flex flex-col items-center shadow-sm min-w-[110px]">
-              <span className="text-xs text-gray-500 flex items-center gap-1"><svg className="w-4 h-4 text-green-400 inline-block" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>รวมทั้งหมด</span>
-              <span className="font-bold text-green-600 text-lg">{sumAll.toLocaleString()}G</span>
-            </div>
+            <button
+              type="button"
+              className="bg-white/80 border border-pink-200 rounded-lg px-4 py-2 flex flex-row items-center shadow-sm min-w-[120px] max-w-full focus:outline-none focus:ring-2 focus:ring-pink-300 hover:bg-pink-50 transition relative cursor-pointer gap-2"
+              onClick={() => setShowMonthlySummary(true)}
+              aria-label="ดูสรุปยอดรวมรายเดือน"
+            >
+              <span className="text-xs text-gray-500 flex items-center gap-1"><Coins className="w-4 h-4 text-green-400 inline-block" />รวมทั้งหมด</span>
+              <span className="font-bold text-green-600 text-2xl">{sumAll.toLocaleString()}G</span>
+              <ChevronRight className="w-5 h-5 text-pink-400 ml-2" />
+            </button>
           </div>
         </div>
         <div className="overflow-x-auto hidden md:block">
@@ -822,6 +870,91 @@ export default function GuildDonateHistoryPage() {
         onClose={() => setShowHistoryModal(false)}
         donations={userDonations}
       />
+      <Dialog open={showMonthlySummary} onOpenChange={setShowMonthlySummary}>
+        <DialogContent className="max-w-md md:max-w-md w-[94vw] p-0 bg-white dark:bg-zinc-900 border-0 shadow-xl rounded-2xl overflow-hidden">
+          <DialogHeader className="sticky top-0 z-10 bg-white dark:bg-zinc-900 px-3 pt-4 pb-2 border-b border-pink-100 dark:border-zinc-700">
+            <DialogTitle className="text-xl font-bold text-pink-700 dark:text-pink-300 flex items-center gap-2">
+              <span className="text-2xl">📅</span> สรุปยอดบริจาคแต่ละเดือน
+            </DialogTitle>
+          </DialogHeader>
+          <div className="max-h-[80vh] overflow-y-auto px-2 py-2 md:px-4 md:py-4 bg-white dark:bg-zinc-900">
+            {monthlySummary.length === 0 && (
+              <div className="text-center text-gray-400 dark:text-gray-500 py-8">ยังไม่มีข้อมูลบริจาค</div>
+            )}
+            {monthlySummary.map(month => {
+              const key = `${month.year}-${month.month}`;
+              const isExpanded = expandedMonths[key] ?? false;
+              const monthName = new Date(month.year, month.month).toLocaleString('th-TH', { year: 'numeric', month: 'long' });
+              const monthSum = month.donations.reduce((sum, d) => sum + d.amount, 0);
+              return (
+                <div key={key} className="mb-4 border border-pink-100 dark:border-zinc-700 rounded-xl bg-pink-50/60 dark:bg-zinc-800/60 shadow-sm">
+                  <button
+                    className="w-full flex items-center px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-300 rounded-t-xl bg-pink-100/60 dark:bg-zinc-800/80"
+                    onClick={() => setExpandedMonths(prev => ({ ...prev, [key]: !isExpanded }))}
+                    aria-expanded={isExpanded}
+                  >
+                    <span className="font-bold text-pink-700 dark:text-pink-200 text-base flex items-center gap-2">{monthName}</span>
+                    <div className="flex-1 flex justify-end items-center gap-2">
+                      <span
+                        className="flex items-center gap-1 px-3 py-1 rounded-full bg-gradient-to-r from-pink-100 via-yellow-100 to-green-100 dark:from-zinc-700 dark:via-yellow-900 dark:to-green-900 text-emerald-700 dark:text-emerald-200 text-base font-bold border border-pink-200 dark:border-zinc-700 shadow-sm mr-1 min-w-[100px] justify-center transition-transform transition-shadow duration-150 hover:scale-105 hover:shadow-md focus:scale-105 focus:shadow-md"
+                        style={{ boxShadow: '0 2px 8px 0 rgba(255, 192, 203, 0.10)' }}
+                      >
+                        <Coins className="w-5 h-5 mr-1" style={{ color: '#facc15' }} aria-label="รวม" />
+                        {monthSum.toLocaleString()}G
+                      </span>
+                      {isExpanded
+                        ? <ChevronUp className="w-5 h-5 text-pink-400" />
+                        : <ChevronDown className="w-5 h-5 text-pink-400" />}
+                    </div>
+                  </button>
+                  {isExpanded && (
+                    <div className="px-4 py-3 bg-white dark:bg-zinc-900 rounded-b-xl max-h-[40vh] overflow-y-auto">
+                      {month.donations.length === 0 ? (
+                        <div className="text-gray-400 dark:text-gray-500 text-center py-4">ไม่มีข้อมูลบริจาคในเดือนนี้</div>
+                      ) : (
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="text-gray-500 dark:text-gray-400 border-b border-pink-100 dark:border-zinc-700">
+                              <th className="text-left py-1">#</th>
+                              <th className="text-left py-1">Discord</th>
+                              <th className="text-right py-1">ยอดบริจาค (G)</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {month.donations.map((donor, idx) => {
+                              let medal = null;
+                              let color = '';
+                              if (idx === 0) {
+                                medal = <Award className="inline-block mr-1" style={{ color: '#FFD700' }} aria-label="อันดับ 1" />;
+                                color = 'text-yellow-600 dark:text-yellow-300 font-bold';
+                              } else if (idx === 1) {
+                                medal = <Award className="inline-block mr-1" style={{ color: '#C0C0C0' }} aria-label="อันดับ 2" />;
+                                color = 'text-gray-500 dark:text-gray-300 font-bold';
+                              } else if (idx === 2) {
+                                medal = <Award className="inline-block mr-1" style={{ color: '#CD7F32' }} aria-label="อันดับ 3" />;
+                                color = 'text-orange-700 dark:text-orange-300 font-bold';
+                              } else {
+                                color = 'text-gray-700 dark:text-gray-200';
+                              }
+                              return (
+                                <tr key={donor.userId} className="border-b border-pink-50 dark:border-zinc-800 last:border-0">
+                                  <td className="py-1 pr-2 text-gray-400 dark:text-gray-500">{idx + 1}</td>
+                                  <td className={`py-1 flex items-center ${color}`}>{medal}{donor.discordName}</td>
+                                  <td className={`py-1 text-right font-bold ${color}`}>{donor.amount.toLocaleString()}G</td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 } 
