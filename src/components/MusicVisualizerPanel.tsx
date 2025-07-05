@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Music, Volume2, X, Maximize2, Minimize2 } from 'lucide-react';
 import AudioVisualizer from './AudioVisualizer';
@@ -23,6 +23,29 @@ export default function MusicVisualizerPanel({
   const [isMinimized, setIsMinimized] = useState(false);
   const [visualizerType, setVisualizerType] = useState<'bars' | 'circular' | 'waveform' | 'particles' | 'waves'>('bars');
   const [isPlaying, setIsPlaying] = useState(false);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+
+  // สร้าง AudioContext และ Analyser สำหรับ AudioVisualizer
+  useEffect(() => {
+    if (!audioElement || !isVisible) return;
+
+    // ตรวจสอบว่าเป็น browser environment
+    if (typeof window === 'undefined') return;
+
+    try {
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const analyser = audioContext.createAnalyser();
+      const source = audioContext.createMediaElementSource(audioElement);
+
+      analyser.fftSize = 256;
+      source.connect(analyser);
+      analyser.connect(audioContext.destination);
+
+      analyserRef.current = analyser;
+    } catch (error) {
+      console.warn('AudioContext not supported:', error);
+    }
+  }, [audioElement, isVisible]);
 
   const handleToggleMinimize = () => {
     setIsMinimized(!isMinimized);
@@ -123,6 +146,7 @@ export default function MusicVisualizerPanel({
                 <div className="flex flex-col items-center gap-4">
                   {visualizerType === 'bars' ? (
                     <AudioVisualizer 
+                      analyser={analyserRef.current}
                       audioElement={audioElement}
                       isVisible={true}
                       className="w-full max-w-sm"
