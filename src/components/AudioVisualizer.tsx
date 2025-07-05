@@ -24,7 +24,7 @@ export default function AudioVisualizer({
   useEffect(() => {
     if (!analyser || !isVisible) return;
 
-    analyser.fftSize = 128;
+    analyser.fftSize = 512;
     const bufferLength = analyser.frequencyBinCount;
     const dataArray = new Uint8Array(bufferLength);
     dataArrayRef.current = dataArray;
@@ -39,12 +39,17 @@ export default function AudioVisualizer({
       animationRef.current = requestAnimationFrame(draw);
       analyser.getByteFrequencyData(dataArrayRef.current);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const barWidth = (canvas.width / dataArrayRef.current.length) * 4.2;
+      const barWidth = (canvas.width / dataArrayRef.current.length) * 6.0;
       let barHeight;
       let x = 0;
       for (let i = 0; i < dataArrayRef.current.length; i++) {
-        const hue = (360 * i) / dataArrayRef.current.length;
-        ctx.fillStyle = `hsl(${hue}, 100%, 68%)`;
+        // สร้างสีรุ้งแบบ random แต่ยังคงความต่อเนื่อง
+        const baseHue = (360 * i) / dataArrayRef.current.length;
+        const randomOffset = Math.sin(i * 0.1 + Date.now() * 0.001) * 30;
+        const hue = (baseHue + randomOffset + 360) % 360;
+        const saturation = 80 + Math.sin(i * 0.2) * 20; // 60-100%
+        const lightness = 60 + Math.sin(i * 0.3) * 10; // 50-70%
+        ctx.fillStyle = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
         barHeight = ((dataArrayRef.current[i] / 255) ** 1.2) * canvas.height * 1.7;
         ctx.globalAlpha = 1;
         ctx.beginPath();
