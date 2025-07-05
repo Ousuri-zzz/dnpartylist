@@ -3149,3 +3149,28 @@ html.dark body {
   background-repeat: no-repeat;
   background-attachment: fixed;
 }
+
+/* Hide native range thumb for custom slider in BackgroundMusic */
+input[type="range"].slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 0;
+  height: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+input[type="range"].slider::-moz-range-thumb {
+  width: 0;
+  height: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+input[type="range"].slider::-ms-thumb {
+  width: 0;
+  height: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}

@@ -2,6 +2,7 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import { Metadata } from 'next';
 import ClientLayout from '@/components/ClientLayout';
+import BackgroundMusic from '@/components/BackgroundMusic';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -53,6 +54,11 @@ export default function RootLayout({
         <ClientLayout>
           {children}
         </ClientLayout>
+        <BackgroundMusic 
+          audioSrc="/audio/background-music.mp3"
+          autoPlay={false}
+          loop={true}
+        />
       </body>
     </html>
   );
