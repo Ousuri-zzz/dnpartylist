@@ -36,6 +36,7 @@ interface CreateEventModalProps {
     notifyMessage: string;
     color: string;
     maxGroupSize: number;
+    link?: string;
   }) => void;
   defaultValues?: {
     name: string;
@@ -46,6 +47,7 @@ interface CreateEventModalProps {
     notifyMessage: string;
     color: string;
     maxGroupSize: number;
+    link?: string;
   };
   isEdit?: boolean;
 }
@@ -66,6 +68,7 @@ export function CreateEventModal({ isOpen, onClose, onSubmit, defaultValues, isE
   const [notifyMessage, setNotifyMessage] = useState(defaultValues?.notifyMessage || '');
   const [color, setColor] = useState(defaultValues?.color || '#FFB5E8');
   const [maxGroupSize, setMaxGroupSize] = useState(defaultValues?.maxGroupSize && (defaultValues?.maxGroupSize > 0) ? defaultValues?.maxGroupSize : 0);
+  const [link, setLink] = useState(defaultValues?.link || '');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
@@ -110,6 +113,7 @@ export function CreateEventModal({ isOpen, onClose, onSubmit, defaultValues, isE
       setColor(defaultValues.color || '#FFB5E8');
       setMaxGroupSize(defaultValues.maxGroupSize && (defaultValues.maxGroupSize > 0) ? defaultValues.maxGroupSize : 0);
       setGroupEnabled((defaultValues.maxGroupSize ?? 0) > 0);
+      setLink(defaultValues.link || '');
       if (defaultValues.startAt) {
         const d = new Date(defaultValues.startAt);
         setTime(d.toTimeString().slice(0,5));
@@ -185,6 +189,7 @@ export function CreateEventModal({ isOpen, onClose, onSubmit, defaultValues, isE
         notifyMessage,
         color,
         maxGroupSize: groupEnabled ? maxGroupSize : 0,
+        link,
       });
       handleClose();
     } catch (err: any) {
@@ -205,6 +210,7 @@ export function CreateEventModal({ isOpen, onClose, onSubmit, defaultValues, isE
     setColor('#FFB5E8');
     setMaxGroupSize(0);
     setGroupEnabled(false);
+    setLink('');
     onClose();
   };
 
@@ -381,6 +387,19 @@ export function CreateEventModal({ isOpen, onClose, onSubmit, defaultValues, isE
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRewardInfo(e.target.value)}
               className="w-full rounded-lg border-yellow-200 focus:ring-2 focus:ring-yellow-300 bg-white"
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="link" className="flex items-center gap-2 text-blue-700"><span className="text-lg">🔗</span>ลิงก์ (ไม่บังคับ)</Label>
+            <Input
+              id="link"
+              type="url"
+              placeholder="https://example.com"
+              value={link}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLink(e.target.value)}
+              className="w-full rounded-lg border-blue-200 focus:ring-2 focus:ring-blue-300 bg-white"
+            />
+            <p className="text-xs text-gray-500">ใส่ลิงก์ที่เกี่ยวข้องกับกิจกรรม เช่น Discord, Google Meet, หรือเว็บไซต์อื่นๆ</p>
           </div>
 
           <div className="space-y-2">

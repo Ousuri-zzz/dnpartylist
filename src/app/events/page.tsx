@@ -132,9 +132,9 @@ export default function EventsPage() {
     }
   }, [justEndedId, router]);
 
-  const handleCreateEvent = async (data: { name: string; description: string; startAt: Date; endAt: Date; rewardInfo: string; notifyMessage: string; color: string; maxGroupSize: number; }) => {
+  const handleCreateEvent = async (data: { name: string; description: string; startAt: Date; endAt: Date; rewardInfo: string; notifyMessage: string; color: string; maxGroupSize: number; link?: string; }) => {
     if (!user) return;
-    const { name, description, startAt, endAt, rewardInfo, notifyMessage, color, maxGroupSize } = data;
+    const { name, description, startAt, endAt, rewardInfo, notifyMessage, color, maxGroupSize, link } = data;
     const eventData = {
       name,
       description,
@@ -146,7 +146,8 @@ export default function EventsPage() {
       ownerUid: user.uid,
       createdAt: serverTimestamp(),
       isEnded: false,
-      ...(maxGroupSize > 0 ? { maxGroupSize } : {})
+      ...(maxGroupSize > 0 ? { maxGroupSize } : {}),
+      ...(link ? { link } : {})
     };
     await addDoc(collection(firestore, 'events'), eventData);
     router.push('/events');

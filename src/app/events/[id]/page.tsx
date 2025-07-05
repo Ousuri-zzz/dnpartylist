@@ -383,20 +383,28 @@ export default function EventDetailPage() {
   };
 
   // ฟังก์ชันอัปเดตกิจกรรม
-  const handleEditEvent = async (data: { name: string; description: string; startAt: Date; endAt: Date; rewardInfo: string; notifyMessage: string; color: string; maxGroupSize: number; }) => {
-    if (!user || !event) return;
-    const { name, description, startAt, endAt, rewardInfo, color, maxGroupSize } = data;
-    await updateDoc(doc(firestore, 'events', event.id), {
-      name,
-      description,
-      startAt,
-      endAt,
-      rewardInfo,
-      color,
-      maxGroupSize,
-    });
-    setIsEditModalOpen(false);
-    router.push('/events');
+  const handleEditEvent = async (data: { name: string; description: string; startAt: Date; endAt: Date; rewardInfo: string; notifyMessage: string; color: string; maxGroupSize: number; link?: string; }) => {
+    if (!event) return;
+    try {
+      await updateDoc(doc(firestore, 'events', event.id), {
+        name: data.name,
+        description: data.description,
+        startAt: data.startAt,
+        endAt: data.endAt,
+        rewardInfo: data.rewardInfo,
+        notifyMessage: data.notifyMessage,
+        color: data.color,
+        maxGroupSize: data.maxGroupSize,
+        ...(data.link ? { link: data.link } : { link: null })
+      });
+      setToast({ show: true, message: 'แก้ไขกิจกรรมเรียบร้อยแล้ว' });
+      setTimeout(() => setToast({ show: false, message: '' }), 3000);
+      setIsEditModalOpen(false);
+    } catch (error) {
+      console.error('Error updating event:', error);
+      setToast({ show: true, message: 'เกิดข้อผิดพลาดในการแก้ไขกิจกรรม' });
+      setTimeout(() => setToast({ show: false, message: '' }), 3000);
+    }
   };
 
   // ฟังก์ชันลบกิจกรรม
@@ -782,6 +790,20 @@ export default function EventDetailPage() {
             <div className="flex items-center h-12 w-full mb-0 mt-4">
               <CountdownOrEnded event={event} startDate={startDate} />
             </div>
+            {/* ปุ่มลิงก์ (ถ้ามี) */}
+            {event.link && (
+              <div className="mt-4">
+                <a
+                  href={event.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold transition-colors duration-200 shadow-sm hover:shadow-md"
+                >
+                  <span className="text-lg">🔗</span>
+                  เปิดลิงก์กิจกรรม
+                </a>
+              </div>
+            )}
             {/* เฉพาะเจ้าของกิจกรรมเท่านั้นที่เห็น UI ประกาศ Discord */}
             {user.uid === event.ownerUid && !event.isEnded && (
               <motion.div initial={{opacity:0, y:10}} animate={{opacity:1, y:0}} transition={{duration:0.4}} className="my-8 p-6 bg-gradient-to-r from-blue-50 to-purple-100 border-2 border-blue-200/60 rounded-2xl shadow-lg" id="event-announce-box">
@@ -1204,7 +1226,8 @@ export default function EventDetailPage() {
                   rewardInfo: event.rewardInfo,
                   notifyMessage: event.notifyMessage || '',
                   color: event.color || '#FFB5E8',
-                  maxGroupSize: event.maxGroupSize ?? 0
+                  maxGroupSize: event.maxGroupSize ?? 0,
+                  link: event.link || ''
                 }}
                 isEdit
               />
