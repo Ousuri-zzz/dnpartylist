@@ -17,8 +17,8 @@ export default function BackgroundMusic({
 }: BackgroundMusicProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
-  const MAX_VOLUME = 0.15; // จำกัดความดังสูงสุดที่ 15%
-  const [volume, setVolume] = useState(20); // ตั้งต้นที่ 20%
+  const MAX_VOLUME = 1.0; // จำกัดความดังสูงสุดที่ 100%
+  const [volume, setVolume] = useState(50); // ตั้งต้นที่ 50%
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
   const [isHoveringSlider, setIsHoveringSlider] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -34,9 +34,11 @@ export default function BackgroundMusic({
       audio.muted = true;
     }
 
-    // ตั้ง volume เป็น 20% ทุกครั้งที่เข้า (แต่จริงๆ คือ 20% ของ MAX_VOLUME)
-    setVolume(20);
-    audio.volume = (20 / 100) * MAX_VOLUME;
+    // Load volume from localStorage หรือใช้ค่าเริ่มต้น 50%
+    const savedVolume = localStorage.getItem('bgMusicVolume');
+    const initialVolume = savedVolume ? parseInt(savedVolume) : 50;
+    setVolume(initialVolume);
+    audio.volume = (initialVolume / 100) * MAX_VOLUME;
 
     // Trigger play on first user interaction (click/touch)
     const tryPlay = () => {
