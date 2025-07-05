@@ -42,18 +42,25 @@ export default function MusicPlayerWithEffects({
     const audio = audioRef.current;
     if (!audio) return;
 
-    // Load muted state from localStorage
-    const savedMuted = localStorage.getItem('bgMusicMuted');
-    if (savedMuted === 'true') {
-      setIsMuted(true);
-      audio.muted = true;
-    }
+    // ตรวจสอบว่าเป็น browser environment
+    if (typeof window === 'undefined') return;
 
-    // Load volume from localStorage
-    const savedVolume = localStorage.getItem('bgMusicVolume');
-    const initialVolume = savedVolume ? parseInt(savedVolume) : 50;
-    setVolume(initialVolume);
-    audio.volume = (initialVolume / 100) * MAX_VOLUME;
+    // Load muted state from localStorage
+    try {
+      const savedMuted = localStorage.getItem('bgMusicMuted');
+      if (savedMuted === 'true') {
+        setIsMuted(true);
+        audio.muted = true;
+      }
+
+      // Load volume from localStorage
+      const savedVolume = localStorage.getItem('bgMusicVolume');
+      const initialVolume = savedVolume ? parseInt(savedVolume) : 50;
+      setVolume(initialVolume);
+      audio.volume = (initialVolume / 100) * MAX_VOLUME;
+    } catch (error) {
+      console.warn('localStorage not available:', error);
+    }
 
     // Trigger play on first user interaction
     const tryPlay = async () => {
@@ -71,12 +78,16 @@ export default function MusicPlayerWithEffects({
     window.addEventListener('click', tryPlay);
     window.addEventListener('touchstart', tryPlay);
 
-    const savedPlaying = localStorage.getItem('bgMusicPlaying');
-    if (savedPlaying === 'true' && !isMuted) {
-      setIsPlaying(true);
-      if (autoPlay) {
-        handleAutoPlay();
+    try {
+      const savedPlaying = localStorage.getItem('bgMusicPlaying');
+      if (savedPlaying === 'true' && !isMuted) {
+        setIsPlaying(true);
+        if (autoPlay) {
+          handleAutoPlay();
+        }
       }
+    } catch (error) {
+      console.warn('localStorage not available:', error);
     }
 
     // Event listeners
@@ -105,14 +116,22 @@ export default function MusicPlayerWithEffects({
 
   useEffect(() => {
     if (!audioRef.current) return;
+    
+    // ตรวจสอบว่าเป็น browser environment
+    if (typeof window === 'undefined') return;
+    
     if (!audioContextRef.current) {
-      audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
-      const analyser = audioContextRef.current.createAnalyser();
-      analyser.fftSize = 256;
-      analyserRef.current = analyser;
-      sourceNodeRef.current = audioContextRef.current.createMediaElementSource(audioRef.current);
-      sourceNodeRef.current.connect(analyser);
-      analyser.connect(audioContextRef.current.destination);
+      try {
+        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+        const analyser = audioContextRef.current.createAnalyser();
+        analyser.fftSize = 256;
+        analyserRef.current = analyser;
+        sourceNodeRef.current = audioContextRef.current.createMediaElementSource(audioRef.current);
+        sourceNodeRef.current.connect(analyser);
+        analyser.connect(audioContextRef.current.destination);
+      } catch (error) {
+        console.warn('AudioContext not supported:', error);
+      }
     }
   }, []);
 
@@ -129,7 +148,11 @@ export default function MusicPlayerWithEffects({
     const newMuted = !isMuted;
     audio.muted = newMuted;
     setIsMuted(newMuted);
-    localStorage.setItem('bgMusicMuted', newMuted.toString());
+    try {
+      localStorage.setItem('bgMusicMuted', newMuted.toString());
+    } catch (error) {
+      console.warn('localStorage not available:', error);
+    }
     if (newMuted) {
       setIsPlaying(false);
     } else {
@@ -144,11 +167,19 @@ export default function MusicPlayerWithEffects({
     if (!audio) return;
     setVolume(newVolume);
     audio.volume = (newVolume / 100) * MAX_VOLUME;
-    localStorage.setItem('bgMusicVolume', newVolume.toString());
+    try {
+      localStorage.setItem('bgMusicVolume', newVolume.toString());
+    } catch (error) {
+      console.warn('localStorage not available:', error);
+    }
     if (isMuted && newVolume > 0) {
       setIsMuted(false);
       audio.muted = false;
-      localStorage.setItem('bgMusicMuted', 'false');
+      try {
+        localStorage.setItem('bgMusicMuted', 'false');
+      } catch (error) {
+        console.warn('localStorage not available:', error);
+      }
     }
     if (newVolume > 0) {
       audio.play().catch(() => {});
@@ -165,7 +196,11 @@ export default function MusicPlayerWithEffects({
         setIsPlaying(false);
       });
       setIsPlaying(true);
-      localStorage.setItem('bgMusicPlaying', 'true');
+      try {
+        localStorage.setItem('bgMusicPlaying', 'true');
+      } catch (error) {
+        console.warn('localStorage not available:', error);
+      }
     }
   };
 
@@ -231,6 +266,9 @@ export default function MusicPlayerWithEffects({
   }, []);
 
   useEffect(() => {
+    // ตรวจสอบว่าเป็น browser environment
+    if (typeof window === 'undefined') return;
+    
     const checkMobile = () => setIsMobile(window.innerWidth < 600);
     checkMobile();
     window.addEventListener('resize', checkMobile);
@@ -314,6 +352,7 @@ export default function MusicPlayerWithEffects({
               <div className="flex flex-col items-center gap-4">
                 {visualizerType === 'bars' ? (
                   <AudioVisualizer 
+                    analyser={analyserRef.current}
                     audioElement={audioRef.current}
                     isVisible={true}
                     className="w-full max-w-sm"
@@ -380,4 +419,4 @@ export default function MusicPlayerWithEffects({
       />
     </div>
   );
-} 
+}

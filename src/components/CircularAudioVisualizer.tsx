@@ -25,19 +25,28 @@ export default function CircularAudioVisualizer({
   useEffect(() => {
     if (!audioElement || !isVisible) return;
 
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-    const analyser = audioContext.createAnalyser();
-    const source = audioContext.createMediaElementSource(audioElement);
+    // ตรวจสอบว่าเป็น browser environment
+    if (typeof window === 'undefined') return;
 
-    analyser.fftSize = 512;
-    const bufferLength = analyser.frequencyBinCount;
-    const dataArray = new Uint8Array(bufferLength);
+    let audioContext: AudioContext;
+    try {
+      audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const analyser = audioContext.createAnalyser();
+      const source = audioContext.createMediaElementSource(audioElement);
 
-    source.connect(analyser);
-    analyser.connect(audioContext.destination);
+      analyser.fftSize = 256;
+      const bufferLength = analyser.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
 
-    analyserRef.current = analyser;
-    dataArrayRef.current = dataArray;
+      source.connect(analyser);
+      analyser.connect(audioContext.destination);
+
+      analyserRef.current = analyser;
+      dataArrayRef.current = dataArray;
+    } catch (error) {
+      console.warn('AudioContext not supported:', error);
+      return;
+    }
 
     const canvas = canvasRef.current;
     if (!canvas) return;

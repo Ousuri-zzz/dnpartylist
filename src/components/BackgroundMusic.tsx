@@ -36,18 +36,25 @@ export default function BackgroundMusic({
     const audio = audioRef.current;
     if (!audio) return;
 
-    // Load muted state from localStorage
-    const savedMuted = localStorage.getItem('bgMusicMuted');
-    if (savedMuted === 'true') {
-      setIsMuted(true);
-      audio.muted = true;
-    }
+    // ตรวจสอบว่าเป็น browser environment
+    if (typeof window === 'undefined') return;
 
-    // Load volume from localStorage หรือใช้ค่าเริ่มต้น 50%
-    const savedVolume = localStorage.getItem('bgMusicVolume');
-    const initialVolume = savedVolume ? parseInt(savedVolume) : 50;
-    setVolume(initialVolume);
-    audio.volume = (initialVolume / 100) * MAX_VOLUME;
+    // Load muted state from localStorage
+    try {
+      const savedMuted = localStorage.getItem('bgMusicMuted');
+      if (savedMuted === 'true') {
+        setIsMuted(true);
+        audio.muted = true;
+      }
+
+      // Load volume from localStorage หรือใช้ค่าเริ่มต้น 50%
+      const savedVolume = localStorage.getItem('bgMusicVolume');
+      const initialVolume = savedVolume ? parseInt(savedVolume) : 50;
+      setVolume(initialVolume);
+      audio.volume = (initialVolume / 100) * MAX_VOLUME;
+    } catch (error) {
+      console.warn('localStorage not available:', error);
+    }
 
     // Trigger play on first user interaction (click/touch)
     const tryPlay = () => {
@@ -62,12 +69,16 @@ export default function BackgroundMusic({
     window.addEventListener('click', tryPlay);
     window.addEventListener('touchstart', tryPlay);
 
-    const savedPlaying = localStorage.getItem('bgMusicPlaying');
-    if (savedPlaying === 'true' && !isMuted) {
-      setIsPlaying(true);
-      if (autoPlay) {
-        handleAutoPlay();
+    try {
+      const savedPlaying = localStorage.getItem('bgMusicPlaying');
+      if (savedPlaying === 'true' && !isMuted) {
+        setIsPlaying(true);
+        if (autoPlay) {
+          handleAutoPlay();
+        }
       }
+    } catch (error) {
+      console.warn('localStorage not available:', error);
     }
 
     // Event listeners
@@ -104,7 +115,11 @@ export default function BackgroundMusic({
     setIsMuted(newMuted);
     
     // Save to localStorage
-    localStorage.setItem('bgMusicMuted', newMuted.toString());
+    try {
+      localStorage.setItem('bgMusicMuted', newMuted.toString());
+    } catch (error) {
+      console.warn('localStorage not available:', error);
+    }
     
     if (newMuted) {
       setIsPlaying(false);
@@ -121,12 +136,20 @@ export default function BackgroundMusic({
 
     setVolume(newVolume);
     audio.volume = (newVolume / 100) * MAX_VOLUME;
-    localStorage.setItem('bgMusicVolume', newVolume.toString());
+    try {
+      localStorage.setItem('bgMusicVolume', newVolume.toString());
+    } catch (error) {
+      console.warn('localStorage not available:', error);
+    }
 
     if (isMuted && newVolume > 0) {
       setIsMuted(false);
       audio.muted = false;
-      localStorage.setItem('bgMusicMuted', 'false');
+      try {
+        localStorage.setItem('bgMusicMuted', 'false');
+      } catch (error) {
+        console.warn('localStorage not available:', error);
+      }
     }
     if (newVolume > 0) {
       audio.play().catch(() => {});
@@ -143,7 +166,11 @@ export default function BackgroundMusic({
         setIsPlaying(false);
       });
       setIsPlaying(true);
-      localStorage.setItem('bgMusicPlaying', 'true');
+      try {
+        localStorage.setItem('bgMusicPlaying', 'true');
+      } catch (error) {
+        console.warn('localStorage not available:', error);
+      }
     }
   };
 
@@ -163,17 +190,16 @@ export default function BackgroundMusic({
     timerRef.current = setTimeout(() => setIsExpanded(false), 3000);
   };
 
-  // สำหรับ mobile: หุบ
   const handleCollapseMobile = () => {
     setIsExpanded(false);
     if (timerRef.current) clearTimeout(timerRef.current);
   };
 
-  // สำหรับ slider: ขณะลากไม่ให้หุบ
   const handleSliderStart = () => {
     setIsDragging(true);
     if (timerRef.current) clearTimeout(timerRef.current);
   };
+  
   const handleSliderEnd = () => {
     setIsDragging(false);
     if (isMobile) {
@@ -181,14 +207,12 @@ export default function BackgroundMusic({
     }
   };
 
-  // เมื่อ mouse ออกจากแถบ หุบทันที
   const handleMouseLeave = () => {
     setIsHovering(false);
     if (timerRef.current) clearTimeout(timerRef.current);
     if (!isMobile) setIsExpanded(false);
   };
 
-  // เมื่อ mouse อยู่บนแถบ ไม่ให้หุบ
   const handleMouseEnter = () => {
     setIsHovering(true);
     if (timerRef.current) clearTimeout(timerRef.current);
@@ -196,12 +220,13 @@ export default function BackgroundMusic({
   };
 
   useEffect(() => {
-    // cleanup timer เมื่อ unmount
     return () => { if (timerRef.current) clearTimeout(timerRef.current); };
   }, []);
 
-  // ตรวจสอบ mobile
   useEffect(() => {
+    // ตรวจสอบว่าเป็น browser environment
+    if (typeof window === 'undefined') return;
+    
     const checkMobile = () => setIsMobile(window.innerWidth < 600);
     checkMobile();
     window.addEventListener('resize', checkMobile);

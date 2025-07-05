@@ -5,12 +5,14 @@ import { motion } from 'framer-motion';
 
 interface AudioVisualizerProps {
   analyser: AnalyserNode | null;
+  audioElement?: HTMLAudioElement | null;
   isVisible?: boolean;
   className?: string;
 }
 
 export default function AudioVisualizer({ 
   analyser, 
+  audioElement,
   isVisible = true,
   className = "" 
 }: AudioVisualizerProps) {
