@@ -23,12 +23,13 @@ import { auth } from "@/lib/firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { WEEKLY_MAX_VALUES } from '@/constants/checklist';
 import { motion } from 'framer-motion';
-import { ClipboardCheck, ClipboardCopy } from 'lucide-react';
+import { ClipboardCheck, ClipboardCopy, Download, Trash2, Plus } from 'lucide-react';
 import { resetChecklist } from '@/lib/checklist';
 import Link from 'next/link';
 import { FaCoins } from 'react-icons/fa';
 import { Wand2 } from 'lucide-react';
 import 'rpg-awesome/css/rpg-awesome.min.css';
+import { ref as dbRef, get as dbGet } from 'firebase/database';
 
 const CHARACTER_CLASSES: CharacterClass[] = [
   'Sword Master',
@@ -306,6 +307,19 @@ export default function MyPage() {
   });
   const [newCharacterLevel, setNewCharacterLevel] = useState('');
   const [copied, setCopied] = useState<'th' | 'en' | null>(null);
+  
+  // Mod Modal states
+  const [isModModalOpen, setIsModModalOpen] = useState(false);
+  const [isAddModModalOpen, setIsAddModModalOpen] = useState(false);
+  const [mods, setMods] = useState<any[]>([]);
+  const [newMod, setNewMod] = useState({
+    name: '',
+    description: '',
+    link: ''
+  });
+  const [userRole, setUserRole] = useState<'leader' | 'member'>('member');
+  const [guild, setGuild] = useState<any>(null);
+  const [modUserNames, setModUserNames] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (!user && !authLoading) {
@@ -409,6 +423,33 @@ export default function MyPage() {
 
     checkUserData();
   }, [user, authLoading, hasCheckedUserData]);
+
+  // ตรวจสอบสิทธิ์หัวกิลด์ (leader) จาก guild.leaders
+  useEffect(() => {
+    if (!user) return;
+    const fetchGuild = async () => {
+      try {
+        const guildRef = dbRef(database, 'guild');
+        const snapshot = await dbGet(guildRef);
+        if (snapshot.exists()) {
+          const guildData = snapshot.val();
+          setGuild(guildData);
+          if (guildData.leaders && guildData.leaders[user.uid]) {
+            setUserRole('leader');
+          } else {
+            setUserRole('member');
+          }
+        } else {
+          setGuild(null);
+          setUserRole('member');
+        }
+      } catch (error) {
+        setGuild(null);
+        setUserRole('member');
+      }
+    };
+    fetchGuild();
+  }, [user]);
 
   const handleAddCharacter = async (character: Character) => {
     if (!user) {
@@ -1084,6 +1125,93 @@ export default function MyPage() {
     setTimeout(() => setCopied(null), 1200);
   };
 
+  // Mod functions
+  const handleOpenModModal = () => {
+    setIsModModalOpen(true);
+    // ตรวจสอบสิทธิ์ผู้ใช้ (ตัวอย่าง - ควรเชื่อมต่อกับระบบกิลด์จริง)
+    // setUserRole('leader'); // หรือ 'member'
+  };
+
+  const handleAddMod = async () => {
+    if (!user || !newMod.name.trim() || !newMod.link.trim()) {
+      toast.error('กรุณากรอกชื่อและลิงก์ Mod');
+      return;
+    }
+
+    try {
+      const modRef = ref(database, 'mods');
+      const newModRef = push(modRef);
+      const modData = {
+        id: newModRef.key,
+        name: newMod.name,
+        description: newMod.description,
+        link: newMod.link,
+        addedBy: user.uid,
+        addedAt: Date.now()
+      };
+      
+      await set(newModRef, modData);
+      setNewMod({ name: '', description: '', link: '' });
+      setIsAddModModalOpen(false);
+      toast.success('เพิ่ม Mod สำเร็จ');
+    } catch (error) {
+      console.error('Error adding mod:', error);
+      toast.error('เกิดข้อผิดพลาดในการเพิ่ม Mod');
+    }
+  };
+
+  const handleDeleteMod = async (modId: string) => {
+    if (!user) return;
+
+    try {
+      const modRef = ref(database, `mods/${modId}`);
+      await remove(modRef);
+      toast.success('ลบ Mod สำเร็จ');
+    } catch (error) {
+      console.error('Error deleting mod:', error);
+      toast.error('เกิดข้อผิดพลาดในการลบ Mod');
+    }
+  };
+
+  const handleDownloadMod = (link: string) => {
+    window.open(link, '_blank');
+  };
+
+  // Load mods from database
+  useEffect(() => {
+    if (!user) return;
+
+    const modsRef = ref(database, 'mods');
+    onValue(modsRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const modsList: any[] = [];
+        snapshot.forEach((childSnapshot) => {
+          modsList.push({
+            id: childSnapshot.key,
+            ...childSnapshot.val()
+          });
+        });
+        setMods(modsList.sort((a, b) => b.addedAt - a.addedAt));
+        // ดึงชื่อผู้เพิ่ม mod
+        const uids = Array.from(new Set(modsList.map(m => m.addedBy)));
+        uids.forEach(async (uid) => {
+          if (!modUserNames[uid]) {
+            const snap = await dbGet(dbRef(database, `users/${uid}/meta/discord`));
+            if (snap.exists()) {
+              setModUserNames(prev => ({ ...prev, [uid]: snap.val() }));
+            }
+          }
+        });
+      } else {
+        setMods([]);
+      }
+    });
+
+    return () => {
+      off(modsRef);
+    };
+  }, [user]);
+
   if (authLoading || !user) {
     return (
       <div className="flex items-center justify-center">
@@ -1245,12 +1373,12 @@ export default function MyPage() {
           </div>
         </motion.div>
           {/* ขวา: ปุ่ม 20% */}
-          <div className="w-full md:w-1/5 flex flex-col gap-3 items-start md:justify-center justify-start mt-3 md:mt-0 order-last md:order-none">
+          <div className="w-full md:w-1/5 flex flex-col gap-2 items-start md:justify-center justify-start mt-3 md:mt-0 order-last md:order-none">
             <Link href="/mypage/Status" className="w-full md:w-full">
               <Button
-                className="w-full h-14 md:h-16 bg-white/80 border border-blue-200 rounded-2xl flex items-center justify-center gap-3 text-blue-700 font-semibold text-lg md:text-xl shadow-sm hover:shadow-lg hover:border-blue-400 hover:bg-blue-50 transition-all duration-200 focus:ring-2 focus:ring-blue-200"
+                className="w-full h-10 md:h-12 bg-white/80 border border-blue-200 rounded-xl flex items-center justify-center gap-2 text-blue-700 font-medium text-sm md:text-base shadow-sm hover:shadow-lg hover:border-blue-400 hover:bg-blue-50 transition-all duration-200 focus:ring-2 focus:ring-blue-200"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="!w-6 !h-6 md:!w-7 md:!h-7 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <svg xmlns="http://www.w3.org/2000/svg" className="!w-4 !h-4 md:!w-5 md:!h-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                   <rect x="3" y="3" width="18" height="18" rx="2"/>
                   <path d="M8 6h8M8 10h8M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"/>
                 </svg>
@@ -1258,12 +1386,12 @@ export default function MyPage() {
               </Button>
             </Link>
             <Button
-              className="w-full h-14 md:h-16 bg-white/80 border border-violet-200 rounded-2xl flex flex-col items-center justify-center gap-1 text-violet-700 font-semibold text-lg md:text-xl shadow-sm hover:shadow-lg hover:border-violet-400 hover:bg-violet-50 transition-all duration-200 focus:ring-2 focus:ring-violet-200"
+              className="w-full h-10 md:h-12 bg-white/80 border border-violet-200 rounded-xl flex flex-col items-center justify-center gap-1 text-violet-700 font-medium text-sm md:text-base shadow-sm hover:shadow-lg hover:border-violet-400 hover:bg-violet-50 transition-all duration-200 focus:ring-2 focus:ring-violet-200"
               onClick={() => { alert('อยู่ระหว่างพัฒนา'); }}
               type="button"
             >
-              <span className="flex items-center gap-2">
-                <Wand2 className="!w-6 !h-6 md:!w-7 md:!h-7 text-violet-500" />
+              <span className="flex items-center gap-1">
+                <Wand2 className="!w-4 !h-4 md:!w-5 md:!h-5 text-violet-500" />
                 สกิล & บิ้วแนะนำ
                 <span className="ml-1 text-xs align-middle">🚧</span>
               </span>
@@ -1271,12 +1399,24 @@ export default function MyPage() {
             </Button>
             <Link href="/split" className="w-full md:w-full">
               <Button
-                className="w-full h-14 md:h-16 bg-white/80 border border-yellow-200 rounded-2xl flex items-center justify-center gap-3 text-yellow-700 font-semibold text-lg md:text-xl shadow-sm hover:shadow-lg hover:border-yellow-400 hover:bg-yellow-50 transition-all duration-200 focus:ring-2 focus:ring-yellow-200"
+                className="w-full h-10 md:h-12 bg-white/80 border border-yellow-200 rounded-xl flex items-center justify-center gap-2 text-yellow-700 font-medium text-sm md:text-base shadow-sm hover:shadow-lg hover:border-yellow-400 hover:bg-yellow-50 transition-all duration-200 focus:ring-2 focus:ring-yellow-200"
               >
-                <FaCoins className="!w-6 !h-6 md:!w-7 md:!h-7 text-yellow-500" />
+                <FaCoins className="!w-4 !h-4 md:!w-5 md:!h-5 text-yellow-500" />
                 <span>จัดสรรของดรอปปาร์ตี้</span>
               </Button>
             </Link>
+            <Button
+              className="w-full h-10 md:h-12 bg-white/80 border border-green-200 rounded-xl flex items-center justify-center gap-2 text-green-700 font-medium text-sm md:text-base shadow-sm hover:shadow-lg hover:border-green-400 hover:bg-green-50 transition-all duration-200 focus:ring-2 focus:ring-green-200"
+              onClick={handleOpenModModal}
+              type="button"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="!w-4 !h-4 md:!w-5 md:!h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                <path d="M2 17l10 5 10-5"/>
+                <path d="M2 12l10 5 10-5"/>
+              </svg>
+              <span>โหลด Mod</span>
+            </Button>
           </div>
         </div>
         {/* Character Grid */}
@@ -1357,6 +1497,192 @@ export default function MyPage() {
 
       {/* Edit Character Modal */}
       {renderEditCharacterForm()}
+
+      {/* Mod Modal */}
+      <Dialog open={isModModalOpen} onOpenChange={setIsModModalOpen}>
+        <DialogContent className="w-full max-w-4xl max-h-[80vh] overflow-y-auto bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 border-0">
+          <DialogHeader className="space-y-3 pb-4 border-b border-gray-200 dark:border-gray-700">
+            <DialogTitle className="text-xl font-bold flex items-center gap-2 text-gray-800 dark:text-gray-100">
+              <div className="p-2 rounded-lg bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300">
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                  <path d="M2 17l10 5 10-5"/>
+                  <path d="M2 12l10 5 10-5"/>
+                </svg>
+              </div>
+              ระบบโหลด Mod
+            </DialogTitle>
+            <DialogDescription className="text-gray-600 dark:text-gray-300">
+              ดาวน์โหลด Mod สำหรับ Dragon Nest
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            {/* Add Mod Button for Leaders */}
+            {userRole === 'leader' && (
+              <div className="flex justify-end">
+                <Button
+                  onClick={() => setIsAddModModalOpen(true)}
+                  className="bg-orange-500 text-white font-bold shadow hover:shadow-lg hover:scale-105 hover:bg-orange-600 transition-all duration-200 flex items-center gap-2 px-6 py-2 rounded-xl border border-transparent dark:bg-orange-600 dark:hover:bg-orange-700 dark:text-white"
+                >
+                  <Plus className="w-5 h-5 text-white" />
+                  <span className="tracking-wide">เพิ่ม Mod ใหม่</span>
+                </Button>
+              </div>
+            )}
+
+            {/* Mods List */}
+            <div className="grid gap-4">
+              {mods.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                    <path d="M2 17l10 5 10-5"/>
+                    <path d="M2 12l10 5 10-5"/>
+                  </svg>
+                  <p>ยังไม่มี Mod ในระบบ</p>
+                  {userRole === 'leader' && (
+                    <p className="text-sm text-gray-400 mt-1">กดปุ่ม "เพิ่ม Mod ใหม่" เพื่อเพิ่ม Mod แรก</p>
+                  )}
+                </div>
+              ) : (
+                mods.map((mod) => (
+                  <motion.div
+                    key={mod.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-gradient-to-br from-white via-blue-50 to-green-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 rounded-2xl border border-gray-100 dark:border-gray-700 p-5 shadow-md hover:shadow-xl transition-all duration-200 group"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <h3 className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-600 via-blue-600 to-violet-600 dark:from-green-300 dark:via-blue-400 dark:to-violet-400 text-lg drop-shadow-sm flex items-center gap-1">
+                            <Download className="w-5 h-5 text-blue-400 dark:text-blue-300 mr-1" />
+                            {mod.name}
+                          </h3>
+                          {userRole === 'leader' && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDeleteMod(mod.id)}
+                              className="text-red-500 hover:text-white hover:bg-gradient-to-r hover:from-red-400 hover:to-pink-500 dark:hover:bg-red-900/40 p-1 rounded-full transition-colors duration-200"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          )}
+                        </div>
+                        <p className="text-gray-600 dark:text-gray-200 text-sm mb-3 font-medium">{mod.description}</p>
+                        <div className="flex items-center gap-2 text-xs">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 font-semibold">
+                            <svg className="w-3 h-3 mr-1 text-green-400" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zm3.707 6.293a1 1 0 00-1.414 0L9 11.586 7.707 10.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4a1 1 0 000-1.414z" /></svg>
+                            {modUserNames[mod.addedBy] || mod.addedBy}
+                          </span>
+                          <span className="text-gray-300 dark:text-gray-600">•</span>
+                          <span className="text-blue-500 dark:text-blue-300 font-semibold">
+                            <svg className="w-3 h-3 mr-1 inline-block text-blue-400" fill="currentColor" viewBox="0 0 20 20"><path d="M6 2a1 1 0 00-1 1v1H5a3 3 0 00-3 3v8a3 3 0 003 3h10a3 3 0 003-3V7a3 3 0 00-3-3h-1V3a1 1 0 10-2 0v1H8V3a1 1 0 00-2 0zm8 4a1 1 0 011 1v8a1 1 0 01-1 1H6a1 1 0 01-1-1V7a1 1 0 011-1h8z" /></svg>
+                            {new Date(mod.addedAt).toLocaleDateString('th-TH')}
+                          </span>
+                        </div>
+                      </div>
+                      <Button
+                        onClick={() => handleDownloadMod(mod.link)}
+                        className="bg-gradient-to-r from-green-100 via-green-200 to-white text-green-800 font-semibold shadow hover:shadow-lg hover:scale-105 transition-all duration-200 flex items-center gap-2 px-5 py-2 rounded-xl border border-green-200 dark:bg-gradient-to-r dark:from-green-900 dark:via-green-800 dark:to-gray-900 dark:text-green-200 dark:border-green-900"
+                      >
+                        <Download className="w-5 h-5 text-green-600 dark:text-green-200 drop-shadow" />
+                        <span className="tracking-wide">ดาวน์โหลด</span>
+                      </Button>
+                    </div>
+                  </motion.div>
+                ))
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Mod Modal */}
+      <Dialog open={isAddModModalOpen} onOpenChange={setIsAddModModalOpen}>
+        <DialogContent className="sm:max-w-lg bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 border-0">
+          <DialogHeader className="space-y-3 pb-4 border-b border-gray-200 dark:border-gray-700">
+            <DialogTitle className="text-xl font-bold flex items-center gap-2 text-gray-800 dark:text-gray-100">
+              <div className="p-2 rounded-lg bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300">
+                <Plus className="w-5 h-5" />
+              </div>
+              เพิ่ม Mod ใหม่
+            </DialogTitle>
+            <DialogDescription className="text-gray-600 dark:text-gray-300">
+              กรอกข้อมูล Mod ที่ต้องการเพิ่ม
+            </DialogDescription>
+          </DialogHeader>
+
+          <form onSubmit={(e) => {
+            e.preventDefault();
+            handleAddMod();
+          }} className="space-y-4">
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="mod-name" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  ชื่อ Mod *
+                </Label>
+                <Input
+                  id="mod-name"
+                  value={newMod.name}
+                  onChange={(e) => setNewMod({ ...newMod, name: e.target.value })}
+                  className="mt-1 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 focus:border-green-500 focus:ring-green-500 dark:text-gray-100"
+                  placeholder="ชื่อ Mod เช่น UI Enhancement Mod"
+                  required
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="mod-description" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  รายละเอียด
+                </Label>
+                <textarea
+                  id="mod-description"
+                  value={newMod.description}
+                  onChange={(e) => setNewMod({ ...newMod, description: e.target.value })}
+                  className="mt-1 w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md focus:border-green-500 focus:ring-green-500 dark:text-gray-100 resize-none"
+                  rows={3}
+                  placeholder="รายละเอียด Mod เช่น ปรับปรุง UI ให้สวยงามขึ้น"
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="mod-link" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  ลิงก์ดาวน์โหลด *
+                </Label>
+                <Input
+                  id="mod-link"
+                  type="url"
+                  value={newMod.link}
+                  onChange={(e) => setNewMod({ ...newMod, link: e.target.value })}
+                  className="mt-1 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 focus:border-green-500 focus:ring-green-500 dark:text-gray-100"
+                  placeholder="https://example.com/mod-download"
+                  required
+                />
+              </div>
+            </div>
+
+            <DialogFooter className="border-t border-gray-200 pt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsAddModModalOpen(false)}
+                className="border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
+              >
+                ยกเลิก
+              </Button>
+              <Button
+                type="submit"
+                className="bg-gradient-to-r from-green-500 to-emerald-500 text-white hover:from-green-600 hover:to-emerald-600 transition-all duration-200 shadow-md hover:shadow-lg"
+              >
+                เพิ่ม Mod
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 } 

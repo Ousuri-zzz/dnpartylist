@@ -227,6 +227,19 @@
           }
         }
       }
+    },
+    "mods": {
+      ".read": "auth != null",
+      "$modId": {
+        ".write": "root.child('guild/leaders/' + auth.uid).val() === true",
+        ".validate": "newData.hasChildren(['id', 'name', 'description', 'link', 'addedBy', 'addedAt'])",
+        "id": { ".validate": "newData.isString() && newData.val().length > 0" },
+        "name": { ".validate": "newData.isString() && newData.val().length > 0" },
+        "description": { ".validate": "newData.isString()" },
+        "link": { ".validate": "newData.isString() && newData.val().length > 0" },
+        "addedBy": { ".validate": "newData.isString() && root.child('guild/leaders/' + newData.val()).val() === true" },
+        "addedAt": { ".validate": "newData.isNumber()" }
+      }
     }
   }
 }
