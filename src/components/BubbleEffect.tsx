@@ -60,7 +60,7 @@ export default function BubbleEffect() {
     // สร้างฟองสบู่เริ่มต้นแบบทยอย
     const createInitialBubbles = () => {
       const bubbles: Bubble[] = [];
-      const initialBubbleCount = 20; // เริ่มต้นด้วยฟองน้อยกว่า
+      const initialBubbleCount = 15; // ลดจำนวนฟองลง
 
       for (let i = 0; i < initialBubbleCount; i++) {
         // สร้างฟองทั่วความกว้างจอ 100%
@@ -85,9 +85,9 @@ export default function BubbleEffect() {
         const maxLiftHeight = canvas.height; // 100% ของความสูงจอ
         const liftHeight = maxLiftHeight * (0.2 + Math.random() * 0.8); // สุ่มความสูง 20%-100%
 
-        // ปรับความเข้มตามโหมดธีม
-        const baseOpacity = isDarkMode ? 0.12 : 0.25; // โหมดสว่างจะเข้มกว่า
-        const opacityRange = isDarkMode ? 0.3 : 0.4; // โหมดสว่างจะมีช่วงความเข้มกว้างกว่า
+        // ปรับความเข้มตามโหมดธีม - เพิ่มความชัดขึ้นอีก 2 เท่า
+        const baseOpacity = isDarkMode ? 0.36 : 0.44; // เพิ่มความเข้มขึ้นอีก 2 เท่า
+        const opacityRange = isDarkMode ? 0.50 : 0.64; // เพิ่มช่วงความเข้มอีก 2 เท่า
 
         bubbles.push({
           id: i,
@@ -120,8 +120,9 @@ export default function BubbleEffect() {
       const maxLiftHeight = canvas.height;
       const liftHeight = maxLiftHeight * (0.2 + Math.random() * 0.8);
 
-      const baseOpacity = isDarkMode ? 0.12 : 0.25;
-      const opacityRange = isDarkMode ? 0.3 : 0.4;
+      // ปรับความเข้มตามโหมดธีม - เพิ่มความชัดขึ้นอีก 2 เท่า
+      const baseOpacity = isDarkMode ? 0.36 : 0.44; // เพิ่มความเข้มขึ้นอีก 2 เท่า
+      const opacityRange = isDarkMode ? 0.50 : 0.64; // เพิ่มช่วงความเข้มอีก 2 เท่า
 
       return {
         id: Date.now() + Math.random(), // ใช้ timestamp + random เพื่อให้ id ไม่ซ้ำ
@@ -148,9 +149,9 @@ export default function BubbleEffect() {
         bubble.x, bubble.y, bubble.size
       );
       
-      // สีชมพูพาสเทล
-      gradient.addColorStop(0, `rgba(255, 182, 193, ${bubble.opacity})`); // Light pink
-      gradient.addColorStop(0.3, `rgba(255, 192, 203, ${bubble.opacity * 0.8})`); // Pink
+      // สีชมพูพาสเทล - ลดความเข้มลง
+      gradient.addColorStop(0, `rgba(255, 182, 193, ${bubble.opacity * 0.8})`); // Light pink
+      gradient.addColorStop(0.3, `rgba(255, 192, 203, ${bubble.opacity * 0.7})`); // Pink
       gradient.addColorStop(0.7, `rgba(255, 182, 193, ${bubble.opacity * 0.4})`); // Light pink
       gradient.addColorStop(1, `rgba(255, 182, 193, 0)`); // Transparent
 
@@ -159,12 +160,12 @@ export default function BubbleEffect() {
       ctx.arc(bubble.x, bubble.y, bubble.size, 0, Math.PI * 2);
       ctx.fill();
 
-      // เพิ่ม highlight effect
+      // เพิ่ม highlight effect - เพิ่มความเข้มขึ้นอีก
       const highlightGradient = ctx.createRadialGradient(
         bubble.x - bubble.size * 0.3, bubble.y - bubble.size * 0.3, 0,
         bubble.x - bubble.size * 0.3, bubble.y - bubble.size * 0.3, bubble.size * 0.5
       );
-      highlightGradient.addColorStop(0, `rgba(255, 255, 255, ${bubble.opacity * 0.6})`);
+      highlightGradient.addColorStop(0, `rgba(255, 255, 255, ${bubble.opacity * 0.9})`);
       highlightGradient.addColorStop(1, `rgba(255, 255, 255, 0)`);
 
       ctx.fillStyle = highlightGradient;
@@ -233,13 +234,13 @@ export default function BubbleEffect() {
       animate(performance.now());
     }, 100);
 
-    // เพิ่มฟองใหม่แบบทยอย
+    // เพิ่มฟองใหม่แบบทยอย - ลดความถี่ลง
     const addBubbleInterval = setInterval(() => {
-      if (bubblesRef.current.length < 60) { // จำกัดจำนวนฟองสูงสุด
+      if (bubblesRef.current.length < 40) { // ลดจำนวนฟองสูงสุด
         const newBubble = createNewBubble();
         bubblesRef.current.push(newBubble);
       }
-    }, 200); // เพิ่มฟองใหม่ทุก 200ms
+    }, 300); // เพิ่มฟองใหม่ทุก 300ms (ช้าลง)
 
     return () => {
       window.removeEventListener('resize', resizeCanvas);
@@ -253,7 +254,7 @@ export default function BubbleEffect() {
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 pointer-events-none z-10"
+      className="fixed inset-0 pointer-events-none z-[-1]"
       style={{
         background: 'transparent',
       }}

@@ -10,13 +10,15 @@ import { useGuild } from '@/hooks/useGuild';
 import { useAuth } from '@/hooks/useAuth';
 import { ref, onValue } from 'firebase/database';
 import { db } from '@/lib/firebase';
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useGuildLoanNotification } from '@/hooks/useGuildLoanNotification';
 import ReactDOM from 'react-dom';
 import { FaCat } from 'react-icons/fa';
 import { toast } from 'sonner';
 import { ThemeToggle } from './ThemeToggle';
 import { useThemeContext } from './ThemeProvider';
+
+
 
 export default function Navigation() {
   const pathname = usePathname();
@@ -430,23 +432,25 @@ export default function Navigation() {
               </div>
 
               {/* โลโก้ GalaxyCat กึ่งกลางจริง (Absolute Center) */}
-              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 flex items-center justify-center gap-3 group pointer-events-none select-none">
+              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-30 flex items-center justify-center gap-3 group pointer-events-none select-none">
                 <FaCat className="w-6 h-6 drop-shadow-sm shimmer-pastel" style={{ color: '#22d3ee', filter: 'drop-shadow(0 1px 2px #fff6) brightness(1.08)' }} />
-                <span
-                  className="text-xl lg:text-2xl font-extrabold tracking-wide bg-clip-text text-transparent px-1 drop-shadow-sm shimmer-text"
-                  style={{
-                    display: 'inline-block',
-                    background: 'linear-gradient(90deg, #f9a8d4 0%, #fbc2eb 12%, #c4b5fd 25%, #a7ffeb 37%, #7dd3fc 50%, #b9fbc0 62%, #fff1fa 75%, #f9a8d4 87%, #f9a8d4 100%)',
-                    backgroundSize: '400% 100%',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    backgroundClip: 'text',
-                    color: 'transparent',
-                    filter: 'drop-shadow(0 1px 2px #fff6)'
-                  }}
-                >
-                  GalaxyCat
-                </span>
+                <div className="flex flex-col items-center relative">
+                  <span
+                    className="text-xl lg:text-2xl font-extrabold tracking-wide bg-clip-text text-transparent px-1 drop-shadow-sm shimmer-text"
+                    style={{
+                      display: 'inline-block',
+                      background: 'linear-gradient(90deg, #f9a8d4 0%, #fbc2eb 12%, #c4b5fd 25%, #a7ffeb 37%, #7dd3fc 50%, #b9fbc0 62%, #fff1fa 75%, #f9a8d4 87%, #f9a8d4 100%)',
+                      backgroundSize: '400% 100%',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                      backgroundClip: 'text',
+                      color: 'transparent',
+                      filter: 'drop-shadow(0 1px 2px #fff6)'
+                    }}
+                  >
+                    GalaxyCat
+                  </span>
+                </div>
                 <FaCat className="w-6 h-6 drop-shadow-sm shimmer-pastel" style={{ color: '#f59e42', filter: 'drop-shadow(0 1px 2px #fff6) brightness(1.08)' }} />
                 <style jsx global>{`
                   .shimmer-text {

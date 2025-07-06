@@ -4,6 +4,7 @@ import { Metadata } from 'next';
 import ClientLayout from '@/components/ClientLayout';
 import MusicPlayerWithEffects from '@/components/MusicPlayerWithEffects';
 
+
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
