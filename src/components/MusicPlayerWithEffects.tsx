@@ -230,13 +230,14 @@ export default function MusicPlayerWithEffects({
   return (
     <div className="fixed top-0 right-0 z-[100001] flex flex-col items-end px-2 py-2">
       <div
-        className="flex items-center bg-[#F6F7FB] dark:bg-[#23243a] rounded-full shadow-sm border border-[#E3F2FD] dark:border-[#35365a] max-w-[90vw] md:max-w-none transition-all duration-300 px-2"
+        className={`flex items-center transition-all duration-300 relative ${isExpanded ? 'bg-[#F6F7FB] dark:bg-[#23243a] border border-[#E3F2FD] dark:border-[#35365a] shadow-sm px-2' : 'bg-transparent border-0 shadow-none px-0'} rounded-full max-w-[90vw] md:max-w-none h-12`}
+        style={{ minWidth: isExpanded ? 140 : 48, width: isExpanded ? 180 : 48 }}
         onMouseEnter={!isMobile ? handleMouseEnter : undefined}
         onMouseLeave={!isMobile ? handleMouseLeave : undefined}
         onTouchStart={isMobile ? handleExpandMobile : handleUserInteract}
       >
         {/* slider + % */}
-        <div className={`flex items-center transition-all duration-300 overflow-hidden ${isExpanded ? 'w-28 sm:w-36 opacity-100 mr-2' : 'w-0 opacity-0 mr-0'}`} style={{minWidth:0}}>
+        <div className={`flex items-center transition-all duration-300 overflow-hidden ${isExpanded ? 'w-28 sm:w-36 opacity-100 mr-2' : 'w-0 opacity-0 mr-0'}`} style={{ minWidth: 0 }}>
           <input
             type="range"
             min="0"
@@ -254,25 +255,37 @@ export default function MusicPlayerWithEffects({
           />
           <span className="text-xs text-[#A7C7E7] dark:text-[#B2F2BB] font-medium select-none w-8 text-right ml-1">{volume}%</span>
         </div>
-        
         {/* ปุ่ม mute/unmute */}
-        <button
-          onClick={toggleMute}
-          className={`p-2 rounded-full bg-[#A7C7E7] dark:bg-[#35365a] hover:bg-[#C3B1E1] dark:hover:bg-[#23243a] transition-colors duration-200 focus:outline-none border border-[#E3F2FD] dark:border-[#35365a] ${isPlaying ? 'ring-2 ring-[#A7C7E7]/60 dark:ring-[#B2F2BB]/40 ring-offset-2' : ''}`}
-          aria-label={isMuted ? "เปิดเสียง" : "ปิดเสียง"}
-        >
-          {isMuted || volume === 0 ? (
-            <VolumeX className="h-5 w-5 text-white" />
-          ) : volume > 50 ? (
-            <Volume2 className="h-5 w-5 text-white" />
-          ) : volume > 20 ? (
-            <Volume1 className="h-5 w-5 text-white" />
-          ) : (
-            <Volume className="h-5 w-5 text-white" />
-          )}
-        </button>
+        <div className="relative flex items-center justify-center">
+          {/* Glow effect */}
+          <div
+            className={`absolute inset-0 flex items-center justify-center pointer-events-none transition-all duration-500
+              ${isPlaying ? 'opacity-90 scale-125' : 'opacity-0 scale-100'}`}
+            style={{
+              filter: 'blur(12px)',
+              background: 'radial-gradient(circle, #A7C7E7 0%, #A7C7E7 60%, transparent 90%)',
+              zIndex: 1,
+              borderRadius: '9999px',
+            }}
+          />
+          <button
+            onClick={toggleMute}
+            className={`p-2 rounded-full bg-[#A7C7E7] dark:bg-[#35365a] hover:bg-[#C3B1E1] dark:hover:bg-[#23243a] transition-colors duration-200 focus:outline-none border border-[#E3F2FD] dark:border-[#35365a] ${isPlaying ? 'ring-2 ring-[#A7C7E7]/60 dark:ring-white/10 ring-offset-2' : ''} flex-shrink-0`}
+            aria-label={isMuted ? "เปิดเสียง" : "ปิดเสียง"}
+            style={{ zIndex: 2 }}
+          >
+            {isMuted || volume === 0 ? (
+              <VolumeX className="h-5 w-5 text-white" />
+            ) : volume > 50 ? (
+              <Volume2 className="h-5 w-5 text-white" />
+            ) : volume > 20 ? (
+              <Volume1 className="h-5 w-5 text-white" />
+            ) : (
+              <Volume className="h-5 w-5 text-white" />
+            )}
+          </button>
+        </div>
       </div>
-
       <audio
         ref={audioRef}
         src={audioSrc}
