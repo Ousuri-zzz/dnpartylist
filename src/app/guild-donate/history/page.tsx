@@ -401,7 +401,8 @@ export default function GuildDonateHistoryPage() {
         <div className="mb-6 flex flex-col items-center">
           <div className="flex items-center justify-center gap-3 mb-4 px-4 py-3 rounded-2xl bg-gradient-to-r from-yellow-50 via-pink-50 to-blue-50 shadow-sm border border-pink-100">
             <Trophy className="w-8 h-8 md:w-10 md:h-10 text-yellow-400 drop-shadow" />
-            <span className="font-extrabold text-transparent text-base md:text-xl lg:text-2xl bg-clip-text bg-gradient-to-r from-pink-600 via-yellow-600 to-pink-500 tracking-wide drop-shadow-sm text-center flex items-center gap-2">
+            <span className="font-extrabold text-transparent text-base md:text-xl lg:text-2xl bg-clip-text bg-gradient-to-r from-pink-600 via-yellow-600 to-pink-500 tracking-wide drop-shadow-sm text-center flex items-center gap-2
+              dark:text-yellow-300 dark:bg-none dark:bg-clip-border dark:text-xl">
               <span>
                 อันดับ 1-3
                 <br className="block md:hidden" />

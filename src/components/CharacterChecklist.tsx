@@ -224,6 +224,12 @@ export function CharacterChecklist({ checklist, onChange, accentColor = "text-bl
     'banquetHall'
   ];
 
+  // เช็คว่า checklist daily/weekly ทำครบทุกข้อ
+  const isDailyAllComplete = Object.values(checklist.daily).every(Boolean);
+  const isWeeklyAllComplete = Object.entries(checklist.weekly).every(
+    ([key, value]) => value >= (WEEKLY_MAX_VALUES[key as keyof typeof WEEKLY_MAX_VALUES] || 0)
+  );
+
   return (
     <div className="w-full space-y-4">
       {/* Daily Tasks Section */}
@@ -258,7 +264,7 @@ export function CharacterChecklist({ checklist, onChange, accentColor = "text-bl
             <span className={cn(
               "text-sm font-medium",
               accentColor,
-              lineThroughOnComplete && checklist.daily.dailyQuest && ["line-through", "text-gray-400"]
+              (readOnly && isDailyAllComplete) || (lineThroughOnComplete && checklist.daily.dailyQuest) ? ["line-through", "text-gray-400"] : undefined
             )}>Daily Quest</span>
           </Button>
 
@@ -281,7 +287,7 @@ export function CharacterChecklist({ checklist, onChange, accentColor = "text-bl
             <span className={cn(
               "text-sm font-medium",
               accentColor,
-              lineThroughOnComplete && checklist.daily.ftg && ["line-through", "text-gray-400"]
+              (readOnly && isDailyAllComplete) || (lineThroughOnComplete && checklist.daily.ftg) ? ["line-through", "text-gray-400"] : undefined
             )}>FTG 700</span>
           </Button>
         </div>
@@ -339,7 +345,7 @@ export function CharacterChecklist({ checklist, onChange, accentColor = "text-bl
                 <span className={cn(
                   "text-sm flex-1 font-medium",
                   accentColor,
-                  lineThroughOnComplete && isCompleted && ["line-through", "text-gray-400"]
+                  (readOnly && isWeeklyAllComplete) || (lineThroughOnComplete && isCompleted) ? ["line-through", "text-gray-400"] : undefined
                 )}>
                   {displayName}
                 </span>

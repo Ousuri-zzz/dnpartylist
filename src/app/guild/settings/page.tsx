@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useUsers } from '@/hooks/useUsers';
 import { useRouter } from 'next/navigation';
@@ -160,6 +160,10 @@ export default function GuildSettingsPage() {
 
   // [1] เพิ่ม state donateSearch สำหรับช่องค้นหาบริจาคกิลด์
   const [donateSearch, setDonateSearch] = useState('');
+
+  const addLeaderInputRef = useRef<HTMLInputElement>(null);
+
+  const [showActiveMerchants, setShowActiveMerchants] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -1115,45 +1119,42 @@ export default function GuildSettingsPage() {
           </div>
 
           {isAddingLeader && (
-            <div className="mb-6 p-6 bg-pink-50 rounded-xl border border-pink-100">
+            <div className="mb-6 p-6 bg-pink-50 rounded-xl border border-pink-100 pb-16">
               <div className="relative">
-                <button
-                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className="w-full flex items-center justify-between px-4 py-3 bg-white rounded-lg border border-pink-200 focus:outline-none focus:ring-2 focus:ring-pink-500 shadow-sm"
-                >
-                  <span className={cn(
-                    "text-gray-500",
-                    selectedMember && "text-gray-700"
-                  )}>
-                    {selectedMember ? guild?.members[selectedMember]?.discordName : "เลือกสมาชิก"}
-                  </span>
-                  <ChevronDown className={cn(
-                    "w-4 h-4 text-gray-500 transition-transform",
-                    isDropdownOpen && "transform rotate-180"
-                  )} />
-                </button>
-                
-                {isDropdownOpen && (
-                  <div className="absolute z-10 w-full mt-2 bg-white rounded-lg shadow-lg border border-pink-200 max-h-60 overflow-y-auto">
-                    {Object.entries(guild?.members || {})
+                {/* ช่องค้นหาและเลือกสมาชิก */}
+                <input
+                  ref={addLeaderInputRef}
+                  type="text"
+                  placeholder="ค้นหาสมาชิก..."
+                  value={memberSearch}
+                  onChange={e => setMemberSearch(e.target.value)}
+                  className="w-full px-4 py-3 bg-white rounded-lg border border-pink-200 focus:outline-none focus:ring-2 focus:ring-pink-500 shadow-sm text-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-400 dark:border-pink-800 dark:focus:ring-pink-400"
+                />
+                {debouncedMemberSearch && (
+                  <div className="absolute z-10 w-full mt-2 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-pink-200 dark:border-pink-800 max-h-60 overflow-y-auto">
+                    {filteredMembers
                       .filter(([uid]) => !guild?.leaders[uid])
                       .map(([uid, member]) => (
                         <button
                           key={uid}
                           onClick={() => {
                             setSelectedMember(uid);
-                            setIsDropdownOpen(false);
+                            setMemberSearch(member.discordName || '');
+                            setDebouncedMemberSearch(''); // ปิด dropdown
+                            if (addLeaderInputRef.current) addLeaderInputRef.current.blur(); // blur input
                           }}
-                          className="w-full px-4 py-3 text-left hover:bg-pink-50 transition-colors"
+                          className="w-full px-4 py-3 text-left hover:bg-pink-50 dark:hover:bg-pink-800 transition-colors"
                         >
-                          <p className="font-medium text-gray-700">{member.discordName}</p>
-                          <p className="text-sm text-gray-500">UID: {uid}</p>
+                          <p className="font-medium text-gray-700 dark:text-gray-100">{member.discordName}</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">UID: {uid}</p>
                         </button>
                       ))}
+                    {filteredMembers.filter(([uid]) => !guild?.leaders[uid]).length === 0 && (
+                      <div className="px-4 py-3 text-gray-400 dark:text-gray-500">ไม่พบสมาชิก</div>
+                    )}
                   </div>
                 )}
               </div>
-
               <div className="mt-4 flex justify-end">
                 <button
                   onClick={handleAddLeader}
@@ -1268,7 +1269,8 @@ export default function GuildSettingsPage() {
                         placeholder="ค้นหาชื่อตัวละคร หรือชื่อ Discord..."
                         value={donateSearch}
                         onChange={e => setDonateSearch(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-xs md:text-base"
+                        className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-xs md:text-base
+                          dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-400 dark:border-gray-700 dark:focus:ring-green-400"
                       />
                     </div>
                   </div>
@@ -1558,7 +1560,8 @@ export default function GuildSettingsPage() {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
                 {pendingMembers.length === 0 ? (
-                  <div className="col-span-2 flex items-center justify-center p-8 bg-rose-50 rounded-xl border border-rose-100">
+                  <div className="col-span-2 flex items-center justify-center p-8 bg-rose-50 rounded-xl border border-rose-100
+                    dark:bg-rose-900/60 dark:border-rose-800">
                     <div className="text-center">
                       <UserPlus className="w-8 h-8 text-rose-400 mx-auto mb-2" />
                       <p className="text-sm text-gray-500">ไม่มีสมาชิกใหม่ที่รออนุมัติ</p>
@@ -1730,66 +1733,79 @@ export default function GuildSettingsPage() {
               </div>
               <h2 className="text-lg md:text-xl font-semibold text-gray-800">ร้านค้าที่ลงทะเบียนแล้ว</h2>
             </div>
-            <div className="relative w-full md:w-64 mt-2 md:mt-0">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search className="w-4 h-4 text-gray-400" />
-              </div>
-              <input
-                type="text"
-                placeholder="ค้นหาร้านค้า..."
-                value={merchantSearch}
-                onChange={(e) => setMerchantSearch(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-xs md:text-base"
-              />
-            </div>
+            <button
+              onClick={() => setShowActiveMerchants((v) => !v)}
+              className="flex items-center gap-2 px-3 py-1.5 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg transition-colors text-xs md:text-sm"
+              aria-expanded={showActiveMerchants}
+            >
+              {showActiveMerchants ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+              {showActiveMerchants ? 'ซ่อนร้านค้า' : 'แสดงร้านค้า'}
+            </button>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
-            {filteredActiveMerchants.length === 0 ? (
-              <div className="col-span-2 flex items-center justify-center p-8 bg-green-50 rounded-xl border border-green-100">
-                <div className="text-center">
-                  <Store className="w-8 h-8 text-green-400 mx-auto mb-2" />
-                  <p className="text-sm text-gray-500">
-                    {merchantSearch ? 'ไม่พบร้านค้าที่ตรงกับการค้นหา' : 'ยังไม่มีร้านค้าที่ลงทะเบียน'}
-                  </p>
+          {showActiveMerchants && (
+            <>
+              <div className="relative w-full md:w-64 mt-2 md:mt-0">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Search className="w-4 h-4 text-gray-400" />
                 </div>
+                <input
+                  type="text"
+                  placeholder="ค้นหาร้านค้า..."
+                  value={merchantSearch}
+                  onChange={(e) => setMerchantSearch(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-xs md:text-base
+                    dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-400 dark:border-gray-700 dark:focus:ring-green-400"
+                />
               </div>
-            ) : (
-              filteredActiveMerchants.map((merchant) => (
-                <div key={merchant.uid} className="bg-white rounded-xl p-4 md:p-6 border border-green-100 shadow-sm hover:shadow-md transition-shadow">
-                  <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-2 md:gap-0">
-                    <div className="space-y-2">
-                      <h3 className="font-medium text-gray-900">{merchant.discordName}</h3>
-                      <div className="flex items-center gap-2 text-sm text-gray-500">
-                        <Users className="w-4 h-4" />
-                        <span>{merchant.discord}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-gray-500">
-                        <Building2 className="w-4 h-4" />
-                        <span>{merchant.bankName}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-gray-500">
-                        <Shield className="w-4 h-4" />
-                        <span>{merchant.bankAccountNumber}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-gray-500">
-                        <UserPlus className="w-4 h-4" />
-                        <span>{merchant.bankAccountName}</span>
-                      </div>
-                    </div>
-                    <div className="w-full md:w-auto flex flex-row gap-x-2 md:gap-2">
-                      <button
-                        onClick={() => handleUnregisterMerchant(merchant)}
-                        className="flex-1 md:w-auto flex items-center gap-1 px-3 py-1.5 rounded-lg text-red-500 hover:bg-red-50 transition-colors text-sm font-medium"
-                      >
-                        <X className="w-4 h-4" />
-                        <span>ยกเลิก</span>
-                      </button>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4 mt-4">
+                {filteredActiveMerchants.length === 0 ? (
+                  <div className="col-span-2 flex items-center justify-center p-8 bg-green-50 rounded-xl border border-green-100">
+                    <div className="text-center">
+                      <Store className="w-8 h-8 text-green-400 mx-auto mb-2" />
+                      <p className="text-sm text-gray-500">
+                        {merchantSearch ? 'ไม่พบร้านค้าที่ตรงกับการค้นหา' : 'ยังไม่มีร้านค้าที่ลงทะเบียน'}
+                      </p>
                     </div>
                   </div>
-                </div>
-              ))
-            )}
-          </div>
+                ) : (
+                  filteredActiveMerchants.map((merchant) => (
+                    <div key={merchant.uid} className="bg-white rounded-xl p-4 md:p-6 border border-green-100 shadow-sm hover:shadow-md transition-shadow">
+                      <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-2 md:gap-0">
+                        <div className="space-y-2">
+                          <h3 className="font-medium text-gray-900">{merchant.discordName}</h3>
+                          <div className="flex items-center gap-2 text-sm text-gray-500">
+                            <Users className="w-4 h-4" />
+                            <span>{merchant.discord}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-sm text-gray-500">
+                            <Building2 className="w-4 h-4" />
+                            <span>{merchant.bankName}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-sm text-gray-500">
+                            <Shield className="w-4 h-4" />
+                            <span>{merchant.bankAccountNumber}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-sm text-gray-500">
+                            <UserPlus className="w-4 h-4" />
+                            <span>{merchant.bankAccountName}</span>
+                          </div>
+                        </div>
+                        <div className="w-full md:w-auto flex flex-row gap-x-2 md:gap-2">
+                          <button
+                            onClick={() => handleUnregisterMerchant(merchant)}
+                            className="flex-1 md:w-auto flex items-center gap-1 px-3 py-1.5 rounded-lg text-red-500 hover:bg-red-50 transition-colors text-sm font-medium"
+                          >
+                            <X className="w-4 h-4" />
+                            <span>ยกเลิก</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </>
+          )}
         </div>
 
         {/* Members Section */}
@@ -1810,7 +1826,8 @@ export default function GuildSettingsPage() {
                 placeholder="ค้นหาชื่อ Discord หรือชื่อตัวละคร..."
                 value={memberSearch}
                 onChange={(e) => setMemberSearch(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-xs md:text-base"
+                className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-xs md:text-base
+                  dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-400 dark:border-gray-700 dark:focus:ring-blue-400"
               />
             </div>
           </div>
@@ -2107,13 +2124,14 @@ export default function GuildSettingsPage() {
                     <p className="text-gray-500">ไม่พบตัวละครของสมาชิกนี้</p>
                   ) : (
                     <select
-                      className="w-full border rounded-lg p-2"
+                      className="w-full border rounded-lg p-2
+                        dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700 dark:placeholder-gray-400 dark:focus:ring-2 dark:focus:ring-orange-400"
                       value={selectedCharacterId || ''}
                       onChange={e => setSelectedCharacterId(e.target.value)}
                     >
-                      <option value="" disabled>เลือกตัวละคร</option>
+                      <option value="" disabled className="dark:bg-gray-800 dark:text-gray-400">เลือกตัวละคร</option>
                       {userCharacters.map(char => (
-                        <option key={char.characterId} value={char.characterId}>
+                        <option key={char.characterId} value={char.characterId} className="dark:bg-gray-800 dark:text-gray-100">
                           {char.name} {char.class && `(${char.class})`}
                         </option>
                       ))}

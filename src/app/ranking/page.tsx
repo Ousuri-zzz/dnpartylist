@@ -1100,6 +1100,7 @@ export default function RankingPage() {
                         onChange={() => {}}
                         accentColor={colors.text}
                         readOnly
+                        lineThroughOnComplete
                       />
                     </div>
                   </div>
