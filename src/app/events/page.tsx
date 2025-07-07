@@ -330,7 +330,7 @@ export default function EventsPage() {
               </div>
               <button
                 onClick={() => router.push('/events/history')}
-                className="w-full mt-3 flex items-center justify-center gap-2 px-4 py-2 rounded-xl border-0 bg-gradient-to-r from-pink-200 via-white to-blue-100 text-pink-700 font-bold shadow-lg hover:scale-105 hover:shadow-xl transition-all duration-150"
+                className="w-full mt-3 flex items-center justify-center gap-2 px-4 py-2 rounded-xl border-0 bg-gradient-to-r from-pink-200 via-white to-blue-100 text-pink-700 font-bold shadow-lg hover:scale-105 hover:shadow-xl transition-all duration-150 history-button"
               >
                 <History className="w-5 h-5" />
                 ประวัติกิจกรรม
@@ -340,7 +340,7 @@ export default function EventsPage() {
             <div className="flex flex-col gap-2 mt-4 w-full">
               <div className="flex flex-col gap-2 w-full">
                 {filteredEvents.length === 0 ? (
-                  <span className="text-sm font-medium text-gray-500 dark:text-gray-300 bg-white/60 dark:bg-white/10 px-4 py-2 rounded-full shadow-sm text-center">ไม่มีกิจกรรมในช่วงนี้</span>
+                  <span className="text-sm font-medium text-gray-500 bg-white/60 px-4 py-2 rounded-full shadow-sm text-center">ไม่มีกิจกรรมในช่วงนี้</span>
                 ) : (
                   filteredEvents.map(ev => {
                     const start = ev.startAt?.seconds ? new Date(ev.startAt.seconds * 1000) : null;
@@ -352,7 +352,7 @@ export default function EventsPage() {
                         <a>
                           <div
                             className={
-                              `flex items-center gap-2 rounded-xl px-3 py-2 shadow-sm border text-xs min-w-0 w-full transition-all duration-200 ${isHighlighted ? 'scale-105 shadow-xl ring-2 ring-pink-400 z-10' : ''} hover:scale-105 hover:shadow-lg cursor-pointer`
+                              `event-card flex items-center gap-2 rounded-xl px-3 py-2 shadow-sm border text-xs min-w-0 w-full transition-all duration-200 ${isHighlighted ? 'scale-105 shadow-xl ring-2 ring-pink-400 z-10' : ''} hover:scale-105 hover:shadow-lg cursor-pointer`
                             }
                             style={{
                               borderColor: ev.color || '#f9a8d4',
@@ -430,7 +430,7 @@ export default function EventsPage() {
                 <div className="text-center py-8 text-red-500">{error}</div>
               ) : filteredEvents.length === 0 ? (
                 <div className="flex justify-center py-8">
-                  <span className="text-sm font-medium text-gray-500 dark:text-gray-300 bg-white/60 dark:bg-white/10 px-4 py-2 rounded-full shadow-sm text-center">ไม่มีกิจกรรมในช่วงนี้</span>
+                  <span className="text-sm font-medium text-gray-500 bg-white/60 px-4 py-2 rounded-full shadow-sm text-center">ไม่มีกิจกรรมในช่วงนี้</span>
                 </div>
               ) : (
                 filteredEvents.map((event) => {
@@ -446,10 +446,13 @@ export default function EventsPage() {
                         <motion.div
                           initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
-                          whileHover={{ scale: 1.03, boxShadow: '0 8px 32px 0 rgba(236, 72, 153, 0.15)' }}
-                          className={
-                            "cursor-pointer border-2 rounded-2xl p-5 shadow-md hover:shadow-xl transition-all group mb-2 relative overflow-hidden"
-                          }
+                          whileHover={{ scale: 1.02 }}
+                          transition={{ 
+                            type: "spring", 
+                            stiffness: 400, 
+                            damping: 30,
+                            hover: { duration: 0.15 }
+                          }}
                           style={{
                             ...(isGradient
                               ? {
@@ -461,11 +464,24 @@ export default function EventsPage() {
                                   borderColor: event.color || '#FFB5E8',
                                 }
                             ),
-                            boxShadow: `0 0 0 1px ${(event.color && !isGradient) ? (event.color || '#FFB5E8') + '40' : '#FFB5E8' + '40'}, 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)`
+                            boxShadow: `0 0 0 1px ${(event.color && !isGradient) ? (event.color || '#FFB5E8') + '40' : '#FFB5E8' + '40'}, 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)`,
+                            willChange: 'transform',
                           }}
+                          className={
+                            "cursor-pointer border-2 rounded-2xl p-5 shadow-md hover:shadow-xl transition-all group mb-2 relative overflow-hidden event-card-smooth"
+                          }
                         >
                           {/* overlay สีขาวโปร่งใสทับทุกกรณี ให้ดู soft/pastel */}
-                          <div style={{position:'absolute',inset:0,background:'rgba(255,255,255,0.7)',zIndex:1,borderRadius:'inherit'}} />
+                          <div 
+                            style={{
+                              position:'absolute',
+                              inset:0,
+                              background:'rgba(255,255,255,0.7)',
+                              zIndex:1,
+                              borderRadius:'inherit',
+                              transition: 'opacity 0.2s ease-in-out'
+                            }} 
+                          />
                           <div style={{position:'relative',zIndex:2}}>
                             <div className="flex items-center gap-2 mb-2">
                               <span className="text-2xl">🎉</span>
@@ -478,7 +494,7 @@ export default function EventsPage() {
                               <div className="inline-flex items-start w-full min-w-0">
                                 <span className="text-lg flex-shrink-0 mt-1">📝</span>
                                 <div
-                                  className="break-words w-full ml-2 text-pink-500 text-sm font-semibold drop-shadow-sm min-w-0 bg-white/70 backdrop-blur-sm rounded-lg px-4 py-2"
+                                  className="break-words w-full ml-2 text-pink-500 text-sm font-semibold drop-shadow-sm min-w-0 bg-white/70 backdrop-blur-sm rounded-lg px-4 py-2 event-description"
                                   dangerouslySetInnerHTML={{ __html: event.description || 'ไม่มีรายละเอียดกิจกรรม' }}
                                 />
                               </div>
@@ -805,6 +821,25 @@ export default function EventsPage() {
         [data-theme="dark"] .event-scrollbar {
           scrollbar-color: #cba6f7 #232136;
         }
+        /* ปรับสีข้อความและไอคอนให้ชัดเจนในโหมดมืด */
+        [data-theme="dark"] .text-pink-600 {
+          color: #f9a8d4 !important;
+        }
+        [data-theme="dark"] .text-pink-500 {
+          color: #f9a8d4 !important;
+        }
+        [data-theme="dark"] .text-gray-500 {
+          color: #a6adc8 !important;
+        }
+        [data-theme="dark"] .text-white\/80 {
+          color: #f9a8d4 !important;
+        }
+        [data-theme="dark"] .text-white\/60 {
+          color: #cdd6f4 !important;
+        }
+        [data-theme="dark"] .text-white\/40 {
+          color: #a6adc8 !important;
+        }
         /* ===== DARK MODE THEME (เพิ่มเติม 2: ปฏิทิน กล่องกิจกรรม กล่องสรุป ปุ่ม) ===== */
         [data-theme="dark"] .bg-gradient-to-br {
           background: #181825 !important;
@@ -852,6 +887,15 @@ export default function EventsPage() {
         [data-theme="dark"] .bg-red-50 {
           background: #1e1e2e !important;
           color: #f9a8d4 !important;
+        }
+        /* ปรับกล่อง CurrentTime ให้สวยงามในโหมดมืด */
+        [data-theme="dark"] .text-pink-600 {
+          color: #f9a8d4 !important;
+        }
+        [data-theme="dark"] .bg-white\/80 {
+          background: #232136 !important;
+          color: #f9a8d4 !important;
+          border: 1px solid #cba6f7 !important;
         }
         /* ===== DARK MODE THEME (force override, เฉพาะ dark mode) ===== */
         [data-theme="dark"] .bg-gradient-to-br.from-pink-50.via-white.to-blue-50\\/80,
@@ -916,7 +960,121 @@ export default function EventsPage() {
           background: #1e1e2e !important;
           color: #f9a8d4 !important;
         }
-      `}</style>
-    </div>
-  );
-} 
+        .event-description * {
+          background-color: transparent !important;
+        }
+        [data-theme="dark"] .event-card {
+          background: #23272f !important;
+        }
+        /* ปรับสีข้อความในกล่องกิจกรรมให้ชัดเจน */
+        [data-theme="dark"] .text-pink-700 {
+          color: #f9a8d4 !important;
+        }
+        [data-theme="dark"] .text-pink-600 {
+          color: #f9a8d4 !important;
+        }
+        [data-theme="dark"] .text-pink-500 {
+          color: #f9a8d4 !important;
+        }
+        [data-theme="dark"] .text-green-600 {
+          color: #a6e3a1 !important;
+        }
+        [data-theme="dark"] .text-red-500 {
+          color: #f38ba8 !important;
+        }
+        [data-theme="dark"] .text-blue-700 {
+          color: #89b4fa !important;
+        }
+        [data-theme="dark"] .text-yellow-700 {
+          color: #f9e2af !important;
+        }
+        [data-theme="dark"] .text-red-700 {
+          color: #f38ba8 !important;
+        }
+        [data-theme="dark"] .text-blue-700 {
+          color: #89b4fa !important;
+        }
+                [data-theme="dark"] .text-yellow-700 {
+          color: #f9e2af !important;
+        }
+        /* ปรับปุ่มประวัติกิจกรรมในโหมดมืด */
+        [data-theme="dark"] .history-button {
+          background: linear-gradient(90deg, #cba6f7, #f9a8d4 80%) !important;
+          color: #232136 !important;
+          border: 1px solid #cba6f7 !important;
+        }
+        [data-theme="dark"] .history-button:hover {
+          background: linear-gradient(90deg, #f9a8d4, #cba6f7 80%) !important;
+          color: #232136 !important;
+        }
+        /* ปรับกล่องสรุปกิจกรรมในโหมดมืด */
+        [data-theme="dark"] .event-card {
+          background: #232136 !important;
+          border-color: #cba6f7 !important;
+        }
+        [data-theme="dark"] .event-card:hover {
+          background: #1e1e2e !important;
+          border-color: #f9a8d4 !important;
+        }
+        
+        /* ===== FIX FLICKERING ISSUE ===== */
+        /* ป้องกันการกระพริบเมื่อ hover เร็วๆ */
+        .cursor-pointer {
+          will-change: transform;
+          backface-visibility: hidden;
+          transform: translateZ(0);
+        }
+        
+        /* ปรับ transition ให้ smooth มากขึ้น */
+        .transition-all {
+          transition-property: all;
+          transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+          transition-duration: 200ms;
+        }
+        
+        /* ป้องกันการกระพริบของ overlay */
+        [style*='background: rgba(255,255,255,0.7)'] {
+          will-change: opacity;
+          backface-visibility: hidden;
+        }
+        
+        /* ปรับ hover effect ให้ smooth */
+        .hover\\:shadow-xl:hover {
+          box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+          transition: box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+        
+        /* ป้องกันการกระพริบใน dark mode */
+        [data-theme="dark"] .cursor-pointer {
+          will-change: transform;
+          backface-visibility: hidden;
+          transform: translateZ(0);
+        }
+        
+        [data-theme="dark"] [style*='background: rgba(24,24,37,0.7)'] {
+          will-change: opacity;
+          backface-visibility: hidden;
+        }
+        
+        /* ===== SMOOTH EVENT CARD ANIMATION ===== */
+        .event-card-smooth {
+          will-change: transform;
+          backface-visibility: hidden;
+          transform: translateZ(0);
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .event-card-smooth:hover {
+          transform: translateZ(0) scale(1.02);
+          box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+        }
+        
+        /* ป้องกันการกระพริบของ motion.div */
+        .event-card-smooth > div {
+          will-change: auto;
+          backface-visibility: hidden;
+        }
+        `}</style>
+      </div>
+    );
+  } 

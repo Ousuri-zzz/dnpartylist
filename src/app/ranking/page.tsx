@@ -474,20 +474,20 @@ export default function RankingPage() {
   }
 
   return (
-    <div className="min-h-screen py-8">
-      <div className="container mx-auto px-4">
+    <div className={cn("min-h-screen py-8", "relative")}>
+      <div className="container mx-auto px-4 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
           className="space-y-3"
         >
-          {/* Top 1 per job (modern glassmorphism, icon effect, gradient name) - MOVE TO TOP */}
+          {/* Top 1 per job */}
           <div className="w-full mt-2 mb-1">
             <div className="mb-2 flex justify-center">
-              <div className="px-6 py-2 rounded-xl bg-gradient-to-r from-yellow-200/80 via-yellow-100/90 to-yellow-300/80 dark:bg-black dark:bg-opacity-100 dark:bg-none dark:border-neutral-800 shadow-lg flex items-center gap-2 border border-yellow-200/70">
+              <div className="px-6 py-2 rounded-xl bg-yellow-100/90 dark:bg-gray-800/90 dark:border-yellow-900 shadow-lg flex items-center gap-2 border border-yellow-200/70 dark:border-yellow-900">
                 <span className="text-2xl md:text-3xl animate-bounce text-yellow-400 drop-shadow-glow">🏆</span>
-                <span className="text-yellow-700 text-lg md:text-2xl font-extrabold tracking-tight drop-shadow-lg" style={{textShadow:'0 2px 12px #fff,0 0 16px #facc15'}}>
+                <span className="text-yellow-700 dark:text-yellow-200 text-lg md:text-2xl font-extrabold tracking-tight drop-shadow-lg">
                   Top 1 ของแต่ละอาชีพ
                 </span>
                 <span className="text-2xl md:text-3xl animate-bounce text-yellow-400 drop-shadow-glow">🏆</span>
@@ -498,42 +498,29 @@ export default function RankingPage() {
                 const char = top1PerJob[job];
                 if (!char) return null;
                 const colors = getClassColors(CLASS_TO_ROLE[job]);
-                // ไอคอนอาชีพ + สี glow
-                const jobIcons: Record<string, {icon: string, glow: string}> = {
-                  'Sword Master': {icon: '⚔️', glow: '#f87171'},
-                  'Mercenary': {icon: '⚔️', glow: '#f87171'},
-                  'Bowmaster': {icon: '🏹', glow: '#34d399'},
-                  'Acrobat': {icon: '🏹', glow: '#34d399'},
-                  'Force User': {icon: '🔮', glow: '#a78bfa'},
-                  'Elemental Lord': {icon: '🔮', glow: '#a78bfa'},
-                  'Paladin': {icon: '✨', glow: '#60a5fa'},
-                  'Priest': {icon: '✨', glow: '#60a5fa'},
-                  'Engineer': {icon: '🔧', glow: '#fbbf24'},
-                  'Alchemist': {icon: '🔧', glow: '#fbbf24'},
+                const jobDarkModeColors = {
+                  'Sword Master': 'dark:text-pink-200',
+                  'Mercenary': 'dark:text-pink-200',
+                  'Bowmaster': 'dark:text-emerald-200',
+                  'Acrobat': 'dark:text-emerald-200',
+                  'Force User': 'dark:text-purple-200',
+                  'Elemental Lord': 'dark:text-purple-200',
+                  'Paladin': 'dark:text-sky-200',
+                  'Priest': 'dark:text-sky-200',
+                  'Engineer': 'dark:text-amber-200',
+                  'Alchemist': 'dark:text-amber-200',
                 };
-                const jobDarkModeColors: Record<string, string> = {
-                  'Sword Master': 'dark:text-pink-200 dark:drop-shadow-[0_0_16px_#fbcfe8]',
-                  'Mercenary': 'dark:text-pink-200 dark:drop-shadow-[0_0_16px_#fbcfe8]',
-                  'Bowmaster': 'dark:text-emerald-200 dark:drop-shadow-[0_0_16px_#bbf7d0]',
-                  'Acrobat': 'dark:text-emerald-200 dark:drop-shadow-[0_0_16px_#bbf7d0]',
-                  'Force User': 'dark:text-purple-200 dark:drop-shadow-[0_0_16px_#ddd6fe]',
-                  'Elemental Lord': 'dark:text-purple-200 dark:drop-shadow-[0_0_16px_#ddd6fe]',
-                  'Paladin': 'dark:text-sky-200 dark:drop-shadow-[0_0_16px_#bae6fd]',
-                  'Priest': 'dark:text-sky-200 dark:drop-shadow-[0_0_16px_#bae6fd]',
-                  'Engineer': 'dark:text-amber-200 dark:drop-shadow-[0_0_16px_#fde68a]',
-                  'Alchemist': 'dark:text-amber-200 dark:drop-shadow-[0_0_16px_#fde68a]',
-                };
+                // เพิ่มเอฟเฟกต์เรืองแสงให้เฉพาะอันดับ 1
+                const isTop1 = char.rank === 1;
                 return (
                   <div
                     key={job}
                     ref={el => { cardRefs.current[job] = el; }}
                     className={cn(
                       "relative group flex flex-col items-center justify-center min-w-[110px] max-w-[140px] px-3 py-3 rounded-2xl border shadow-xl",
-                      "border-yellow-200/70 bg-gradient-to-br from-yellow-50/90 via-white/90 to-yellow-100/80",
-                      "dark:bg-black dark:border-neutral-800 dark:bg-none",
+                      "border-yellow-200/70 bg-yellow-50/90 dark:bg-gray-900/90 dark:border-yellow-900",
                       "hover:scale-105 hover:shadow-2xl transition-all duration-200 cursor-pointer"
                     )}
-                    style={{ boxShadow: '0 4px 32px 0 rgba(250,204,21,0.10), 0 2px 8px 0 rgba(0,0,0,0.06)' }}
                     onMouseEnter={e => {
                       const rect = cardRefs.current[job]?.getBoundingClientRect();
                       if (rect) setHoveredCard({ char, rect });
@@ -542,27 +529,22 @@ export default function RankingPage() {
                   >
                     <span
                       className={cn(
-                        "text-3xl mb-1 drop-shadow-glow animate-pulse",
-                        jobDarkModeColors[job] || ''
+                        "text-3xl mb-1",
+                        jobDarkModeColors[job] || '',
+                        isTop1 && "drop-shadow-[0_0_64px_#fff] drop-shadow-[0_0_40px_#fff] drop-shadow-[0_0_16px_#fff] animate-pulse"
                       )}
-                      style={{
-                        color: colors.text,
-                        filter: `drop-shadow(0 0 8px #fff8) drop-shadow(0 0 16px ${jobIcons[job].glow})`,
-                      }}
                     >
                       {getClassIcon(job)}
                     </span>
-                    <span className="font-extrabold text-base md:text-lg text-pink-500 drop-shadow" style={{textShadow:'0 2px 8px #fff'}}>
+                    <span className="font-extrabold text-base md:text-lg text-pink-500 dark:text-pink-200">
                       {char.name}
                     </span>
-                    <span className={cn("font-semibold text-xs mb-1 drop-shadow", colors.text)} style={{textShadow: `0 2px 8px #fff8, 0 0 8px ${jobIcons[job].glow}`}}>
-                      {job}
-                    </span>
+                    <span className={cn("font-semibold text-xs mb-1", colors.text, "dark:text-gray-200")}>{job}</span>
                   </div>
                 );
               })}
             </div>
-            {/* Tooltip แบบ fixed ลอยอิสระ */}
+            {/* Tooltip */}
             {hoveredCard && (
               <div
                 className="fixed z-[999999] sm:w-[420px] w-[95vw] min-w-0 max-w-full pointer-events-none"
@@ -572,7 +554,7 @@ export default function RankingPage() {
                   transform: 'translateX(-50%)',
                 }}
               >
-                <div className="bg-gradient-to-br from-pink-50 via-yellow-50 to-blue-50/90 border border-pink-200/60 rounded-2xl shadow-2xl sm:p-4 p-2 sm:text-sm text-xs text-gray-800 font-semibold backdrop-blur-xl relative z-[999999] overflow-hidden">
+                <div className="bg-white/90 dark:bg-gray-900 border border-pink-200/60 dark:border-pink-800 rounded-2xl shadow-2xl sm:p-4 p-2 sm:text-sm text-xs text-gray-800 dark:text-gray-200 font-semibold backdrop-blur-xl relative z-[999999] overflow-hidden">
                   <div className="flex items-center gap-2 mb-2 justify-between">
                     <div className="flex items-center gap-2">
                       <span className="text-blue-500 text-xl">💬</span>
@@ -592,7 +574,7 @@ export default function RankingPage() {
                     <div className="flex items-center gap-1"><span className="text-orange-400">💥</span><span className="text-gray-700 font-bold">FD:</span> <span className="text-orange-600 font-bold">{hoveredCard.char.stats.fd}%</span></div>
                   </div>
                   <div className="absolute left-1/2 -top-3 -translate-x-1/2 w-5 h-5 pointer-events-none z-[999999]">
-                    <div className="w-5 h-5 bg-gradient-to-br from-pink-50 via-yellow-50 to-blue-50/90 border-t border-r border-pink-200/60 rotate-45"></div>
+                    <div className="w-5 h-5 bg-white dark:bg-gray-800 border-t border-r border-pink-200/60 rotate-45"></div>
                   </div>
                 </div>
               </div>
@@ -600,7 +582,7 @@ export default function RankingPage() {
           </div>
 
           {/* Header */}
-          <div className="flex flex-col md:flex-row justify-between items-stretch gap-4 bg-gradient-to-r from-pink-50/80 via-white/90 to-blue-50/80 rounded-3xl p-3 md:p-4 shadow-2xl border-0 mt-0 mb-1">
+          <div className="flex flex-col md:flex-row justify-between items-stretch gap-4 bg-pink-50/80 dark:bg-gray-800/90 rounded-3xl p-3 md:p-4 shadow-2xl border-0 mt-0 mb-1">
             {/* Left: Title & Description */}
             <div className="flex-[2] min-w-[260px] flex flex-col justify-center gap-2">
               <div className="flex items-center gap-3 mb-1">
@@ -624,8 +606,8 @@ export default function RankingPage() {
                 className={cn(
                   "mb-1 px-6 py-2 rounded-full text-base font-bold border-2 shadow transition-all duration-200",
                   selectedJob === 'all'
-                    ? "bg-gradient-to-r from-pink-100/80 to-blue-50/80 border-pink-400 text-pink-700 shadow-lg scale-105"
-                    : "bg-white/80 border-pink-200/70 text-gray-700 hover:bg-pink-50/60 hover:border-pink-300/50"
+                    ? "bg-pink-50 dark:bg-pink-900/40 border-pink-400 dark:border-pink-400 text-pink-700 dark:text-pink-200 font-bold"
+                    : "bg-white dark:bg-gray-800 border-pink-200 dark:border-pink-700 text-gray-700 dark:text-gray-100 hover:bg-pink-100 dark:hover:bg-gray-700"
                 )}
                 style={{minWidth: 110}}
               >
@@ -643,8 +625,8 @@ export default function RankingPage() {
                       className={cn(
                         "px-4 py-2 rounded-full text-sm font-medium border transition-all duration-200",
                         selectedJob === job
-                          ? "border-2 border-pink-400 bg-pink-50/60 shadow text-pink-700 font-bold"
-                          : "bg-white/90 border-pink-200/50 text-gray-700 hover:bg-pink-50/60 hover:border-pink-300/50",
+                          ? "border-2 border-pink-400 dark:border-pink-400 bg-pink-50 dark:bg-pink-900/40 text-pink-700 dark:text-pink-200 font-bold"
+                          : "bg-white dark:bg-gray-800 border-pink-200 dark:border-pink-700 text-gray-700 dark:text-gray-100 hover:bg-pink-100 dark:hover:bg-gray-700",
                         colors.text
                       )}
                       style={{minWidth: 100}}
@@ -660,7 +642,7 @@ export default function RankingPage() {
           {/* Mobile Stats Selection */}
           <div className="lg:hidden">
             <Select value={selectedStat} onValueChange={(value) => setSelectedStat(value as SortType)}>
-              <SelectTrigger className="w-full bg-white/90 backdrop-blur-sm border-pink-200/50">
+              <SelectTrigger className="w-full bg-white/90 dark:bg-gray-900 backdrop-blur-sm border-pink-200/50 dark:border-pink-800">
                 <SelectValue placeholder="เลือกสเตตัส" />
               </SelectTrigger>
               <SelectContent>
@@ -713,7 +695,7 @@ export default function RankingPage() {
           {/* Mobile Job Selection */}
           <div className="lg:hidden">
             <Select value={selectedJob} onValueChange={setSelectedJob}>
-              <SelectTrigger className="w-full bg-white/90 backdrop-blur-sm border-pink-200/50">
+              <SelectTrigger className="w-full bg-white/90 dark:bg-gray-900 backdrop-blur-sm border-pink-200/50 dark:border-pink-800">
                 <SelectValue placeholder="เลือกอาชีพ" />
               </SelectTrigger>
               <SelectContent>
@@ -734,22 +716,22 @@ export default function RankingPage() {
           </div>
 
           {/* Ranking Table */}
-          <Card className="overflow-hidden bg-white/90 backdrop-blur-sm border-0 shadow-2xl rounded-3xl mt-0">
+          <Card className="overflow-hidden bg-white/90 dark:bg-gray-900 backdrop-blur-sm border-0 shadow-2xl rounded-3xl mt-0">
             <div className="p-4 pb-0 relative">
-              <span className="absolute left-6 top-1/2 -translate-y-1/2 text-pink-400 text-lg pointer-events-none">🔍</span>
+              <span className="absolute left-6 top-1/2 -translate-y-1/2 text-pink-400 dark:text-pink-200 text-lg pointer-events-none">🔍</span>
               <Input
                 type="text"
                 placeholder="ค้นหาตัวละครหรือชื่อ Discord..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-white border-2 border-pink-400 shadow-md shadow-pink-200 rounded-t-3xl rounded-b-none text-sm px-12 py-2 focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-all duration-150"
+                className="w-full bg-white dark:bg-gray-800 border-2 border-pink-400 dark:border-pink-700 shadow-md shadow-pink-200 dark:shadow-none rounded-t-3xl rounded-b-none text-sm px-12 py-2 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 focus:border-blue-400 dark:focus:border-blue-800 transition-all duration-150 text-gray-900 dark:text-gray-100"
               />
             </div>
             <CardContent className="p-0">
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="bg-gradient-to-r from-pink-100/80 via-white/90 to-blue-100/80">
+                    <tr className="bg-pink-100/80 dark:bg-gray-900">
                       <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 whitespace-nowrap">
                         <div className="flex items-center gap-1">
                           <span>🏅</span>
@@ -866,32 +848,27 @@ export default function RankingPage() {
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-pink-100/50">
+                  <tbody className="divide-y divide-pink-100/50 dark:divide-pink-900/60">
                     {rankedCharacters.map((character, idx) => {
                       let borderLeftColor = "transparent";
                       if (character.rank === 1) borderLeftColor = "#facc15"; // yellow-400
                       else if (character.rank === 2) borderLeftColor = "#bfc1c6"; // silver
                       else if (character.rank === 3) borderLeftColor = "#fb923c"; // orange-400
 
-                      // กำหนดพื้นหลังและตัวเลข + special effect
                       let bgClass = "";
-                      let rankTextClass = "text-pink-600";
+                      let rankTextClass = "text-pink-600 dark:text-pink-200";
                       let specialEffect = "";
                       if (character.rank === 1) {
-                        bgClass = "bg-gradient-to-r from-yellow-200 via-yellow-100 to-white shadow-2xl";
-                        rankTextClass = "text-yellow-600 drop-shadow-lg";
-                        specialEffect = "ring-4 ring-yellow-300/60";
+                        bgClass = "bg-yellow-100 dark:bg-gray-800 shadow-2xl";
+                        rankTextClass = "text-yellow-600 dark:text-yellow-300 drop-shadow-lg";
                       } else if (character.rank === 2) {
-                        bgClass = "bg-gradient-to-r from-gray-400 via-gray-200 to-white shadow-xl";
-                        rankTextClass = "text-gray-500 drop-shadow";
-                        specialEffect = "ring-4 ring-gray-300/50";
+                        bgClass = "bg-gray-200 dark:bg-gray-800 shadow-xl";
+                        rankTextClass = "text-gray-500 dark:text-gray-200 drop-shadow";
                       } else if (character.rank === 3) {
-                        bgClass = "bg-gradient-to-r from-orange-200 via-orange-100 to-white shadow-lg";
-                        rankTextClass = "text-orange-500 drop-shadow";
-                        specialEffect = "ring-4 ring-orange-300/40";
+                        bgClass = "bg-orange-100 dark:bg-gray-800 shadow-lg";
+                        rankTextClass = "text-orange-500 dark:text-orange-300 drop-shadow";
                       }
 
-                      // borderRadius เฉพาะแถวแรก/สุดท้ายของผลลัพธ์เท่านั้น
                       const borderRadius = idx === 0
                         ? "1.5rem 1.5rem 0 0"
                         : idx === rankedCharacters.length - 1
@@ -905,7 +882,7 @@ export default function RankingPage() {
                             "group transition-all duration-200",
                             bgClass,
                             specialEffect,
-                            user?.uid === character.userId && "bg-gradient-to-r from-blue-100/70 to-blue-50/70"
+                            user?.uid === character.userId && "bg-blue-100/70 dark:bg-blue-900/30"
                           )}
                           style={{
                             borderLeftWidth: 8,
@@ -914,7 +891,7 @@ export default function RankingPage() {
                           }}
                         >
                           <td className={cn(
-                            "px-4 py-3 text-sm font-bold group-hover:text-pink-700 whitespace-nowrap drop-shadow",
+                            "px-4 py-3 text-sm font-bold group-hover:text-pink-700 dark:group-hover:text-pink-300 whitespace-nowrap drop-shadow",
                             rankTextClass
                           )}>
                             #{character.rank}
@@ -923,7 +900,7 @@ export default function RankingPage() {
                             {character.rank === 3 && <span className="ml-1 align-middle">🥉</span>}
                           </td>
                           <td className="px-4 py-3 text-sm whitespace-nowrap max-w-[220px] overflow-hidden text-ellipsis">
-                            <span className="text-black font-medium group-hover:text-gray-800 block truncate" title={character.discordName}>
+                            <span className="text-black dark:text-gray-100 font-medium group-hover:text-gray-800 dark:group-hover:text-gray-200 block truncate" title={character.discordName}>
                               {character.discordName}
                             </span>
                           </td>
@@ -931,39 +908,39 @@ export default function RankingPage() {
                             className="px-4 py-3 text-sm cursor-pointer whitespace-nowrap"
                             onClick={() => setOpenCharacterId(character.id)}
                           >
-                            <span className="text-gray-600 font-medium group-hover:text-gray-800 underline underline-offset-2">
+                            <span className="text-gray-600 dark:text-gray-200 font-medium group-hover:text-gray-800 dark:group-hover:text-gray-100 underline underline-offset-2">
                               {character.name}
                             </span>
                           </td>
                           <td className="px-4 py-3 text-sm whitespace-nowrap">
                             <span className="inline-flex items-center gap-1 font-medium group-hover:opacity-90">
                               <span className="text-base">{getClassIcon(character.class)}</span>
-                              <span className={cn(getClassColors(CLASS_TO_ROLE[character.class]).text)}>{character.class}</span>
+                              <span className={cn(getClassColors(CLASS_TO_ROLE[character.class]).text, "dark:text-gray-200")}>{character.class}</span>
                             </span>
                           </td>
-                          <td className="px-4 py-3 text-sm text-pink-600 font-bold group-hover:text-pink-700 whitespace-nowrap">
+                          <td className="px-4 py-3 text-sm text-pink-600 dark:text-pink-200 font-bold group-hover:text-pink-700 dark:group-hover:text-pink-300 whitespace-nowrap">
                             {formatNumber(character.stats.atk)}
                           </td>
-                          <td className="px-4 py-3 text-sm text-red-500 font-bold group-hover:text-red-600 whitespace-nowrap">
+                          <td className="px-4 py-3 text-sm text-red-500 dark:text-red-200 font-bold group-hover:text-red-600 dark:group-hover:text-red-300 whitespace-nowrap">
                             {formatNumber(character.stats.hp)}
                           </td>
                           <td className="px-4 py-3 text-sm whitespace-nowrap">
                             <div className="flex items-center gap-0.5">
-                              <span className="font-semibold text-blue-500">{character.stats.pdef}%</span>
+                              <span className="font-semibold text-blue-500 dark:text-blue-200">{character.stats.pdef}%</span>
                               <span className="text-gray-400 mx-0.5">/</span>
-                              <span className="font-semibold text-purple-500">{character.stats.mdef}%</span>
+                              <span className="font-semibold text-purple-500 dark:text-purple-200">{character.stats.mdef}%</span>
                             </div>
                           </td>
-                          <td className="px-4 py-3 text-sm text-yellow-500 font-bold group-hover:text-yellow-600 whitespace-nowrap">
+                          <td className="px-4 py-3 text-sm text-yellow-500 dark:text-yellow-200 font-bold group-hover:text-yellow-600 dark:group-hover:text-yellow-300 whitespace-nowrap">
                             {character.stats.cri}%
                           </td>
-                          <td className="px-4 py-3 text-sm text-purple-500 font-bold group-hover:text-purple-600 whitespace-nowrap">
+                          <td className="px-4 py-3 text-sm text-purple-500 dark:text-purple-200 font-bold group-hover:text-purple-600 dark:group-hover:text-purple-300 whitespace-nowrap">
                             {character.stats.ele}%
                           </td>
-                          <td className="px-4 py-3 text-sm text-orange-500 font-bold group-hover:text-orange-600 whitespace-nowrap">
+                          <td className="px-4 py-3 text-sm text-orange-500 dark:text-orange-200 font-bold group-hover:text-orange-600 dark:group-hover:text-orange-300 whitespace-nowrap">
                             {character.stats.fd}%
                           </td>
-                          <td className="px-4 py-3 text-sm text-green-500 font-extrabold group-hover:text-green-600 whitespace-nowrap">
+                          <td className="px-4 py-3 text-sm text-green-500 dark:text-green-200 font-extrabold group-hover:text-green-600 dark:group-hover:text-green-300 whitespace-nowrap">
                             {formatNumberWithComma(character.score)}
                           </td>
                         </tr>
@@ -982,8 +959,8 @@ export default function RankingPage() {
           className={cn(
             "max-w-lg w-[95vw] max-h-[90vh] overflow-y-auto shadow-xl rounded-2xl p-0 border-2 backdrop-blur-xl z-[110] mt-8",
             openCharacter ? getClassColors(CLASS_TO_ROLE[openCharacter.class]).border : '',
-            openCharacter ? getClassColors(CLASS_TO_ROLE[openCharacter.class]).bgSoft : '',
-            openCharacter ? "scrollbar-thumb-rounded-lg scrollbar-track-rounded-lg" : ''
+            "dark:bg-black",
+            openCharacter ? getClassColors(CLASS_TO_ROLE[openCharacter.class]).border : ''
           )}
           style={openCharacter ? {
             marginTop: '2rem',
@@ -1023,14 +1000,15 @@ export default function RankingPage() {
                         "text-base font-semibold px-3 py-1 rounded-full border shadow inline-flex items-center gap-1",
                         colors.border,
                         colors.bgVeryLight,
-                        colors.text
+                        colors.text,
+                        "dark:bg-gray-800/80 dark:border-pink-700 dark:text-gray-100"
                       )}>
                         <span className="text-base">{getClassIcon(openCharacter.class)}</span>
                         {openCharacter.class}
                       </span>
                     </DialogTitle>
-                    <DialogDescription className="text-sm text-gray-500 mb-2">
-                      <span className="font-medium text-gray-700">Discord:</span> {openCharacter.discordName}
+                    <DialogDescription className="text-sm text-gray-500 dark:text-gray-300 mb-2">
+                      <span className="font-medium text-gray-700 dark:text-gray-200">Discord:</span> {openCharacter.discordName}
                     </DialogDescription>
                   </DialogHeader>
                   <div className="space-y-4 mt-2">
@@ -1038,47 +1016,49 @@ export default function RankingPage() {
                     <div className={cn(
                       "rounded-xl p-4 sm:p-5 shadow border backdrop-blur-sm mb-1",
                       colors.border,
-                      colors.bgVeryLight
+                      "bg-white/80 dark:bg-black border",
+                      openCharacter ? getClassColors(CLASS_TO_ROLE[openCharacter.class]).border : ''
                     )}>
                       <h4 className={cn(
                         "text-lg font-bold mb-3 flex items-center gap-2",
-                        colors.text
+                        colors.text,
+                        "dark:text-gray-100"
                       )}>
-                        <Sword className={cn("w-5 h-5", colors.text)} />
+                        <Sword className={cn("w-5 h-5", colors.text, "dark:text-pink-200")} />
                         สเตตัสตัวละคร
                       </h4>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div className="flex items-center gap-2 p-2 rounded-lg bg-white/80 border border-gray-100">
-                          <Sword className="w-5 h-5 text-pink-500" />
-                          <span className="font-bold text-gray-700">ATK:</span>
-                          <span className="font-semibold text-pink-600">{stats.atk}</span>
+                        <div className="flex items-center gap-2 p-2 rounded-lg bg-white/80 dark:bg-gray-900/80 border border-gray-100 dark:border-pink-800">
+                          <Sword className="w-5 h-5 text-pink-500 dark:text-pink-200" />
+                          <span className="font-bold text-gray-700 dark:text-gray-200">ATK:</span>
+                          <span className="font-semibold text-pink-600 dark:text-pink-200">{stats.atk}</span>
                         </div>
-                        <div className="flex items-center gap-2 p-2 rounded-lg bg-white/80 border border-gray-100">
-                          <Heart className="w-5 h-5 text-red-400" />
-                          <span className="font-bold text-gray-700">HP:</span>
-                          <span className="font-semibold text-red-500">{stats.hp}</span>
+                        <div className="flex items-center gap-2 p-2 rounded-lg bg-white/80 dark:bg-gray-900/80 border border-gray-100 dark:border-pink-800">
+                          <Heart className="w-5 h-5 text-red-400 dark:text-red-200" />
+                          <span className="font-bold text-gray-700 dark:text-gray-200">HP:</span>
+                          <span className="font-semibold text-red-500 dark:text-red-200">{stats.hp}</span>
                         </div>
-                        <div className="flex items-center gap-2 p-2 rounded-lg bg-white/80 border border-gray-100">
-                          <Shield className="w-5 h-5 text-blue-400" />
-                          <span className="font-bold text-gray-700">DEF:</span>
-                          <span className="font-semibold text-blue-500">{stats.pdef}%</span>
-                          <span className="text-gray-400 mx-0.5">/</span>
-                          <span className="font-semibold text-purple-500">{stats.mdef}%</span>
+                        <div className="flex items-center gap-2 p-2 rounded-lg bg-white/80 dark:bg-gray-900/80 border border-gray-100 dark:border-pink-800">
+                          <Shield className="w-5 h-5 text-blue-400 dark:text-blue-200" />
+                          <span className="font-bold text-gray-700 dark:text-gray-200">DEF:</span>
+                          <span className="font-semibold text-blue-500 dark:text-blue-200">{stats.pdef}%</span>
+                          <span className="text-gray-400 mx-0.5 dark:text-gray-400">/</span>
+                          <span className="font-semibold text-purple-500 dark:text-purple-200">{stats.mdef}%</span>
                         </div>
-                        <div className="flex items-center gap-2 p-2 rounded-lg bg-white/80 border border-gray-100">
-                          <Target className="w-5 h-5 text-yellow-400" />
-                          <span className="font-bold text-gray-700">CRI:</span>
-                          <span className="font-semibold text-yellow-500">{stats.cri}%</span>
+                        <div className="flex items-center gap-2 p-2 rounded-lg bg-white/80 dark:bg-gray-900/80 border border-gray-100 dark:border-pink-800">
+                          <Target className="w-5 h-5 text-yellow-400 dark:text-yellow-200" />
+                          <span className="font-bold text-gray-700 dark:text-gray-200">CRI:</span>
+                          <span className="font-semibold text-yellow-500 dark:text-yellow-200">{stats.cri}%</span>
                         </div>
-                        <div className="flex items-center gap-2 p-2 rounded-lg bg-white/80 border border-gray-100">
-                          <Flame className="w-5 h-5 text-purple-400" />
-                          <span className="font-bold text-gray-700">ELE:</span>
-                          <span className="font-semibold text-purple-500">{stats.ele}%</span>
+                        <div className="flex items-center gap-2 p-2 rounded-lg bg-white/80 dark:bg-gray-900/80 border border-gray-100 dark:border-pink-800">
+                          <Flame className="w-5 h-5 text-purple-400 dark:text-purple-200" />
+                          <span className="font-bold text-gray-700 dark:text-gray-200">ELE:</span>
+                          <span className="font-semibold text-purple-500 dark:text-purple-200">{stats.ele}%</span>
                         </div>
-                        <div className="flex items-center gap-2 p-2 rounded-lg bg-white/80 border border-gray-100">
-                          <Zap className="w-5 h-5 text-orange-400" />
-                          <span className="font-bold text-gray-700">FD:</span>
-                          <span className="font-semibold text-orange-500">{stats.fd}%</span>
+                        <div className="flex items-center gap-2 p-2 rounded-lg bg-white/80 dark:bg-gray-900/80 border border-gray-100 dark:border-pink-800">
+                          <Zap className="w-5 h-5 text-orange-400 dark:text-orange-200" />
+                          <span className="font-bold text-gray-700 dark:text-gray-200">FD:</span>
+                          <span className="font-semibold text-orange-500 dark:text-orange-200">{stats.fd}%</span>
                         </div>
                       </div>
                     </div>
@@ -1086,13 +1066,15 @@ export default function RankingPage() {
                     <div className={cn(
                       "rounded-xl p-4 sm:p-5 shadow border backdrop-blur-sm",
                       colors.border,
-                      colors.bgVeryLight
+                      "bg-white/80 dark:bg-black border",
+                      openCharacter ? getClassColors(CLASS_TO_ROLE[openCharacter.class]).border : ''
                     )}>
                       <h4 className={cn(
                         "text-lg font-bold mb-3 flex items-center gap-2",
-                        colors.text
+                        colors.text,
+                        "dark:text-gray-100"
                       )}>
-                        <TrendingUp className={cn("w-5 h-5", colors.text)} />
+                        <TrendingUp className={cn("w-5 h-5", colors.text, "dark:text-pink-200")} />
                         เช็คลิสต์ประจำวัน/สัปดาห์
                       </h4>
                       <CharacterChecklist

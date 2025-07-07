@@ -230,26 +230,26 @@ const getClassIcon = (className: string) => {
   switch (className) {
     case 'Sword Master':
     case 'Mercenary':
-      colorClass = CLASS_GRADIENTS.Warrior.text;
+      colorClass = 'text-red-600 dark:text-red-200';
       break;
     case 'Bowmaster':
     case 'Acrobat':
-      colorClass = CLASS_GRADIENTS.Archer.text;
+      colorClass = 'text-emerald-600 dark:text-emerald-200';
       break;
     case 'Force User':
     case 'Elemental Lord':
-      colorClass = CLASS_GRADIENTS.Sorceress.text;
+      colorClass = 'text-purple-600 dark:text-purple-200';
       break;
     case 'Paladin':
     case 'Priest':
-      colorClass = CLASS_GRADIENTS.Cleric.text;
+      colorClass = 'text-sky-600 dark:text-sky-200';
       break;
     case 'Engineer':
     case 'Alchemist':
-      colorClass = CLASS_GRADIENTS.Academic.text;
+      colorClass = 'text-amber-600 dark:text-amber-200';
       break;
     default:
-      colorClass = CLASS_GRADIENTS.Default.text;
+      colorClass = 'text-gray-700 dark:text-gray-200';
   }
   switch (className) {
     case 'Sword Master':
@@ -1063,9 +1063,9 @@ export default function MyPage() {
                         id="fd"
                         value={editingCharacter?.stats.fd || '0'}
                         onChange={(e) => handleEditStatChange('fd', e.target.value)}
-                        className="w-full bg-white shadow-sm border-gray-200 focus:border-violet-500 focus:ring-violet-500 transition-colors text-xs sm:text-base"
+                        className="w-full bg-white dark:bg-gray-800 shadow-sm border-gray-200 dark:border-gray-700 focus:border-violet-500 focus:ring-violet-500 transition-colors text-xs sm:text-base dark:text-gray-100"
                       />
-                      <p className="text-xs text-gray-500 mt-1">ความเสียหายสุดท้าย (%)</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">ความเสียหายสุดท้าย (%)</p>
                     </div>
                   </div>
                 </div>
@@ -1074,16 +1074,16 @@ export default function MyPage() {
 
             {/* Description for hover tip (left-aligned, near stats box) */}
             <div className="w-full flex justify-start mt-2 mb-1">
-              <span className="text-xs text-gray-500 bg-white/70 rounded px-3 py-1 border border-gray-200 flex items-center gap-1 shadow-sm">
+              <span className="text-xs text-gray-500 dark:text-gray-400 bg-white/70 dark:bg-gray-800/70 rounded px-3 py-1 border border-gray-200 dark:border-gray-700 flex items-center gap-1 shadow-sm">
                 <span role="img" aria-label="info">ℹ️</span> วางเมาส์บนตัวเลขเพื่อดูค่า % ของสเตตัส
               </span>
             </div>
           </div>
 
-          <DialogFooter className="border-t border-gray-200 pt-4">
+          <DialogFooter className="border-t border-gray-200 dark:border-gray-700 pt-4">
             <Button
               type="submit"
-              className="bg-gradient-to-r from-violet-500 to-blue-500 text-white hover:from-violet-600 hover:to-blue-600 transition-all duration-200 shadow-md hover:shadow-lg flex items-center gap-2 text-sm sm:text-base"
+              className="bg-gradient-to-r from-violet-500 to-blue-500 text-white hover:from-violet-600 hover:to-blue-600 transition-all duration-200 shadow-md hover:shadow-lg flex items-center gap-2 text-sm sm:text-base dark:from-violet-600 dark:to-blue-600 dark:hover:from-violet-700 dark:hover:to-blue-700"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
@@ -1247,33 +1247,33 @@ export default function MyPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, ease: "easeOut" }}
-            className="w-full md:w-4/5 relative mt-1 rounded-3xl bg-white/30 backdrop-blur-md border border-white/30 shadow-2xl overflow-hidden"
+            className="w-full md:w-4/5 relative mt-1 rounded-3xl bg-white/30 backdrop-blur-md border border-white/30 shadow-2xl overflow-hidden dark:bg-gray-900/80 dark:border-gray-700/50"
           style={{
             minHeight: '120px',
           }}
         >
           {/* Animated Shine Effect */}
           <div className="absolute inset-0 pointer-events-none overflow-hidden z-10">
-            <div className="absolute left-[-40%] top-0 w-1/2 h-full bg-gradient-to-r from-white/40 to-transparent blur-lg animate-shine" />
+            <div className="absolute left-[-40%] top-0 w-1/2 h-full bg-gradient-to-r from-white/40 to-transparent blur-lg animate-shine dark:from-white/20" />
           </div>
           {/* White overlay for readability */}
-          <div className="absolute inset-0 bg-white/80 rounded-3xl z-0" />
+          <div className="absolute inset-0 bg-white/80 rounded-3xl z-0 dark:bg-gray-800/90" />
           {/* Fantasy cloud/shine effect (softer) */}
           <div className="absolute inset-0 z-0 pointer-events-none">
             {/* ลบ SVG วงรีขาวออก */}
-            <div className="absolute right-2 md:right-10 top-2 md:top-6 w-16 h-16 md:w-32 md:h-32 bg-pink-200/20 rounded-full blur-2xl opacity-30 animate-none" />
-            <div className="absolute left-2 md:left-10 bottom-0 w-12 h-12 md:w-24 md:h-24 bg-blue-200/20 rounded-full blur-2xl opacity-20 animate-none" />
+            <div className="absolute right-2 md:right-10 top-2 md:top-6 w-16 h-16 md:w-32 md:h-32 bg-pink-200/20 rounded-full blur-2xl opacity-30 animate-none dark:bg-pink-300/10" />
+            <div className="absolute left-2 md:left-10 bottom-0 w-12 h-12 md:w-24 md:h-24 bg-blue-200/20 rounded-full blur-2xl opacity-20 animate-none dark:bg-blue-300/10" />
           </div>
           {/* Main Content */}
           <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-3 md:gap-4 px-4 md:px-10 py-5 md:py-8">
             <div className="space-y-2 w-full">
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
-                <span className="inline-flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-tr from-violet-300 via-pink-200 to-blue-200 shadow-lg border-4 border-white">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 md:w-7 md:h-7 text-violet-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19.5 2 21l1.5-5L16.5 3.5z"/></svg>
+                <span className="inline-flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-tr from-violet-300 via-pink-200 to-blue-200 shadow-lg border-4 border-white dark:from-violet-400/40 dark:via-pink-300/30 dark:to-blue-400/30 dark:border-violet-400">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 md:w-7 md:h-7 text-violet-600 dark:text-violet-100" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19.5 2 21l1.5-5L16.5 3.5z"/></svg>
                 </span>
-                <h1 className="text-2xl md:text-4xl font-extrabold bg-gradient-to-r from-violet-600 via-pink-500 to-blue-600 bg-clip-text text-transparent drop-shadow-lg tracking-tight">ตัวละครของฉัน</h1>
+                <h1 className="text-2xl md:text-4xl font-extrabold bg-gradient-to-r from-violet-600 via-pink-500 to-blue-600 bg-clip-text text-transparent drop-shadow-lg tracking-tight dark:from-violet-300 dark:via-pink-300 dark:to-blue-300">ตัวละครของฉัน</h1>
               </div>
-              <p className="text-gray-600 text-sm md:text-lg font-medium drop-shadow-sm">เพิ่มตัวละครได้อย่างอิสระ ไม่จำกัดกิลด์ พร้อมระบบติดตามความคืบหน้า และจัดปาร์ตี้ได้อย่างสะดวก</p>
+              <p className="text-gray-600 text-sm md:text-lg font-medium drop-shadow-sm dark:text-gray-300">เพิ่มตัวละครได้อย่างอิสระ ไม่จำกัดกิลด์ พร้อมระบบติดตามความคืบหน้า และจัดปาร์ตี้ได้อย่างสะดวก</p>
               <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-2 mt-2 w-full">
                 <div className="flex flex-row gap-2 w-full sm:w-auto">
                   <Button
@@ -1290,7 +1290,7 @@ export default function MyPage() {
                         }
                       }
                     }}
-                    className="text-xs text-gray-500 hover:text-gray-700 hover:bg-gray-100/50"
+                    className="text-xs text-gray-500 hover:text-gray-700 hover:bg-gray-100/50 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700/50"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
@@ -1312,7 +1312,7 @@ export default function MyPage() {
                         }
                       }
                     }}
-                    className="text-xs text-gray-500 hover:text-gray-700 hover:bg-gray-100/50"
+                    className="text-xs text-gray-500 hover:text-gray-700 hover:bg-gray-100/50 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700/50"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
@@ -1321,22 +1321,22 @@ export default function MyPage() {
                     รีเซ็ตสัปดาห์
                   </Button>
                 </div>
-                <span className="text-xs text-gray-400 ml-0 sm:ml-2">ปุ่มคัดลอกข้อความรายวัน</span>
+                <span className="text-xs text-gray-400 ml-0 sm:ml-2 dark:text-gray-500">ปุ่มคัดลอกข้อความรายวัน</span>
                 <div className="flex flex-row gap-2 w-full sm:w-auto">
                   <button
-                    className={`flex items-center gap-1 px-3 py-1 rounded-lg border border-pink-200 bg-pink-50 text-pink-700 text-xs font-medium shadow hover:bg-pink-100 transition-all duration-200 ${copied === 'th' ? 'scale-105 bg-pink-200' : ''}`}
+                                          className={`flex items-center gap-1 px-3 py-1 rounded-lg border border-pink-200 bg-pink-50 text-pink-700 text-xs font-medium shadow hover:bg-pink-100 transition-all duration-200 ${copied === 'th' ? 'scale-105 bg-pink-200 dark:bg-pink-800' : ''} dark:border-pink-300 dark:bg-pink-900/30 dark:text-pink-300 dark:hover:bg-pink-900/50`}
                     onClick={() => handleCopy('ยินดีต้อนรับกลับ Nest', 'th')}
                     type="button"
                   >
-                    {copied === 'th' ? <ClipboardCheck className="w-4 h-4 text-green-500 animate-bounce" /> : <ClipboardCopy className="w-4 h-4 text-pink-400" />}
+                    {copied === 'th' ? <ClipboardCheck className="w-4 h-4 text-green-500 animate-bounce" /> : <ClipboardCopy className="w-4 h-4 text-pink-400 dark:text-pink-300" />}
                     ยินดีต้อนรับกลับ Nest
                   </button>
                   <button
-                    className={`flex items-center gap-1 px-3 py-1 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 text-xs font-medium shadow hover:bg-blue-100 transition-all duration-200 ${copied === 'en' ? 'scale-105 bg-blue-200' : ''}`}
+                    className={`flex items-center gap-1 px-3 py-1 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 text-xs font-medium shadow hover:bg-blue-100 transition-all duration-200 ${copied === 'en' ? 'scale-105 bg-blue-200 dark:bg-blue-800' : ''} dark:border-blue-300 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50`}
                     onClick={() => handleCopy('Welcome back to DN', 'en')}
                     type="button"
                   >
-                    {copied === 'en' ? <ClipboardCheck className="w-4 h-4 text-green-500 animate-bounce" /> : <ClipboardCopy className="w-4 h-4 text-blue-400" />}
+                    {copied === 'en' ? <ClipboardCheck className="w-4 h-4 text-green-500 animate-bounce" /> : <ClipboardCopy className="w-4 h-4 text-blue-400 dark:text-blue-300" />}
                     Welcome back to DN
                   </button>
                 </div>
@@ -1350,10 +1350,10 @@ export default function MyPage() {
             >
               <Button 
                 onClick={() => setIsAddModalOpen(true)}
-                className="relative group bg-gradient-to-r from-violet-500 via-purple-500 to-blue-500 text-white hover:from-violet-600 hover:via-purple-600 hover:to-blue-600 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-2 rounded-xl px-6 py-3 w-full md:w-auto overflow-hidden"
+                className="relative group bg-gradient-to-r from-violet-500 via-purple-500 to-blue-500 text-white hover:from-violet-600 hover:via-purple-600 hover:to-blue-600 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-2 rounded-xl px-6 py-3 w-full md:w-auto overflow-hidden dark:from-violet-600 dark:via-purple-600 dark:to-blue-600 dark:hover:from-violet-700 dark:hover:via-purple-700 dark:hover:to-blue-700"
               >
                 {/* Animated background effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-violet-400/20 via-purple-400/20 to-blue-400/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+                <div className="absolute inset-0 bg-gradient-to-r from-violet-400/20 via-purple-400/20 to-blue-400/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 dark:from-violet-300/20 dark:via-purple-300/20 dark:to-blue-300/20" />
                 
                 {/* Button content */}
                 <div className="relative flex items-center gap-2">
@@ -1374,11 +1374,11 @@ export default function MyPage() {
         </motion.div>
           {/* ขวา: ปุ่ม 20% */}
           <div className="w-full md:w-1/5 flex flex-col gap-2 items-start md:justify-center justify-start mt-3 md:mt-0 order-last md:order-none">
-            <Link href="/mypage/Status" className="w-full md:w-full">
+            <Link href="/mypage/Status" className="w-full">
               <Button
-                className="w-full h-10 md:h-12 bg-white/80 border border-blue-200 rounded-xl flex items-center justify-center gap-2 text-blue-700 font-medium text-sm md:text-base shadow-sm hover:shadow-lg hover:border-blue-400 hover:bg-blue-50 transition-all duration-200 focus:ring-2 focus:ring-blue-200"
+                className="w-full h-10 md:h-12 bg-white/60 backdrop-blur-md border border-blue-300 rounded-xl flex items-center justify-center gap-2 text-blue-700 font-medium text-sm md:text-base shadow-sm transition-all duration-200 focus:ring-2 focus:ring-blue-300 hover:bg-blue-200 hover:backdrop-blur-none hover:border-blue-500 hover:text-blue-900 dark:bg-gray-800/80 dark:border-blue-400 dark:text-blue-200 dark:hover:bg-gray-900 dark:hover:text-blue-100 dark:hover:border-blue-500"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="!w-4 !h-4 md:!w-5 md:!h-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <svg xmlns="http://www.w3.org/2000/svg" className="!w-4 !h-4 md:!w-5 md:!h-5 text-blue-500 dark:text-blue-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                   <rect x="3" y="3" width="18" height="18" rx="2"/>
                   <path d="M8 6h8M8 10h8M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"/>
                 </svg>
@@ -1386,31 +1386,31 @@ export default function MyPage() {
               </Button>
             </Link>
             <Button
-              className="w-full h-10 md:h-12 bg-white/80 border border-violet-200 rounded-xl flex flex-col items-center justify-center gap-1 text-violet-700 font-medium text-sm md:text-base shadow-sm hover:shadow-lg hover:border-violet-400 hover:bg-violet-50 transition-all duration-200 focus:ring-2 focus:ring-violet-200"
+              className="w-full h-10 md:h-12 bg-white/60 backdrop-blur-md border border-violet-300 rounded-xl flex flex-col items-center justify-center gap-1 text-violet-700 font-medium text-sm md:text-base shadow-sm transition-all duration-200 focus:ring-2 focus:ring-violet-300 hover:bg-violet-200 hover:backdrop-blur-none hover:border-violet-500 hover:text-violet-900 dark:bg-gray-800/80 dark:border-violet-400 dark:text-violet-200 dark:hover:bg-gray-900 dark:hover:text-violet-100 dark:hover:border-violet-500"
               onClick={() => { alert('อยู่ระหว่างพัฒนา'); }}
               type="button"
             >
               <span className="flex items-center gap-1">
-                <Wand2 className="!w-4 !h-4 md:!w-5 md:!h-5 text-violet-500" />
+                <Wand2 className="!w-4 !h-4 md:!w-5 md:!h-5 text-violet-500 dark:text-violet-200" />
                 สกิล & บิ้วแนะนำ
                 <span className="ml-1 text-xs align-middle">🚧</span>
               </span>
               <span className="text-xs text-gray-500 mt-0.5">(อยู่ระหว่างพัฒนา)</span>
             </Button>
-            <Link href="/split" className="w-full md:w-full">
+            <Link href="/split" className="w-full">
               <Button
-                className="w-full h-10 md:h-12 bg-white/80 border border-yellow-200 rounded-xl flex items-center justify-center gap-2 text-yellow-700 font-medium text-sm md:text-base shadow-sm hover:shadow-lg hover:border-yellow-400 hover:bg-yellow-50 transition-all duration-200 focus:ring-2 focus:ring-yellow-200"
+                className="w-full h-10 md:h-12 bg-white/60 backdrop-blur-md border border-yellow-300 rounded-xl flex items-center justify-center gap-2 text-yellow-800 font-medium text-sm md:text-base shadow-sm transition-all duration-200 focus:ring-2 focus:ring-yellow-300 hover:bg-yellow-200 hover:backdrop-blur-none hover:border-yellow-500 hover:text-yellow-900 dark:bg-gray-800/80 dark:border-yellow-400 dark:text-yellow-200 dark:hover:bg-gray-900 dark:hover:text-yellow-100 dark:hover:border-yellow-500"
               >
-                <FaCoins className="!w-4 !h-4 md:!w-5 md:!h-5 text-yellow-500" />
+                <FaCoins className="!w-4 !h-4 md:!w-5 md:!h-5 text-yellow-500 dark:text-yellow-200 drop-shadow" />
                 <span>จัดสรรของดรอปปาร์ตี้</span>
               </Button>
             </Link>
             <Button
-              className="w-full h-10 md:h-12 bg-white/80 border border-green-200 rounded-xl flex items-center justify-center gap-2 text-green-700 font-medium text-sm md:text-base shadow-sm hover:shadow-lg hover:border-green-400 hover:bg-green-50 transition-all duration-200 focus:ring-2 focus:ring-green-200"
+              className="w-full h-10 md:h-12 bg-white/60 backdrop-blur-md border border-green-300 rounded-xl flex items-center justify-center gap-2 text-green-700 font-medium text-sm md:text-base shadow-sm transition-all duration-200 focus:ring-2 focus:ring-green-300 hover:bg-green-200 hover:backdrop-blur-none hover:border-green-500 hover:text-green-900 dark:bg-gray-800/80 dark:border-green-400 dark:text-green-200 dark:hover:bg-gray-900 dark:hover:text-green-100 dark:hover:border-green-500"
               onClick={handleOpenModModal}
               type="button"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="!w-4 !h-4 md:!w-5 md:!h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+              <svg xmlns="http://www.w3.org/2000/svg" className="!w-4 !h-4 md:!w-5 md:!h-5 text-green-500 dark:text-green-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                 <path d="M12 2L2 7l10 5 10-5-10-5z"/>
                 <path d="M2 17l10 5 10-5"/>
                 <path d="M2 12l10 5 10-5"/>
@@ -1425,9 +1425,9 @@ export default function MyPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.2, ease: "easeOut" }}
-            className="bg-white/30 backdrop-blur-sm rounded-2xl shadow-lg p-8 text-center mt-4"
+            className="bg-white/30 backdrop-blur-sm rounded-2xl shadow-lg p-8 text-center mt-4 dark:bg-gray-900/80 dark:backdrop-blur-md"
           >
-            <div className="w-20 h-20 mx-auto mb-4 bg-violet-100 text-violet-500 rounded-full flex items-center justify-center">
+            <div className="w-20 h-20 mx-auto mb-4 bg-violet-100 text-violet-500 rounded-full flex items-center justify-center dark:bg-violet-900/50 dark:text-violet-300">
               <svg xmlns="http://www.w3.org/2000/svg" className="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                 <circle cx="9" cy="7" r="4"></circle>
@@ -1435,11 +1435,11 @@ export default function MyPage() {
                 <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
               </svg>
             </div>
-            <h3 className="text-xl font-semibold text-gray-800 mb-2">ยังไม่มีตัวละคร</h3>
-            <p className="text-gray-500 mb-6">เริ่มต้นด้วยการเพิ่มตัวละครแรกของคุณ</p>
+            <h3 className="text-xl font-semibold text-gray-800 mb-2 dark:text-gray-200">ยังไม่มีตัวละคร</h3>
+            <p className="text-gray-500 mb-6 dark:text-gray-400">เริ่มต้นด้วยการเพิ่มตัวละครแรกของคุณ</p>
             <Button 
               onClick={() => setIsAddModalOpen(true)}
-              className="bg-gradient-to-r from-violet-500 to-blue-500 text-white hover:from-violet-600 hover:to-blue-600 transition-all duration-200 shadow-md hover:shadow-lg flex items-center gap-2 mx-auto rounded-xl px-6"
+              className="bg-gradient-to-r from-violet-500 to-blue-500 text-white hover:from-violet-600 hover:to-blue-600 transition-all duration-200 shadow-md hover:shadow-lg flex items-center gap-2 mx-auto rounded-xl px-6 dark:from-violet-600 dark:to-blue-600 dark:hover:from-violet-700 dark:hover:to-blue-700"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -1477,9 +1477,9 @@ export default function MyPage() {
       {/* Add Character Modal */}
       <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
         <DialogContent className="sm:max-w-lg min-w-[400px] bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 dark:bg-gray-900 border-0">
-          <DialogHeader className="space-y-3 pb-4 border-b border-gray-200">
+          <DialogHeader className="space-y-3 pb-4 border-b border-gray-200 dark:border-gray-700">
             <DialogTitle className="text-xl font-bold flex items-center gap-2 text-gray-800 dark:text-gray-100">
-              <div className="p-2 rounded-lg bg-violet-100 text-violet-600">
+              <div className="p-2 rounded-lg bg-violet-100 dark:bg-violet-900 text-violet-600 dark:text-violet-300">
                 <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="12" y1="5" x2="12" y2="19"></line>
                   <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -1534,15 +1534,15 @@ export default function MyPage() {
             {/* Mods List */}
             <div className="grid gap-4">
               {mods.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                     <path d="M12 2L2 7l10 5 10-5-10-5z"/>
                     <path d="M2 17l10 5 10-5"/>
                     <path d="M2 12l10 5 10-5"/>
                   </svg>
                   <p>ยังไม่มี Mod ในระบบ</p>
                   {userRole === 'leader' && (
-                    <p className="text-sm text-gray-400 mt-1">กดปุ่ม "เพิ่ม Mod ใหม่" เพื่อเพิ่ม Mod แรก</p>
+                    <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">กดปุ่ม "เพิ่ม Mod ใหม่" เพื่อเพิ่ม Mod แรก</p>
                   )}
                 </div>
               ) : (
@@ -1574,12 +1574,12 @@ export default function MyPage() {
                         <p className="text-gray-600 dark:text-gray-200 text-sm mb-3 font-medium">{mod.description}</p>
                         <div className="flex items-center gap-2 text-xs">
                           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 font-semibold">
-                            <svg className="w-3 h-3 mr-1 text-green-400" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zm3.707 6.293a1 1 0 00-1.414 0L9 11.586 7.707 10.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4a1 1 0 000-1.414z" /></svg>
+                            <svg className="w-3 h-3 mr-1 text-green-400 dark:text-green-300" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zm3.707 6.293a1 1 0 00-1.414 0L9 11.586 7.707 10.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4a1 1 0 000-1.414z" /></svg>
                             {modUserNames[mod.addedBy] || mod.addedBy}
                           </span>
                           <span className="text-gray-300 dark:text-gray-600">•</span>
                           <span className="text-blue-500 dark:text-blue-300 font-semibold">
-                            <svg className="w-3 h-3 mr-1 inline-block text-blue-400" fill="currentColor" viewBox="0 0 20 20"><path d="M6 2a1 1 0 00-1 1v1H5a3 3 0 00-3 3v8a3 3 0 003 3h10a3 3 0 003-3V7a3 3 0 00-3-3h-1V3a1 1 0 10-2 0v1H8V3a1 1 0 00-2 0zm8 4a1 1 0 011 1v8a1 1 0 01-1 1H6a1 1 0 01-1-1V7a1 1 0 011-1h8z" /></svg>
+                            <svg className="w-3 h-3 mr-1 inline-block text-blue-400 dark:text-blue-300" fill="currentColor" viewBox="0 0 20 20"><path d="M6 2a1 1 0 00-1 1v1H5a3 3 0 00-3 3v8a3 3 0 003 3h10a3 3 0 003-3V7a3 3 0 00-3-3h-1V3a1 1 0 10-2 0v1H8V3a1 1 0 00-2 0zm8 4a1 1 0 011 1v8a1 1 0 01-1 1H6a1 1 0 01-1-1V7a1 1 0 011-1h8z" /></svg>
                             {new Date(mod.addedAt).toLocaleDateString('th-TH')}
                           </span>
                         </div>
@@ -1664,7 +1664,7 @@ export default function MyPage() {
               </div>
             </div>
 
-            <DialogFooter className="border-t border-gray-200 pt-4">
+            <DialogFooter className="border-t border-gray-200 dark:border-gray-700 pt-4">
               <Button
                 type="button"
                 variant="outline"
@@ -1675,7 +1675,7 @@ export default function MyPage() {
               </Button>
               <Button
                 type="submit"
-                className="bg-gradient-to-r from-green-500 to-emerald-500 text-white hover:from-green-600 hover:to-emerald-600 transition-all duration-200 shadow-md hover:shadow-lg"
+                className="bg-gradient-to-r from-green-500 to-emerald-500 text-white hover:from-green-600 hover:to-emerald-600 transition-all duration-200 shadow-md hover:shadow-lg dark:from-green-600 dark:to-emerald-600 dark:hover:from-green-700 dark:hover:to-emerald-700"
               >
                 เพิ่ม Mod
               </Button>

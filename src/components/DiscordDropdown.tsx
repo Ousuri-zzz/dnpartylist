@@ -87,8 +87,16 @@ export function DiscordDropdown({ inMobileMenu = false, className }: { inMobileM
         <div style={{ height: 64 }} />
         {isOpen && typeof window !== 'undefined' && createPortal(
           <div
-            className="fixed left-0 right-0 bottom-0 z-[20000] flex flex-col items-stretch"
-            style={{ top: 73, background: 'rgba(0,0,0,0.18)', backdropFilter: 'blur(2px)', position: 'fixed' }}
+            className={
+              "fixed left-0 right-0 bottom-0 z-[20000] flex flex-col items-stretch discord-dropdown-mobile-overlay" +
+              (typeof window !== 'undefined' && document.body?.dataset?.theme === 'dark' ? ' dark' : '')
+            }
+            style={{
+              top: 73,
+              background: undefined,
+              backdropFilter: undefined,
+              position: 'fixed'
+            }}
             onClick={() => setIsOpen(false)}
           >
             <div
@@ -261,4 +269,54 @@ export function DiscordDropdown({ inMobileMenu = false, className }: { inMobileM
       )}
     </div>
   );
-} 
+}
+
+<style jsx global>{`
+  .discord-dropdown-mobile-overlay {
+    background: rgba(0,0,0,0.18);
+    backdrop-filter: blur(2px);
+  }
+  .discord-dropdown-mobile-overlay.dark {
+    background: rgba(35,33,54,0.92) !important;
+    backdrop-filter: blur(4px) brightness(0.95);
+    box-shadow: 0 8px 32px 0 #181825cc;
+  }
+  .discord-dropdown-mobile-overlay .bg-white {
+    background: #fff !important;
+  }
+  .discord-dropdown-mobile-overlay.dark .bg-white,
+  .discord-dropdown-mobile-overlay.dark .bg-white\/80 {
+    background: #232136 !important;
+    color: #f9a8d4 !important;
+  }
+  .discord-dropdown-mobile-overlay.dark .border-pink-200 {
+    border-color: #cba6f7 !important;
+  }
+  .discord-dropdown-mobile-overlay.dark .text-pink-600 {
+    color: #f9a8d4 !important;
+  }
+  .discord-dropdown-mobile-overlay.dark .text-purple-400 {
+    color: #cba6f7 !important;
+  }
+  .discord-dropdown-mobile-overlay.dark .text-red-400 {
+    color: #f38ba8 !important;
+  }
+  .discord-dropdown-mobile-overlay.dark .hover\:bg-pink-100\/60:hover {
+    background: #232136 !important;
+  }
+  .discord-dropdown-mobile-overlay.dark .hover\:bg-purple-100\/60:hover {
+    background: #232136 !important;
+  }
+  .discord-dropdown-mobile-overlay.dark .hover\:bg-red-100\/60:hover {
+    background: #232136 !important;
+  }
+  .discord-dropdown-mobile-overlay.dark .text-blue-600 {
+    color: #89b4fa !important;
+  }
+  .discord-dropdown-mobile-overlay.dark .ring-pink-200 {
+    --tw-ring-color: #cba6f7 !important;
+  }
+  .discord-dropdown-mobile-overlay.dark .shadow-pink-200\/40 {
+    box-shadow: 0 8px 32px 0 #cba6f7cc !important;
+  }
+`}</style> 

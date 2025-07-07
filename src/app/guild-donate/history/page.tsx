@@ -14,6 +14,7 @@ import { createPortal } from 'react-dom';
 import { getClassColors, CLASS_TO_ROLE } from '@/config/theme';
 import { DonationHistoryModal } from '@/components/DonationHistoryModal';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useTheme } from 'next-themes';
 
 interface Donate {
   id: string;
@@ -186,6 +187,8 @@ export default function GuildDonateHistoryPage() {
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [showMonthlySummary, setShowMonthlySummary] = useState(false);
   const [expandedMonths, setExpandedMonths] = useState<Record<string, boolean>>({});
+  const { resolvedTheme } = useTheme();
+  const isDarkMode = resolvedTheme === 'dark';
 
   useEffect(() => {
     if (!user) {
@@ -354,35 +357,33 @@ export default function GuildDonateHistoryPage() {
 
   return (
     <div className="max-w-6xl mx-auto p-6">
-      <div className="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-10 border border-pink-200 max-w-2xl mx-auto md:max-w-6xl relative overflow-hidden">
-        {/* Gradient Decoration */}
-        <div className="absolute -top-10 -left-10 w-40 h-40 bg-gradient-to-br from-pink-200 via-pink-100 to-yellow-100 rounded-full blur-2xl opacity-60 z-0" />
-        <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-gradient-to-tr from-yellow-100 via-orange-100 to-pink-200 rounded-full blur-2xl opacity-60 z-0" />
+      <div className="bg-white/80 backdrop-blur-lg dark:bg-zinc-900/80 rounded-3xl shadow-2xl p-10 border border-pink-200 max-w-2xl mx-auto md:max-w-6xl relative overflow-hidden">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mb-8 pb-6 border-b border-pink-100 relative">
-          <div className="p-2 sm:p-4 bg-gradient-to-br from-pink-200 via-pink-100 to-yellow-100 rounded-2xl shadow-lg flex-shrink-0">
-            <Crown className="w-8 h-8 sm:w-10 sm:h-10 text-pink-600 drop-shadow" />
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mb-8 pb-6 border-b border-pink-100 relative dark:border-pink-800">
+          {/* ไอคอน Crown */}
+          <div className="p-2 sm:p-4 bg-gradient-to-br from-pink-200 via-pink-100 to-yellow-100 rounded-2xl shadow-lg flex-shrink-0 dark:bg-zinc-900 dark:from-none dark:via-none dark:to-none">
+            <Crown className="w-8 h-8 sm:w-10 sm:h-10 text-pink-600 drop-shadow dark:text-pink-300" />
           </div>
           <div className="flex-1 min-w-0">
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-800 tracking-tight">📊 ประวัติการบริจาคของสมาชิก</h1>
-            <p className="text-sm sm:text-base text-gray-500 mt-1 font-medium">ดูประวัติการบริจาคของสมาชิกทั้งหมดในกิลด์</p>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-800 tracking-tight dark:text-pink-100">📊 ประวัติการบริจาคของสมาชิก</h1>
+            <p className="text-sm sm:text-base text-gray-500 mt-1 font-medium dark:text-gray-300">ดูประวัติการบริจาคของสมาชิกทั้งหมดในกิลด์</p>
           </div>
           {/* Navigation Buttons */}
           <div className="flex flex-col sm:flex-row gap-1 sm:gap-3 w-full sm:w-auto mt-2 sm:mt-0">
             <Link
               href="/guild-donate/cash"
-              className="flex items-center justify-center gap-2 px-4 py-2 sm:px-5 sm:py-2 bg-gradient-to-r from-green-100 via-yellow-100 to-white text-green-700 rounded-xl font-semibold hover:from-green-200 hover:to-yellow-200 hover:text-green-900 transition-colors shadow-md border border-green-200 text-base drop-shadow-md w-full sm:w-auto"
+              className="flex items-center justify-center gap-2 px-4 py-2 sm:px-5 sm:py-2 bg-green-100 text-green-700 rounded-xl font-semibold hover:bg-green-200 hover:text-green-900 transition-colors shadow-md border border-green-200 text-base drop-shadow-md w-full sm:w-auto dark:bg-zinc-800 dark:text-green-200 dark:border-green-700 dark:hover:bg-zinc-700 dark:hover:text-green-100"
             >
-              <CreditCard className="w-5 h-5 text-yellow-500" />
+              <CreditCard className="w-5 h-5 text-yellow-500 dark:text-green-300" />
               <span>ประวัติบริจาคเงินสด</span>
             </Link>
             {/* ปุ่มบริจาคกิลด์: Desktop */}
             <Link
               href="/guild-donate"
-              className="hidden sm:flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-pink-300 via-orange-100 to-yellow-200 text-pink-800 text-base font-bold rounded-full shadow-lg border-2 border-pink-300 hover:from-pink-400 hover:to-orange-200 hover:text-white hover:shadow-xl transition-all duration-150"
+              className="hidden sm:flex items-center gap-2 px-5 py-2 bg-pink-200 text-pink-800 text-base font-bold rounded-full shadow-lg border-2 border-pink-300 hover:bg-pink-300 hover:text-white hover:shadow-xl transition-all duration-150 dark:bg-zinc-800 dark:text-pink-200 dark:border-pink-700 dark:hover:bg-zinc-700 dark:hover:text-white"
               style={{ minWidth: 'fit-content' }}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" /></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-pink-500 dark:text-pink-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" /></svg>
               บริจาคกิลด์
             </Link>
           </div>
@@ -390,19 +391,19 @@ export default function GuildDonateHistoryPage() {
         {/* หลัง header (ก่อน Top 3 Ranking หรือเนื้อหาอื่น) */}
         <Link
           href="/guild-donate"
-          className="block sm:hidden w-full mb-2 px-0 py-2 bg-gradient-to-r from-pink-200 via-orange-100 to-yellow-100 text-pink-800 text-base font-bold rounded-2xl shadow-md border border-pink-200 text-center hover:from-pink-400 hover:to-orange-200 hover:text-white hover:shadow transition-all duration-150"
+          className="block sm:hidden w-full mb-2 px-0 py-2 bg-pink-200 text-pink-800 text-base font-bold rounded-2xl shadow-md border border-pink-200 text-center hover:bg-pink-300 hover:text-white hover:shadow transition-all duration-150 dark:bg-zinc-800 dark:text-pink-200 dark:border-pink-700 dark:hover:bg-zinc-700 dark:hover:text-white"
         >
           <span className="inline-flex items-center gap-2 justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" /></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-pink-500 dark:text-pink-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" /></svg>
             บริจาคกิลด์
           </span>
         </Link>
         {/* Top 3 Ranking */}
         <div className="mb-6 flex flex-col items-center">
-          <div className="flex items-center justify-center gap-3 mb-4 px-4 py-3 rounded-2xl bg-gradient-to-r from-yellow-50 via-pink-50 to-blue-50 shadow-sm border border-pink-100">
+          {/* Light mode */}
+          <div className="block dark:hidden flex items-center justify-center gap-3 mb-4 px-4 py-3 rounded-2xl shadow-sm border border-pink-100 bg-gradient-to-r from-yellow-50 via-pink-50 to-blue-50">
             <Trophy className="w-8 h-8 md:w-10 md:h-10 text-yellow-400 drop-shadow" />
-            <span className="font-extrabold text-transparent text-base md:text-xl lg:text-2xl bg-clip-text bg-gradient-to-r from-pink-600 via-yellow-600 to-pink-500 tracking-wide drop-shadow-sm text-center flex items-center gap-2
-              dark:text-yellow-300 dark:bg-none dark:bg-clip-border dark:text-xl">
+            <span className="font-extrabold text-transparent text-base md:text-xl lg:text-2xl bg-clip-text bg-gradient-to-r from-pink-600 via-yellow-600 to-pink-500 tracking-wide drop-shadow-sm text-center flex items-center gap-2">
               <span>
                 อันดับ 1-3
                 <br className="block md:hidden" />
@@ -411,41 +412,52 @@ export default function GuildDonateHistoryPage() {
               <Trophy className="w-8 h-8 md:w-10 md:h-10 text-yellow-400 drop-shadow inline-block ml-2" />
             </span>
           </div>
+          {/* Dark mode */}
+          <div className="hidden dark:flex items-center justify-center gap-3 mb-4 px-4 py-3 rounded-2xl shadow-sm border border-zinc-700 bg-zinc-800">
+            <Trophy className="w-8 h-8 md:w-10 md:h-10 text-yellow-200 drop-shadow" />
+            <span className="font-extrabold text-transparent text-base md:text-xl lg:text-2xl bg-clip-text bg-gradient-to-r from-yellow-200 via-pink-200 to-yellow-100 tracking-wide drop-shadow-sm text-center flex items-center gap-2">
+              <span>
+                อันดับ 1-3
+                <br className="block md:hidden" />
+                {' '}ยอดบริจาคประจำเดือนนี้
+              </span>
+              <Trophy className="w-8 h-8 md:w-10 md:h-10 text-yellow-200 drop-shadow inline-block ml-2" />
+            </span>
+          </div>
           {/* Desktop podium (แนวนอน) */}
           <div className="hidden md:flex flex-row gap-4 justify-center items-end w-full max-w-xl">
             {/* อันดับ 2 */}
             {top3[1] && (
               <div
-                className="flex flex-col items-center bg-gradient-to-t from-gray-50 to-white border-2 border-gray-300 rounded-xl px-2 py-2 md:px-4 md:py-3 shadow-md min-w-[110px] md:min-w-[140px] relative z-10 hover:shadow-lg hover:scale-105 transition-all duration-300"
-                style={{marginTop: '16px'}}
+                className="flex flex-col items-center border-2 rounded-2xl px-2 py-2 md:px-4 md:py-3 shadow-md min-w-[110px] md:min-w-[140px] relative z-10 hover:shadow-lg hover:scale-105 transition-all duration-300 bg-gray-50 border-gray-400 text-gray-500 dark:bg-zinc-900 dark:border-gray-400 dark:text-gray-200"
                 onMouseEnter={() => setHoveredPodiumIdx(1)}
                 onMouseLeave={() => setHoveredPodiumIdx(null)}
               >
-                <Award className="w-6 h-6 md:w-7 md:h-7 text-gray-400 mb-1 animate-pulse" />
-                <span className="font-semibold text-gray-500 truncate max-w-[90px] md:max-w-[120px] text-sm md:text-base mb-1 text-center cursor-pointer hover:text-gray-700 transition-colors">
+                <Award className="w-6 h-6 md:w-7 md:h-7 text-gray-400 mb-1 animate-pulse dark:text-gray-300" />
+                <span className="font-semibold text-gray-500 truncate max-w-[90px] md:max-w-[120px] text-sm md:text-base mb-1 text-center cursor-pointer hover:text-gray-700 transition-colors dark:text-gray-200 dark:hover:text-gray-100">
                   {top3[1].discordName}
                 </span>
-                <span className="text-green-600 font-bold text-base md:text-lg">{top3[1].amount.toLocaleString()}G</span>
-                <span className="absolute -top-4 md:-top-5 left-1/2 -translate-x-1/2 bg-gray-200 text-gray-700 px-2 py-0.5 rounded-full text-xs font-bold shadow-md border border-gray-300">2</span>
+                <span className="text-green-600 font-bold text-base md:text-lg dark:text-green-300">{top3[1].amount.toLocaleString()}G</span>
+                <span className="absolute -top-4 md:-top-5 left-1/2 -translate-x-1/2 bg-gray-200 text-gray-700 px-2 py-0.5 rounded-full text-xs font-bold shadow-md border border-gray-300 dark:bg-zinc-700 dark:text-gray-100 dark:border-zinc-600">2</span>
                 {hoveredPodiumIdx === 1 && (
                   <div
-                    className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-full bg-white border border-pink-200 rounded-xl shadow-lg px-3 py-2 min-w-fit max-w-xs inline-block animate-fade-in z-[9999] text-xs text-center">
-                    <div className="font-bold text-pink-600 mb-2 text-center text-sm md:text-base">ตัวละครทั้งหมด</div>
+                    className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-full bg-white border border-pink-200 rounded-xl shadow-lg px-3 py-2 min-w-fit max-w-xs inline-block animate-fade-in z-[9999] text-xs text-center dark:bg-zinc-900 dark:border-gray-400 dark:text-gray-200">
+                    <div className="font-bold text-pink-600 mb-2 text-center text-sm md:text-base dark:text-pink-300">ตัวละครทั้งหมด</div>
                     {allCharactersByUserId[top3[1].userId]?.length ? (
                       <div className="flex flex-col gap-1">
                         {allCharactersByUserId[top3[1].userId].map((char, i) => {
                           const role = CLASS_TO_ROLE[char.class as import('@/types/character').CharacterClass] || 'Warrior';
                           const color = getClassColors(role);
                           return (
-                            <div key={char.id || i} className="flex items-center gap-2 whitespace-nowrap">
-                              <span className={`font-semibold ${color.text} text-xs md:text-base`}>{char.name}</span>
-                              <span className={`text-xs px-2 py-0.5 rounded-full border ${color.text} ${color.border} bg-white`}>{char.class}</span>
+                            <div key={char.id || i} className={`flex items-center gap-2 whitespace-nowrap`}>
+                              <span className={`font-semibold ${color.text} text-xs md:text-base dark:text-inherit`}>{char.name}</span>
+                              <span className={`text-xs px-2 py-0.5 rounded-full border ${color.text} ${color.border} bg-white dark:bg-zinc-800`}>{char.class}</span>
                             </div>
                           );
                         })}
                       </div>
                     ) : (
-                      <div className="text-gray-400 text-center text-xs md:text-base">ไม่มีข้อมูลตัวละคร</div>
+                      <div className="text-gray-400 text-center text-xs md:text-base dark:text-gray-500">ไม่มีข้อมูลตัวละคร</div>
                     )}
                   </div>
                 )}
@@ -454,36 +466,35 @@ export default function GuildDonateHistoryPage() {
             {/* อันดับ 1 */}
             {top3[0] && (
               <div
-                className="flex flex-col items-center bg-gradient-to-t from-yellow-100 via-yellow-50 to-white border-2 border-yellow-300 rounded-2xl px-3 py-3 md:px-6 md:py-5 shadow-xl min-w-[120px] md:min-w-[170px] scale-110 relative z-20 hover:shadow-2xl hover:scale-115 transition-all duration-300"
-                style={{marginTop: '0px'}}
+                className="flex flex-col items-center border-2 rounded-2xl px-3 py-3 md:px-6 md:py-5 shadow-xl min-w-[120px] md:min-w-[170px] scale-110 relative z-20 hover:shadow-2xl hover:scale-115 transition-all duration-300 bg-yellow-50 border-yellow-400 text-yellow-700 dark:bg-zinc-900 dark:border-yellow-400 dark:text-yellow-300"
                 onMouseEnter={() => setHoveredPodiumIdx(0)}
                 onMouseLeave={() => setHoveredPodiumIdx(null)}
               >
-                <Award className="w-7 h-7 md:w-9 md:h-9 text-yellow-400 mb-1 drop-shadow animate-bounce" />
-                <span className="font-bold text-yellow-700 truncate max-w-[100px] md:max-w-[140px] text-base md:text-lg mb-1 text-center cursor-pointer hover:text-yellow-800 transition-colors">
+                <Award className="w-7 h-7 md:w-9 md:h-9 text-yellow-400 mb-1 drop-shadow animate-bounce dark:text-yellow-300" />
+                <span className="font-bold text-yellow-700 truncate max-w-[100px] md:max-w-[140px] text-base md:text-lg mb-1 text-center cursor-pointer hover:text-yellow-800 transition-colors dark:text-yellow-200 dark:hover:text-yellow-100">
                   {top3[0].discordName}
                 </span>
-                <span className="text-green-700 font-extrabold text-lg md:text-2xl drop-shadow">{top3[0].amount.toLocaleString()}G</span>
-                <span className="absolute -top-5 md:-top-6 left-1/2 -translate-x-1/2 bg-gradient-to-r from-yellow-300 to-yellow-400 text-yellow-900 px-3 py-1 rounded-full text-base font-extrabold shadow-lg border-2 border-yellow-400">1</span>
+                <span className="text-green-700 font-extrabold text-lg md:text-2xl drop-shadow dark:text-green-300">{top3[0].amount.toLocaleString()}G</span>
+                <span className="absolute -top-5 md:-top-6 left-1/2 -translate-x-1/2 bg-gradient-to-r from-yellow-300 to-yellow-400 text-yellow-900 px-3 py-1 rounded-full text-base font-extrabold shadow-lg border-2 border-yellow-400 dark:from-yellow-700 dark:to-yellow-800 dark:text-yellow-100 dark:border-yellow-500">1</span>
                 {hoveredPodiumIdx === 0 && (
                   <div
-                    className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-full bg-white border border-pink-200 rounded-xl shadow-lg px-3 py-2 min-w-fit max-w-xs inline-block animate-fade-in z-[9999] text-xs text-center">
-                    <div className="font-bold text-pink-600 mb-2 text-center text-sm md:text-base">ตัวละครทั้งหมด</div>
+                    className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-full bg-white border border-pink-200 rounded-xl shadow-lg px-3 py-2 min-w-fit max-w-xs inline-block animate-fade-in z-[9999] text-xs text-center dark:bg-zinc-900 dark:border-gray-400 dark:text-gray-200">
+                    <div className="font-bold text-pink-600 mb-2 text-center text-sm md:text-base dark:text-pink-300">ตัวละครทั้งหมด</div>
                     {allCharactersByUserId[top3[0].userId]?.length ? (
                       <div className="flex flex-col gap-1">
                         {allCharactersByUserId[top3[0].userId].map((char, i) => {
                           const role = CLASS_TO_ROLE[char.class as import('@/types/character').CharacterClass] || 'Warrior';
                           const color = getClassColors(role);
                           return (
-                            <div key={char.id || i} className="flex items-center gap-2 whitespace-nowrap">
-                              <span className={`font-semibold ${color.text} text-xs md:text-base`}>{char.name}</span>
-                              <span className={`text-xs px-2 py-0.5 rounded-full border ${color.text} ${color.border} bg-white`}>{char.class}</span>
+                            <div key={char.id || i} className={`flex items-center gap-2 whitespace-nowrap`}>
+                              <span className={`font-semibold ${color.text} text-xs md:text-base dark:text-inherit`}>{char.name}</span>
+                              <span className={`text-xs px-2 py-0.5 rounded-full border ${color.text} ${color.border} bg-white dark:bg-zinc-800`}>{char.class}</span>
                             </div>
                           );
                         })}
                       </div>
                     ) : (
-                      <div className="text-gray-400 text-center text-xs md:text-base">ไม่มีข้อมูลตัวละคร</div>
+                      <div className="text-gray-400 text-center text-xs md:text-base dark:text-gray-500">ไม่มีข้อมูลตัวละคร</div>
                     )}
                   </div>
                 )}
@@ -492,43 +503,42 @@ export default function GuildDonateHistoryPage() {
             {/* อันดับ 3 */}
             {top3[2] && (
               <div
-                className="flex flex-col items-center bg-gradient-to-t from-orange-50 to-white border-2 border-orange-200 rounded-xl px-2 py-2 md:px-4 md:py-3 shadow-md min-w-[110px] md:min-w-[140px] relative z-10 hover:shadow-lg hover:scale-105 transition-all duration-300"
-                style={{marginTop: '24px'}}
+                className="flex flex-col items-center border-2 rounded-2xl px-2 py-2 md:px-4 md:py-3 shadow-md min-w-[110px] md:min-w-[140px] relative z-10 hover:shadow-lg hover:scale-105 transition-all duration-300 bg-orange-50 border-orange-400 text-orange-500 dark:bg-zinc-900 dark:border-orange-400 dark:text-orange-200"
                 onMouseEnter={() => setHoveredPodiumIdx(2)}
                 onMouseLeave={() => setHoveredPodiumIdx(null)}
               >
-                <Award className="w-6 h-6 md:w-7 md:h-7 text-orange-400 mb-1 animate-pulse" />
-                <span className="font-semibold text-orange-500 truncate max-w-[90px] md:max-w-[120px] text-sm md:text-base mb-1 text-center cursor-pointer hover:text-orange-600 transition-colors">
+                <Award className="w-6 h-6 md:w-7 md:h-7 text-orange-400 mb-1 animate-pulse dark:text-orange-300" />
+                <span className="font-semibold text-orange-500 truncate max-w-[90px] md:max-w-[120px] text-sm md:text-base mb-1 text-center cursor-pointer hover:text-orange-600 transition-colors dark:text-orange-200 dark:hover:text-orange-100">
                   {top3[2].discordName}
                 </span>
-                <span className="text-green-600 font-bold text-base md:text-lg">{top3[2].amount.toLocaleString()}G</span>
-                <span className="absolute -top-4 md:-top-5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-orange-200 to-orange-300 text-orange-700 px-2 py-0.5 rounded-full text-xs font-bold shadow-md border border-orange-300">3</span>
+                <span className="text-green-600 font-bold text-base md:text-lg dark:text-green-300">{top3[2].amount.toLocaleString()}G</span>
+                <span className="absolute -top-4 md:-top-5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-orange-200 to-orange-300 text-orange-700 px-2 py-0.5 rounded-full text-xs font-bold shadow-md border border-orange-300 dark:from-orange-700 dark:to-orange-800 dark:text-orange-100 dark:border-orange-500">3</span>
                 {hoveredPodiumIdx === 2 && (
                   <div
-                    className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-full bg-white border border-pink-200 rounded-xl shadow-lg px-3 py-2 min-w-fit max-w-xs inline-block animate-fade-in z-[9999] text-xs text-center">
-                    <div className="font-bold text-pink-600 mb-2 text-center text-sm md:text-base">ตัวละครทั้งหมด</div>
+                    className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-full bg-white border border-pink-200 rounded-xl shadow-lg px-3 py-2 min-w-fit max-w-xs inline-block animate-fade-in z-[9999] text-xs text-center dark:bg-zinc-900 dark:border-gray-400 dark:text-gray-200">
+                    <div className="font-bold text-pink-600 mb-2 text-center text-sm md:text-base dark:text-pink-300">ตัวละครทั้งหมด</div>
                     {allCharactersByUserId[top3[2].userId]?.length ? (
                       <div className="flex flex-col gap-1">
                         {allCharactersByUserId[top3[2].userId].map((char, i) => {
                           const role = CLASS_TO_ROLE[char.class as import('@/types/character').CharacterClass] || 'Warrior';
                           const color = getClassColors(role);
                           return (
-                            <div key={char.id || i} className="flex items-center gap-2 whitespace-nowrap">
-                              <span className={`font-semibold ${color.text} text-xs md:text-base`}>{char.name}</span>
-                              <span className={`text-xs px-2 py-0.5 rounded-full border ${color.text} ${color.border} bg-white`}>{char.class}</span>
+                            <div key={char.id || i} className={`flex items-center gap-2 whitespace-nowrap`}>
+                              <span className={`font-semibold ${color.text} text-xs md:text-base dark:text-inherit`}>{char.name}</span>
+                              <span className={`text-xs px-2 py-0.5 rounded-full border ${color.text} ${color.border} bg-white dark:bg-zinc-800`}>{char.class}</span>
                             </div>
                           );
                         })}
                       </div>
                     ) : (
-                      <div className="text-gray-400 text-center text-xs md:text-base">ไม่มีข้อมูลตัวละคร</div>
+                      <div className="text-gray-400 text-center text-xs md:text-base dark:text-gray-500">ไม่มีข้อมูลตัวละคร</div>
                     )}
                   </div>
                 )}
               </div>
             )}
             {top3.length === 0 && (
-              <span className="text-gray-400">ยังไม่มีข้อมูลบริจาคในเดือนนี้</span>
+              <span className="text-gray-400 dark:text-gray-500">ยังไม่มีข้อมูลบริจาคในเดือนนี้</span>
             )}
           </div>
           {/* Mobile podium (แนวตั้ง) */}
@@ -537,26 +547,21 @@ export default function GuildDonateHistoryPage() {
               top3[idx] && (
                 <div
                   key={idx}
-                  className={`relative flex items-center gap-3 rounded-xl border-2 shadow-md px-3 py-3 ${
-                    idx===0
-                      ? 'border-yellow-300 bg-gradient-to-r from-yellow-50 to-white dark:bg-black dark:border-yellow-400'
-                      : idx===1
-                        ? 'border-gray-300 bg-gradient-to-r from-gray-50 to-white dark:border-zinc-700 dark:bg-zinc-800/60'
-                        : 'border-orange-200 bg-gradient-to-r from-orange-50 to-white dark:border-orange-400 dark:bg-orange-900/40'
-                  }`}
+                  className={`${isDarkMode ? 'relative flex items-center gap-3 rounded-xl border-2 shadow-md px-3 py-3 bg-zinc-800 dark:border-zinc-700' : 'relative flex items-center gap-3 rounded-xl border-2 shadow-md px-3 py-3'}`}
+                  style={isDarkMode ? { backgroundColor: '#18181b' } : undefined}
                   onMouseEnter={() => setHoveredPodiumIdx(idx)}
                   onMouseLeave={() => setHoveredPodiumIdx(null)}
                   onTouchStart={() => setHoveredPodiumIdx(idx)}
                   onTouchEnd={() => setTimeout(()=>setHoveredPodiumIdx(null), 300)}
                 >
                   <div className="flex flex-col items-center justify-center min-w-[40px]">
-                    <Award className={`${idx===0 ? 'text-yellow-400' : idx===1 ? 'text-gray-400' : 'text-orange-400'} w-7 h-7 mb-1`} />
+                    <Award className={`${idx===0 ? 'text-yellow-400 dark:text-yellow-300' : idx===1 ? 'text-gray-400 dark:text-gray-200' : 'text-orange-400 dark:text-orange-200'} w-7 h-7 mb-1`} />
                     <span className={`absolute -top-3 left-2 px-2 py-0.5 rounded-full text-xs font-bold shadow ${
                       idx===0
-                        ? 'bg-yellow-300 text-yellow-900 border-2 border-yellow-400 dark:bg-black dark:text-yellow-300 dark:border-yellow-400'
+                        ? 'bg-yellow-300 text-yellow-900 border-2 border-yellow-400 dark:bg-yellow-800 dark:text-yellow-100 dark:border-yellow-500'
                         : idx===1
                           ? 'bg-gray-200 text-gray-700 dark:bg-zinc-700 dark:text-gray-100'
-                          : 'bg-orange-200 text-orange-700 dark:bg-orange-700 dark:text-orange-100'
+                          : 'bg-orange-200 text-orange-700 dark:bg-orange-700 dark:text-orange-100 dark:border-orange-500'
                     }`}>
                       {idx+1}
                     </span>
@@ -564,12 +569,12 @@ export default function GuildDonateHistoryPage() {
                   <div className={`font-bold truncate text-base ${idx===0 ? 'text-yellow-700 dark:text-yellow-200' : idx===1 ? 'text-gray-500 dark:text-gray-200' : 'text-orange-500 dark:text-orange-200'}`}>
                     {top3[idx].discordName}
                   </div>
-                  <div className="text-green-700 font-extrabold text-lg">
+                  <div className="text-green-700 font-extrabold text-lg dark:text-green-300">
                     {top3[idx].amount.toLocaleString()}G
                   </div>
                   {/* Tooltip (tap/hover) */}
                   {hoveredPodiumIdx === idx && (
-                    <div className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-full bg-white border border-pink-200 rounded-xl shadow-lg px-3 py-2 min-w-fit max-w-xs inline-block animate-fade-in z-[9999] text-xs text-center">
+                    <div className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-full bg-white border border-pink-200 rounded-xl shadow-lg px-3 py-2 min-w-fit max-w-xs inline-block animate-fade-in z-[9999] text-xs text-center dark:bg-zinc-900 dark:border-gray-400 dark:text-gray-200">
                       <div className="font-bold text-pink-600 mb-2 text-center text-sm">ตัวละครทั้งหมด</div>
                       {allCharactersByUserId[top3[idx].userId]?.length ? (
                         <div className="flex flex-col gap-1">
@@ -577,15 +582,15 @@ export default function GuildDonateHistoryPage() {
                             const role = CLASS_TO_ROLE[char.class as import('@/types/character').CharacterClass] || 'Warrior';
                             const color = getClassColors(role);
                             return (
-                              <div key={char.id || i} className="flex items-center gap-2 whitespace-nowrap">
-                                <span className={`font-semibold ${color.text} text-xs md:text-base`}>{char.name}</span>
-                                <span className={`text-xs px-2 py-0.5 rounded-full border ${color.text} ${color.border} bg-white`}>{char.class}</span>
+                              <div key={char.id} className="flex items-center gap-2 group">
+                                <span className={`font-semibold ${color.text} text-sm group-hover:scale-105 transition-transform select-text`}>{char.name}</span>
+                                <span className={`text-xs px-2 py-0.5 rounded-full border ${color.text} ${color.border} bg-white/80 backdrop-blur-sm group-hover:bg-white transition-colors select-text dark:bg-zinc-800/80 dark:group-hover:bg-zinc-700`}>{char.class}</span>
                               </div>
                             );
                           })}
                         </div>
                       ) : (
-                        <div className="text-gray-400 text-center text-xs">ไม่มีข้อมูลตัวละคร</div>
+                        <div className="text-gray-400 text-center text-xs dark:text-gray-500">ไม่มีข้อมูลตัวละคร</div>
                       )}
                     </div>
                   )}
@@ -593,7 +598,7 @@ export default function GuildDonateHistoryPage() {
               )
             ))}
             {top3.length === 0 && (
-              <span className="text-gray-400 text-center">ยังไม่มีข้อมูลบริจาคในเดือนนี้</span>
+              <span className="text-gray-400 text-center dark:text-gray-500">ยังไม่มีข้อมูลบริจาคในเดือนนี้</span>
             )}
           </div>
         </div>
@@ -606,88 +611,88 @@ export default function GuildDonateHistoryPage() {
               placeholder="ค้นหาด้วยชื่อ Discord หรือชื่อตัวละคร..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border-2 border-pink-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-300 focus:border-pink-400 bg-pink-50 text-gray-700 placeholder:text-pink-300 transition md:w-full md:max-w-none"
+              className="w-full pl-10 pr-4 py-2 border-2 border-pink-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-300 focus:border-pink-400 bg-pink-50 text-gray-700 placeholder:text-pink-300 transition md:w-full md:max-w-none dark:bg-zinc-800 dark:border-pink-500 dark:text-gray-200 dark:placeholder:text-pink-300 dark:focus:ring-pink-500 dark:focus:border-pink-500"
             />
           </div>
           <div className="flex flex-col md:flex-row gap-2 mt-2 md:mt-0 w-full md:w-auto">
-            <div className="bg-white/80 border border-pink-200 rounded-lg px-4 py-2 flex flex-col items-center shadow-sm min-w-[110px]">
-              <span className="text-xs text-gray-500 flex items-center gap-1"><svg className="w-4 h-4 text-pink-400 inline-block" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 4h10a2 2 0 012 2v10a2 2 0 01-2 2H7a2 2 0 01-2-2V9a2 2 0 012-2z" /></svg>เดือนนี้</span>
-              <span className="font-bold text-pink-600 text-lg">{sumThisMonth.toLocaleString()}G</span>
+            <div className="bg-white/80 border border-pink-200 rounded-lg px-4 py-2 flex flex-col items-center shadow-sm min-w-[110px] dark:bg-zinc-900 dark:border-pink-800">
+              <span className="text-xs text-gray-500 flex items-center gap-1 dark:text-pink-400"><svg className="w-4 h-4 text-pink-400 inline-block dark:text-pink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 4h10a2 2 0 012 2v10a2 2 0 01-2 2H7a2 2 0 01-2-2V9a2 2 0 012-2z" /></svg>เดือนนี้</span>
+              <span className="font-bold text-pink-600 text-lg dark:text-pink-400">{sumThisMonth.toLocaleString()}G</span>
             </div>
-            <div className="bg-white/80 border border-pink-200 rounded-lg px-4 py-2 flex flex-col items-center shadow-sm min-w-[110px]">
-              <span className="text-xs text-gray-500 flex items-center gap-1"><svg className="w-4 h-4 text-yellow-400 inline-block" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 4h10a2 2 0 012 2v10a2 2 0 01-2 2H7a2 2 0 01-2-2V9a2 2 0 012-2z" /></svg>เดือนที่แล้ว</span>
-              <span className="font-bold text-yellow-600 text-lg">{sumLastMonth.toLocaleString()}G</span>
+            <div className="bg-white/80 border border-pink-200 rounded-lg px-4 py-2 flex flex-col items-center shadow-sm min-w-[110px] dark:bg-zinc-900 dark:border-pink-800">
+              <span className="text-xs text-gray-500 flex items-center gap-1 dark:text-yellow-300"><svg className="w-4 h-4 text-yellow-400 inline-block dark:text-yellow-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 4h10a2 2 0 012 2v10a2 2 0 01-2 2H7a2 2 0 01-2-2V9a2 2 0 012-2z" /></svg>เดือนที่แล้ว</span>
+              <span className="font-bold text-yellow-600 text-lg dark:text-yellow-300">{sumLastMonth.toLocaleString()}G</span>
             </div>
             <button
               type="button"
-              className="bg-white/80 border border-pink-200 rounded-lg px-4 py-2 flex flex-row items-center shadow-sm min-w-[120px] max-w-full focus:outline-none focus:ring-2 focus:ring-pink-300 hover:bg-pink-50 transition relative cursor-pointer gap-2"
+              className="bg-white/80 border border-pink-200 rounded-lg px-4 py-2 flex flex-row items-center shadow-sm min-w-[120px] max-w-full focus:outline-none focus:ring-2 focus:ring-pink-300 hover:bg-pink-50 transition relative cursor-pointer gap-2 dark:bg-zinc-900 dark:border-pink-800 dark:hover:bg-zinc-800 dark:focus:ring-pink-700"
               onClick={() => setShowMonthlySummary(true)}
               aria-label="ดูสรุปยอดรวมรายเดือน"
             >
-              <span className="text-xs text-gray-500 flex items-center gap-1"><Coins className="w-4 h-4 text-green-400 inline-block" />รวมทั้งหมด</span>
-              <span className="font-bold text-green-600 text-2xl">{sumAll.toLocaleString()}G</span>
-              <ChevronRight className="w-5 h-5 text-pink-400 ml-2" />
+              <span className="text-xs text-gray-500 flex items-center gap-1 dark:text-green-300"><Coins className="w-4 h-4 text-green-400 inline-block dark:text-green-300" />รวมทั้งหมด</span>
+              <span className="font-bold text-green-600 text-2xl dark:text-green-300">{sumAll.toLocaleString()}G</span>
+              <ChevronRight className="w-5 h-5 text-pink-400 ml-2 dark:text-pink-400" />
             </button>
           </div>
         </div>
         <div className="overflow-x-auto hidden md:block">
           <table className="w-full">
             <thead>
-              <tr className="bg-gradient-to-r from-pink-50 via-yellow-50 to-pink-100 dark:from-white/20 dark:via-yellow-100/20 dark:to-pink-100/20 dark:border-b-2 dark:border-pink-400/40">
+              <tr className="bg-gradient-to-r from-pink-50 via-yellow-50 to-pink-100 dark:from-zinc-900 dark:via-zinc-900 dark:to-zinc-900 dark:border-b-2 dark:border-pink-800">
                 <th 
-                  className="px-3 py-3 text-center text-sm font-bold text-pink-700 cursor-pointer hover:bg-pink-100 w-16 dark:text-pink-100"
+                  className="px-3 py-3 text-center text-sm font-bold text-pink-700 cursor-pointer hover:bg-pink-100 w-16 dark:text-pink-400 dark:hover:bg-zinc-800"
                   onClick={() => handleSort('donationCount')}
                 >
                   <div className="flex items-center justify-center gap-1">
                     <Users className="w-4 h-4" />
                     ครั้ง
                     {sortBy === 'donationCount' && (
-                      <span className="text-pink-500">{sortOrder === 'desc' ? '↓' : '↑'}</span>
+                      <span className="text-pink-500 dark:text-pink-400">{sortOrder === 'desc' ? '↓' : '↑'}</span>
                     )}
                   </div>
                 </th>
-                <th className="px-3 py-3 text-left text-sm font-bold text-pink-700 w-64 dark:text-pink-100">รายชื่อสมาชิก</th>
+                <th className="px-3 py-3 text-left text-sm font-bold text-pink-700 w-64 dark:text-pink-400">รายชื่อสมาชิก</th>
                 <th 
-                  className="px-3 py-3 text-center text-sm font-bold text-pink-700 cursor-pointer hover:bg-pink-100 w-36 whitespace-nowrap dark:text-pink-100"
+                  className="px-3 py-3 text-center text-sm font-bold text-pink-700 cursor-pointer hover:bg-pink-100 w-36 whitespace-nowrap dark:text-pink-400 dark:hover:bg-zinc-800"
                   onClick={() => handleSort('lastDonation')}
                 >
                   <div className="flex items-center gap-1 justify-center">
                     <Calendar className="w-4 h-4" />
                     บริจาคล่าสุด
                     {sortBy === 'lastDonation' && (
-                      <span className="text-pink-500">{sortOrder === 'desc' ? '↓' : '↑'}</span>
+                      <span className="text-pink-500 dark:text-pink-400">{sortOrder === 'desc' ? '↓' : '↑'}</span>
                     )}
                   </div>
                 </th>
                 <th 
-                  className="px-3 py-3 text-center text-sm font-bold text-pink-700 cursor-pointer hover:bg-pink-100 w-32 whitespace-nowrap dark:text-pink-100"
+                  className="px-3 py-3 text-center text-sm font-bold text-pink-700 cursor-pointer hover:bg-pink-100 w-32 whitespace-nowrap dark:text-pink-400 dark:hover:bg-zinc-800"
                   onClick={() => handleSort('lastDonationAmount')}
                 >
                   <div className="flex items-center gap-1 justify-center">
                     <Coins className="w-4 h-4" />
                     ยอดเดือนล่าสุด
                     {sortBy === 'lastDonationAmount' && (
-                      <span className="text-pink-500">{sortOrder === 'desc' ? '↓' : '↑'}</span>
+                      <span className="text-pink-500 dark:text-pink-400">{sortOrder === 'desc' ? '↓' : '↑'}</span>
                     )}
                   </div>
                 </th>
                 <th 
-                  className="px-3 py-3 text-left text-sm font-bold text-pink-700 cursor-pointer hover:bg-pink-100 w-32 whitespace-nowrap dark:text-pink-100"
+                  className="px-3 py-3 text-left text-sm font-bold text-pink-700 cursor-pointer hover:bg-pink-100 w-32 whitespace-nowrap dark:text-pink-400 dark:hover:bg-zinc-800"
                   onClick={() => handleSort('totalDonations')}
                 >
                   <div className="flex items-center gap-1 justify-center">
                     <Coins className="w-4 h-4" />
                     ยอดรวม
                     {sortBy === 'totalDonations' && (
-                      <span className="text-pink-500">{sortOrder === 'desc' ? '↓' : '↑'}</span>
+                      <span className="text-pink-500 dark:text-pink-400">{sortOrder === 'desc' ? '↓' : '↑'}</span>
                     )}
                   </div>
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-pink-100">
+            <tbody className="divide-y divide-pink-100 dark:divide-zinc-700">
               {filteredDonations.map((member) => (
-                <tr key={member.userId} className="hover:bg-pink-50/50">
+                <tr key={member.userId} className="hover:bg-pink-50/50 dark:hover:bg-zinc-700/50">
                   <td className="px-3 py-3 text-center">
                     <button
                       className={cn(
@@ -706,7 +711,7 @@ export default function GuildDonateHistoryPage() {
                   <td className="px-3 py-3">
                     <div className="flex items-center gap-2 flex-nowrap min-w-0">
                       <span 
-                        className="font-medium text-gray-700 flex-shrink min-w-0 w-full truncate" 
+                        className="font-medium text-gray-700 flex-shrink min-w-0 w-full truncate dark:text-gray-200" 
                         title={member.discordName}
                       >
                         {member.discordName}
@@ -715,7 +720,7 @@ export default function GuildDonateHistoryPage() {
                           return chars.length > 0 && (
                             <span
                               ref={el => { plusNRefs.current[member.userId] = el; }}
-                              className="ml-2 px-1.5 py-0.5 bg-white/80 backdrop-blur-sm text-pink-600 rounded-full text-xs border border-pink-200 cursor-pointer select-none inline-block align-middle"
+                              className="ml-2 px-1.5 py-0.5 bg-white/80 backdrop-blur-sm text-pink-600 rounded-full text-xs border border-pink-200 cursor-pointer select-none inline-block align-middle dark:bg-zinc-800/80 dark:text-pink-200 dark:border-zinc-600"
                               onMouseEnter={() => setOpenPopoverUser(member.userId)}
                               onMouseLeave={(e) => {
                                 const tooltip = document.querySelector(`[data-tooltip-for=\"${member.userId}\"]`);
@@ -742,7 +747,7 @@ export default function GuildDonateHistoryPage() {
                               top: (plusNRefs.current[member.userId]?.getBoundingClientRect().bottom ?? 0) + window.scrollY - 4,
                               left: (plusNRefs.current[member.userId]?.getBoundingClientRect().left ?? 0)
                             }}
-                            className="bg-white/95 backdrop-blur-sm border border-pink-200 rounded-lg shadow-lg p-3 min-w-[200px] max-w-xs animate-fade-in"
+                            className="bg-white/95 backdrop-blur-sm border border-pink-200 rounded-lg shadow-lg p-3 min-w-[200px] max-w-xs animate-fade-in dark:bg-zinc-900/95 dark:border-zinc-600"
                             onMouseEnter={() => setOpenPopoverUser(member.userId)}
                             onMouseLeave={(e) => {
                               const plusButton = plusNRefs.current[member.userId];
@@ -757,7 +762,7 @@ export default function GuildDonateHistoryPage() {
                               }
                             }}
                           >
-                            <div className="text-sm font-semibold text-pink-600 mb-2 border-b border-pink-100 pb-2">ตัวละครทั้งหมด:</div>
+                            <div className="text-sm font-semibold text-pink-600 mb-2 border-b border-pink-100 pb-2 dark:text-pink-200 dark:border-zinc-700">ตัวละครทั้งหมด:</div>
                             <div className="space-y-1.5">
                               {chars.map(char => {
                                 const role = CLASS_TO_ROLE[char.class as import('@/types/character').CharacterClass] || 'Warrior';
@@ -765,7 +770,7 @@ export default function GuildDonateHistoryPage() {
                                 return (
                                   <div key={char.id} className="flex items-center gap-2 group">
                                     <span className={`font-semibold ${color.text} text-sm group-hover:scale-105 transition-transform select-text`}>{char.name}</span>
-                                    <span className={`text-xs px-2 py-0.5 rounded-full border ${color.text} ${color.border} bg-white/80 backdrop-blur-sm group-hover:bg-white transition-colors select-text`}>{char.class}</span>
+                                    <span className={`text-xs px-2 py-0.5 rounded-full border ${color.text} ${color.border} bg-white/80 backdrop-blur-sm group-hover:bg-white transition-colors select-text dark:bg-zinc-800/80 dark:group-hover:bg-zinc-700`}>{char.class}</span>
                                   </div>
                                 );
                               })}
@@ -779,7 +784,7 @@ export default function GuildDonateHistoryPage() {
                   <td className="px-3 py-3 w-36 whitespace-nowrap text-center">
                     {member.lastDonation ? (
                       (() => {
-                        const d = new Date(member.lastDonation);
+                        const d = new Date(member.lastDonation as number);
                         const now = new Date();
                         const isCurrentMonth = d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
                         const isLastMonth = (() => {
@@ -794,7 +799,7 @@ export default function GuildDonateHistoryPage() {
                         });
                         if (isCurrentMonth) {
                           return (
-                            <span className="text-pink-500 bg-pink-50 border border-pink-200 rounded-full px-3 py-1 inline-block">
+                            <span className="text-pink-500 bg-pink-50 border border-pink-200 rounded-full px-3 py-1 inline-block dark:bg-pink-800/40 dark:text-pink-300 dark:border-pink-600">
                               {dateStr}
                             </span>
                           );
@@ -837,29 +842,29 @@ export default function GuildDonateHistoryPage() {
           {filteredDonations.map((member) => (
             <div
               key={member.userId}
-              className="bg-white/90 border border-pink-100 rounded-lg shadow-sm p-2 flex flex-col gap-1 cursor-pointer active:bg-pink-50 transition"
+              className="bg-white/90 border border-pink-100 rounded-lg shadow-sm p-2 flex flex-col gap-1 cursor-pointer active:bg-pink-50 transition dark:bg-zinc-800/90 dark:border-zinc-600 dark:active:bg-zinc-700"
               onClick={() => {
                 setSelectedUserId(member.userId);
                 setShowHistoryModal(true);
               }}
             >
               <div className="flex items-center gap-2">
-                <Crown className="w-5 h-5 text-pink-400 shrink-0" />
-                <span className="font-bold text-gray-800 text-base truncate max-w-[120px]">{member.discordName}</span>
-                <span className="ml-auto text-xs text-gray-400 whitespace-nowrap">{member.donationCount > 0 ? `${member.donationCount} ครั้ง` : 'ยังไม่เคยบริจาค'}</span>
+                <Crown className="w-5 h-5 text-pink-400 shrink-0 dark:text-pink-300" />
+                <span className="font-bold text-gray-800 text-base truncate max-w-[120px] dark:text-gray-200">{member.discordName}</span>
+                <span className="ml-auto text-xs text-gray-400 whitespace-nowrap dark:text-gray-500">{member.donationCount > 0 ? `${member.donationCount} ครั้ง` : 'ยังไม่เคยบริจาค'}</span>
               </div>
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm mt-1">
                 <div className="flex items-center gap-1 min-w-[90px]">
-                  <Calendar className="w-4 h-4 text-pink-300" />
-                  <span className="text-gray-600 truncate">
+                  <Calendar className="w-4 h-4 text-pink-300 dark:text-pink-400" />
+                  <span className="text-gray-600 truncate dark:text-gray-300">
                     {member.lastDonation ?
-                      new Date(member.lastDonation).toLocaleDateString('th-TH', { year: '2-digit', month: 'short', day: 'numeric' }) :
+                      new Date(member.lastDonation as number).toLocaleDateString('th-TH', { year: '2-digit', month: 'short', day: 'numeric' }) :
                       '-'}
                   </span>
                 </div>
                 <div className="flex items-center gap-1 min-w-[70px]">
-                  <Coins className="w-4 h-4 text-green-400" />
-                  <span className="text-green-600 font-semibold">
+                  <Coins className="w-4 h-4 text-green-400 dark:text-green-300" />
+                  <span className="text-green-600 font-semibold dark:text-green-200">
                     {(() => {
                       const amt = getLatestMonthDonationAmount(donates, member.userId);
                       return amt > 0 ? (
@@ -871,8 +876,8 @@ export default function GuildDonateHistoryPage() {
                   </span>
                 </div>
                 <div className="flex items-center gap-1 min-w-[70px]">
-                  <Coins className="w-4 h-4 text-yellow-400" />
-                  <span className="text-yellow-600 font-semibold">
+                  <Coins className="w-4 h-4 text-yellow-400 dark:text-yellow-300" />
+                  <span className="text-yellow-600 font-semibold dark:text-yellow-200">
                     {member.totalDonations > 0 ? `${member.totalDonations.toLocaleString()}G` : '-'}
                   </span>
                 </div>
@@ -880,8 +885,8 @@ export default function GuildDonateHistoryPage() {
               {allCharactersByUserId[member.userId]?.length > 0 && (
                 <div className="flex flex-wrap gap-1 mt-1">
                   {allCharactersByUserId[member.userId].map(char => (
-                    <span key={char.id} className="px-2 py-0.5 bg-pink-50 text-pink-500 rounded-full text-xs border border-pink-100" /* mobile: show full name, no truncate */>
-                      {char.name} <span className="text-gray-400">({char.class})</span>
+                    <span key={char.id} className="px-2 py-0.5 bg-pink-50 text-pink-500 rounded-full text-xs border border-pink-100 dark:bg-zinc-700 dark:text-pink-200 dark:border-zinc-600" /* mobile: show full name, no truncate */>
+                      {char.name} <span className="text-gray-400 dark:text-gray-500">({char.class})</span>
                     </span>
                   ))}
                 </div>
@@ -889,7 +894,7 @@ export default function GuildDonateHistoryPage() {
             </div>
           ))}
           {filteredDonations.length === 0 && (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
               ไม่พบข้อมูลที่ค้นหา
             </div>
           )}
@@ -901,13 +906,13 @@ export default function GuildDonateHistoryPage() {
         donations={userDonations}
       />
       <Dialog open={showMonthlySummary} onOpenChange={setShowMonthlySummary}>
-        <DialogContent className="max-w-md md:max-w-md w-[94vw] p-0 bg-white dark:bg-zinc-900 border-0 shadow-xl rounded-2xl overflow-hidden">
-          <DialogHeader className="sticky top-0 z-10 bg-white dark:bg-zinc-900 px-3 pt-4 pb-2 border-b border-pink-100 dark:border-zinc-700">
-            <DialogTitle className="text-xl font-bold text-pink-700 dark:text-pink-300 flex items-center gap-2">
+        <DialogContent className="z-50 overflow-visible max-w-md md:max-w-md w-[94vw] p-0 bg-white/90 backdrop-blur-lg dark:bg-zinc-900/80 dark:backdrop-blur-lg border-0 shadow-xl rounded-2xl">
+          <DialogHeader className="sticky top-0 z-10 bg-white/90 dark:bg-zinc-900/80 dark:backdrop-blur-lg px-3 pt-4 pb-2 border-b border-pink-100 dark:border-zinc-700">
+            <DialogTitle className="text-xl font-bold text-pink-700 dark:text-pink-200 flex items-center gap-2">
               <span className="text-2xl">📅</span> สรุปยอดบริจาคแต่ละเดือน
             </DialogTitle>
           </DialogHeader>
-          <div className="max-h-[80vh] overflow-y-auto px-2 py-2 md:px-4 md:py-4 bg-white dark:bg-zinc-900">
+          <div className="max-h-[80vh] overflow-y-auto px-2 py-2 md:px-4 md:py-4 bg-white/90 dark:bg-zinc-900/80 dark:backdrop-blur-lg">
             {monthlySummary.length === 0 && (
               <div className="text-center text-gray-400 dark:text-gray-500 py-8">ยังไม่มีข้อมูลบริจาค</div>
             )}
@@ -917,34 +922,34 @@ export default function GuildDonateHistoryPage() {
               const monthName = new Date(month.year, month.month).toLocaleString('th-TH', { year: 'numeric', month: 'long' });
               const monthSum = month.donations.reduce((sum, d) => sum + d.amount, 0);
               return (
-                <div key={key} className="mb-4 border border-pink-100 dark:border-zinc-700 rounded-xl bg-pink-50/60 dark:bg-zinc-800/60 shadow-sm">
+                <div key={key} className="mb-4 border border-pink-100 dark:border-pink-700 rounded-xl bg-pink-50/60 dark:bg-zinc-800/70 dark:backdrop-blur-md shadow-sm">
                   <button
-                    className="w-full flex items-center px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-300 rounded-t-xl bg-pink-100/60 dark:bg-zinc-800/80"
+                    className="w-full flex items-center px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-300 rounded-t-xl bg-pink-100/60 dark:bg-zinc-900/70 dark:focus:ring-pink-500 dark:text-pink-200"
                     onClick={() => setExpandedMonths(prev => ({ ...prev, [key]: !isExpanded }))}
                     aria-expanded={isExpanded}
                   >
                     <span className="font-bold text-pink-700 dark:text-pink-200 text-base flex items-center gap-2">{monthName}</span>
                     <div className="flex-1 flex justify-end items-center gap-2">
                       <span
-                        className="flex items-center gap-1 px-3 py-1 rounded-full bg-gradient-to-r from-pink-100 via-yellow-100 to-green-100 dark:from-zinc-700 dark:via-yellow-900 dark:to-green-900 text-emerald-700 dark:text-emerald-200 text-base font-bold border border-pink-200 dark:border-zinc-700 shadow-sm mr-1 min-w-[100px] justify-center transition-transform transition-shadow duration-150 hover:scale-105 hover:shadow-md focus:scale-105 focus:shadow-md"
+                        className="flex items-center gap-1 px-3 py-1 rounded-full bg-gradient-to-r from-pink-100 via-yellow-100 to-green-100 dark:from-zinc-700 dark:via-yellow-800 dark:to-green-800 text-emerald-700 dark:text-emerald-200 text-base font-bold border border-pink-200 dark:border-pink-600 shadow-sm mr-1 min-w-[100px] justify-center transition-transform transition-shadow duration-150 hover:scale-105 hover:shadow-md focus:scale-105 focus:shadow-md"
                         style={{ boxShadow: '0 2px 8px 0 rgba(255, 192, 203, 0.10)' }}
                       >
                         <Coins className="w-5 h-5 mr-1" style={{ color: '#facc15' }} aria-label="รวม" />
                         {monthSum.toLocaleString()}G
                       </span>
                       {isExpanded
-                        ? <ChevronUp className="w-5 h-5 text-pink-400" />
-                        : <ChevronDown className="w-5 h-5 text-pink-400" />}
+                        ? <ChevronUp className="w-5 h-5 text-pink-400 dark:text-pink-300" />
+                        : <ChevronDown className="w-5 h-5 text-pink-400 dark:text-pink-300" />}
                     </div>
                   </button>
                   {isExpanded && (
-                    <div className="px-4 py-3 bg-white dark:bg-zinc-900 rounded-b-xl max-h-[40vh] overflow-y-auto">
+                    <div className="px-4 py-3 bg-white/90 dark:bg-zinc-900/90 dark:backdrop-blur-lg rounded-b-xl max-h-[40vh] overflow-y-auto">
                       {month.donations.length === 0 ? (
                         <div className="text-gray-400 dark:text-gray-500 text-center py-4">ไม่มีข้อมูลบริจาคในเดือนนี้</div>
                       ) : (
                         <table className="w-full text-sm">
                           <thead>
-                            <tr className="text-gray-500 dark:text-gray-400 border-b border-pink-100 dark:border-zinc-700">
+                            <tr className="text-gray-500 dark:text-gray-300 border-b border-pink-100 dark:border-pink-700">
                               <th className="text-left py-1">#</th>
                               <th className="text-left py-1">Discord</th>
                               <th className="text-right py-1">ยอดบริจาค (G)</th>
@@ -956,13 +961,13 @@ export default function GuildDonateHistoryPage() {
                               let color = '';
                               if (idx === 0) {
                                 medal = <Award className="inline-block mr-1" style={{ color: '#FFD700' }} aria-label="อันดับ 1" />;
-                                color = 'text-yellow-600 dark:text-yellow-300 font-bold';
+                                color = 'text-yellow-600 dark:text-yellow-200 font-bold';
                               } else if (idx === 1) {
                                 medal = <Award className="inline-block mr-1" style={{ color: '#C0C0C0' }} aria-label="อันดับ 2" />;
-                                color = 'text-gray-500 dark:text-gray-300 font-bold';
+                                color = 'text-gray-500 dark:text-gray-200 font-bold';
                               } else if (idx === 2) {
                                 medal = <Award className="inline-block mr-1" style={{ color: '#CD7F32' }} aria-label="อันดับ 3" />;
-                                color = 'text-orange-700 dark:text-orange-300 font-bold';
+                                color = 'text-orange-700 dark:text-orange-200 font-bold';
                               } else {
                                 color = 'text-gray-700 dark:text-gray-200';
                               }

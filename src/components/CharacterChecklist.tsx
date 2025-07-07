@@ -60,6 +60,25 @@ const TAB2_ITEMS = [
   'chaosRiftKamala'
 ];
 
+// เพิ่มฟังก์ชัน mapping accentColor → border color
+function accentColorToBorderClass(accentColor: string) {
+  switch (accentColor) {
+    case 'text-red-500': return 'border-red-500';
+    case 'text-pink-400': return 'border-pink-400';
+    case 'text-pink-500': return 'border-pink-500';
+    case 'text-violet-400': return 'border-violet-400';
+    case 'text-violet-500': return 'border-violet-500';
+    case 'text-blue-500': return 'border-blue-500';
+    case 'text-sky-500': return 'border-sky-500';
+    case 'text-emerald-500': return 'border-emerald-500';
+    case 'text-purple-500': return 'border-purple-500';
+    case 'text-amber-500': return 'border-amber-500';
+    case 'text-yellow-500': return 'border-yellow-500';
+    case 'text-green-500': return 'border-green-500';
+    default: return 'border-gray-300';
+  }
+}
+
 export function CharacterChecklist({ checklist, onChange, accentColor = "text-blue-500", readOnly = false, lineThroughOnComplete = false }: CharacterChecklistProps) {
   const [activeTab, setActiveTab] = useState<number>(2);
 
@@ -310,25 +329,25 @@ export function CharacterChecklist({ checklist, onChange, accentColor = "text-bl
         <div className="flex gap-2 mb-3">
           <button
             className={cn(
-              "flex-1 py-1.5 px-3 text-sm font-medium rounded-md transition-all duration-200",
+              "flex-1 py-1.5 px-3 text-sm font-medium rounded-md transition-all duration-200 border-2",
               activeTab === 1 
-                ? `bg-white shadow-sm ${accentColor}` 
-                : "text-gray-500 hover:text-gray-700 hover:bg-white/50"
+                ? `${accentColor} ${accentColorToBorderClass(accentColor)} font-bold bg-transparent` 
+                : "border-transparent text-gray-400 bg-transparent hover:text-pink-400 dark:hover:text-pink-300"
             )}
             onClick={() => setActiveTab(1)}
           >
-            <span className={cn(activeTab === 1 ? accentColor : "text-gray-500")}>Tab 1</span>
+            <span>Tab 1</span>
           </button>
           <button
             className={cn(
-              "flex-1 py-1.5 px-3 text-sm font-medium rounded-md transition-all duration-200",
+              "flex-1 py-1.5 px-3 text-sm font-medium rounded-md transition-all duration-200 border-2",
               activeTab === 2 
-                ? `bg-white shadow-sm ${accentColor}` 
-                : "text-gray-500 hover:text-gray-700 hover:bg-white/50"
+                ? `${accentColor} ${accentColorToBorderClass(accentColor)} font-bold bg-transparent` 
+                : "border-transparent text-gray-400 bg-transparent hover:text-violet-400 dark:hover:text-violet-300"
             )}
             onClick={() => setActiveTab(2)}
           >
-            <span className={cn(activeTab === 2 ? accentColor : "text-gray-500")}>Tab 2</span>
+            <span>Tab 2</span>
           </button>
         </div>
         

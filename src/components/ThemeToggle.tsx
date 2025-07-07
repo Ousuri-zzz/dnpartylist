@@ -4,6 +4,7 @@ import { Moon, Sun } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useThemeContext } from './ThemeProvider';
 import { motion } from 'framer-motion';
+import { toast } from 'sonner';
 
 export function ThemeToggle({ isMobile = false }: { isMobile?: boolean }) {
   const { theme, setTheme, resolvedTheme } = useThemeContext();
@@ -11,10 +12,18 @@ export function ThemeToggle({ isMobile = false }: { isMobile?: boolean }) {
   const toggleTheme = () => {
     if (theme === 'system') {
       // ถ้าเป็น system ให้สลับไปเป็น light หรือ dark ตาม resolvedTheme ปัจจุบัน
-      setTheme(resolvedTheme === 'light' ? 'dark' : 'light');
+      const newTheme = resolvedTheme === 'light' ? 'dark' : 'light';
+      if (newTheme === 'dark') {
+        toast.info('โหมดมืดกำลังอยู่ระหว่างพัฒนา ยังไม่สมบูรณ์');
+      }
+      setTheme(newTheme);
     } else {
       // ถ้าเป็น light หรือ dark ให้สลับไปเป็นตรงข้าม
-      setTheme(theme === 'light' ? 'dark' : 'light');
+      const newTheme = theme === 'light' ? 'dark' : 'light';
+      if (newTheme === 'dark') {
+        toast.info('โหมดมืดกำลังอยู่ระหว่างพัฒนา ยังไม่สมบูรณ์');
+      }
+      setTheme(newTheme);
     }
   };
 
