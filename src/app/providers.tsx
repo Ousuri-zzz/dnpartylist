@@ -2,6 +2,7 @@
 
 import { createContext, useContext } from 'react';
 import { useAuth } from '../hooks/useAuth';
+import { ThemeProvider } from '../components/ThemeProvider';
 
 interface AuthContextType {
   user: any;
@@ -31,7 +32,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
       signIn: async () => { await auth.login(); },
       signOut: auth.logout
     }}>
-      {children}
+      <ThemeProvider>
+        {children}
+      </ThemeProvider>
     </AuthContext.Provider>
   );
 } 

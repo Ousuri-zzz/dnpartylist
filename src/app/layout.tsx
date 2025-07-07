@@ -42,10 +42,13 @@ export default function RootLayout({
                   if (theme === 'dark') {
                     document.documentElement.classList.add('dark');
                   } else {
-                    // Default to light mode if no theme saved or theme is 'light' or 'system'
+                    // Default to light mode
                     document.documentElement.classList.add('light');
                   }
-                } catch (e) {}
+                } catch (e) {
+                  // If error, default to light mode
+                  document.documentElement.classList.add('light');
+                }
               })();
             `,
           }}

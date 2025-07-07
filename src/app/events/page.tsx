@@ -1074,6 +1074,11 @@ export default function EventsPage() {
           will-change: auto;
           backface-visibility: hidden;
         }
+        /* ป้องกันขีดเส้นใต้/จุดใต้ชื่อวันในปฏิทิน */
+        .react-calendar__month-view__weekdays__weekday abbr {
+          text-decoration: none !important;
+          border-bottom: none !important;
+        }
         `}</style>
       </div>
     );

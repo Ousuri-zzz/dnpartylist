@@ -687,60 +687,50 @@ export default function EventDetailPage() {
   return (
     <React.Fragment>
       <div className="w-full max-w-4xl mx-auto py-8 px-4">
-        <div className="mb-6 flex justify-between items-center min-w-0">
+        <div className="mb-8 flex justify-between items-center min-w-0">
           <button
             onClick={() => router.push('/events')}
-            className="flex items-center gap-2 px-5 py-2 rounded-full border border-pink-200 bg-pink-50 text-pink-700 font-medium shadow hover:bg-purple-50 transition-colors duration-150"
+            className="flex items-center gap-2 px-6 py-2 rounded-full bg-gradient-to-r from-pink-100 via-purple-100 to-blue-100 text-pink-700 font-bold shadow-md hover:from-pink-200 hover:to-blue-200 hover:text-pink-900 transition-colors duration-200 border-0 backdrop-blur"
+            style={{boxShadow:'0 2px 8px 0 rgba(255,182,232,0.10)'}}
           >
-            <ArrowLeft className="w-4 h-4 mr-1 text-pink-400" />
+            <ArrowLeft className="w-5 h-5 mr-1 text-pink-400" />
             ย้อนกลับไปหน้ารายการกิจกรรม
           </button>
           {isOwner && !event.isEnded && (
             <button
               onClick={() => setEndModal(true)}
-              className="flex items-center gap-2 px-5 py-2 rounded-full border border-green-200 bg-green-50 text-green-700 font-medium shadow hover:bg-green-100 transition-colors duration-150"
+              className="flex items-center gap-2 px-6 py-2 rounded-full bg-gradient-to-r from-green-100 via-white to-green-50 text-green-700 font-bold shadow-md hover:from-green-200 hover:to-green-100 hover:text-green-900 transition-colors duration-200 border-0 backdrop-blur"
+              style={{boxShadow:'0 2px 8px 0 rgba(132,204,22,0.10)'}}
             >
-              <Check className="w-4 h-4 mr-1 text-green-500" />
+              <Check className="w-5 h-5 mr-1 text-green-500" />
               กิจกรรมเสร็จสิ้น
             </button>
           )}
         </div>
         <div
-          className="border border-pink-200/50 shadow-2xl p-8 rounded-2xl relative min-w-0 overflow-hidden backdrop-blur-sm"
+          className={"shadow-xl p-8 rounded-3xl relative min-w-0 overflow-hidden backdrop-blur-xl"}
           id="event-main-content"
-          style={{
-            ...(event.color && event.color.startsWith('linear-gradient')
+          style={
+            event.color && event.color.startsWith('linear-gradient')
               ? {
-                  backgroundImage: event.color,
-                  borderColor: '#FFB5E8',
+                  borderWidth: '0px',
+                  borderStyle: 'none',
+                  borderColor: 'transparent',
+                  boxShadow: '0 4px 16px 0 rgba(255,182,232,0.10)',
+                  background: event.color,
+                  borderRadius: '1.5rem',
                 }
-              : event.color
-                ? (() => {
-                    let c = event.color.replace('#', '');
-                    if (c.length === 3) c = c.split('').map((x: string) => x + x).join('');
-                    const num = parseInt(c, 16);
-                    // Mix with white to make it more pastel
-                    const r = Math.round(((num >> 16) & 255) * 0.7 + 255 * 0.3);
-                    const g = Math.round(((num >> 8) & 255) * 0.7 + 255 * 0.3);
-                    const b = Math.round((num & 255) * 0.7 + 255 * 0.3);
-                    return {
-                      backgroundColor: `rgba(${r},${g},${b},0.9)`,
-                      borderColor: event.color,
-                    };
-                  })()
-                : {
-                    backgroundColor: 'rgba(255,255,255,0.9)',
-                    borderColor: '#FFB5E8',
-                  }
-            ),
-            boxShadow: `0 0 0 1px ${(event.color && !(event.color.startsWith('linear-gradient'))) ? (event.color || '#FFB5E8') + '40' : '#FFB5E8' + '40'}, 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)`
-          }}
+              : {
+                  borderWidth: '6px',
+                  borderStyle: 'solid',
+                  borderColor: event.color ? event.color : '#FFB5E8',
+                  boxShadow: '0 0 0 2px ' + (event.color ? event.color : '#FFB5E8') + ', 0 4px 16px 0 rgba(0,0,0,0.05)',
+                  background: event.color ? (event.color.length === 7 ? `rgba(${parseInt(event.color.slice(1,3),16)},${parseInt(event.color.slice(3,5),16)},${parseInt(event.color.slice(5,7),16)},0.15)` : event.color) : 'white',
+                  borderRadius: '1.5rem',
+                }
+          }
         >
-          {/* overlay ขาวจางๆ เฉพาะกรณี gradient ให้ดู soft เหมือน bg-white/90 */}
-          {event.color && event.color.startsWith('linear-gradient') && (
-            <div style={{position:'absolute',inset:0,background:'rgba(255,255,255,0.4)',zIndex:1,borderRadius:'inherit',pointerEvents:'none'}} />
-          )}
-          <div style={{position:'relative',zIndex:2}}>
+          <div style={{position:'relative',zIndex:2, borderRadius:'1.5rem', background:'transparent', padding: 0}}>
             {/* ปุ่มแก้ไข/ลบ เฉพาะ owner */}
             {isOwner && (
               <div className="absolute top-4 right-4 flex gap-2 z-10">
@@ -761,9 +751,18 @@ export default function EventDetailPage() {
                 <div className="inline-flex items-start w-full min-w-0">
                   <span className="text-xl flex-shrink-0 mt-1">📝</span>
                   <div
-                    className="break-words w-full ml-2 text-pink-500 text-lg font-semibold drop-shadow-sm min-w-0 bg-white/70 backdrop-blur-sm rounded-lg px-4 py-2"
+                    className="event-description break-words w-full ml-2 text-pink-500 text-lg font-semibold drop-shadow-sm min-w-0 bg-white/70 backdrop-blur-sm rounded-lg px-4 py-2"
                     dangerouslySetInnerHTML={{ __html: event.description || 'ไม่มีรายละเอียดกิจกรรม' }}
                   />
+                  <style jsx global>{`
+                    .event-description,
+                    .event-description * {
+                      user-select: text;
+                    }
+                    .event-description * {
+                      background-color: transparent !important;
+                    }
+                  `}</style>
                 </div>
               </div>
             </div>
@@ -888,7 +887,9 @@ export default function EventDetailPage() {
                 👥 รายชื่อผู้เข้าร่วมกิจกรรม ({participantUsers.length})
               </h2>
               {participantUsers.length === 0 ? (
-                <div className="text-gray-400 flex items-center gap-2"><span>😶‍🌫️</span>ยังไม่มีผู้เข้าร่วม</div>
+                <div className="flex items-center gap-2 px-4 py-2 bg-white/80 rounded-xl shadow text-gray-700 font-semibold w-fit text-left">
+                  <span>😶‍🌫️</span>ยังไม่มีผู้เข้าร่วม
+                </div>
               ) : (
                 <div className="space-y-0">
                   {(() => {
@@ -1336,12 +1337,15 @@ export default function EventDetailPage() {
             )}
             {/* Modal เลือกตัวละคร */}
             <Dialog open={showCharModal} onOpenChange={setShowCharModal}>
-              <DialogContent className="max-w-sm p-0 rounded-2xl overflow-hidden border-2 border-pink-100 shadow-xl bg-gradient-to-br from-pink-50 via-purple-50 to-white bg-white/80 backdrop-blur-sm">
+              <DialogContent className="max-w-md w-full p-0 rounded-3xl overflow-hidden border-0 shadow-2xl bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 dark:from-gray-900 dark:via-purple-900 dark:to-blue-900 backdrop-blur-xl">
                 <DialogHeader>
-                  <DialogTitle>เลือกตัวละครเข้าร่วมกิจกรรม</DialogTitle>
+                  <div className="flex items-center gap-3 px-6 pt-6 pb-2">
+                    <span className="text-3xl bg-gradient-to-tr from-pink-300 via-violet-200 to-blue-200 rounded-full p-2 shadow border-2 border-white">🐾</span>
+                    <DialogTitle className="text-xl md:text-2xl font-extrabold bg-gradient-to-r from-violet-600 via-pink-500 to-blue-600 bg-clip-text text-transparent drop-shadow-lg tracking-tight dark:from-violet-300 dark:via-pink-300 dark:to-blue-300">เลือกตัวละครเข้าร่วมกิจกรรม</DialogTitle>
+                  </div>
                 </DialogHeader>
-                <div className="relative px-2 min-h-[200px]">
-                  <div className="grid grid-cols-2 gap-2 py-2 w-full max-w-sm mx-auto">
+                <div className="relative px-4 pb-6 min-h-[220px]">
+                  <div className="grid grid-cols-2 gap-3 py-2 w-full max-w-md mx-auto">
                     {myCharacters.length === 0 && <div className="col-span-2 text-center text-gray-400">คุณยังไม่มีตัวละคร</div>}
                     {myCharacters.map(char => {
                       const mainClass = getMainClass(char);
@@ -1349,22 +1353,32 @@ export default function EventDetailPage() {
                       return (
                         <div
                           key={char.id}
-                          className={`rounded-lg shadow-sm p-1 flex items-center gap-1 cursor-pointer border ${colors.bg} ${colors.border} hover:scale-105 transition text-xs min-h-[36px]` + (selectedChar?.id === char.id ? ' ring-2 ring-pink-400' : '')}
+                          className={`rounded-xl shadow-md p-2 flex items-center gap-2 cursor-pointer border-2 ${colors.bg} ${colors.border} hover:scale-105 hover:shadow-xl transition text-xs min-h-[40px] relative group` + (selectedChar?.id === char.id ? ' ring-2 ring-pink-400' : '')}
                           onClick={() => setSelectedChar(char)}
                         >
-                          <span className="text-lg">{getClassIcon(char.class)}</span>
-                          <div>
+                          <span className="text-xl drop-shadow-lg">{getClassIcon(char.class)}</span>
+                          <div className="flex flex-col">
                             <div className={`font-bold text-xs ${colors.text}`}>{char.name}</div>
                             <div className={`text-[10px] ${colors.text}`}>{char.class}</div>
                           </div>
+                          {selectedChar?.id === char.id && (
+                            <span className="absolute top-1 right-1 text-pink-500 text-lg animate-bounce">★</span>
+                          )}
                         </div>
                       );
                     })}
                   </div>
                   {selectedChar && (
-                    <div className="mt-3 p-2 rounded-lg bg-white/90 border flex flex-col items-center gap-1 w-full max-w-[260px] mx-auto">
-                      <div className="text-sm font-bold mb-1">ยืนยันการเข้าร่วม</div>
-                      <div className="flex flex-row items-center gap-1 mb-1">
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10 }} 
+                      animate={{ opacity: 1, y: 0 }} 
+                      transition={{ duration: 0.2 }}
+                      className="mt-5 p-4 rounded-2xl bg-white/90 dark:bg-gray-900/90 border-2 border-pink-100 flex flex-col items-center gap-2 w-full max-w-xs mx-auto shadow-lg backdrop-blur"
+                    >
+                      <div className="text-base font-bold mb-1 text-pink-600 dark:text-pink-300 flex items-center gap-2">
+                        <span className="text-lg">🙋‍♂️</span> ยืนยันการเข้าร่วม
+                      </div>
+                      <div className="flex flex-row items-center gap-2 mb-1">
                         <span className="font-semibold text-pink-600 text-xs">{(users?.[user.uid]?.meta?.discord) || user.displayName || user.email}</span>
                         <span className="text-gray-300 text-[10px]">/</span>
                         <span className="flex items-center gap-1">
@@ -1373,15 +1387,20 @@ export default function EventDetailPage() {
                           <span className="text-[10px] text-gray-400">({selectedChar.class})</span>
                         </span>
                       </div>
-                      <span className="text-[10px] text-green-600 font-semibold">จะเข้าร่วมกิจกรรมนี้</span>
-                      <Button className="mt-2 w-full text-xs py-1" onClick={async () => {
-                        if (!params?.id || !user) return;
-                        const partRef = doc(firestore, 'events', params.id as string, 'participants', user.uid);
-                        await setDoc(partRef, { joinedAt: serverTimestamp(), characterId: selectedChar.id });
-                        setShowCharModal(false);
-                        setConfirmModal({ open: false, type: null });
-                      }}>ยืนยันเข้าร่วม</Button>
-                    </div>
+                      <span className="text-[11px] text-green-600 font-semibold">จะเข้าร่วมกิจกรรมนี้</span>
+                      <Button 
+                        className="mt-2 w-full text-sm py-2 rounded-xl bg-gradient-to-r from-pink-500 to-blue-500 text-white font-bold shadow hover:from-pink-600 hover:to-blue-600 transition-all"
+                        onClick={async () => {
+                          if (!params?.id || !user) return;
+                          const partRef = doc(firestore, 'events', params.id as string, 'participants', user.uid);
+                          await setDoc(partRef, { joinedAt: serverTimestamp(), characterId: selectedChar.id });
+                          setShowCharModal(false);
+                          setConfirmModal({ open: false, type: null });
+                        }}
+                      >
+                        <span className="text-lg">✅</span> ยืนยันเข้าร่วม
+                      </Button>
+                    </motion.div>
                   )}
                 </div>
               </DialogContent>

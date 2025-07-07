@@ -9,6 +9,7 @@ import { cn } from '../lib/utils';
 import { BackgroundImage } from './BackgroundImage';
 import { ThemeProvider } from './ThemeProvider';
 import BubbleEffect from './BubbleEffect';
+import { DarkModeNotification } from './DarkModeNotification';
 
 const Navigation = dynamic(() => import('./Navigation'), {
   ssr: false,
@@ -25,6 +26,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
       <ThemeProvider>
         <BackgroundImage />
         <BubbleEffect />
+        <DarkModeNotification />
         <div className="min-h-screen">
           <Navigation />
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-full pt-14">

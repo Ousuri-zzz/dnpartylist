@@ -112,36 +112,36 @@ export function CharacterCard({ character, onEdit, onDelete, onChecklistChange }
       case 'Mercenary':
         bg = 'bg-red-200';
         border = 'border-red-400';
-        text = 'text-red-700';
+        text = 'text-red-500';
         break;
       case 'Bowmaster':
       case 'Acrobat':
         bg = 'bg-emerald-200';
         border = 'border-emerald-400';
-        text = 'text-emerald-700';
+        text = 'text-emerald-500';
         break;
       case 'Force User':
       case 'Elemental Lord':
         bg = 'bg-purple-200';
         border = 'border-purple-400';
-        text = 'text-purple-700';
+        text = 'text-purple-500';
         break;
       case 'Paladin':
       case 'Priest':
         bg = 'bg-sky-200';
         border = 'border-sky-400';
-        text = 'text-sky-700';
+        text = 'text-sky-500';
         break;
       case 'Engineer':
       case 'Alchemist':
         bg = 'bg-amber-200';
         border = 'border-amber-400';
-        text = 'text-amber-700';
+        text = 'text-amber-500';
         break;
       default:
         bg = 'bg-gray-200';
         border = 'border-gray-400';
-        text = 'text-gray-700';
+        text = 'text-gray-500';
     }
     const base = `inline-flex items-center justify-center w-12 h-12 rounded-full ${bg} border-4 ${border} shadow ${text} text-2xl`;
     switch (className) {

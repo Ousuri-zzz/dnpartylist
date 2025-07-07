@@ -424,40 +424,52 @@ export default function GuildDonateHistoryPage() {
               <Trophy className="w-8 h-8 md:w-10 md:h-10 text-yellow-200 drop-shadow inline-block ml-2" />
             </span>
           </div>
-          {/* Desktop podium (แนวนอน) */}
-          <div className="hidden md:flex flex-row gap-4 justify-center items-end w-full max-w-xl">
+          {/* Desktop podium (แนวนอน) - Pastel Modern Design + Effect + Tooltip */}
+          <div className="hidden md:flex flex-row gap-6 justify-center items-end w-full max-w-2xl relative">
             {/* อันดับ 2 */}
             {top3[1] && (
               <div
-                className="flex flex-col items-center border-2 rounded-2xl px-2 py-2 md:px-4 md:py-3 shadow-md min-w-[110px] md:min-w-[140px] relative z-10 hover:shadow-lg hover:scale-105 transition-all duration-300 bg-gray-50 border-gray-400 text-gray-500 dark:bg-zinc-900 dark:border-gray-400 dark:text-gray-200"
+                className="flex flex-col items-center relative z-20 group w-40"
                 onMouseEnter={() => setHoveredPodiumIdx(1)}
                 onMouseLeave={() => setHoveredPodiumIdx(null)}
               >
-                <Award className="w-6 h-6 md:w-7 md:h-7 text-gray-400 mb-1 animate-pulse dark:text-gray-300" />
-                <span className="font-semibold text-gray-500 truncate max-w-[90px] md:max-w-[120px] text-sm md:text-base mb-1 text-center cursor-pointer hover:text-gray-700 transition-colors dark:text-gray-200 dark:hover:text-gray-100">
-                  {top3[1].discordName}
-                </span>
-                <span className="text-green-600 font-bold text-base md:text-lg dark:text-green-300">{top3[1].amount.toLocaleString()}G</span>
-                <span className="absolute -top-4 md:-top-5 left-1/2 -translate-x-1/2 bg-gray-200 text-gray-700 px-2 py-0.5 rounded-full text-xs font-bold shadow-md border border-gray-300 dark:bg-zinc-700 dark:text-gray-100 dark:border-zinc-600">2</span>
+                {/* Platform */}
+                <div className="w-full h-20 bg-blue-50 rounded-t-2xl border-2 border-blue-100 flex flex-col items-center justify-end relative transition-all duration-200 group-hover:scale-105 group-hover:shadow-lg group-hover:ring-2 group-hover:ring-blue-200">
+                  {/* Medal */}
+                  <div className="absolute -top-8 left-1/2 -translate-x-1/2 flex flex-col items-center transition-all duration-200 group-hover:scale-110 group-hover:drop-shadow-lg">
+                    <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center border-2 border-blue-200 transition-all duration-200 group-hover:ring-2 group-hover:ring-blue-200">
+                      <Award className="w-6 h-6 text-blue-300" />
+                    </div>
+                  </div>
+                  {/* Name & Amount */}
+                  <div className="flex flex-col items-center justify-end pb-2 pt-8 w-full">
+                    <span className="font-bold text-blue-400 truncate max-w-[120px] text-sm text-center cursor-pointer hover:text-blue-500 transition-colors mb-1">
+                      {top3[1].discordName}
+                    </span>
+                    <span className="text-green-400 font-extrabold text-lg">
+                      {top3[1].amount.toLocaleString()}G
+                    </span>
+                  </div>
+                </div>
+                {/* Tooltip */}
                 {hoveredPodiumIdx === 1 && (
-                  <div
-                    className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-full bg-white border border-pink-200 rounded-xl shadow-lg px-3 py-2 min-w-fit max-w-xs inline-block animate-fade-in z-[9999] text-xs text-center dark:bg-zinc-900 dark:border-gray-400 dark:text-gray-200">
-                    <div className="font-bold text-pink-600 mb-2 text-center text-sm md:text-base dark:text-pink-300">ตัวละครทั้งหมด</div>
+                  <div className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-full bg-white/95 backdrop-blur-md border border-blue-100 rounded-xl px-4 py-3 min-w-fit max-w-xs animate-fade-in z-[9999] text-xs text-center shadow-lg transition-all duration-200 opacity-100">
+                    <div className="font-bold text-blue-400 mb-3 text-center text-sm">ตัวละครทั้งหมด</div>
                     {allCharactersByUserId[top3[1].userId]?.length ? (
-                      <div className="flex flex-col gap-1">
+                      <div className="flex flex-col gap-2">
                         {allCharactersByUserId[top3[1].userId].map((char, i) => {
                           const role = CLASS_TO_ROLE[char.class as import('@/types/character').CharacterClass] || 'Warrior';
                           const color = getClassColors(role);
                           return (
-                            <div key={char.id || i} className={`flex items-center gap-2 whitespace-nowrap`}>
-                              <span className={`font-semibold ${color.text} text-xs md:text-base dark:text-inherit`}>{char.name}</span>
-                              <span className={`text-xs px-2 py-0.5 rounded-full border ${color.text} ${color.border} bg-white dark:bg-zinc-800`}>{char.class}</span>
+                            <div key={char.id || i} className="flex items-center gap-2 whitespace-nowrap">
+                              <span className={`font-semibold ${color.text} text-sm`}>{char.name}</span>
+                              <span className={`text-xs px-2 py-1 rounded-full border ${color.text} ${color.border} bg-white/80 backdrop-blur-sm`}>{char.class}</span>
                             </div>
                           );
                         })}
                       </div>
                     ) : (
-                      <div className="text-gray-400 text-center text-xs md:text-base dark:text-gray-500">ไม่มีข้อมูลตัวละคร</div>
+                      <div className="text-gray-400 text-center text-sm">ไม่มีข้อมูลตัวละคร</div>
                     )}
                   </div>
                 )}
@@ -466,35 +478,51 @@ export default function GuildDonateHistoryPage() {
             {/* อันดับ 1 */}
             {top3[0] && (
               <div
-                className="flex flex-col items-center border-2 rounded-2xl px-3 py-3 md:px-6 md:py-5 shadow-xl min-w-[120px] md:min-w-[170px] scale-110 relative z-20 hover:shadow-2xl hover:scale-115 transition-all duration-300 bg-yellow-50 border-yellow-400 text-yellow-700 dark:bg-zinc-900 dark:border-yellow-400 dark:text-yellow-300"
+                className="flex flex-col items-center relative z-30 group w-48"
                 onMouseEnter={() => setHoveredPodiumIdx(0)}
                 onMouseLeave={() => setHoveredPodiumIdx(null)}
               >
-                <Award className="w-7 h-7 md:w-9 md:h-9 text-yellow-400 mb-1 drop-shadow animate-bounce dark:text-yellow-300" />
-                <span className="font-bold text-yellow-700 truncate max-w-[100px] md:max-w-[140px] text-base md:text-lg mb-1 text-center cursor-pointer hover:text-yellow-800 transition-colors dark:text-yellow-200 dark:hover:text-yellow-100">
-                  {top3[0].discordName}
-                </span>
-                <span className="text-green-700 font-extrabold text-lg md:text-2xl drop-shadow dark:text-green-300">{top3[0].amount.toLocaleString()}G</span>
-                <span className="absolute -top-5 md:-top-6 left-1/2 -translate-x-1/2 bg-gradient-to-r from-yellow-300 to-yellow-400 text-yellow-900 px-3 py-1 rounded-full text-base font-extrabold shadow-lg border-2 border-yellow-400 dark:from-yellow-700 dark:to-yellow-800 dark:text-yellow-100 dark:border-yellow-500">1</span>
+                {/* Platform */}
+                <div className="w-full h-28 bg-yellow-50 rounded-t-3xl border-2 border-yellow-100 flex flex-col items-center justify-end relative transition-all duration-200 group-hover:scale-110 group-hover:shadow-2xl group-hover:ring-2 group-hover:ring-yellow-200">
+                  {/* Medal */}
+                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 flex flex-col items-center transition-all duration-200 group-hover:scale-115 group-hover:drop-shadow-xl">
+                    <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center border-2 border-yellow-200 transition-all duration-200 group-hover:ring-2 group-hover:ring-yellow-200 relative">
+                      <Award className="w-8 h-8 text-yellow-300 drop-shadow-lg animate-pulse" />
+                      {/* Sparkle effects for 1st place */}
+                      <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-300 rounded-full animate-ping opacity-75"></div>
+                      <div className="absolute -bottom-1 -left-1 w-2 h-2 bg-yellow-400 rounded-full animate-ping opacity-75" style={{animationDelay: '0.5s'}}></div>
+                      <div className="absolute top-1 -left-1 w-2.5 h-2.5 bg-yellow-200 rounded-full animate-ping opacity-75" style={{animationDelay: '1s'}}></div>
+                    </div>
+                  </div>
+                  {/* Name & Amount */}
+                  <div className="flex flex-col items-center justify-end pb-3 pt-12 w-full">
+                    <span className="font-bold text-yellow-400 truncate max-w-[140px] text-base text-center cursor-pointer hover:text-yellow-500 transition-colors mb-2">
+                      {top3[0].discordName}
+                    </span>
+                    <span className="text-green-400 font-extrabold text-2xl">
+                      {top3[0].amount.toLocaleString()}G
+                    </span>
+                  </div>
+                </div>
+                {/* Tooltip */}
                 {hoveredPodiumIdx === 0 && (
-                  <div
-                    className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-full bg-white border border-pink-200 rounded-xl shadow-lg px-3 py-2 min-w-fit max-w-xs inline-block animate-fade-in z-[9999] text-xs text-center dark:bg-zinc-900 dark:border-gray-400 dark:text-gray-200">
-                    <div className="font-bold text-pink-600 mb-2 text-center text-sm md:text-base dark:text-pink-300">ตัวละครทั้งหมด</div>
+                  <div className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-full bg-white/95 backdrop-blur-md border border-yellow-100 rounded-xl px-4 py-3 min-w-fit max-w-xs animate-fade-in z-[9999] text-xs text-center shadow-xl transition-all duration-200 opacity-100">
+                    <div className="font-bold text-yellow-400 mb-3 text-center text-sm">ตัวละครทั้งหมด</div>
                     {allCharactersByUserId[top3[0].userId]?.length ? (
-                      <div className="flex flex-col gap-1">
+                      <div className="flex flex-col gap-2">
                         {allCharactersByUserId[top3[0].userId].map((char, i) => {
                           const role = CLASS_TO_ROLE[char.class as import('@/types/character').CharacterClass] || 'Warrior';
                           const color = getClassColors(role);
                           return (
-                            <div key={char.id || i} className={`flex items-center gap-2 whitespace-nowrap`}>
-                              <span className={`font-semibold ${color.text} text-xs md:text-base dark:text-inherit`}>{char.name}</span>
-                              <span className={`text-xs px-2 py-0.5 rounded-full border ${color.text} ${color.border} bg-white dark:bg-zinc-800`}>{char.class}</span>
+                            <div key={char.id || i} className="flex items-center gap-2 whitespace-nowrap">
+                              <span className={`font-semibold ${color.text} text-sm`}>{char.name}</span>
+                              <span className={`text-xs px-2 py-1 rounded-full border ${color.text} ${color.border} bg-white/80 backdrop-blur-sm`}>{char.class}</span>
                             </div>
                           );
                         })}
                       </div>
                     ) : (
-                      <div className="text-gray-400 text-center text-xs md:text-base dark:text-gray-500">ไม่มีข้อมูลตัวละคร</div>
+                      <div className="text-gray-400 text-center text-sm">ไม่มีข้อมูลตัวละคร</div>
                     )}
                   </div>
                 )}
@@ -503,42 +531,54 @@ export default function GuildDonateHistoryPage() {
             {/* อันดับ 3 */}
             {top3[2] && (
               <div
-                className="flex flex-col items-center border-2 rounded-2xl px-2 py-2 md:px-4 md:py-3 shadow-md min-w-[110px] md:min-w-[140px] relative z-10 hover:shadow-lg hover:scale-105 transition-all duration-300 bg-orange-50 border-orange-400 text-orange-500 dark:bg-zinc-900 dark:border-orange-400 dark:text-orange-200"
+                className="flex flex-col items-center relative z-20 group w-40"
                 onMouseEnter={() => setHoveredPodiumIdx(2)}
                 onMouseLeave={() => setHoveredPodiumIdx(null)}
               >
-                <Award className="w-6 h-6 md:w-7 md:h-7 text-orange-400 mb-1 animate-pulse dark:text-orange-300" />
-                <span className="font-semibold text-orange-500 truncate max-w-[90px] md:max-w-[120px] text-sm md:text-base mb-1 text-center cursor-pointer hover:text-orange-600 transition-colors dark:text-orange-200 dark:hover:text-orange-100">
-                  {top3[2].discordName}
-                </span>
-                <span className="text-green-600 font-bold text-base md:text-lg dark:text-green-300">{top3[2].amount.toLocaleString()}G</span>
-                <span className="absolute -top-4 md:-top-5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-orange-200 to-orange-300 text-orange-700 px-2 py-0.5 rounded-full text-xs font-bold shadow-md border border-orange-300 dark:from-orange-700 dark:to-orange-800 dark:text-orange-100 dark:border-orange-500">3</span>
+                {/* Platform */}
+                <div className="w-full h-20 bg-pink-50 rounded-t-2xl border-2 border-pink-100 flex flex-col items-center justify-end relative transition-all duration-200 group-hover:scale-105 group-hover:shadow-lg group-hover:ring-2 group-hover:ring-pink-100">
+                  {/* Medal */}
+                  <div className="absolute -top-8 left-1/2 -translate-x-1/2 flex flex-col items-center transition-all duration-200 group-hover:scale-110 group-hover:drop-shadow-lg">
+                    <div className="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center border-2 border-pink-200 transition-all duration-200 group-hover:ring-2 group-hover:ring-pink-200">
+                      <Award className="w-6 h-6 text-pink-300" />
+                    </div>
+                  </div>
+                  {/* Name & Amount */}
+                  <div className="flex flex-col items-center justify-end pb-2 pt-8 w-full">
+                    <span className="font-bold text-pink-400 truncate max-w-[120px] text-sm text-center cursor-pointer hover:text-pink-500 transition-colors mb-1">
+                      {top3[2].discordName}
+                    </span>
+                    <span className="text-green-400 font-extrabold text-lg">
+                      {top3[2].amount.toLocaleString()}G
+                    </span>
+                  </div>
+                </div>
+                {/* Tooltip */}
                 {hoveredPodiumIdx === 2 && (
-                  <div
-                    className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-full bg-white border border-pink-200 rounded-xl shadow-lg px-3 py-2 min-w-fit max-w-xs inline-block animate-fade-in z-[9999] text-xs text-center dark:bg-zinc-900 dark:border-gray-400 dark:text-gray-200">
-                    <div className="font-bold text-pink-600 mb-2 text-center text-sm md:text-base dark:text-pink-300">ตัวละครทั้งหมด</div>
+                  <div className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-full bg-white/95 backdrop-blur-md border border-pink-100 rounded-xl px-4 py-3 min-w-fit max-w-xs animate-fade-in z-[9999] text-xs text-center shadow-lg transition-all duration-200 opacity-100">
+                    <div className="font-bold text-pink-400 mb-3 text-center text-sm">ตัวละครทั้งหมด</div>
                     {allCharactersByUserId[top3[2].userId]?.length ? (
-                      <div className="flex flex-col gap-1">
+                      <div className="flex flex-col gap-2">
                         {allCharactersByUserId[top3[2].userId].map((char, i) => {
                           const role = CLASS_TO_ROLE[char.class as import('@/types/character').CharacterClass] || 'Warrior';
                           const color = getClassColors(role);
                           return (
-                            <div key={char.id || i} className={`flex items-center gap-2 whitespace-nowrap`}>
-                              <span className={`font-semibold ${color.text} text-xs md:text-base dark:text-inherit`}>{char.name}</span>
-                              <span className={`text-xs px-2 py-0.5 rounded-full border ${color.text} ${color.border} bg-white dark:bg-zinc-800`}>{char.class}</span>
+                            <div key={char.id || i} className="flex items-center gap-2 whitespace-nowrap">
+                              <span className={`font-semibold ${color.text} text-sm`}>{char.name}</span>
+                              <span className={`text-xs px-2 py-1 rounded-full border ${color.text} ${color.border} bg-white/80 backdrop-blur-sm`}>{char.class}</span>
                             </div>
                           );
                         })}
                       </div>
                     ) : (
-                      <div className="text-gray-400 text-center text-xs md:text-base dark:text-gray-500">ไม่มีข้อมูลตัวละคร</div>
+                      <div className="text-gray-400 text-center text-sm">ไม่มีข้อมูลตัวละคร</div>
                     )}
                   </div>
                 )}
               </div>
             )}
             {top3.length === 0 && (
-              <span className="text-gray-400 dark:text-gray-500">ยังไม่มีข้อมูลบริจาคในเดือนนี้</span>
+              <span className="text-gray-400">ยังไม่มีข้อมูลบริจาคในเดือนนี้</span>
             )}
           </div>
           {/* Mobile podium (แนวตั้ง) */}
@@ -864,7 +904,7 @@ export default function GuildDonateHistoryPage() {
                 </div>
                 <div className="flex items-center gap-1 min-w-[70px]">
                   <Coins className="w-4 h-4 text-green-400 dark:text-green-300" />
-                  <span className="text-green-600 font-semibold dark:text-green-200">
+                  <span className="text-green-600 font-extrabold text-lg dark:text-green-300">
                     {(() => {
                       const amt = getLatestMonthDonationAmount(donates, member.userId);
                       return amt > 0 ? (
@@ -906,84 +946,127 @@ export default function GuildDonateHistoryPage() {
         donations={userDonations}
       />
       <Dialog open={showMonthlySummary} onOpenChange={setShowMonthlySummary}>
-        <DialogContent className="z-50 overflow-visible max-w-md md:max-w-md w-[94vw] p-0 bg-white/90 backdrop-blur-lg dark:bg-zinc-900/80 dark:backdrop-blur-lg border-0 shadow-xl rounded-2xl">
-          <DialogHeader className="sticky top-0 z-10 bg-white/90 dark:bg-zinc-900/80 dark:backdrop-blur-lg px-3 pt-4 pb-2 border-b border-pink-100 dark:border-zinc-700">
-            <DialogTitle className="text-xl font-bold text-pink-700 dark:text-pink-200 flex items-center gap-2">
-              <span className="text-2xl">📅</span> สรุปยอดบริจาคแต่ละเดือน
+        <DialogContent className="z-50 overflow-visible max-w-2xl md:max-w-3xl w-[98vw] p-0 bg-white/95 backdrop-blur-xl dark:bg-zinc-900/95 dark:backdrop-blur-xl border-0 shadow-2xl rounded-3xl border border-pink-100/60 dark:border-purple-500/30">
+          <DialogHeader className="sticky top-0 z-10 bg-gradient-to-r from-pink-50/80 via-purple-50/60 to-blue-50/80 dark:from-zinc-800/90 dark:via-purple-800/80 dark:to-blue-800/80 backdrop-blur-lg px-4 pt-5 pb-3 border-b border-pink-100/60 dark:border-purple-500/30 rounded-t-3xl">
+            <DialogTitle className="text-xl md:text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 dark:from-pink-300 dark:via-purple-300 dark:to-blue-300 flex items-center gap-3">
+              <div className="p-2 md:p-3 rounded-2xl bg-gradient-to-br from-pink-100 via-purple-100 to-blue-100 dark:from-pink-800 dark:via-purple-800 dark:to-blue-800 shadow-lg">
+                <Calendar className="w-7 h-7 md:w-8 md:h-8 text-pink-400" />
+              </div>
+              <div className="flex flex-col">
+                <span>สรุปยอดบริจาคแต่ละเดือน</span>
+                <span className="text-xs md:text-sm font-medium text-gray-600 dark:text-gray-300 mt-1">ดูประวัติการบริจาครายเดือนแบบละเอียด</span>
+              </div>
             </DialogTitle>
           </DialogHeader>
-          <div className="max-h-[80vh] overflow-y-auto px-2 py-2 md:px-4 md:py-4 bg-white/90 dark:bg-zinc-900/80 dark:backdrop-blur-lg">
+          <div className="max-h-[75vh] overflow-y-auto px-2 md:px-6 py-4 md:py-6 bg-white/95 dark:bg-zinc-900/90 backdrop-blur-lg rounded-b-3xl">
             {monthlySummary.length === 0 && (
-              <div className="text-center text-gray-400 dark:text-gray-500 py-8">ยังไม่มีข้อมูลบริจาค</div>
+              <div className="text-center py-10 md:py-12">
+                <div className="w-16 h-16 md:w-20 md:h-20 mx-auto mb-4 bg-gradient-to-br from-pink-100 via-purple-100 to-blue-100 dark:from-pink-800 dark:via-purple-800 dark:to-blue-800 rounded-full flex items-center justify-center shadow-lg">
+                  <Coins className="w-7 h-7 md:w-9 md:h-9 text-yellow-400" />
+                </div>
+                <h3 className="text-lg md:text-xl font-bold text-gray-700 dark:text-gray-200 mb-2">ยังไม่มีข้อมูลบริจาค</h3>
+                <p className="text-gray-500 dark:text-gray-400 text-xs md:text-base">เริ่มต้นการบริจาคเพื่อดูสถิติที่นี่</p>
+              </div>
             )}
-            {monthlySummary.map(month => {
+            {monthlySummary.map((month, monthIndex) => {
               const key = `${month.year}-${month.month}`;
               const isExpanded = expandedMonths[key] ?? false;
               const monthName = new Date(month.year, month.month).toLocaleString('th-TH', { year: 'numeric', month: 'long' });
               const monthSum = month.donations.reduce((sum, d) => sum + d.amount, 0);
+              // สีพื้นหลังกล่องเดือน: ใช้สีชมพูพาสเทลอ่อนทั้งโหมดปกติและ dark mode
               return (
-                <div key={key} className="mb-4 border border-pink-100 dark:border-pink-700 rounded-xl bg-pink-50/60 dark:bg-zinc-800/70 dark:backdrop-blur-md shadow-sm">
-                  <button
-                    className="w-full flex items-center px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-300 rounded-t-xl bg-pink-100/60 dark:bg-zinc-900/70 dark:focus:ring-pink-500 dark:text-pink-200"
-                    onClick={() => setExpandedMonths(prev => ({ ...prev, [key]: !isExpanded }))}
-                    aria-expanded={isExpanded}
-                  >
-                    <span className="font-bold text-pink-700 dark:text-pink-200 text-base flex items-center gap-2">{monthName}</span>
-                    <div className="flex-1 flex justify-end items-center gap-2">
-                      <span
-                        className="flex items-center gap-1 px-3 py-1 rounded-full bg-gradient-to-r from-pink-100 via-yellow-100 to-green-100 dark:from-zinc-700 dark:via-yellow-800 dark:to-green-800 text-emerald-700 dark:text-emerald-200 text-base font-bold border border-pink-200 dark:border-pink-600 shadow-sm mr-1 min-w-[100px] justify-center transition-transform transition-shadow duration-150 hover:scale-105 hover:shadow-md focus:scale-105 focus:shadow-md"
-                        style={{ boxShadow: '0 2px 8px 0 rgba(255, 192, 203, 0.10)' }}
-                      >
-                        <Coins className="w-5 h-5 mr-1" style={{ color: '#facc15' }} aria-label="รวม" />
-                        {monthSum.toLocaleString()}G
-                      </span>
-                      {isExpanded
-                        ? <ChevronUp className="w-5 h-5 text-pink-400 dark:text-pink-300" />
-                        : <ChevronDown className="w-5 h-5 text-pink-400 dark:text-pink-300" />}
-                    </div>
-                  </button>
-                  {isExpanded && (
-                    <div className="px-4 py-3 bg-white/90 dark:bg-zinc-900/90 dark:backdrop-blur-lg rounded-b-xl max-h-[40vh] overflow-y-auto">
-                      {month.donations.length === 0 ? (
-                        <div className="text-gray-400 dark:text-gray-500 text-center py-4">ไม่มีข้อมูลบริจาคในเดือนนี้</div>
-                      ) : (
-                        <table className="w-full text-sm">
-                          <thead>
-                            <tr className="text-gray-500 dark:text-gray-300 border-b border-pink-100 dark:border-pink-700">
-                              <th className="text-left py-1">#</th>
-                              <th className="text-left py-1">Discord</th>
-                              <th className="text-right py-1">ยอดบริจาค (G)</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {month.donations.map((donor, idx) => {
-                              let medal = null;
-                              let color = '';
-                              if (idx === 0) {
-                                medal = <Award className="inline-block mr-1" style={{ color: '#FFD700' }} aria-label="อันดับ 1" />;
-                                color = 'text-yellow-600 dark:text-yellow-200 font-bold';
-                              } else if (idx === 1) {
-                                medal = <Award className="inline-block mr-1" style={{ color: '#C0C0C0' }} aria-label="อันดับ 2" />;
-                                color = 'text-gray-500 dark:text-gray-200 font-bold';
-                              } else if (idx === 2) {
-                                medal = <Award className="inline-block mr-1" style={{ color: '#CD7F32' }} aria-label="อันดับ 3" />;
-                                color = 'text-orange-700 dark:text-orange-200 font-bold';
-                              } else {
-                                color = 'text-gray-700 dark:text-gray-200';
-                              }
-                              return (
-                                <tr key={donor.userId} className="border-b border-pink-50 dark:border-zinc-800 last:border-0">
-                                  <td className="py-1 pr-2 text-gray-400 dark:text-gray-500">{idx + 1}</td>
-                                  <td className={`py-1 flex items-center ${color}`}>{medal}{donor.discordName}</td>
-                                  <td className={`py-1 text-right font-bold ${color}`}>{donor.amount.toLocaleString()}G</td>
-                                </tr>
-                              );
-                            })}
-                          </tbody>
-                        </table>
-                      )}
-                    </div>
-                  )}
+                <div key={key} className="mb-4 md:mb-6 group">
+                  <div className={
+                    `relative overflow-hidden rounded-2xl bg-pink-50 dark:bg-pink-900/80 border border-pink-100/40 dark:border-pink-800/20 shadow-md hover:shadow-lg transition-all duration-300 group-hover:scale-[1.01]`
+                  }>
+                    {/* overlay ใหม่: อยู่เฉพาะด้านใน ไม่ทับ border */}
+                    <div className="absolute inset-px bg-pink-50 dark:bg-pink-900/80 pointer-events-none rounded-[inherit]" />
+                    <button
+                      type="button"
+                      className="relative w-full flex flex-col md:flex-row items-stretch md:items-center px-2 md:px-6 py-4 md:py-5 focus:outline-none rounded-2xl gap-2 md:gap-0 z-10"
+                      onClick={() => setExpandedMonths(prev => ({ ...prev, [key]: !isExpanded }))}
+                      tabIndex={0}
+                    >
+                      <div className="flex items-center justify-center md:justify-start gap-0 md:gap-4 flex-shrink-0">
+                        <div className="p-2 md:p-3 rounded-xl bg-white/80 shadow">
+                          <Calendar className="w-6 h-6 md:w-7 md:h-7 text-pink-400" />
+                        </div>
+                      </div>
+                      <div className="flex-1 flex flex-col justify-center md:ml-4">
+                        <h3 className="font-bold text-base md:text-lg text-gray-800 dark:text-gray-100 mb-0.5 md:mb-1">{monthName}</h3>
+                        <p className="text-xs md:text-sm text-gray-500 dark:text-gray-300">ผู้บริจาค {month.donations.length} คน</p>
+                      </div>
+                      {/* กล่องยอดรวม G: ไอคอนเหลืองสดใส ตัวเลขเขียว พื้นหลังขาวโปร่งบาง/blur */}
+                      <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border border-green-100 dark:border-green-800 shadow ring-1 ring-green-100 dark:ring-green-900 hover:ring-2 hover:ring-green-200 dark:hover:ring-green-400 transition-all duration-200 mt-2 md:mt-0">
+                        <Coins className="w-5 h-5 text-yellow-400 drop-shadow-sm" />
+                        <span className="text-base md:text-lg font-bold text-green-600 dark:text-green-300 tracking-wide">{monthSum.toLocaleString()}G</span>
+                      </div>
+                      <div className="ml-0 md:ml-2 flex items-center justify-center">
+                        {isExpanded
+                          ? <ChevronUp className="w-6 h-6 text-pink-400" />
+                          : <ChevronDown className="w-6 h-6 text-pink-400" />}
+                      </div>
+                    </button>
+                    {isExpanded && (
+                      <div className="px-2 md:px-6 pb-4 md:pb-6 animate-in slide-in-from-top-2 duration-300">
+                        <div className="bg-white/95 dark:bg-zinc-900/95 backdrop-blur-lg rounded-xl border border-pink-100/40 dark:border-pink-800/20 shadow-lg overflow-hidden">
+                          {month.donations.length === 0 ? (
+                            <div className="text-center py-8">
+                              <div className="w-10 h-10 mx-auto mb-3 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center">
+                                <Coins className="w-6 h-6 text-yellow-400" />
+                              </div>
+                              <p className="text-gray-500 dark:text-gray-400 font-medium text-sm md:text-base">ไม่มีข้อมูลบริจาคในเดือนนี้</p>
+                            </div>
+                          ) : (
+                            <div className="overflow-hidden">
+                              <div className="bg-gradient-to-r from-pink-50 via-pink-100 to-white dark:from-pink-900/50 dark:via-pink-800/50 dark:to-zinc-900/50 px-2 md:px-4 py-2 md:py-3 border-b border-pink-100/40 dark:border-pink-800/20">
+                                <h4 className="font-bold text-gray-700 dark:text-gray-200 text-xs md:text-sm">รายละเอียดการบริจาค</h4>
+                              </div>
+                              <div className="max-h-[40vh] md:max-h-[50vh] overflow-y-auto">
+                                {month.donations.map((donor, idx) => {
+                                  let medal = null;
+                                  let color = '';
+                                  let bgColor = '';
+                                  if (idx === 0) {
+                                    medal = <Award className="w-5 h-5 text-yellow-500 dark:text-yellow-300" />;
+                                    color = 'text-yellow-700 dark:text-yellow-200 font-bold';
+                                    bgColor = 'bg-yellow-50 dark:bg-yellow-900/30';
+                                  } else if (idx === 1) {
+                                    medal = <Award className="w-5 h-5 text-gray-500 dark:text-gray-300" />;
+                                    color = 'text-gray-700 dark:text-gray-200 font-bold';
+                                    bgColor = 'bg-gray-50 dark:bg-gray-900/30';
+                                  } else if (idx === 2) {
+                                    medal = <Award className="w-5 h-5 text-orange-500 dark:text-orange-300" />;
+                                    color = 'text-orange-700 dark:text-orange-200 font-bold';
+                                    bgColor = 'bg-orange-50 dark:bg-orange-900/30';
+                                  } else {
+                                    color = 'text-gray-600 dark:text-gray-300';
+                                    bgColor = 'bg-white dark:bg-zinc-800/50';
+                                  }
+                                  return (
+                                    <div key={donor.userId} className={`flex items-center justify-between px-2 md:px-4 py-2 md:py-3 border-b border-gray-100 dark:border-gray-700 last:border-0 ${bgColor} hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors duration-200 text-xs md:text-base`}>
+                                      <div className="flex items-center gap-2 md:gap-3">
+                                        <div className="flex items-center justify-center w-7 h-7 md:w-8 md:h-8 rounded-full bg-gradient-to-br from-pink-200 to-purple-200 dark:from-pink-800 dark:to-purple-800 text-xs md:text-sm font-bold text-gray-700 dark:text-gray-200">
+                                          {idx + 1}
+                                        </div>
+                                        <div className="flex items-center gap-1 md:gap-2">
+                                          {medal}
+                                          <span className={`${color}`}>{donor.discordName}</span>
+                                        </div>
+                                      </div>
+                                      <div className={`font-bold ${color} text-xs md:text-lg`}>
+                                        {donor.amount.toLocaleString()}G
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               );
             })}

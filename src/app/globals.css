@@ -152,4 +152,52 @@ button, input, textarea, select {
               color 0.2s ease-in-out, 
               border-color 0.2s ease-in-out,
               box-shadow 0.2s ease-in-out;
+}
+
+/* Custom animations for dark mode notification */
+@keyframes gentle-glow {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
+}
+
+@keyframes subtle-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+
+.dark-mode-notification {
+  animation: gentle-glow 3s ease-in-out infinite;
+  position: relative;
+  z-index: 50;
+}
+
+.dark-mode-notification:hover {
+  animation: subtle-bounce 2s ease-in-out infinite;
+}
+
+.dark-mode-notification svg {
+  animation: icon-pulse 2s ease-in-out infinite;
+}
+
+.dark-mode-notification svg:last-child {
+  animation-delay: 1s;
+}
+
+@keyframes icon-pulse {
+  0%, 100% { opacity: 0.8; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+
+/* Ensure perfect centering */
+.dark-mode-notification-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  position: fixed;
+  top: 4rem;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  pointer-events: none;
 } 

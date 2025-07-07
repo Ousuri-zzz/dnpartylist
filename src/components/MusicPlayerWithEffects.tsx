@@ -113,6 +113,12 @@ export default function MusicPlayerWithEffects({
     const newMuted = !isMuted;
     audio.muted = newMuted;
     setIsMuted(newMuted);
+    
+    // ปิด expand ทันทีในโหมดมือถือ
+    if (isMobile) {
+      setIsExpanded(false);
+    }
+    
     try {
       localStorage.setItem('bgMusicMuted', newMuted.toString());
     } catch (error) {
@@ -177,9 +183,8 @@ export default function MusicPlayerWithEffects({
   };
 
   const handleExpandMobile = () => {
-    setIsExpanded(true);
+    // ไม่ต้อง expand ในโหมดมือถือ
     if (timerRef.current) clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => setIsExpanded(false), 3000);
   };
 
   const handleCollapseMobile = () => {
@@ -228,32 +233,30 @@ export default function MusicPlayerWithEffects({
   }, []);
 
   return (
-    <div className="fixed top-0 right-0 z-[100001] flex flex-col items-end px-2 py-2">
+    <div className="fixed -top-1 right-0 z-[100001] flex flex-col items-end px-2 py-2">
       <div
         className={`flex items-center transition-all duration-300 relative ${isExpanded ? 'bg-[#F6F7FB] dark:bg-[#23243a] border border-[#E3F2FD] dark:border-[#35365a] shadow-sm px-2' : 'bg-transparent border-0 shadow-none px-0'} rounded-full max-w-[90vw] md:max-w-none h-12`}
-        style={{ minWidth: isExpanded ? 140 : 48, width: isExpanded ? 180 : 48 }}
+        style={{ minWidth: isExpanded ? (isMobile ? 48 : 140) : 48, width: isExpanded ? (isMobile ? 48 : 180) : 48 }}
         onMouseEnter={!isMobile ? handleMouseEnter : undefined}
         onMouseLeave={!isMobile ? handleMouseLeave : undefined}
-        onTouchStart={isMobile ? handleExpandMobile : handleUserInteract}
+        onTouchStart={!isMobile ? handleUserInteract : undefined}
       >
-        {/* slider + % */}
-        <div className={`flex items-center transition-all duration-300 overflow-hidden ${isExpanded ? 'w-28 sm:w-36 opacity-100 mr-2' : 'w-0 opacity-0 mr-0'}`} style={{ minWidth: 0 }}>
+        {/* slider + % - hidden on mobile */}
+        <div className={`hidden md:flex items-center transition-all duration-300 overflow-hidden ${isExpanded ? 'w-28 sm:w-36 opacity-100 mr-2' : 'w-0 opacity-0 mr-0'}`} style={{ minWidth: 0 }}>
           <input
             type="range"
             min="0"
             max="100"
             value={volume}
             onChange={(e) => handleVolumeChange(parseInt(e.target.value))}
-            className="w-full h-2 bgm-slider bg-[#B2F2BB] dark:bg-[#35365a] rounded-full appearance-none focus:outline-none"
+            className="w-full h-2 bgm-slider rounded-full appearance-none focus:outline-none"
             style={{
-              background: `linear-gradient(to right, #A7C7E7 0%, #A7C7E7 ${volume}%, #F6F7FB ${volume}%, #F6F7FB 100%)`,
+              background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${volume}%, #e5e7eb ${volume}%, #e5e7eb 100%)`,
             }}
-            onMouseDown={isMobile ? handleSliderStart : undefined}
-            onMouseUp={isMobile ? handleSliderEnd : undefined}
-            onTouchStart={isMobile ? handleSliderStart : undefined}
-            onTouchEnd={isMobile ? handleSliderEnd : undefined}
+            onMouseDown={handleSliderStart}
+            onMouseUp={handleSliderEnd}
           />
-          <span className="text-xs text-[#A7C7E7] dark:text-[#B2F2BB] font-medium select-none w-8 text-right ml-1">{volume}%</span>
+          <span className="text-xs text-[#3b82f6] dark:text-[#B2F2BB] font-medium select-none w-8 text-right ml-1">{volume}%</span>
         </div>
         {/* ปุ่ม mute/unmute */}
         <div className="relative flex items-center justify-center">
@@ -270,7 +273,7 @@ export default function MusicPlayerWithEffects({
           />
           <button
             onClick={toggleMute}
-            className={`p-2 rounded-full bg-[#A7C7E7] dark:bg-[#35365a] hover:bg-[#C3B1E1] dark:hover:bg-[#23243a] transition-colors duration-200 focus:outline-none border border-[#E3F2FD] dark:border-[#35365a] ${isPlaying ? 'ring-2 ring-[#A7C7E7]/60 dark:ring-white/10 ring-offset-2' : ''} flex-shrink-0`}
+            className={`p-2 md:p-2 rounded-full bg-[#A7C7E7] dark:bg-[#35365a] hover:bg-[#C3B1E1] dark:hover:bg-[#23243a] transition-colors duration-200 focus:outline-none border border-[#E3F2FD] dark:border-[#35365a] ${isPlaying ? 'ring-2 ring-[#A7C7E7]/60 dark:ring-white/10 ring-offset-2' : ''} flex-shrink-0`}
             aria-label={isMuted ? "เปิดเสียง" : "ปิดเสียง"}
             style={{ zIndex: 2 }}
           >

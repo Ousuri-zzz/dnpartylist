@@ -60,7 +60,7 @@ export default function BubbleEffect() {
     // สร้างฟองสบู่เริ่มต้นแบบทยอย
     const createInitialBubbles = () => {
       const bubbles: Bubble[] = [];
-      const initialBubbleCount = 15; // ลดจำนวนฟองลง
+      const initialBubbleCount = 15; // ลดจำนวนฟองเริ่มต้นให้สมดุล
 
       for (let i = 0; i < initialBubbleCount; i++) {
         // สร้างฟองทั่วความกว้างจอ 100%
@@ -78,7 +78,7 @@ export default function BubbleEffect() {
         // คำนวณขนาดฟองตามระยะห่างจากขอบ (ยิ่งไกลจากขอบ ยิ่งใหญ่)
         const maxDistance = canvas.width / 2;
         const sizeMultiplier = 1 + (distanceFromEdge / maxDistance) * 1.2; // 1-2.2 เท่า
-        const baseSize = Math.random() * 6 + 5; // ขนาดพื้นฐาน 5-11px
+        const baseSize = Math.random() * 15 + 8; // ขนาดพื้นฐาน 8-23px (ลดขนาดสูงสุด)
         const size = baseSize * sizeMultiplier;
 
         // ฟองลอยขึ้นแบบสุ่มจนถึงบนจอ
@@ -114,7 +114,7 @@ export default function BubbleEffect() {
 
       const distanceFromEdge = Math.min(x, canvas.width - x);
       const sizeMultiplier = 1 + (distanceFromEdge / maxDistance) * 1.2;
-      const baseSize = Math.random() * 6 + 5;
+      const baseSize = Math.random() * 15 + 8;
       const size = baseSize * sizeMultiplier;
 
       const maxLiftHeight = canvas.height;
@@ -236,11 +236,11 @@ export default function BubbleEffect() {
 
     // เพิ่มฟองใหม่แบบทยอย - ลดความถี่ลง
     const addBubbleInterval = setInterval(() => {
-      if (bubblesRef.current.length < 40) { // ลดจำนวนฟองสูงสุด
+      if (bubblesRef.current.length < 60) { // ลดจำนวนฟองสูงสุด
         const newBubble = createNewBubble();
         bubblesRef.current.push(newBubble);
       }
-    }, 300); // เพิ่มฟองใหม่ทุก 300ms (ช้าลง)
+    }, 500); // เพิ่มฟองใหม่ทุก 500ms (ช้าลง)
 
     return () => {
       window.removeEventListener('resize', resizeCanvas);

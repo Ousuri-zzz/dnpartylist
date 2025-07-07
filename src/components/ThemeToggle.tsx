@@ -10,21 +10,12 @@ export function ThemeToggle({ isMobile = false }: { isMobile?: boolean }) {
   const { theme, setTheme, resolvedTheme } = useThemeContext();
 
   const toggleTheme = () => {
-    if (theme === 'system') {
-      // ถ้าเป็น system ให้สลับไปเป็น light หรือ dark ตาม resolvedTheme ปัจจุบัน
-      const newTheme = resolvedTheme === 'light' ? 'dark' : 'light';
-      if (newTheme === 'dark') {
-        toast.info('โหมดมืดกำลังอยู่ระหว่างพัฒนา ยังไม่สมบูรณ์');
-      }
-      setTheme(newTheme);
-    } else {
-      // ถ้าเป็น light หรือ dark ให้สลับไปเป็นตรงข้าม
-      const newTheme = theme === 'light' ? 'dark' : 'light';
-      if (newTheme === 'dark') {
-        toast.info('โหมดมืดกำลังอยู่ระหว่างพัฒนา ยังไม่สมบูรณ์');
-      }
-      setTheme(newTheme);
+    // สลับระหว่าง light และ dark
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    if (newTheme === 'dark') {
+      toast.info('โหมดมืดกำลังอยู่ระหว่างพัฒนา ยังไม่สมบูรณ์');
     }
+    setTheme(newTheme);
   };
 
   const getIcon = () => {

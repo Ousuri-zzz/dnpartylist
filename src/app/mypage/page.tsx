@@ -1243,142 +1243,117 @@ export default function MyPage() {
       <div className="container mx-auto py-8 px-4">
         <div className="flex flex-col md:flex-row w-full gap-2">
           {/* ซ้าย: แบนเนอร์ 80% */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, ease: "easeOut" }}
-            className="w-full md:w-4/5 relative mt-1 rounded-3xl bg-white/30 backdrop-blur-md border border-white/30 shadow-2xl overflow-hidden dark:bg-gray-900/80 dark:border-gray-700/50"
-          style={{
-            minHeight: '120px',
-          }}
-        >
-          {/* Animated Shine Effect */}
-          <div className="absolute inset-0 pointer-events-none overflow-hidden z-10">
-            <div className="absolute left-[-40%] top-0 w-1/2 h-full bg-gradient-to-r from-white/40 to-transparent blur-lg animate-shine dark:from-white/20" />
-          </div>
-          {/* White overlay for readability */}
-          <div className="absolute inset-0 bg-white/80 rounded-3xl z-0 dark:bg-gray-800/90" />
-          {/* Fantasy cloud/shine effect (softer) */}
-          <div className="absolute inset-0 z-0 pointer-events-none">
-            {/* ลบ SVG วงรีขาวออก */}
-            <div className="absolute right-2 md:right-10 top-2 md:top-6 w-16 h-16 md:w-32 md:h-32 bg-pink-200/20 rounded-full blur-2xl opacity-30 animate-none dark:bg-pink-300/10" />
-            <div className="absolute left-2 md:left-10 bottom-0 w-12 h-12 md:w-24 md:h-24 bg-blue-200/20 rounded-full blur-2xl opacity-20 animate-none dark:bg-blue-300/10" />
-          </div>
-          {/* Main Content */}
-          <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-3 md:gap-4 px-4 md:px-10 py-5 md:py-8">
-            <div className="space-y-2 w-full">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
-                <span className="inline-flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-tr from-violet-300 via-pink-200 to-blue-200 shadow-lg border-4 border-white dark:from-violet-400/40 dark:via-pink-300/30 dark:to-blue-400/30 dark:border-violet-400">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 md:w-7 md:h-7 text-violet-600 dark:text-violet-100" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19.5 2 21l1.5-5L16.5 3.5z"/></svg>
-                </span>
-                <h1 className="text-2xl md:text-4xl font-extrabold bg-gradient-to-r from-violet-600 via-pink-500 to-blue-600 bg-clip-text text-transparent drop-shadow-lg tracking-tight dark:from-violet-300 dark:via-pink-300 dark:to-blue-300">ตัวละครของฉัน</h1>
-              </div>
-              <p className="text-gray-600 text-sm md:text-lg font-medium drop-shadow-sm dark:text-gray-300">เพิ่มตัวละครได้อย่างอิสระ ไม่จำกัดกิลด์ พร้อมระบบติดตามความคืบหน้า และจัดปาร์ตี้ได้อย่างสะดวก</p>
-              <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-2 mt-2 w-full">
-                <div className="flex flex-row gap-2 w-full sm:w-auto">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={async () => {
-                      if (window.confirm('คุณต้องการรีเซ็ต Checklist รายวันทั้งหมดใช่หรือไม่?')) {
-                        try {
-                          await resetChecklist(user.uid, 'daily');
-                          toast.success('รีเซ็ต Checklist รายวันเรียบร้อยแล้ว!');
-                        } catch (error) {
-                          console.error('Error resetting daily checklist:', error);
-                          toast.error('เกิดข้อผิดพลาดในการรีเซ็ต Checklist');
-                        }
-                      }
-                    }}
-                    className="text-xs text-gray-500 hover:text-gray-700 hover:bg-gray-100/50 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700/50"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
-                      <path d="M3 3v5h5"/>
-                    </svg>
-                    รีเซ็ตวัน
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={async () => {
-                      if (window.confirm('คุณต้องการรีเซ็ต Checklist รายสัปดาห์ทั้งหมดใช่หรือไม่?')) {
-                        try {
-                          await resetChecklist(user.uid, 'weekly');
-                          toast.success('รีเซ็ต Checklist รายสัปดาห์เรียบร้อยแล้ว!');
-                        } catch (error) {
-                          console.error('Error resetting weekly checklist:', error);
-                          toast.error('เกิดข้อผิดพลาดในการรีเซ็ต Checklist');
-                        }
-                      }
-                    }}
-                    className="text-xs text-gray-500 hover:text-gray-700 hover:bg-gray-100/50 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700/50"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
-                      <path d="M3 3v5h5"/>
-                    </svg>
-                    รีเซ็ตสัปดาห์
-                  </Button>
-                </div>
-                <span className="text-xs text-gray-400 ml-0 sm:ml-2 dark:text-gray-500">ปุ่มคัดลอกข้อความรายวัน</span>
-                <div className="flex flex-row gap-2 w-full sm:w-auto">
-                  <button
-                                          className={`flex items-center gap-1 px-3 py-1 rounded-lg border border-pink-200 bg-pink-50 text-pink-700 text-xs font-medium shadow hover:bg-pink-100 transition-all duration-200 ${copied === 'th' ? 'scale-105 bg-pink-200 dark:bg-pink-800' : ''} dark:border-pink-300 dark:bg-pink-900/30 dark:text-pink-300 dark:hover:bg-pink-900/50`}
-                    onClick={() => handleCopy('ยินดีต้อนรับกลับ Nest', 'th')}
-                    type="button"
-                  >
-                    {copied === 'th' ? <ClipboardCheck className="w-4 h-4 text-green-500 animate-bounce" /> : <ClipboardCopy className="w-4 h-4 text-pink-400 dark:text-pink-300" />}
-                    ยินดีต้อนรับกลับ Nest
-                  </button>
-                  <button
-                    className={`flex items-center gap-1 px-3 py-1 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 text-xs font-medium shadow hover:bg-blue-100 transition-all duration-200 ${copied === 'en' ? 'scale-105 bg-blue-200 dark:bg-blue-800' : ''} dark:border-blue-300 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50`}
-                    onClick={() => handleCopy('Welcome back to DN', 'en')}
-                    type="button"
-                  >
-                    {copied === 'en' ? <ClipboardCheck className="w-4 h-4 text-green-500 animate-bounce" /> : <ClipboardCopy className="w-4 h-4 text-blue-400 dark:text-blue-300" />}
-                    Welcome back to DN
-                  </button>
-                </div>
-              </div>
-            </div>
-            <motion.div 
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.2, delay: 0.2, ease: "easeOut" }}
-              className="flex items-center gap-4 w-full md:w-auto justify-end"
-            >
-              <Button 
-                onClick={() => setIsAddModalOpen(true)}
-                className="relative group bg-gradient-to-r from-violet-500 via-purple-500 to-blue-500 text-white hover:from-violet-600 hover:via-purple-600 hover:to-blue-600 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-2 rounded-xl px-6 py-3 w-full md:w-auto overflow-hidden dark:from-violet-600 dark:via-purple-600 dark:to-blue-600 dark:hover:from-violet-700 dark:hover:via-purple-700 dark:hover:to-blue-700"
-              >
-                {/* Animated background effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-violet-400/20 via-purple-400/20 to-blue-400/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 dark:from-violet-300/20 dark:via-purple-300/20 dark:to-blue-300/20" />
-                
-                {/* Button content */}
-                <div className="relative flex items-center gap-2">
-                  <div className="p-1 rounded-lg bg-white/10 backdrop-blur-sm">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <line x1="12" y1="5" x2="12" y2="19"></line>
-                      <line x1="5" y1="12" x2="19" y2="12"></line>
-                    </svg>
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            className="w-full md:w-4/5 relative mt-1 rounded-3xl bg-gradient-to-tr from-violet-200 via-pink-100 to-blue-100 shadow-2xl overflow-hidden border-0 dark:bg-gray-900/80 dark:border-gray-700/50"
+            style={{ minHeight: '140px' }}
+          >
+            {/* Bubble/particle effect */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-pink-200/30 rounded-full blur-2xl opacity-40 z-0" />
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-blue-200/30 rounded-full blur-2xl opacity-30 z-0" />
+            {/* White overlay for readability */}
+            <div className="absolute inset-0 bg-white/60 backdrop-blur-lg rounded-3xl z-0 dark:bg-gray-800/90" />
+            {/* Main Content */}
+            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-4 px-6 md:px-12 py-7 md:py-10">
+              <div className="space-y-3 w-full">
+                <div className="flex items-center gap-4">
+                  <span className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-tr from-pink-300 via-violet-200 to-blue-200 shadow-lg border-3 border-white text-2xl">🐾</span>
+                  <div>
+                    <h1 className="text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-violet-600 via-pink-500 to-blue-600 bg-clip-text text-transparent drop-shadow-lg tracking-tight dark:from-violet-300 dark:via-pink-300 dark:to-blue-300">ตัวละครของฉัน</h1>
+                    <p className="text-gray-600 text-sm md:text-base font-medium drop-shadow-sm dark:text-gray-300">เพิ่มตัวละครได้อย่างอิสระ ไม่จำกัดกิลด์ พร้อมระบบติดตามความคืบหน้า และจัดปาร์ตี้ได้อย่างสะดวก</p>
                   </div>
-                  <span className="font-medium tracking-wide">เพิ่มตัวละคร</span>
                 </div>
-
-                {/* Shine effect */}
-                <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-              </Button>
-            </motion.div>
-          </div>
-        </motion.div>
+                <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-2">
+                  <div className="flex flex-row gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={async () => {
+                        if (window.confirm('คุณต้องการรีเซ็ต Checklist รายวันทั้งหมดใช่หรือไม่?')) {
+                          try {
+                            await resetChecklist(user.uid, 'daily');
+                            toast.success('รีเซ็ต Checklist รายวันเรียบร้อยแล้ว!');
+                          } catch (error) {
+                            console.error('Error resetting daily checklist:', error);
+                            toast.error('เกิดข้อผิดพลาดในการรีเซ็ต Checklist');
+                          }
+                        }
+                      }}
+                      className="text-xs text-gray-500 hover:text-gray-700 hover:bg-gray-100/50 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700/50"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                        <path d="M3 3v5h5"/>
+                      </svg>
+                      รีเซ็ตวัน
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={async () => {
+                        if (window.confirm('คุณต้องการรีเซ็ต Checklist รายสัปดาห์ทั้งหมดใช่หรือไม่?')) {
+                          try {
+                            await resetChecklist(user.uid, 'weekly');
+                            toast.success('รีเซ็ต Checklist รายสัปดาห์เรียบร้อยแล้ว!');
+                          } catch (error) {
+                            console.error('Error resetting weekly checklist:', error);
+                            toast.error('เกิดข้อผิดพลาดในการรีเซ็ต Checklist');
+                          }
+                        }
+                      }}
+                      className="text-xs text-gray-500 hover:text-gray-700 hover:bg-gray-100/50 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700/50"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                        <path d="M3 3v5h5"/>
+                      </svg>
+                      รีเซ็ตสัปดาห์
+                    </Button>
+                  </div>
+                  <span className="text-xs text-gray-400 ml-0 sm:ml-2 dark:text-gray-500">ปุ่มคัดลอกข้อความรายวัน</span>
+                  <div className="flex flex-row gap-2">
+                    <button
+                      className={`flex items-center gap-1 px-3 py-1 rounded-lg border border-pink-200 bg-pink-50 text-pink-700 text-xs font-medium shadow hover:bg-pink-100 transition-all duration-200 ${copied === 'th' ? 'scale-105 bg-pink-200 dark:bg-pink-800' : ''} dark:border-pink-300 dark:bg-pink-900/30 dark:text-pink-300 dark:hover:bg-pink-900/50`}
+                      onClick={() => handleCopy('ยินดีต้อนรับกลับ Nest', 'th')}
+                      type="button"
+                    >
+                      {copied === 'th' ? <ClipboardCheck className="w-4 h-4 text-green-500 animate-bounce" /> : <ClipboardCopy className="w-4 h-4 text-pink-400 dark:text-pink-300" />}
+                      ยินดีต้อนรับกลับ Nest
+                    </button>
+                    <button
+                      className={`flex items-center gap-1 px-3 py-1 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 text-xs font-medium shadow hover:bg-blue-100 transition-all duration-200 ${copied === 'en' ? 'scale-105 bg-blue-200 dark:bg-blue-800' : ''} dark:border-blue-300 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50`}
+                      onClick={() => handleCopy('Welcome back to DN', 'en')}
+                      type="button"
+                    >
+                      {copied === 'en' ? <ClipboardCheck className="w-4 h-4 text-green-500 animate-bounce" /> : <ClipboardCopy className="w-4 h-4 text-blue-400 dark:text-blue-300" />}
+                      Welcome back to DN
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setIsAddModalOpen(true)}
+                className="bg-gradient-to-r from-violet-500 to-blue-500 text-white px-5 py-2.5 rounded-lg font-semibold shadow-md hover:shadow-lg transition-all flex items-center gap-2 text-sm whitespace-nowrap"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                เพิ่มตัวละคร
+              </motion.button>
+            </div>
+          </motion.div>
           {/* ขวา: ปุ่ม 20% */}
           <div className="w-full md:w-1/5 flex flex-col gap-2 items-start md:justify-center justify-start mt-3 md:mt-0 order-last md:order-none">
             <Link href="/mypage/Status" className="w-full">
               <Button
-                className="w-full h-10 md:h-12 bg-white/60 backdrop-blur-md border border-blue-300 rounded-xl flex items-center justify-center gap-2 text-blue-700 font-medium text-sm md:text-base shadow-sm transition-all duration-200 focus:ring-2 focus:ring-blue-300 hover:bg-blue-200 hover:backdrop-blur-none hover:border-blue-500 hover:text-blue-900 dark:bg-gray-800/80 dark:border-blue-400 dark:text-blue-200 dark:hover:bg-gray-900 dark:hover:text-blue-100 dark:hover:border-blue-500"
+                className="w-full h-9 md:h-10 bg-gradient-to-r from-violet-100 via-blue-50 to-white border-0 rounded-lg flex items-center justify-center gap-2 text-blue-700 font-medium text-sm shadow transition-all duration-200 hover:from-violet-200 hover:to-blue-100 hover:text-blue-900 dark:from-gray-800 dark:via-blue-900 dark:to-gray-900 dark:text-blue-200 dark:hover:text-blue-100"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="!w-4 !h-4 md:!w-5 md:!h-5 text-blue-500 dark:text-blue-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-blue-500 dark:text-blue-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                   <rect x="3" y="3" width="18" height="18" rx="2"/>
                   <path d="M8 6h8M8 10h8M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"/>
                 </svg>
@@ -1386,31 +1361,27 @@ export default function MyPage() {
               </Button>
             </Link>
             <Button
-              className="w-full h-10 md:h-12 bg-white/60 backdrop-blur-md border border-violet-300 rounded-xl flex flex-col items-center justify-center gap-1 text-violet-700 font-medium text-sm md:text-base shadow-sm transition-all duration-200 focus:ring-2 focus:ring-violet-300 hover:bg-violet-200 hover:backdrop-blur-none hover:border-violet-500 hover:text-violet-900 dark:bg-gray-800/80 dark:border-violet-400 dark:text-violet-200 dark:hover:bg-gray-900 dark:hover:text-violet-100 dark:hover:border-violet-500"
+              className="w-full h-9 md:h-10 bg-gradient-to-r from-violet-100 via-pink-50 to-white border-0 rounded-lg flex items-center justify-center gap-2 text-violet-700 font-medium text-sm shadow transition-all duration-200 hover:from-violet-200 hover:to-pink-100 hover:text-violet-900 dark:from-gray-800 dark:via-pink-900 dark:to-gray-900 dark:text-violet-200 dark:hover:text-violet-100"
               onClick={() => { alert('อยู่ระหว่างพัฒนา'); }}
               type="button"
             >
-              <span className="flex items-center gap-1">
-                <Wand2 className="!w-4 !h-4 md:!w-5 md:!h-5 text-violet-500 dark:text-violet-200" />
-                สกิล & บิ้วแนะนำ
-                <span className="ml-1 text-xs align-middle">🚧</span>
-              </span>
-              <span className="text-xs text-gray-500 mt-0.5">(อยู่ระหว่างพัฒนา)</span>
+              <Wand2 className="w-4 h-4 text-violet-500 dark:text-violet-200" />
+              <span>สกิล & บิ้วแนะนำ <span className="ml-1 text-xs align-middle">🚧</span></span>
             </Button>
             <Link href="/split" className="w-full">
               <Button
-                className="w-full h-10 md:h-12 bg-white/60 backdrop-blur-md border border-yellow-300 rounded-xl flex items-center justify-center gap-2 text-yellow-800 font-medium text-sm md:text-base shadow-sm transition-all duration-200 focus:ring-2 focus:ring-yellow-300 hover:bg-yellow-200 hover:backdrop-blur-none hover:border-yellow-500 hover:text-yellow-900 dark:bg-gray-800/80 dark:border-yellow-400 dark:text-yellow-200 dark:hover:bg-gray-900 dark:hover:text-yellow-100 dark:hover:border-yellow-500"
+                className="w-full h-9 md:h-10 bg-gradient-to-r from-yellow-100 via-white to-yellow-50 border-0 rounded-lg flex items-center justify-center gap-2 text-yellow-800 font-medium text-sm shadow transition-all duration-200 hover:from-yellow-200 hover:to-yellow-100 hover:text-yellow-900 dark:from-gray-800 dark:via-yellow-900 dark:to-gray-900 dark:text-yellow-200 dark:hover:text-yellow-100"
               >
-                <FaCoins className="!w-4 !h-4 md:!w-5 md:!h-5 text-yellow-500 dark:text-yellow-200 drop-shadow" />
+                <FaCoins className="w-4 h-4 text-yellow-500 dark:text-yellow-200 drop-shadow" />
                 <span>จัดสรรของดรอปปาร์ตี้</span>
               </Button>
             </Link>
             <Button
-              className="w-full h-10 md:h-12 bg-white/60 backdrop-blur-md border border-green-300 rounded-xl flex items-center justify-center gap-2 text-green-700 font-medium text-sm md:text-base shadow-sm transition-all duration-200 focus:ring-2 focus:ring-green-300 hover:bg-green-200 hover:backdrop-blur-none hover:border-green-500 hover:text-green-900 dark:bg-gray-800/80 dark:border-green-400 dark:text-green-200 dark:hover:bg-gray-900 dark:hover:text-green-100 dark:hover:border-green-500"
+              className="w-full h-9 md:h-10 bg-gradient-to-r from-green-100 via-white to-green-50 border-0 rounded-lg flex items-center justify-center gap-2 text-green-700 font-medium text-sm shadow transition-all duration-200 hover:from-green-200 hover:to-green-100 hover:text-green-900 dark:from-gray-800 dark:via-green-900 dark:to-gray-900 dark:text-green-200 dark:hover:text-green-100"
               onClick={handleOpenModModal}
               type="button"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="!w-4 !h-4 md:!w-5 md:!h-5 text-green-500 dark:text-green-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-green-500 dark:text-green-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                 <path d="M12 2L2 7l10 5 10-5-10-5z"/>
                 <path d="M2 17l10 5 10-5"/>
                 <path d="M2 12l10 5 10-5"/>
