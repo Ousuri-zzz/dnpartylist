@@ -690,19 +690,19 @@ export default function EventDetailPage() {
         <div className="mb-8 flex justify-between items-center min-w-0">
           <button
             onClick={() => router.push('/events')}
-            className="flex items-center gap-2 px-6 py-2 rounded-full bg-gradient-to-r from-pink-100 via-purple-100 to-blue-100 text-pink-700 font-bold shadow-md hover:from-pink-200 hover:to-blue-200 hover:text-pink-900 transition-colors duration-200 border-0 backdrop-blur"
+            className="flex items-center gap-2 px-6 py-2 rounded-full bg-gradient-to-r from-pink-100 via-purple-100 to-blue-100 dark:from-pink-900/30 dark:via-purple-900/30 dark:to-blue-900/30 text-pink-700 dark:text-pink-300 font-bold shadow-md hover:from-pink-200 hover:to-blue-200 hover:text-pink-900 dark:hover:from-pink-800/40 dark:hover:to-blue-800/40 dark:hover:text-pink-200 transition-colors duration-200 border-0 backdrop-blur"
             style={{boxShadow:'0 2px 8px 0 rgba(255,182,232,0.10)'}}
           >
-            <ArrowLeft className="w-5 h-5 mr-1 text-pink-400" />
+            <ArrowLeft className="w-5 h-5 mr-1 text-pink-400 dark:text-pink-300" />
             ย้อนกลับไปหน้ารายการกิจกรรม
           </button>
           {isOwner && !event.isEnded && (
             <button
               onClick={() => setEndModal(true)}
-              className="flex items-center gap-2 px-6 py-2 rounded-full bg-gradient-to-r from-green-100 via-white to-green-50 text-green-700 font-bold shadow-md hover:from-green-200 hover:to-green-100 hover:text-green-900 transition-colors duration-200 border-0 backdrop-blur"
+              className="flex items-center gap-2 px-6 py-2 rounded-full bg-gradient-to-r from-green-100 via-white to-green-50 dark:from-green-900/30 dark:via-gray-800 dark:to-green-900/20 text-green-700 dark:text-green-300 font-bold shadow-md hover:from-green-200 hover:to-green-100 hover:text-green-900 dark:hover:from-green-800/40 dark:hover:to-green-800/30 dark:hover:text-green-200 transition-colors duration-200 border-0 backdrop-blur"
               style={{boxShadow:'0 2px 8px 0 rgba(132,204,22,0.10)'}}
             >
-              <Check className="w-5 h-5 mr-1 text-green-500" />
+              <Check className="w-5 h-5 mr-1 text-green-500 dark:text-green-400" />
               กิจกรรมเสร็จสิ้น
             </button>
           )}
@@ -740,18 +740,18 @@ export default function EventDetailPage() {
                 <button title="ลบกิจกรรม" onClick={() => setDeleteModal(true)} className="p-2 rounded-full bg-white/80 hover:bg-red-100 border border-red-200 shadow transition"><Trash2 className="w-5 h-5 text-red-600" /><span className="sr-only">ลบ</span></button>
               </div>
             )}
-            <motion.h1 initial={{opacity:0, y:-10}} animate={{opacity:1, y:0}} transition={{duration:0.4}} className="text-4xl font-extrabold mb-2 text-pink-700 drop-shadow-lg break-words whitespace-normal w-full max-w-full">
+            <motion.h1 initial={{opacity:0, y:-10}} animate={{opacity:1, y:0}} transition={{duration:0.4}} className="text-4xl font-extrabold mb-2 text-pink-700 dark:text-pink-300 drop-shadow-lg break-words whitespace-normal w-full max-w-full">
               🎊{event.name}🎊
             </motion.h1>
             <div className="mb-4">
-              <div className="text-lg text-purple-700 font-semibold flex items-center gap-2 animate-pulse">
+              <div className="text-lg text-purple-700 dark:text-purple-300 font-semibold flex items-center gap-2 animate-pulse">
                 ✨ ยินดีต้อนรับสู่กิจกรรมสุดพิเศษ! ✨
               </div>
               <div className="px-4 py-2 w-full">
                 <div className="inline-flex items-start w-full min-w-0">
                   <span className="text-xl flex-shrink-0 mt-1">📝</span>
                   <div
-                    className="event-description break-words w-full ml-2 text-pink-500 text-lg font-semibold drop-shadow-sm min-w-0 bg-white/70 backdrop-blur-sm rounded-lg px-4 py-2"
+                    className="event-description break-words w-full ml-2 text-pink-500 dark:text-pink-300 text-lg font-semibold drop-shadow-sm min-w-0 bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-lg px-4 py-2"
                     dangerouslySetInnerHTML={{ __html: event.description || 'ไม่มีรายละเอียดกิจกรรม' }}
                   />
                   <style jsx global>{`
@@ -768,17 +768,17 @@ export default function EventDetailPage() {
             </div>
             {/* กล่องรางวัล, เริ่มกิจกรรม, สิ้นสุดกิจกรรม (ขนาดพอดีกับข้อความ) */}
             <div className="space-y-2 flex flex-col mb-4">
-              <div className="bg-yellow-50 rounded-lg px-3 py-1 shadow-sm text-yellow-700 font-semibold text-base max-w-full w-full break-words whitespace-pre-line inline-flex items-center gap-1 self-start block">
+              <div className="bg-yellow-50 dark:bg-yellow-900/30 rounded-lg px-3 py-1 shadow-sm text-yellow-700 dark:text-yellow-300 font-semibold text-base max-w-full w-full break-words whitespace-pre-line inline-flex items-center gap-1 self-start block">
                 <span className="text-2xl mr-2 flex items-center justify-center">🎁</span>
                 <span className="break-all whitespace-pre-line flex items-center">{event.rewardInfo || 'ไม่มีข้อมูลรางวัล'}</span>
               </div>
-              <div className="inline-flex items-center gap-1 bg-blue-50 rounded-lg px-3 py-1 shadow-sm text-blue-800 font-semibold text-base w-fit self-start">
+              <div className="inline-flex items-center gap-1 bg-blue-50 dark:bg-blue-900/30 rounded-lg px-3 py-1 shadow-sm text-blue-800 dark:text-blue-300 font-semibold text-base w-fit self-start">
                 <span className="text-2xl">🗓️</span>
                 <span>เริ่ม:</span>
                 <span>{startDate ? startDate.toLocaleString('th-TH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}</span>
               </div>
               {endDate && (
-                <div className="inline-flex items-center gap-1 bg-red-50 rounded-lg px-3 py-1 shadow-sm text-red-800 font-semibold text-base w-fit self-start">
+                <div className="inline-flex items-center gap-1 bg-red-50 dark:bg-red-900/30 rounded-lg px-3 py-1 shadow-sm text-red-800 dark:text-red-300 font-semibold text-base w-fit self-start">
                   <span className="text-2xl">⏰</span>
                   <span>สิ้นสุด:</span>
                   <span>{endDate.toLocaleString('th-TH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
@@ -805,10 +805,10 @@ export default function EventDetailPage() {
             )}
             {/* เฉพาะเจ้าของกิจกรรมเท่านั้นที่เห็น UI ประกาศ Discord */}
             {user.uid === event.ownerUid && !event.isEnded && (
-              <motion.div initial={{opacity:0, y:10}} animate={{opacity:1, y:0}} transition={{duration:0.4}} className="my-8 p-6 bg-gradient-to-r from-blue-50 to-purple-100 border-2 border-blue-200/60 rounded-2xl shadow-lg" id="event-announce-box">
-                <h3 className="font-semibold text-blue-700 mb-2 flex items-center gap-2 text-lg">📢 ข้อความประกาศเพิ่มเติม</h3>
+              <motion.div initial={{opacity:0, y:10}} animate={{opacity:1, y:0}} transition={{duration:0.4}} className="my-8 p-6 bg-gradient-to-r from-blue-50 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 border-2 border-blue-200/60 dark:border-blue-700/60 rounded-2xl shadow-lg" id="event-announce-box">
+                <h3 className="font-semibold text-blue-700 dark:text-blue-300 mb-2 flex items-center gap-2 text-lg">📢 ข้อความประกาศเพิ่มเติม</h3>
                 <textarea
-                  className="w-full rounded-lg border border-blue-200 p-2 mb-2 text-sm font-mono bg-white/80 shadow-inner focus:ring-2 focus:ring-blue-300 transition"
+                  className="w-full rounded-lg border border-blue-200 dark:border-blue-600 p-2 mb-2 text-sm font-mono bg-white/80 dark:bg-gray-800/80 shadow-inner focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500 transition text-gray-800 dark:text-gray-200"
                   rows={3}
                   placeholder="ใส่ข้อความประกาศเพิ่มเติม (ถ้ามี)"
                   value={announceMsg}
@@ -818,13 +818,13 @@ export default function EventDetailPage() {
                   <Button size="sm" className="flex items-center gap-1 bg-gradient-to-r from-green-400 to-green-600 hover:from-green-500 hover:to-green-700 shadow" onClick={handleCopyAnnounce}>
                     📋 คัดลอกข้อความ
                   </Button>
-                  <Button size="sm" variant="outline" className="flex items-center gap-1 border-blue-400 text-blue-700 hover:bg-blue-50" onClick={handleSaveAnnounce} disabled={announceSaved}>
+                  <Button size="sm" variant="outline" className="flex items-center gap-1 border-blue-400 text-blue-700 hover:bg-blue-50 dark:border-blue-500 dark:text-blue-300 dark:hover:bg-blue-900/30" onClick={handleSaveAnnounce} disabled={announceSaved}>
                     💾 {announceSaved ? 'บันทึกแล้ว' : 'บันทึกข้อความ'}
                   </Button>
                 </div>
-                <div className="bg-white/70 border border-blue-100 rounded p-2 text-xs text-gray-600 shadow-inner">
+                <div className="bg-white/70 dark:bg-gray-800/70 border border-blue-100 dark:border-blue-700 rounded p-2 text-xs text-gray-600 dark:text-gray-400 shadow-inner">
                   <div className="font-semibold mb-1 flex items-center gap-1">👁️‍🗨️ Preview:</div>
-                  <pre className="whitespace-pre-wrap font-mono text-gray-800 break-words">
+                  <pre className="whitespace-pre-wrap font-mono text-gray-800 dark:text-gray-200 break-words">
                     {previewString.replace(/^\n+/, '')}
                   </pre>
                 </div>
@@ -844,7 +844,7 @@ export default function EventDetailPage() {
               <>
                 <Button
                   variant="outline"
-                  className="flex items-center gap-2 border-red-400 text-red-600 hover:bg-red-50 px-4 sm:px-8 py-3 rounded-xl shadow text-lg w-full sm:w-auto"
+                  className="flex items-center gap-2 border-red-400 text-red-600 hover:bg-red-50 dark:border-red-500 dark:text-red-400 dark:hover:bg-red-900/30 px-4 sm:px-8 py-3 rounded-xl shadow text-lg w-full sm:w-auto"
                   onClick={() => setConfirmModal({ open: true, type: 'leave' })}
                   disabled={rewardGiven || event.isEnded}
                   id="event-participant-leave-btn"
@@ -859,7 +859,7 @@ export default function EventDetailPage() {
                       onChange={(e) => setParticipantMessage(e.target.value)}
                       placeholder="พิมพ์ข้อความสั้นๆ (ไม่เกิน 30 ตัวอักษร)"
                       maxLength={30}
-                      className="rounded-lg border border-pink-200 text-sm focus:ring-2 focus:ring-pink-300 w-full h-10 text-center flex items-center justify-center py-0"
+                      className="rounded-lg border border-pink-200 dark:border-pink-600 text-sm focus:ring-2 focus:ring-pink-300 dark:focus:ring-pink-500 w-full h-10 text-center flex items-center justify-center py-0 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200"
                       style={{ lineHeight: '2.5rem' }}
                       id="event-participant-message-input"
                     />
@@ -883,11 +883,11 @@ export default function EventDetailPage() {
             />
             {/* รายชื่อผู้เข้าร่วม */}
             <div className="mt-10">
-              <h2 className="text-xl font-bold text-pink-700 mb-4 flex items-center gap-2" id="event-member-list">
+              <h2 className="text-xl font-bold text-pink-700 dark:text-pink-300 mb-4 flex items-center gap-2" id="event-member-list">
                 👥 รายชื่อผู้เข้าร่วมกิจกรรม ({participantUsers.length})
               </h2>
               {participantUsers.length === 0 ? (
-                <div className="flex items-center gap-2 px-4 py-2 bg-white/80 rounded-xl shadow text-gray-700 font-semibold w-fit text-left">
+                <div className="flex items-center gap-2 px-4 py-2 bg-white/80 dark:bg-gray-800/80 rounded-xl shadow text-gray-700 dark:text-gray-300 font-semibold w-fit text-left">
                   <span>😶‍🌫️</span>ยังไม่มีผู้เข้าร่วม
                 </div>
               ) : (
@@ -961,11 +961,11 @@ export default function EventDetailPage() {
                             );
                           } else {
                             nameBlock = (
-                              <span className="font-semibold text-gray-800">{memberUser.meta?.discord || 'ไม่ทราบชื่อ'}
+                              <span className="font-semibold text-gray-800 dark:text-gray-200">{memberUser.meta?.discord || 'ไม่ทราบชื่อ'}
                                 {participantDoc?.message && (
-                                  <span className="text-xs text-gray-500 ml-2">
+                                  <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">
                                     {participantDoc.messageUpdatedAt && (
-                                      <span className="text-gray-400">
+                                      <span className="text-gray-400 dark:text-gray-500">
                                         [{participantDoc.messageUpdatedAt.toLocaleString('th-TH', { 
                                           year: '2-digit',
                                           month: '2-digit',
@@ -982,11 +982,11 @@ export default function EventDetailPage() {
                             );
                           }
                           return (
-                            <li key={memberUser.uid} className={`flex items-center gap-3 p-3 bg-white/50 rounded-lg shadow-sm hover:shadow-md transition-all relative`}>
+                            <li key={memberUser.uid} className={`flex items-center gap-3 p-3 bg-white/50 dark:bg-gray-800/50 rounded-lg shadow-sm hover:shadow-md transition-all relative`}>
                               <div className="flex w-full items-center">
                                 <div className="flex-1 min-w-0">
                                   <span
-                                    className={`font-medium text-gray-800 ${(user && memberUser.uid !== user.uid && !event.isEnded) ? 'cursor-pointer hover:text-blue-600' : ''} relative`}
+                                    className={`font-medium text-gray-800 dark:text-gray-200 ${(user && memberUser.uid !== user.uid && !event.isEnded) ? 'cursor-pointer hover:text-blue-600 dark:hover:text-blue-400' : ''} relative`}
                                     onMouseEnter={() => {
                                       if (user && memberUser.uid !== user.uid && !event.isEnded) setHoveredUid(memberUser.uid);
                                     }}
@@ -1011,7 +1011,7 @@ export default function EventDetailPage() {
                                       setRewardName(participantDoc.rewardNote || "");
                                       setRewardModal(true);
                                     } : undefined}
-                                    className={`text-sm text-green-700 ml-2${isOwner ? ' cursor-pointer hover:text-green-800' : ''}`}
+                                    className={`text-sm text-green-700 dark:text-green-400 ml-2${isOwner ? ' cursor-pointer hover:text-green-800 dark:hover:text-green-300' : ''}`}
                                     title={isOwner ? 'แก้ไขรางวัล' : undefined}
                                   >
                                     ✓ {participantDoc.rewardNote}
@@ -1023,7 +1023,7 @@ export default function EventDetailPage() {
                                       setRewardName("");
                                       setRewardModal(true);
                                     }}
-                                    className="flex items-center gap-1 px-3 py-1 rounded-full border border-yellow-200 bg-yellow-50 text-yellow-700 text-sm font-medium shadow hover:bg-yellow-100 transition-colors duration-150 ml-2"
+                                    className="flex items-center gap-1 px-3 py-1 rounded-full border border-yellow-200 dark:border-yellow-600 bg-yellow-50 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 text-sm font-medium shadow hover:bg-yellow-100 dark:hover:bg-yellow-800/40 transition-colors duration-150 ml-2"
                                   >
                                     <Gift className="w-3 h-3" />
                                     มอบรางวัล
@@ -1050,15 +1050,15 @@ export default function EventDetailPage() {
                           const groupName = members[0]?.participantDoc?.groupName || '';
                           
                           return (
-                            <div key={groupId} className="bg-blue-50/50 rounded-lg shadow-md p-3">
+                            <div key={groupId} className="bg-blue-50/50 dark:bg-blue-900/30 rounded-lg shadow-md p-3">
                               <div className="mb-2 flex items-center gap-2 justify-between">
                                 <div className="flex items-center gap-2">
-                                  <span className="text-xs font-medium bg-gradient-to-br from-violet-100 via-fuchsia-100 to-pink-100 px-2.5 py-1 rounded-lg border border-violet-200/60 shadow-sm flex items-center gap-1.5 relative overflow-hidden group hover:shadow-md transition-all duration-300">
-                                    <span className="absolute inset-0 bg-gradient-to-r from-violet-200/0 via-violet-200/20 to-violet-200/0 animate-shimmer"></span>
-                                    <span className="text-violet-600 relative">✨</span>
-                                    <span className="text-[10px] font-bold uppercase tracking-wider text-violet-500/80 relative">Team</span>
-                                    <span className="text-violet-800 font-semibold relative">{groupName ? groupName : 'กลุ่มใหม่'}</span>
-                                    <span className="text-[10px] font-medium bg-white/90 px-1.5 py-0.5 rounded-md text-violet-700 border border-violet-200/60 relative backdrop-blur-sm">
+                                  <span className="text-xs font-medium bg-gradient-to-br from-violet-100 via-fuchsia-100 to-pink-100 dark:from-violet-900/40 dark:via-fuchsia-900/40 dark:to-pink-900/40 px-2.5 py-1 rounded-lg border border-violet-200/60 dark:border-violet-600/60 shadow-sm flex items-center gap-1.5 relative overflow-hidden group hover:shadow-md transition-all duration-300">
+                                    <span className="absolute inset-0 bg-gradient-to-r from-violet-200/0 via-violet-200/20 to-violet-200/0 dark:from-violet-400/0 dark:via-violet-400/20 dark:to-violet-400/0 animate-shimmer"></span>
+                                    <span className="text-violet-600 dark:text-violet-400 relative">✨</span>
+                                    <span className="text-[10px] font-bold uppercase tracking-wider text-violet-500/80 dark:text-violet-400/80 relative">Team</span>
+                                    <span className="text-violet-800 dark:text-violet-300 font-semibold relative">{groupName ? groupName : 'กลุ่มใหม่'}</span>
+                                    <span className="text-[10px] font-medium bg-white/90 dark:bg-gray-800/90 px-1.5 py-0.5 rounded-md text-violet-700 dark:text-violet-300 border border-violet-200/60 dark:border-violet-600/60 relative backdrop-blur-sm">
                                       {members.length}/{event.maxGroupSize}
                                     </span>
                                   </span>
@@ -1070,7 +1070,7 @@ export default function EventDetailPage() {
                                         setGroupNameEditingGroupId(groupId);
                                         setGroupNameModalOpen(true);
                                       }}
-                                      className="text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                                      className="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 flex items-center gap-1"
                                     >
                                       ✏️
                                     </button>
@@ -1084,7 +1084,7 @@ export default function EventDetailPage() {
                                         setRewardName(lastRewardNote);
                                         setRewardModal(true);
                                       } : undefined}
-                                      className={`text-sm text-green-700 ml-0${isOwner ? ' cursor-pointer hover:text-green-800' : ''}`}
+                                      className={`text-sm text-green-700 dark:text-green-400 ml-0${isOwner ? ' cursor-pointer hover:text-green-800 dark:hover:text-green-300' : ''}`}
                                       title={isOwner ? 'แก้ไขรางวัล' : undefined}
                                     >
                                       ✓ {lastRewardNote}
@@ -1096,7 +1096,7 @@ export default function EventDetailPage() {
                                         setSelectedParticipant(groupId);
                                         setRewardModal(true);
                                       }}
-                                      className="flex items-center gap-1 px-3 py-1 rounded-full border border-yellow-200 bg-yellow-50 text-yellow-700 text-sm font-medium shadow hover:bg-yellow-100 transition-colors duration-150"
+                                      className="flex items-center gap-1 px-3 py-1 rounded-full border border-yellow-200 dark:border-yellow-600 bg-yellow-50 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 text-sm font-medium shadow hover:bg-yellow-100 dark:hover:bg-yellow-800/40 transition-colors duration-150"
                                     >
                                       <Gift className="w-3 h-3" />
                                       มอบรางวัลกลุ่ม
@@ -1104,7 +1104,7 @@ export default function EventDetailPage() {
                                   )}
                                 </div>
                               </div>
-                              <ul className="divide-y divide-blue-100">
+                              <ul className="divide-y divide-blue-100 dark:divide-blue-700">
                                 {sortedMembers.map((item) => {
                                   const memberUser = item.user;
                                   const participantDoc = item.participantDoc;
@@ -1119,14 +1119,14 @@ export default function EventDetailPage() {
                                   if (char) {
                                     nameBlock = (
                                       <span>
-                                        <span className="font-semibold text-gray-800">{memberUser.meta?.discord || 'ไม่ทราบชื่อ'}</span>
-                                        <span className="mx-1 text-gray-400">/</span>
-                                        <span className="text-xs font-semibold text-pink-600">{char.name}</span>{' '}
-                                        <span className="text-xs text-green-600 font-medium">เข้าร่วมกิจกรรม</span>
+                                        <span className="font-semibold text-gray-800 dark:text-gray-200">{memberUser.meta?.discord || 'ไม่ทราบชื่อ'}</span>
+                                        <span className="mx-1 text-gray-400 dark:text-gray-500">/</span>
+                                        <span className="text-xs font-semibold text-pink-600 dark:text-pink-400">{char.name}</span>{' '}
+                                        <span className="text-xs text-green-600 dark:text-green-400 font-medium">เข้าร่วมกิจกรรม</span>
                                         {participantDoc?.message && (
-                                          <span className="text-xs text-gray-500 ml-2">
+                                          <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">
                                             {participantDoc.messageUpdatedAt && (
-                                              <span className="text-gray-400">
+                                              <span className="text-gray-400 dark:text-gray-500">
                                                 [{participantDoc.messageUpdatedAt.toLocaleString('th-TH', { 
                                                   year: '2-digit',
                                                   month: '2-digit',
@@ -1143,11 +1143,11 @@ export default function EventDetailPage() {
                                     );
                                   } else {
                                     nameBlock = (
-                                      <span className="font-semibold text-gray-800">{memberUser.meta?.discord || 'ไม่ทราบชื่อ'}
+                                      <span className="font-semibold text-gray-800 dark:text-gray-200">{memberUser.meta?.discord || 'ไม่ทราบชื่อ'}
                                         {participantDoc?.message && (
-                                          <span className="text-xs text-gray-500 ml-2">
+                                          <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">
                                             {participantDoc.messageUpdatedAt && (
-                                              <span className="text-gray-400">
+                                              <span className="text-gray-400 dark:text-gray-500">
                                                 [{participantDoc.messageUpdatedAt.toLocaleString('th-TH', { 
                                                   year: '2-digit',
                                                   month: '2-digit',
@@ -1171,7 +1171,7 @@ export default function EventDetailPage() {
                                       <div className="flex w-full items-center">
                                         <div className="flex-1 min-w-0">
                                           <span
-                                            className={`font-medium text-gray-800 ${(user && memberUser.uid !== user.uid && !event.isEnded) ? 'cursor-pointer hover:text-blue-600' : ''} relative`}
+                                            className={`font-medium text-gray-800 dark:text-gray-200 ${(user && memberUser.uid !== user.uid && !event.isEnded) ? 'cursor-pointer hover:text-blue-600 dark:hover:text-blue-400' : ''} relative`}
                                             onMouseEnter={() => {
                                               if (user && memberUser.uid !== user.uid && !event.isEnded) setHoveredUid(memberUser.uid);
                                             }}
@@ -1193,7 +1193,7 @@ export default function EventDetailPage() {
                                           <div className="flex items-center gap-2 ml-2">
                                             <button
                                               onClick={handleLeaveGroup}
-                                              className="flex items-center gap-1 px-3 py-1 rounded-full border border-red-200 bg-red-50 text-red-700 text-sm font-medium shadow hover:bg-red-100 transition-colors duration-150"
+                                              className="flex items-center gap-1 px-3 py-1 rounded-full border border-red-200 dark:border-red-600 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 text-sm font-medium shadow hover:bg-red-100 dark:hover:bg-red-800/40 transition-colors duration-150"
                                             >
                                               ออกจากกลุ่ม
                                             </button>
