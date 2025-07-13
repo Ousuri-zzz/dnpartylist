@@ -53,27 +53,44 @@ function getCurrentMonthDonations(donates: Donate[], members: Record<string, any
   const now = new Date();
   const thisMonth = now.getMonth();
   const thisYear = now.getFullYear();
-  const donationsByUser: Record<string, { userId: string, discordName: string, amount: number }> = {};
+  const donationsByUser: Record<string, { userId: string, discordName: string, amount: number, firstDonationTime: number }> = {};
+  
+  // Initialize with all members
   Object.entries(members).forEach(([userId, member]: [string, any]) => {
     donationsByUser[userId] = {
       userId,
       discordName: member.discordName || 'ไม่ทราบ',
-      amount: 0
+      amount: 0,
+      firstDonationTime: Infinity
     };
   });
+  
+  // Process donations and track first donation time
   donates.forEach(donate => {
     if (donate.status === 'active') {
       const d = new Date(donate.createdAt);
       if (d.getMonth() === thisMonth && d.getFullYear() === thisYear) {
         if (donationsByUser[donate.userId]) {
           donationsByUser[donate.userId].amount += donate.amount;
+          // Track the earliest donation time for this user
+          if (donate.createdAt < donationsByUser[donate.userId].firstDonationTime) {
+            donationsByUser[donate.userId].firstDonationTime = donate.createdAt;
+          }
         }
       }
     }
   });
+  
   return Object.values(donationsByUser)
     .filter(u => u.amount > 0)
-    .sort((a, b) => b.amount - a.amount)
+    .sort((a, b) => {
+      // First sort by amount (descending)
+      if (b.amount !== a.amount) {
+        return b.amount - a.amount;
+      }
+      // If amounts are equal, sort by first donation time (ascending - earlier first)
+      return a.firstDonationTime - b.firstDonationTime;
+    })
     .slice(0, 3);
 }
 
