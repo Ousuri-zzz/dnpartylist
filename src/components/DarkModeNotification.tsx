@@ -19,7 +19,7 @@ export function DarkModeNotification() {
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: -10, scale: 0.95 }}
         transition={{ duration: 0.3, ease: "easeOut" }}
-        className="dark-mode-notification-container"
+        className="dark-mode-notification-container mt-8"
       >
         <div className="relative dark-mode-notification mx-auto">
           {/* Glow effect */}
