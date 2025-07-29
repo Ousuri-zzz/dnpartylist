@@ -149,6 +149,13 @@ export default function GuildSettingsPage() {
 
   // [1] เพิ่ม state สำหรับ modal ยืนยันการบริจาค
   const [showGuildDonateConfirmModal, setShowGuildDonateConfirmModal] = useState(false);
+  
+  // เพิ่ม state สำหรับเก็บข้อมูลการบริจาคของเดือนนี้
+  const [monthlyDonations, setMonthlyDonations] = useState<Record<string, { amount: number, lastDonation: number }>>({});
+
+  const addLeaderInputRef = useRef<HTMLInputElement>(null);
+
+  const [showActiveMerchants, setShowActiveMerchants] = useState(false);
 
   // เพิ่ม state สำหรับแก้ไขสังกัดกิลด์
   const [showEditGuildModal, setShowEditGuildModal] = useState(false);
@@ -160,10 +167,6 @@ export default function GuildSettingsPage() {
 
   // [1] เพิ่ม state donateSearch สำหรับช่องค้นหาบริจาคกิลด์
   const [donateSearch, setDonateSearch] = useState('');
-
-  const addLeaderInputRef = useRef<HTMLInputElement>(null);
-
-  const [showActiveMerchants, setShowActiveMerchants] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -451,6 +454,24 @@ export default function GuildSettingsPage() {
         status,
         timestamp: approvedAt
       });
+      
+      // อัปเดตข้อมูลการบริจาคของเดือนนี้เมื่ออนุมัติ
+      if (approve) {
+        const currentMonth = new Date().getMonth();
+        const currentYear = new Date().getFullYear();
+        const donationDate = new Date(donation.createdAt);
+        
+        if (donationDate.getMonth() === currentMonth && donationDate.getFullYear() === currentYear) {
+          const currentAmount = monthlyDonations[donation.userId]?.amount || 0;
+          setMonthlyDonations(prev => ({
+            ...prev,
+            [donation.userId]: {
+              amount: currentAmount + donation.amount,
+              lastDonation: donation.createdAt
+            }
+          }));
+        }
+      }
     }
     toast.success(approve ? 'ยืนยันการบริจาคสำเร็จ' : 'ยกเลิกการบริจาคแล้ว');
   };
@@ -480,6 +501,24 @@ export default function GuildSettingsPage() {
         status,
         timestamp: approvedAt
       });
+      
+      // อัปเดตข้อมูลการบริจาคของเดือนนี้เมื่ออนุมัติการบริจาคเงินสด
+      if (approve) {
+        const currentMonth = new Date().getMonth();
+        const currentYear = new Date().getFullYear();
+        const donationDate = new Date(donation.createdAt);
+        
+        if (donationDate.getMonth() === currentMonth && donationDate.getFullYear() === currentYear) {
+          const currentAmount = monthlyDonations[donation.userId]?.amount || 0;
+          setMonthlyDonations(prev => ({
+            ...prev,
+            [donation.userId]: {
+              amount: currentAmount + donation.amount,
+              lastDonation: donation.createdAt
+            }
+          }));
+        }
+      }
     }
     toast.success(approve ? 'ยืนยันการบริจาคเงินสดสำเร็จ' : 'ยกเลิกการบริจาคเงินสดแล้ว');
   };
@@ -896,6 +935,17 @@ export default function GuildSettingsPage() {
 
       toast.success('บันทึกการบริจาคสำเร็จ');
       
+      // อัปเดตข้อมูลการบริจาคของเดือนนี้
+      const currentUserId = selectedDonateCharacter.ownerUid;
+      const currentAmount = monthlyDonations[currentUserId]?.amount || 0;
+      setMonthlyDonations(prev => ({
+        ...prev,
+        [currentUserId]: {
+          amount: currentAmount + donationAmount,
+          lastDonation: Date.now()
+        }
+      }));
+      
       // Reset form เฉพาะ state ที่เกี่ยวข้องกับ UI ใหม่
       setDonateSearch('');
       setDonationAmount(0);
@@ -920,6 +970,46 @@ export default function GuildSettingsPage() {
       setEditingMember(null);
     }
   };
+
+  // เพิ่มฟังก์ชันสำหรับดึงข้อมูลการบริจาคของเดือนนี้
+  useEffect(() => {
+    const fetchMonthlyDonations = async () => {
+      try {
+        const donatesRef = ref(db, 'guilddonate');
+        const snapshot = await get(donatesRef);
+        
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          const currentMonth = new Date().getMonth();
+          const currentYear = new Date().getFullYear();
+          
+          const monthlyData: Record<string, { amount: number, lastDonation: number }> = {};
+          
+          Object.entries(data).forEach(([id, donation]: [string, any]) => {
+            if (donation.status === 'active' && donation.userId) {
+              const donationDate = new Date(donation.createdAt);
+              if (donationDate.getMonth() === currentMonth && donationDate.getFullYear() === currentYear) {
+                const userId = donation.userId;
+                if (!monthlyData[userId]) {
+                  monthlyData[userId] = { amount: 0, lastDonation: 0 };
+                }
+                monthlyData[userId].amount += donation.amount || 0;
+                if (donation.createdAt > monthlyData[userId].lastDonation) {
+                  monthlyData[userId].lastDonation = donation.createdAt;
+                }
+              }
+            }
+          });
+          
+          setMonthlyDonations(monthlyData);
+        }
+      } catch (error) {
+        console.error('Error fetching monthly donations:', error);
+      }
+    };
+    
+    fetchMonthlyDonations();
+  }, []);
 
   if (loading || !user) {
     return (
@@ -1246,7 +1336,18 @@ export default function GuildSettingsPage() {
                   <div className="p-1.5 md:p-2 bg-green-100 rounded-lg">
                     <DollarSign className="w-5 h-5 text-green-600" />
                   </div>
-                  <h2 className="text-lg md:text-xl font-semibold text-gray-800">บริจาคกิลด์</h2>
+                  <div>
+                    <h2 className="text-lg md:text-xl font-semibold text-gray-800">บริจาคกิลด์</h2>
+                    {/* แสดงสรุปการบริจาคของเดือนนี้ */}
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-xs text-green-600 font-medium">
+                        เดือนนี้: {Object.values(monthlyDonations).reduce((sum, donation) => sum + donation.amount, 0)}G
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        ({Object.keys(monthlyDonations).length} คน)
+                      </span>
+                    </div>
+                  </div>
                 </div>
                 <Link
                   href="/guild-donate"
@@ -1303,6 +1404,15 @@ export default function GuildSettingsPage() {
                               <div className="flex-1 min-w-0">
                                 <div className="font-medium text-gray-800 truncate">{char.name} <span className={getClassColors(CLASS_TO_ROLE[char.class as import('@/types/character').CharacterClass]).text + " text-xs"}>({char.class})</span></div>
                                 <div className="text-xs text-gray-500 truncate">Discord: {char.ownerDiscord}</div>
+                                {/* แสดงสถานะการบริจาคของเดือนนี้ */}
+                                {monthlyDonations[char.ownerUid] && (
+                                  <div className="flex items-center gap-1 mt-1">
+                                    <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                                    <span className="text-xs text-green-600 font-medium">
+                                      บริจาคแล้ว {monthlyDonations[char.ownerUid].amount}G ในเดือนนี้
+                                    </span>
+                                  </div>
+                                )}
                               </div>
                               {selectedDonateCharacter && selectedDonateCharacter.characterId === char.characterId && selectedDonateCharacter.ownerUid === char.ownerUid && (
                                 <Check className="w-4 h-4 text-green-500" />
@@ -1327,6 +1437,15 @@ export default function GuildSettingsPage() {
                         <div>
                           <div className="font-semibold text-gray-900">{selectedDonateCharacter.name} <span className={getClassColors(CLASS_TO_ROLE[selectedDonateCharacter.class as import('@/types/character').CharacterClass]).text + " text-xs"}>({selectedDonateCharacter.class})</span></div>
                           <div className="text-xs text-gray-500">Discord: {selectedDonateCharacter.ownerDiscord}</div>
+                          {/* แสดงสถานะการบริจาคของเดือนนี้ */}
+                          {monthlyDonations[selectedDonateCharacter.ownerUid] && (
+                            <div className="flex items-center gap-1 mt-1">
+                              <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                              <span className="text-xs text-green-600 font-medium">
+                                บริจาคแล้ว {monthlyDonations[selectedDonateCharacter.ownerUid].amount}G ในเดือนนี้
+                              </span>
+                            </div>
+                          )}
                         </div>
                       </div>
                       <input
