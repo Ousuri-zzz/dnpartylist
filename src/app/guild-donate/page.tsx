@@ -10,7 +10,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { toast } from 'sonner';
 import { getClassColors, CLASS_TO_ROLE } from '@/config/theme';
 import Link from 'next/link';
-import { Crown, CreditCard } from 'lucide-react';
+import { Crown, CreditCard, BarChart3, TrendingUp } from 'lucide-react';
 import QRPaymentModal from '@/components/QRPaymentModal';
 import { DonationHistoryModal } from '@/components/DonationHistoryModal';
 
@@ -357,17 +357,57 @@ export default function GuildDonatePage() {
       <div className="flex-1 min-w-0">
         {/* ฟอร์มบริจาค */}
         <form onSubmit={handleSubmit} className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-7 mb-10 border border-pink-200 flex flex-col gap-5">
-          <div className="flex items-center gap-2 mb-4 bg-white/90 backdrop-blur-sm rounded-xl px-4 py-2 shadow border border-pink-100">
-            <span className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-pink-100 text-pink-500 shadow"><span className="text-2xl">💖</span></span>
-            ส่งคำขอบริจาคกิลด์
-            <button
-              type="button"
-              onClick={() => setShowHistoryModal(true)}
-              className="ml-auto text-sm text-pink-600 hover:text-pink-700 font-medium flex items-center gap-1"
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-2 mb-4 bg-white/90 backdrop-blur-sm rounded-xl px-4 py-3 sm:py-2 shadow border border-pink-100">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-pink-100 text-pink-500 shadow"><span className="text-2xl">💖</span></span>
+              <span className="text-sm sm:text-base font-medium">ส่งคำขอบริจาคกิลด์</span>
+            </div>
+            <Link
+              href="/guild-donate/history"
+              className="group relative w-full sm:w-auto sm:ml-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 sm:px-3 sm:py-1.5 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 hover:from-purple-600 hover:via-pink-600 hover:to-orange-600 text-white text-sm font-bold rounded-lg shadow-lg hover:shadow-2xl hover:shadow-purple-500/25 transition-all duration-500 transform hover:scale-105 border-2 border-purple-300/40 hover:border-purple-200/60 overflow-hidden"
             >
-              <span>ประวัติการบริจาค</span>
-              <span className="text-lg">📜</span>
-            </button>
+              {/* Always visible glow with subtle zoom */}
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-400/20 via-pink-400/20 to-orange-400/20 rounded-lg animate-pulse" style={{animationDuration: '4s'}}></div>
+              
+              {/* Subtle background animation */}
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-400/10 via-pink-400/10 to-orange-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+              
+              {/* Shimmer effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1200 ease-out"></div>
+              
+              {/* Firework effect - always visible */}
+              <div className="absolute inset-0">
+                {/* Firework particles */}
+                <div className="absolute top-0 left-1/2 w-0.5 h-0.5 bg-yellow-300 rounded-full animate-pulse opacity-60" style={{animationDuration: '2s'}}></div>
+                <div className="absolute top-1 left-1/3 w-0.5 h-0.5 bg-pink-300 rounded-full animate-pulse opacity-60" style={{animationDuration: '2.5s', animationDelay: '0.5s'}}></div>
+                <div className="absolute top-2 right-1/3 w-0.5 h-0.5 bg-purple-300 rounded-full animate-pulse opacity-60" style={{animationDuration: '3s', animationDelay: '1s'}}></div>
+                <div className="absolute bottom-1 left-1/4 w-0.5 h-0.5 bg-orange-300 rounded-full animate-pulse opacity-60" style={{animationDuration: '2.8s', animationDelay: '1.5s'}}></div>
+                <div className="absolute bottom-2 right-1/4 w-0.5 h-0.5 bg-yellow-300 rounded-full animate-pulse opacity-60" style={{animationDuration: '2.2s', animationDelay: '0.8s'}}></div>
+                
+                {/* Sparkle effects */}
+                <div className="absolute top-1 right-1/2 w-1 h-1 bg-white/50 rounded-full animate-pulse" style={{animationDuration: '1.8s'}}></div>
+                <div className="absolute bottom-1 left-1/2 w-1 h-1 bg-white/50 rounded-full animate-pulse" style={{animationDuration: '2.2s', animationDelay: '0.3s'}}></div>
+                <div className="absolute top-1/2 left-1 w-0.5 h-0.5 bg-white/40 rounded-full animate-pulse" style={{animationDuration: '2.5s', animationDelay: '0.7s'}}></div>
+                <div className="absolute top-1/2 right-1 w-0.5 h-0.5 bg-white/40 rounded-full animate-pulse" style={{animationDuration: '2s', animationDelay: '1.2s'}}></div>
+              </div>
+              
+              {/* Content with smooth animations */}
+              <div className="relative z-10 flex items-center gap-2">
+                <BarChart3 className="w-5 h-5 group-hover:scale-110 group-hover:rotate-3 transition-all duration-400 ease-out" />
+                <span className="hidden sm:inline group-hover:tracking-wide font-bold transition-all duration-400 ease-out">ดูประวัติบริจาค</span>
+                <span className="sm:hidden group-hover:tracking-wide font-bold transition-all duration-400 ease-out">ประวัติบริจาค</span>
+                <TrendingUp className="w-4 h-4 group-hover:scale-110 group-hover:-rotate-3 transition-all duration-400 ease-out" />
+              </div>
+              
+              {/* Notification dot - always visible with subtle zoom */}
+              <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-yellow-400 rounded-full animate-pulse opacity-75" style={{animationDuration: '2s'}}></div>
+              <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-yellow-400 rounded-full"></div>
+              
+              {/* Text hint */}
+              <div className="absolute -bottom-5 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-500 text-xs text-purple-600 font-medium whitespace-nowrap">
+                🏆 ดูอันดับ & สถิติ
+              </div>
+            </Link>
           </div>
           <div className="flex gap-4">
             <div className="flex-1">

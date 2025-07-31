@@ -9,6 +9,9 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      screens: {
+        'xs': '475px',
+      },
       keyframes: {
         blink: {
           '0%, 100%': { opacity: '1', transform: 'scale(1)' },
