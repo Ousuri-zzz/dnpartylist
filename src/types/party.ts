@@ -9,6 +9,7 @@ export type NestType =
   | 'Apocalypse Hell'
   | 'Sea Dragon'
   | 'Sea Dragon Classic'
+  | 'Sea Dragon Hardcore'
   | 'Chaos Rift: Bairra'
   | 'Chaos Rift: Kamala'
   | 'Dark Banquet Hall'

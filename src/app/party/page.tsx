@@ -31,17 +31,17 @@ interface JobFilterModalProps {
 // เพิ่ม component JobFilterModal
 function JobFilterModal({ selectedJob, onSelect, isOpen, onOpenChange }: JobFilterModalProps) {
   const jobs: { value: CharacterClass | 'all'; label: string; icon: string; color: string }[] = [
-    { value: 'all', label: 'ทั้งหมด', icon: '👥', color: 'from-pink-100 to-purple-100' },
-    { value: 'Sword Master', label: 'Sword Master', icon: '⚔️', color: 'from-red-100 to-rose-100' },
-    { value: 'Mercenary', label: 'Mercenary', icon: '⚔️', color: 'from-red-100 to-rose-100' },
-    { value: 'Bowmaster', label: 'Bowmaster', icon: '🏹', color: 'from-emerald-100 to-green-100' },
-    { value: 'Acrobat', label: 'Acrobat', icon: '🏹', color: 'from-emerald-100 to-green-100' },
-    { value: 'Force User', label: 'Force User', icon: '🔮', color: 'from-purple-100 to-violet-100' },
-    { value: 'Elemental Lord', label: 'Elemental Lord', icon: '🔮', color: 'from-purple-100 to-violet-100' },
-    { value: 'Paladin', label: 'Paladin', icon: '✨', color: 'from-sky-100 to-blue-100' },
-    { value: 'Priest', label: 'Priest', icon: '✨', color: 'from-sky-100 to-blue-100' },
-    { value: 'Engineer', label: 'Engineer', icon: '🔧', color: 'from-amber-100 to-yellow-100' },
-    { value: 'Alchemist', label: 'Alchemist', icon: '🔧', color: 'from-amber-100 to-yellow-100' },
+    { value: 'all', label: 'ทั้งหมด', icon: '<i class="ra ra-player text-blue-600"></i>', color: 'from-pink-100 to-purple-100' },
+    { value: 'Sword Master', label: 'Sword Master', icon: '<i class="ra ra-sword text-red-600"></i>', color: 'from-red-100 to-rose-100' },
+    { value: 'Mercenary', label: 'Mercenary', icon: '<i class="ra ra-axe text-red-600"></i>', color: 'from-red-100 to-rose-100' },
+    { value: 'Bowmaster', label: 'Bowmaster', icon: '<i class="ra ra-archer text-emerald-600"></i>', color: 'from-emerald-100 to-green-100' },
+    { value: 'Acrobat', label: 'Acrobat', icon: '<i class="ra ra-player-dodge text-emerald-600"></i>', color: 'from-emerald-100 to-green-100' },
+    { value: 'Force User', label: 'Force User', icon: '<i class="ra ra-crystal-ball text-purple-600"></i>', color: 'from-purple-100 to-violet-100' },
+    { value: 'Elemental Lord', label: 'Elemental Lord', icon: '<i class="ra ra-fire-symbol text-purple-600"></i>', color: 'from-purple-100 to-violet-100' },
+    { value: 'Paladin', label: 'Paladin', icon: '<i class="ra ra-shield text-sky-600"></i>', color: 'from-sky-100 to-blue-100' },
+    { value: 'Priest', label: 'Priest', icon: '<i class="ra ra-hospital-cross text-sky-600"></i>', color: 'from-sky-100 to-blue-100' },
+    { value: 'Engineer', label: 'Engineer', icon: '<i class="ra ra-gear-hammer text-amber-600"></i>', color: 'from-amber-100 to-yellow-100' },
+    { value: 'Alchemist', label: 'Alchemist', icon: '<i class="ra ra-flask text-amber-600"></i>', color: 'from-amber-100 to-yellow-100' },
   ];
 
   return (
@@ -49,7 +49,7 @@ function JobFilterModal({ selectedJob, onSelect, isOpen, onOpenChange }: JobFilt
       <DialogContent className="sm:max-w-md bg-white/95 backdrop-blur-sm">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-pink-600 to-indigo-600 bg-clip-text text-transparent">
-            กรองปาร์ตี้ตามอาชีพ
+            กรองอาชีพที่ไม่มีในปาร์ตี้
           </DialogTitle>
         </DialogHeader>
         <div className="grid grid-cols-2 gap-3 p-4">
@@ -68,7 +68,7 @@ function JobFilterModal({ selectedJob, onSelect, isOpen, onOpenChange }: JobFilt
                   : "bg-white/90 hover:bg-white border border-gray-200"
               )}
             >
-              <span className="text-xl">{job.icon}</span>
+              <span className="text-xl" dangerouslySetInnerHTML={{ __html: job.icon }}></span>
               <span className="font-medium">{job.label}</span>
             </button>
           ))}
@@ -305,14 +305,14 @@ export default function PartyPage() {
                             : "bg-gradient-to-r from-amber-50 to-yellow-100 text-amber-700 border-amber-200 shadow-md hover:bg-amber-100"
                 )}
               >
-                <span className="text-lg">
-                  {selectedJob === 'all' ? '👥' :
-                    selectedJob === 'Sword Master' || selectedJob === 'Mercenary' ? '⚔️' :
-                    selectedJob === 'Bowmaster' || selectedJob === 'Acrobat' ? '🏹' :
-                    selectedJob === 'Force User' || selectedJob === 'Elemental Lord' ? '🔮' :
-                    selectedJob === 'Paladin' || selectedJob === 'Priest' ? '✨' :
-                    '🔧'}
-                </span>
+                <span className="text-lg" dangerouslySetInnerHTML={{ __html: 
+                  selectedJob === 'all' ? '<i class="ra ra-player text-blue-600"></i>' :
+                    selectedJob === 'Sword Master' || selectedJob === 'Mercenary' ? '<i class="ra ra-sword text-red-600"></i>' :
+                    selectedJob === 'Bowmaster' || selectedJob === 'Acrobat' ? '<i class="ra ra-archer text-emerald-600"></i>' :
+                    selectedJob === 'Force User' || selectedJob === 'Elemental Lord' ? '<i class="ra ra-crystal-ball text-purple-600"></i>' :
+                    selectedJob === 'Paladin' || selectedJob === 'Priest' ? '<i class="ra ra-shield text-sky-600"></i>' :
+                    '<i class="ra ra-gear-hammer text-amber-600"></i>'
+                }}></span>
                 <span>
                   {selectedJob === 'all' ? 'กรองอาชีพ' : `ไม่มี ${selectedJob}`}
                 </span>

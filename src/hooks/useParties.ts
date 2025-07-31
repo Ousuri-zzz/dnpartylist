@@ -91,6 +91,7 @@ export function useParties() {
     switch (nest) {
       case 'Sea Dragon':
       case 'Sea Dragon Classic':
+      case 'Sea Dragon Hardcore':
         return 8;
       default:
         return 4;

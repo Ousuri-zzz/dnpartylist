@@ -79,12 +79,12 @@ export function CreatePartyDialog() {
         </motion.button>
       </DialogTrigger>
       
-      <DialogContent className="sm:max-w-md bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-pink-200/50 p-6">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-pink-600 to-indigo-600 bg-clip-text text-transparent">
+      <DialogContent className="sm:max-w-md bg-gradient-to-br from-white/95 to-pink-50/95 backdrop-blur-sm rounded-3xl shadow-2xl border border-pink-200/50 p-8">
+        <DialogHeader className="mb-6">
+          <DialogTitle className="text-3xl font-bold bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent text-center">
             สร้างปาร์ตี้ใหม่
           </DialogTitle>
-          <DialogDescription className="text-gray-600">
+          <DialogDescription className="text-gray-600 text-center text-base mt-2">
             เลือกเนสต์และตัวละครที่ต้องการใช้ในปาร์ตี้
           </DialogDescription>
         </DialogHeader>
@@ -114,66 +114,67 @@ export function CreatePartyDialog() {
           </DialogContent>
         </Dialog>
 
-        <div className="space-y-6 py-4">
+        <div className="space-y-8 py-4">
           <div className="space-y-3">
-            <Label className="text-base font-semibold text-pink-700 mb-1">ชื่อปาร์ตี้</Label>
+            <Label className="text-base font-semibold text-gray-700 mb-2 block">ชื่อปาร์ตี้</Label>
             <Input
               value={partyName}
               onChange={e => setPartyName(e.target.value)}
               placeholder="กรอกชื่อปาร์ตี้"
               maxLength={30}
-              className="bg-white/95 border border-pink-200/70 rounded-lg px-4 py-2 text-base shadow-sm placeholder:text-gray-400 focus:ring-2 focus:ring-pink-300/50 focus:border-pink-300/50"
+              className="bg-white/95 border-2 border-pink-200/70 rounded-xl px-4 py-3 text-base shadow-sm placeholder:text-gray-400 focus:ring-2 focus:ring-pink-300/50 focus:border-pink-400/50 transition-all duration-200"
             />
           </div>
 
           <div className="space-y-3">
-            <Label className="text-base font-semibold text-pink-700 mb-1">เนสต์</Label>
+            <Label className="text-base font-semibold text-gray-700 mb-2 block">เนสต์</Label>
             <Select 
               value={selectedNest} 
               onValueChange={(value: NestType) => setSelectedNest(value)}
             >
-              <SelectTrigger className="w-full bg-white/95 border border-pink-200/70 rounded-lg px-4 py-2 text-base shadow-sm placeholder:text-gray-400 focus:ring-2 focus:ring-pink-300/50 focus:border-pink-300/50">
+              <SelectTrigger className="w-full bg-white/95 border-2 border-pink-200/70 rounded-xl px-4 py-3 text-base shadow-sm placeholder:text-gray-400 focus:ring-2 focus:ring-pink-300/50 focus:border-pink-400/50 transition-all duration-200">
                 <SelectValue placeholder="เลือกเนสต์" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="DQ+FTG700">DQ+FTG700</SelectItem>
-                <SelectItem value="Minotaur">Minotaur</SelectItem>
-                <SelectItem value="Cerberus">Cerberus</SelectItem>
-                <SelectItem value="Cerberus Hell">Cerberus Hell</SelectItem>
-                <SelectItem value="Cerberus Challenge">Cerberus Challenge</SelectItem>
-                <SelectItem value="Manticore">Manticore</SelectItem>
-                <SelectItem value="Manticore Hell">Manticore Hell</SelectItem>
-                <SelectItem value="Apocalypse">Apocalypse</SelectItem>
-                <SelectItem value="Apocalypse Hell">Apocalypse Hell</SelectItem>
-                <SelectItem value="Sea Dragon">Sea Dragon</SelectItem>
-                <SelectItem value="Sea Dragon Classic">Sea Dragon Classic</SelectItem>
-                <SelectItem value="Chaos Rift: Bairra">Chaos Rift: Bairra</SelectItem>
-                <SelectItem value="Chaos Rift: Kamala">Chaos Rift: Kamala</SelectItem>
-                <SelectItem value="Dark Banquet Hall">Dark Banquet Hall</SelectItem>
-                <SelectItem value="Jealous Albeuteur">Jealous Albeuteur</SelectItem>
-                <SelectItem value="Theme Park">Theme Park</SelectItem>
+              <SelectContent className="max-h-[60vh] sm:max-h-[50vh] md:max-h-[40vh] overflow-y-auto">
+                <SelectItem value="DQ+FTG700"><i className="ra ra-sword text-blue-600" /> DQ+FTG700 <span className="text-gray-400 mx-2">•</span> <span className="text-gray-400">4 คน</span></SelectItem>
+                <SelectItem value="Minotaur"><i className="ra ra-sword text-blue-600" /> Minotaur <span className="text-gray-400 mx-2">•</span> <span className="text-gray-400">4 คน</span></SelectItem>
+                <SelectItem value="Cerberus"><i className="ra ra-sword text-blue-600" /> Cerberus <span className="text-gray-400 mx-2">•</span> <span className="text-gray-400">4 คน</span></SelectItem>
+                <SelectItem value="Cerberus Hell"><i className="ra ra-sword text-blue-600" /> Cerberus Hell <span className="text-gray-400 mx-2">•</span> <span className="text-gray-400">4 คน</span></SelectItem>
+                <SelectItem value="Cerberus Challenge"><i className="ra ra-sword text-blue-600" /> Cerberus Challenge <span className="text-gray-400 mx-2">•</span> <span className="text-gray-400">4 คน</span></SelectItem>
+                <SelectItem value="Manticore"><i className="ra ra-sword text-blue-600" /> Manticore <span className="text-gray-400 mx-2">•</span> <span className="text-gray-400">4 คน</span></SelectItem>
+                <SelectItem value="Manticore Hell"><i className="ra ra-sword text-blue-600" /> Manticore Hell <span className="text-gray-400 mx-2">•</span> <span className="text-gray-400">4 คน</span></SelectItem>
+                <SelectItem value="Apocalypse"><i className="ra ra-sword text-blue-600" /> Apocalypse <span className="text-gray-400 mx-2">•</span> <span className="text-gray-400">4 คน</span></SelectItem>
+                <SelectItem value="Apocalypse Hell"><i className="ra ra-sword text-blue-600" /> Apocalypse Hell <span className="text-gray-400 mx-2">•</span> <span className="text-gray-400">4 คน</span></SelectItem>
+                <SelectItem value="Sea Dragon"><i className="ra ra-sword text-blue-600" /> Sea Dragon <span className="text-gray-400 mx-2">•</span> <span className="text-gray-400">8 คน</span></SelectItem>
+                <SelectItem value="Sea Dragon Classic"><i className="ra ra-sword text-blue-600" /> Sea Dragon Classic <span className="text-gray-400 mx-2">•</span> <span className="text-gray-400">8 คน</span></SelectItem>
+                <SelectItem value="Sea Dragon Hardcore"><i className="ra ra-sword text-blue-600" /> Sea Dragon Hardcore <span className="text-gray-400 mx-2">•</span> <span className="text-gray-400">8 คน</span></SelectItem>
+                <SelectItem value="Chaos Rift: Bairra"><i className="ra ra-sword text-blue-600" /> Chaos Rift: Bairra <span className="text-gray-400 mx-2">•</span> <span className="text-gray-400">4 คน</span></SelectItem>
+                <SelectItem value="Chaos Rift: Kamala"><i className="ra ra-sword text-blue-600" /> Chaos Rift: Kamala <span className="text-gray-400 mx-2">•</span> <span className="text-gray-400">4 คน</span></SelectItem>
+                <SelectItem value="Dark Banquet Hall"><i className="ra ra-sword text-blue-600" /> Dark Banquet Hall <span className="text-gray-400 mx-2">•</span> <span className="text-gray-400">4 คน</span></SelectItem>
+                <SelectItem value="Jealous Albeuteur"><i className="ra ra-sword text-blue-600" /> Jealous Albeuteur <span className="text-gray-400 mx-2">•</span> <span className="text-gray-400">4 คน</span></SelectItem>
+                <SelectItem value="Theme Park"><i className="ra ra-sword text-blue-600" /> Theme Park <span className="text-gray-400 mx-2">•</span> <span className="text-gray-400">4 คน</span></SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div className="space-y-3">
-            <Label className="text-base font-semibold text-pink-700 mb-1">ตัวละคร</Label>
+            <Label className="text-base font-semibold text-gray-700 mb-2 block">ตัวละคร</Label>
             <Select
               value={selectedCharacter ? selectedCharacter.id : ''}
               onValueChange={(value) => 
                 setSelectedCharacter(characters.find(c => c.id === value) || null)
               }
             >
-              <SelectTrigger className="w-full bg-white/95 border border-pink-200/70 rounded-lg px-4 py-2 text-base shadow-sm placeholder:text-gray-400 focus:ring-2 focus:ring-pink-300/50 focus:border-pink-300/50">
+              <SelectTrigger className="w-full bg-white/95 border-2 border-pink-200/70 rounded-xl px-4 py-3 text-base shadow-sm placeholder:text-gray-400 focus:ring-2 focus:ring-pink-300/50 focus:border-pink-400/50 transition-all duration-200">
                 <SelectValue placeholder="เลือกตัวละคร" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="max-h-[60vh] sm:max-h-[50vh] md:max-h-[40vh] overflow-y-auto">
                 {getAvailableCharacters().map((char) => (
                   <SelectItem key={char.id} value={char.id}>
-                    <div className="flex items-center space-x-2">
-                      <span className="w-2 h-2 rounded-full bg-gradient-to-r from-pink-500 to-indigo-500" />
-                      <span>{char.name}</span>
-                      <span className="text-gray-400">•</span>
+                    <div className="flex items-center space-x-4">
+                      <span className="w-3 h-3 rounded-full bg-gradient-to-r from-pink-500/60 to-indigo-500/60" />
+                      <span className="font-medium">{char.name}</span>
+                      <span className="text-gray-400 mx-2">•</span>
                       <span className="text-gray-500">{char.class}</span>
                     </div>
                   </SelectItem>
@@ -183,12 +184,12 @@ export function CreatePartyDialog() {
           </div>
         </div>
 
-        <div className="flex justify-end">
+        <div className="flex justify-end pt-4">
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={handleSubmit}
-            className="px-6 py-2 rounded-xl bg-gradient-to-r from-pink-500 to-indigo-500 text-white font-medium shadow-lg shadow-pink-500/20 hover:shadow-xl hover:shadow-pink-500/30 transition-shadow"
+            className="px-8 py-3 rounded-xl bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 text-white font-semibold shadow-lg shadow-pink-500/20 hover:shadow-xl hover:shadow-pink-500/30 transition-all duration-200 text-base"
           >
             สร้างปาร์ตี้
           </motion.button>

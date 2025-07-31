@@ -255,7 +255,7 @@ const CharacterCard = ({ char }: CharacterCardProps) => {
 const ALL_NESTS = [
   "DQ+FTG700", "Minotaur", "Cerberus", "Cerberus Hell", "Cerberus Challenge",
   "Manticore", "Manticore Hell", "Apocalypse", "Apocalypse Hell", "Sea Dragon",
-  "Sea Dragon Classic", "Chaos Rift: Bairra", "Chaos Rift: Kamala", "Dark Banquet Hall",
+  "Sea Dragon Classic", "Sea Dragon Hardcore", "Chaos Rift: Bairra", "Chaos Rift: Kamala", "Dark Banquet Hall",
   "Jealous Albeuteur", "Theme Park"
 ];
 
@@ -516,7 +516,7 @@ export function SearchingPartyList({ searchQuery }: SearchingPartyListProps) {
                     {selectedCharacter ? `${selectedCharacter.name} (${selectedCharacter.class})` : 'เลือกตัวละคร'}
                   </SelectValue>
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="max-h-[60vh] sm:max-h-[50vh] md:max-h-[40vh] overflow-y-auto">
                   {Object.entries(availableCharacters).map(([id, char]) => (
                     <SelectItem key={id} value={id}>
                       {(char as Character).name} ({(char as Character).class})
@@ -562,7 +562,7 @@ export function SearchingPartyList({ searchQuery }: SearchingPartyListProps) {
                 <SelectTrigger>
                   <SelectValue placeholder="เลือกดันเจี้ยน" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="max-h-[60vh] sm:max-h-[50vh] md:max-h-[40vh] overflow-y-auto">
                   <SelectItem value="DQ+FTG700">DQ+FTG700</SelectItem>
                   <SelectItem value="Minotaur">Minotaur</SelectItem>
                   <SelectItem value="Cerberus">Cerberus</SelectItem>
@@ -574,6 +574,7 @@ export function SearchingPartyList({ searchQuery }: SearchingPartyListProps) {
                   <SelectItem value="Apocalypse Hell">Apocalypse Hell</SelectItem>
                   <SelectItem value="Sea Dragon">Sea Dragon</SelectItem>
                   <SelectItem value="Sea Dragon Classic">Sea Dragon Classic</SelectItem>
+                  <SelectItem value="Sea Dragon Hardcore">Sea Dragon Hardcore</SelectItem>
                   <SelectItem value="Chaos Rift: Bairra">Chaos Rift: Bairra</SelectItem>
                   <SelectItem value="Chaos Rift: Kamala">Chaos Rift: Kamala</SelectItem>
                   <SelectItem value="Dark Banquet Hall">Dark Banquet Hall</SelectItem>
@@ -643,7 +644,7 @@ export function SearchingPartyList({ searchQuery }: SearchingPartyListProps) {
                     })()}
                   </SelectValue>
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="max-h-[60vh] sm:max-h-[50vh] md:max-h-[40vh] overflow-y-auto">
                   {mySearchingCharacters.map(char => (
                     <SelectItem key={char.characterId} value={char.characterId}>
                       {char.characterName} ({char.characterClass})
@@ -683,7 +684,7 @@ export function SearchingPartyList({ searchQuery }: SearchingPartyListProps) {
                 <SelectTrigger>
                   <SelectValue placeholder="เลือกดันเจี้ยน" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="max-h-[60vh] sm:max-h-[50vh] md:max-h-[40vh] overflow-y-auto">
                   <SelectItem value="DQ+FTG700">DQ+FTG700</SelectItem>
                   <SelectItem value="Minotaur">Minotaur</SelectItem>
                   <SelectItem value="Cerberus">Cerberus</SelectItem>
@@ -695,6 +696,7 @@ export function SearchingPartyList({ searchQuery }: SearchingPartyListProps) {
                   <SelectItem value="Apocalypse Hell">Apocalypse Hell</SelectItem>
                   <SelectItem value="Sea Dragon">Sea Dragon</SelectItem>
                   <SelectItem value="Sea Dragon Classic">Sea Dragon Classic</SelectItem>
+                  <SelectItem value="Sea Dragon Hardcore">Sea Dragon Hardcore</SelectItem>
                   <SelectItem value="Chaos Rift: Bairra">Chaos Rift: Bairra</SelectItem>
                   <SelectItem value="Chaos Rift: Kamala">Chaos Rift: Kamala</SelectItem>
                   <SelectItem value="Dark Banquet Hall">Dark Banquet Hall</SelectItem>
