@@ -322,6 +322,13 @@ export default function GuildDonatePage() {
   const totalHistoryPages = Math.ceil(myHistory.length / historyPerPage);
   const pagedHistory = myHistory.slice((historyPage - 1) * historyPerPage, historyPage * historyPerPage);
 
+  // รายการที่รออนุมัติ
+  const pendingDonations = useMemo(() => {
+    const gold = donates.filter(d => d.userId === user?.uid && d.status === 'waiting').map(d => ({ ...d, _type: 'gold' }));
+    const cash = myCashDonations.filter(d => d.status === 'waiting').map(d => ({ ...d, _type: 'cash' }));
+    return [...gold, ...cash];
+  }, [donates, myCashDonations, user]);
+
   // ฟังก์ชันช่วยเช็คเดือน
   function getDonateMonthType(dateNum: number) {
     const d = new Date(dateNum);
@@ -466,6 +473,113 @@ export default function GuildDonatePage() {
             <span className="text-xl">🚀</span> บริจาค Gold
           </Button>
         </form>
+
+        {/* ป้ายแสดงรายการที่รออนุมัติ */}
+        {pendingDonations.length > 0 && (
+          <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-200 rounded-2xl p-6 shadow-lg mt-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex items-center justify-center w-12 h-12 rounded-full bg-yellow-100 border-2 border-yellow-300">
+                <span className="text-2xl">⏳</span>
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-yellow-800">รายการที่รออนุมัติ</h3>
+                <p className="text-sm text-yellow-600">คุณมี {pendingDonations.length} รายการที่รอหัวกิลด์อนุมัติ</p>
+              </div>
+            </div>
+            
+            <div className="space-y-3 mb-4">
+              {pendingDonations.map((donation, index) => (
+                <div key={donation.id} className="bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-yellow-200 shadow-sm">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-yellow-100">
+                        {donation._type === 'gold' ? (
+                          <span className="text-lg">🎁</span>
+                        ) : (
+                          <span className="text-lg">💵</span>
+                        )}
+                      </div>
+                      <div>
+                        <div className="font-semibold text-yellow-800">
+                          {donation._type === 'gold' ? `${donation.amount}G` : `${donation.amount} บาท`}
+                        </div>
+                                                 <div className="text-xs text-yellow-600 flex items-center gap-1">
+                           <span className="inline-flex items-center justify-center w-3 h-3">
+                             <svg className="w-3 h-3 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                               <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" opacity="0.3"/>
+                               <path d="M12 6v6l4 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="animate-pulse"/>
+                             </svg>
+                           </span>
+                           {new Date(donation.createdAt).toLocaleString('th-TH')}
+                         </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                        รออนุมัติ
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* ปุ่มติดต่อหัวกิลด์ */}
+            <div className="flex items-center justify-center">
+              <a
+                href="https://discord.com/users/1163943838826631258"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group relative inline-flex items-center justify-center gap-3 px-6 py-3 bg-[#5865F2] hover:bg-[#4752C4] text-white font-bold rounded-xl shadow-lg hover:shadow-2xl hover:shadow-[#5865F2]/25 transition-all duration-500 transform hover:scale-105 border-2 border-[#5865F2]/40 hover:border-[#4752C4]/60 overflow-hidden"
+              >
+                {/* Always visible glow with subtle zoom */}
+                <div className="absolute inset-0 bg-[#5865F2]/20 rounded-xl animate-pulse" style={{animationDuration: '4s'}}></div>
+                
+                {/* Subtle background animation */}
+                <div className="absolute inset-0 bg-[#5865F2]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+                
+                {/* Shimmer effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1200 ease-out"></div>
+                
+                {/* Firework effect - always visible */}
+                <div className="absolute inset-0">
+                  {/* Firework particles */}
+                  <div className="absolute top-0 left-1/2 w-0.5 h-0.5 bg-[#5865F2] rounded-full animate-pulse opacity-60" style={{animationDuration: '2s'}}></div>
+                  <div className="absolute top-1 left-1/3 w-0.5 h-0.5 bg-[#5865F2] rounded-full animate-pulse opacity-60" style={{animationDuration: '2.5s', animationDelay: '0.5s'}}></div>
+                  <div className="absolute top-2 right-1/3 w-0.5 h-0.5 bg-[#5865F2] rounded-full animate-pulse opacity-60" style={{animationDuration: '3s', animationDelay: '1s'}}></div>
+                  <div className="absolute bottom-1 left-1/4 w-0.5 h-0.5 bg-[#5865F2] rounded-full animate-pulse opacity-60" style={{animationDuration: '2.8s', animationDelay: '1.5s'}}></div>
+                  <div className="absolute bottom-2 right-1/4 w-0.5 h-0.5 bg-[#5865F2] rounded-full animate-pulse opacity-60" style={{animationDuration: '2.2s', animationDelay: '0.8s'}}></div>
+                  
+                  {/* Sparkle effects */}
+                  <div className="absolute top-1 right-1/2 w-1 h-1 bg-white/50 rounded-full animate-pulse" style={{animationDuration: '1.8s'}}></div>
+                  <div className="absolute bottom-1 left-1/2 w-1 h-1 bg-white/50 rounded-full animate-pulse" style={{animationDuration: '2.2s', animationDelay: '0.3s'}}></div>
+                  <div className="absolute top-1/2 left-1 w-0.5 h-0.5 bg-white/40 rounded-full animate-pulse" style={{animationDuration: '2.5s', animationDelay: '0.7s'}}></div>
+                  <div className="absolute top-1/2 right-1 w-0.5 h-0.5 bg-white/40 rounded-full animate-pulse" style={{animationDuration: '2s', animationDelay: '1.2s'}}></div>
+                </div>
+                
+                {/* Content with smooth animations */}
+                <div className="relative z-10 flex items-center gap-2">
+                  <svg className="w-5 h-5 group-hover:scale-110 group-hover:rotate-3 transition-all duration-400 ease-out" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515a.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25a.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03a.078.078 0 0 0 .084-.028a14.09 14.09 0 0 0 1.226-1.994a.076.076 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128a10.2 10.2 0 0 0 .372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127a12.299 12.299 0 0 1-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.03a.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.956-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.955-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.946 2.418-2.157 2.418z"/>
+                  </svg>
+                  <span className="group-hover:tracking-wide transition-all duration-400 ease-out">ติดต่อหัวกิลด์</span>
+                  <svg className="w-4 h-4 group-hover:scale-110 group-hover:-rotate-3 transition-all duration-400 ease-out" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                </div>
+                
+                {/* Notification dot - always visible with subtle zoom */}
+                <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[#5865F2] rounded-full animate-pulse opacity-75" style={{animationDuration: '2s'}}></div>
+                <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[#5865F2] rounded-full"></div>
+                
+                {/* Text hint */}
+                <div className="absolute -bottom-5 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-500 text-xs text-[#5865F2] font-medium whitespace-nowrap">
+                  💬 ส่งข้อความหา
+                </div>
+              </a>
+            </div>
+          </div>
+        )}
       </div>
       <aside className="w-full md:w-[380px] max-w-full">
         <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-pink-200 p-5 sticky top-6 flex flex-col">
