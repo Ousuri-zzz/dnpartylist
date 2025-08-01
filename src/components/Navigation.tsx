@@ -17,6 +17,7 @@ import { FaCat } from 'react-icons/fa';
 import { toast } from 'sonner';
 import { ThemeToggle } from './ThemeToggle';
 import { useThemeContext } from './ThemeProvider';
+import { useSplitBillCount } from '@/hooks/useSplitBillCount';
 
 
 
@@ -36,6 +37,7 @@ export default function Navigation() {
   const { resolvedTheme } = useThemeContext();
   const [donates, setDonates] = React.useState<any[]>([]);
   const [hasDonatedMinimum, setHasDonatedMinimum] = React.useState(true);
+  const { billCount } = useSplitBillCount();
 
   useGuildLoanNotification();
 
@@ -283,9 +285,9 @@ export default function Navigation() {
                   aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
                 >
                   <Menu className={cn("w-6 h-6 text-pink-500 transition-transform duration-200", isMobileMenuOpen && "rotate-90")} />
-                  {(charactersWithMissingStats > 0 || pendingCount > 0 || (isGuildLeader && (pendingDonationCount > 0 || pendingCashDonationCount > 0)) || (isGuildLeader && (pendingGuildLoanCount > 0 || pendingMerchantCount > 0 || pendingNewMemberCount > 0))) && (
+                  {(charactersWithMissingStats > 0 || billCount > 0 || pendingCount > 0 || (isGuildLeader && (pendingDonationCount > 0 || pendingCashDonationCount > 0)) || (isGuildLeader && (pendingGuildLoanCount > 0 || pendingMerchantCount > 0 || pendingNewMemberCount > 0))) && (
                     <span className="absolute -top-1 -right-1 w-4 h-4 min-w-4 min-h-4 flex justify-center items-center rounded-full bg-red-500 text-white text-xs font-bold shadow select-none z-30 lg:hidden">
-                      {charactersWithMissingStats + pendingCount + (isGuildLeader ? (pendingDonationCount + pendingCashDonationCount + pendingGuildLoanCount + pendingMerchantCount + pendingNewMemberCount) : 0)}
+                      {charactersWithMissingStats + billCount + pendingCount + (isGuildLeader ? (pendingDonationCount + pendingCashDonationCount + pendingGuildLoanCount + pendingMerchantCount + pendingNewMemberCount) : 0)}
                     </span>
                   )}
                 </button>
@@ -326,15 +328,15 @@ export default function Navigation() {
                       )}>
                         <Home className={cn("w-5 h-5", (pathname === "/mypage" || pathname.startsWith("/mypage") || pathname.startsWith("/split")) ? "text-pink-700 dark:text-pink-300" : "text-pink-400 dark:text-pink-300/70")}/>
                         <span className={cn("font-medium", (pathname === "/mypage" || pathname.startsWith("/mypage") || pathname.startsWith("/split")) ? "text-pink-700 dark:text-pink-300" : undefined)}>ตัวละคร</span>
-                        {charactersWithMissingStats > 0 && (
+                        {(charactersWithMissingStats > 0 || billCount > 0) && (
                           <>
                             {/* Mobile badge */}
                             <span className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 min-w-4 min-h-4 flex justify-center items-center rounded-full bg-red-500 text-white text-xs font-bold shadow select-none z-30 lg:hidden">
-                              {charactersWithMissingStats}
+                              {charactersWithMissingStats + billCount}
                             </span>
                             {/* Desktop badge */}
                             <span className="absolute -top-4 -right-4 w-5 h-5 flex justify-center items-center rounded-full bg-red-500 text-white text-xs font-bold shadow z-30 hidden lg:flex">
-                              {charactersWithMissingStats}
+                              {charactersWithMissingStats + billCount}
                             </span>
                           </>
                         )}
@@ -482,9 +484,9 @@ export default function Navigation() {
                           })}
                           <span>{tab.label}</span>
                           {/* Badge/แจ้งเตือนเฉพาะปุ่มตัวละคร */}
-                          {tab.href === "/mypage" && charactersWithMissingStats > 0 && (
+                          {tab.href === "/mypage" && (charactersWithMissingStats > 0 || billCount > 0) && (
                             <span className="absolute -top-2 -right-2 w-5 h-5 flex justify-center items-center rounded-full bg-red-500 text-white text-xs font-bold shadow z-30">
-                              {charactersWithMissingStats}
+                              {charactersWithMissingStats + billCount}
                             </span>
                           )}
                         </Link>

@@ -30,6 +30,7 @@ import { FaCoins } from 'react-icons/fa';
 import { Wand2 } from 'lucide-react';
 import 'rpg-awesome/css/rpg-awesome.min.css';
 import { ref as dbRef, get as dbGet } from 'firebase/database';
+import { useSplitBillCount } from '@/hooks/useSplitBillCount';
 
 const CHARACTER_CLASSES: CharacterClass[] = [
   'Sword Master',
@@ -320,6 +321,7 @@ export default function MyPage() {
   const [userRole, setUserRole] = useState<'leader' | 'member'>('member');
   const [guild, setGuild] = useState<any>(null);
   const [modUserNames, setModUserNames] = useState<Record<string, string>>({});
+  const { billCount } = useSplitBillCount();
 
   useEffect(() => {
     if (!user && !authLoading) {
@@ -1370,10 +1372,21 @@ export default function MyPage() {
             </Button>
             <Link href="/split" className="w-full">
               <Button
-                className="w-full h-9 md:h-10 bg-gradient-to-r from-yellow-100 via-white to-yellow-50 border-0 rounded-lg flex items-center justify-center gap-2 text-yellow-800 font-medium text-sm shadow transition-all duration-200 hover:from-yellow-200 hover:to-yellow-100 hover:text-yellow-900 dark:from-gray-800 dark:via-yellow-900 dark:to-gray-900 dark:text-yellow-200 dark:hover:text-yellow-100"
+                className="w-full h-9 md:h-10 bg-gradient-to-r from-yellow-100 via-white to-yellow-50 border-0 rounded-lg flex items-center justify-center gap-2 text-yellow-800 font-medium text-sm shadow transition-all duration-200 hover:from-yellow-200 hover:to-yellow-100 hover:text-yellow-900 dark:from-gray-800 dark:via-yellow-900 dark:to-gray-900 dark:text-yellow-200 dark:hover:text-yellow-100 relative"
               >
                 <FaCoins className="w-4 h-4 text-yellow-500 dark:text-yellow-200 drop-shadow" />
                 <span>จัดสรรของดรอปปาร์ตี้</span>
+                {billCount > 0 && (
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="absolute -top-1 -right-1 md:-top-2 md:-right-2 min-w-[18px] md:min-w-[20px] h-[18px] md:h-[20px] bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold rounded-full flex items-center justify-center shadow-lg border-2 border-white dark:border-gray-800 z-10"
+                  >
+                    <span className="text-[10px] md:text-xs leading-none">
+                      {billCount > 99 ? '99+' : billCount}
+                    </span>
+                  </motion.div>
+                )}
               </Button>
             </Link>
             <Button
