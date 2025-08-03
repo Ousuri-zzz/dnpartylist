@@ -503,15 +503,15 @@ export default function GuildDonatePage() {
                         <div className="font-semibold text-yellow-800">
                           {donation._type === 'gold' ? `${donation.amount}G` : `${donation.amount} บาท`}
                         </div>
-                                                 <div className="text-xs text-yellow-600 flex items-center gap-1">
-                           <span className="inline-flex items-center justify-center w-3 h-3">
-                             <svg className="w-3 h-3 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                               <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" opacity="0.3"/>
-                               <path d="M12 6v6l4 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="animate-pulse"/>
-                             </svg>
-                           </span>
-                           {new Date(donation.createdAt).toLocaleString('th-TH')}
-                         </div>
+                        <div className="text-xs text-yellow-600 flex items-center gap-1">
+                          <span className="inline-flex items-center justify-center w-3 h-3">
+                            <svg className="w-3 h-3 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" opacity="0.3"/>
+                              <path d="M12 6v6l4 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="animate-pulse"/>
+                            </svg>
+                          </span>
+                          {new Date(donation.createdAt).toLocaleString('th-TH')}
+                        </div>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
