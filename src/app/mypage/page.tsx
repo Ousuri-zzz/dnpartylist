@@ -1362,14 +1362,15 @@ export default function MyPage() {
                 <span>คำนวณสเตตัส</span>
               </Button>
             </Link>
-            <Button
-              className="w-full h-9 md:h-10 bg-gradient-to-r from-violet-100 via-pink-50 to-white border-0 rounded-lg flex items-center justify-center gap-2 text-violet-700 font-medium text-sm shadow transition-all duration-200 hover:from-violet-200 hover:to-pink-100 hover:text-violet-900 dark:from-gray-800 dark:via-pink-900 dark:to-gray-900 dark:text-violet-200 dark:hover:text-violet-100"
-              onClick={() => { alert('อยู่ระหว่างพัฒนา'); }}
-              type="button"
-            >
-              <Wand2 className="w-4 h-4 text-violet-500 dark:text-violet-200" />
-              <span>สกิล & บิ้วแนะนำ <span className="ml-1 text-xs align-middle">🚧</span></span>
-            </Button>
+            <Link href="/mypage/enhancement" className="w-full">
+              <Button
+                className="w-full h-9 md:h-10 bg-gradient-to-r from-violet-100 via-pink-50 to-white border-0 rounded-lg flex items-center justify-center gap-2 text-violet-700 font-medium text-sm shadow transition-all duration-200 hover:from-violet-200 hover:to-pink-100 hover:text-violet-900 dark:from-gray-800 dark:via-pink-900 dark:to-gray-900 dark:text-violet-200 dark:hover:text-violet-100"
+                type="button"
+              >
+                <Wand2 className="w-4 h-4 text-violet-500 dark:text-violet-200" />
+                <span>ระบบตีบวก</span>
+              </Button>
+            </Link>
             <Link href="/split" className="w-full">
               <Button
                 className="w-full h-9 md:h-10 bg-gradient-to-r from-yellow-100 via-white to-yellow-50 border-0 rounded-lg flex items-center justify-center gap-2 text-yellow-800 font-medium text-sm shadow transition-all duration-200 hover:from-yellow-200 hover:to-yellow-100 hover:text-yellow-900 dark:from-gray-800 dark:via-yellow-900 dark:to-gray-900 dark:text-yellow-200 dark:hover:text-yellow-100 relative"
