@@ -12,9 +12,6 @@ export function ThemeToggle({ isMobile = false }: { isMobile?: boolean }) {
   const toggleTheme = () => {
     // สลับระหว่าง light และ dark
     const newTheme = theme === 'light' ? 'dark' : 'light';
-    if (newTheme === 'dark') {
-      toast.info('โหมดมืดกำลังอยู่ระหว่างพัฒนา ยังไม่สมบูรณ์');
-    }
     setTheme(newTheme);
   };
 
