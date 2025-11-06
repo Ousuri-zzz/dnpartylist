@@ -29,6 +29,21 @@ const ALLOWED_JOBS = [
   "Alchemist"
 ] as const;
 
+// Adjustable per-class score bonus multipliers
+// Tip: tweak these values (e.g., 1.08 = +8%) to gently lift classes that score low despite real difficulty
+const CLASS_SCORE_BONUS: Record<CharacterClass, number> = {
+  'Sword Master': 1.05,
+  'Mercenary': 1.00,
+  'Bowmaster': 1.14,
+  'Acrobat': 1.00,
+  'Force User': 1.08,
+  'Elemental Lord': 1.17,
+  'Paladin': 1.00,
+  'Priest': 1.00,
+  'Engineer': 1.12,
+  'Alchemist': 1.14,
+};
+
 // แยก type สำหรับ sorting
 type StatSortType = 'atk' | 'hp' | 'cri' | 'ele' | 'fd';
 type SortType = 'score' | 'discord' | StatSortType | 'def';
@@ -57,156 +72,81 @@ interface RoleConstants {
   skillMultiplier?: number; // ทำให้เป็น optional
 }
 
-const ROLE_BALANCE: Record<string, RoleConstants> = {
-  // Pure Physical DPS (Warrior/Cleric/Kali)
-  Mercenary: {
-    statWeights: { 
-      atk: 1.4,    // 1 STR = 0.5 Physical Damage
-      hp: 0.7,     // HP ทำง่าย เพราะมาจาก VIT
-      fd: 1.3,     // Equal FD weight for all
-      cri: 1.6,    // Critical ทำยาก เพราะมาจาก AGI และมี cap
-      ele: 0.0,    // No elemental damage
-      pdef: 0.7,   // Defense ทำง่าย เพราะมาจาก VIT
-      mdef: 0.8    // Defense ทำง่ายมาก เพราะมาจาก INT
-    }
-  },
-  Acrobat: {
-    statWeights: { 
-      atk: 1.4,    // 1 AGI = 0.5 Physical Damage
-      hp: 0.9,     // HP ทำยากกว่า เพราะมี VIT ต่ำ
-      fd: 1.3,
-      cri: 1.5,    // Critical ทำง่ายกว่า เพราะมี AGI สูง
-      ele: 0.0,
-      pdef: 0.8,   // Defense ทำยากกว่า เพราะมี VIT ต่ำ
-      mdef: 0.9
-    }
-  },
-  Engineer: {
-    statWeights: { 
-      atk: 1.4,    // 1 AGI = 0.5 Physical Damage
-      hp: 0.8,     // HP ทำยากกว่า เพราะมี VIT ต่ำ
-      fd: 1.2,
-      cri: 1.4,    // Critical ทำง่ายกว่า เพราะมี AGI สูง
-      ele: 0.0,
-      pdef: 0.6,   // Defense ทำยากกว่า เพราะมี VIT ต่ำ
-      mdef: 0.6
-    }
-  },
-
-  // Pure Magic DPS (Sorceress)
-  ForceUser: {
-    statWeights: { 
-      atk: 1.55,    // 1 INT = 0.75 Magic Damage
-      hp: 0.75,     // HP ทำยากที่สุด เพราะมี VIT ต่ำสุด
-      fd: 1.2,
-      cri: 1.6,    // Critical ทำยาก เพราะมาจาก AGI และมี cap
-      ele: 0.8,    // Elemental damage ทำยากมากสำหรับ magic classes
-      pdef: 0.7,   // Defense ทำยากที่สุด เพราะมี VIT ต่ำสุด
-      mdef: 0.6    // 1 INT = 0.8 Magic Defense
-    }
-  },
-  "Force User": {
-    statWeights: { 
-      atk: 1.55,
-      hp: 0.75,
-      fd: 1.2,
-      cri: 1.6,
-      ele: 0.8,
-      pdef: 0.7,
-      mdef: 0.6
-    }
-  },
-  ElementalLord: {
-    statWeights: { 
-      atk: 1.5,
-      hp: 0.7,
-      fd: 1.2,
-      cri: 1.6,
-      ele: 0.8,
-      pdef: 0.7,
-      mdef: 0.6
-    }
-  },
-  "Elemental Lord": {
-    statWeights: { 
-      atk: 1.5,
-      hp: 0.7,
-      fd: 1.2,
-      cri: 1.6,
-      ele: 0.8,
-      pdef: 0.7,
-      mdef: 0.6
-    }
-  },
-  Priest: {
-    statWeights: { 
-      atk: 1.2,
-      hp: 0.6,     // HP ทำง่ายที่สุด เพราะมี VIT สูงสุด
-      fd: 1.2,
-      cri: 1.8,    // Critical ทำยากที่สุด เพราะมี AGI ต่ำสุด
-      ele: 0.8,
-      pdef: 0.5,   // Defense ทำง่ายที่สุด เพราะมี VIT สูงสุด
-      mdef: 0.4
-    }
-  },
-  Alchemist: {
-    statWeights: { 
-      atk: 1.5,
-      hp: 0.8,
-      fd: 1.2,
-      cri: 1.6,
-      ele: 0.8,
-      pdef: 0.7,
-      mdef: 0.6
-    }
-  },
-
-  // Hybrid Classes (can play both Physical and Magic)
-  SwordMaster: {
-    statWeights: { 
-      atk: 1.5,    // 1 STR = 0.5 Physical Damage
-      hp: 0.8,     // HP ทำง่าย เพราะมาจาก VIT
-      fd: 1.2,
-      cri: 1.6,    // Critical ทำยาก เพราะมาจาก AGI และมี cap
-      ele: 0.0,    
-      pdef: 0.8,   // Defense ทำง่าย เพราะมาจาก VIT
-      mdef: 0.8
-    }
-  },
-  "Sword Master": {
-    statWeights: { 
-      atk: 1.5,
-      hp: 0.8,
-      fd: 1.2,
-      cri: 1.6,
-      ele: 0.0,
-      pdef: 0.8,
-      mdef: 0.9
-    }
-  },
-  Bowmaster: {
-    statWeights: { 
-      atk: 1.5,    // 1 AGI = 0.5 Physical Damage
-      hp: 0.8,     // HP ทำยากกว่า เพราะมี VIT ต่ำ
-      fd: 1.2,
-      cri: 1.5,    // Critical ทำง่ายกว่า เพราะมี AGI สูง
-      ele: 0.0,    
-      pdef: 0.9,   // Defense ทำยากกว่า เพราะมี VIT ต่ำ
-      mdef: 0.8
-    }
-  },
-  Paladin: {
-    statWeights: { 
-      atk: 1.7,    // 1 STR = 0.5 Physical Damage
-      hp: 0.6,     // HP ทำง่ายที่สุด เพราะมี VIT สูงสุด
-      fd: 1.2,
-      cri: 1.7,    // Critical ทำยากที่สุด เพราะมี AGI ต่ำสุด
-      ele: 0.8,    // Can use elemental damage
-      pdef: 0.6,   // Defense ทำง่ายที่สุด เพราะมี VIT สูงสุด
-      mdef: 0.7
-    }
-  }
+// New: Role-based balanced weight profiles (sum ~= 1.0)
+// We will normalize stats per dataset to reduce class bias
+const ROLE_WEIGHT_PROFILE: Record<string, Required<RoleConstants>['statWeights']> = {
+  // Warrior-like (Sword Master, Mercenary)
+  Warrior: { atk: 0.52, hp: 0.06, fd: 0.14, cri: 0.16, ele: 0.05, pdef: 0.04, mdef: 0.03 },
+  // Archer-like (Bowmaster, Acrobat)
+  Archer: { atk: 0.48, hp: 0.06, fd: 0.12, cri: 0.20, ele: 0.08, pdef: 0.04, mdef: 0.02 },
+  // Sorceress (Force User, Elemental Lord and their subjobs)
+  Sorceress: { atk: 0.45, hp: 0.06, fd: 0.12, cri: 0.16, ele: 0.15, pdef: 0.03, mdef: 0.03 },
+  // Cleric (Paladin, Priest) – a bit more survival credit
+  Cleric: { atk: 0.40, hp: 0.15, fd: 0.10, cri: 0.10, ele: 0.10, pdef: 0.08, mdef: 0.07 },
+  // Academic (Engineer, Alchemist)
+  Academic: { atk: 0.46, hp: 0.08, fd: 0.12, cri: 0.18, ele: 0.08, pdef: 0.05, mdef: 0.03 },
 };
+
+type StatWeights = { atk: number; hp: number; fd: number; cri: number; ele: number; pdef: number; mdef: number };
+
+type GlobalMaxStats = {
+  atk: number; hp: number; fd: number; cri: number; ele: number; pdef: number; mdef: number;
+};
+
+function computeGlobalMaxStats(characters: Character[]): GlobalMaxStats {
+  const init: GlobalMaxStats = { atk: 1, hp: 1, fd: 1, cri: 1, ele: 1, pdef: 1, mdef: 1 };
+  return characters.reduce((acc, c) => {
+    const s = c.stats as CharacterStats;
+    acc.atk = Math.max(acc.atk, s.atk || 0);
+    acc.hp = Math.max(acc.hp, s.hp || 0);
+    acc.fd = Math.max(acc.fd, s.fd || 0);
+    acc.cri = Math.max(acc.cri, s.cri || 0);
+    acc.ele = Math.max(acc.ele, s.ele || 0);
+    acc.pdef = Math.max(acc.pdef, s.pdef || 0);
+    acc.mdef = Math.max(acc.mdef, s.mdef || 0);
+    return acc;
+  }, init);
+}
+
+type DifficultyFactors = { atk: number; hp: number; fd: number; cri: number; ele: number; pdef: number; mdef: number };
+
+function percentile(sorted: number[], p: number): number {
+  if (sorted.length === 0) return 0;
+  const idx = Math.min(sorted.length - 1, Math.max(0, Math.floor((p / 100) * (sorted.length - 1))));
+  return sorted[idx];
+}
+
+function computeDifficultyFactors(characters: Character[], maxes: GlobalMaxStats): DifficultyFactors {
+  const gather = (selector: (s: CharacterStats) => number) => {
+    const vals = characters.map(c => selector(c.stats as CharacterStats)).map(v => Math.max(0, Math.min(1, v)));
+    vals.sort((a, b) => a - b);
+    const p50 = percentile(vals, 50);
+    const p90 = percentile(vals, 90);
+    const spread = Math.max(0.05, p90 - p50); // avoid div by zero
+    // Smaller spread => harder to push high values => give higher difficulty
+    // Map spread in [0.05..0.5+] -> factor in [1.4 .. 0.9]
+    const factor = Math.max(0.9, Math.min(1.4, 1.4 - (spread - 0.05) * 1.1));
+    return factor;
+  };
+
+  const atkN = (s: CharacterStats) => (s.atk || 0) / (maxes.atk || 1);
+  const hpN = (s: CharacterStats) => (s.hp || 0) / (maxes.hp || 1);
+  const fdN = (s: CharacterStats) => Math.min((s.fd || 0) / 100, 1);
+  const criN = (s: CharacterStats) => Math.min((s.cri || 0) / 100, 1);
+  const eleN = (s: CharacterStats) => Math.min((s.ele || 0) / 100, 1);
+  const pdefN = (s: CharacterStats) => Math.min((s.pdef || 0) / 100, 1);
+  const mdefN = (s: CharacterStats) => Math.min((s.mdef || 0) / 100, 1);
+
+  return {
+    atk: gather(atkN),
+    hp: gather(hpN),
+    fd: gather(fdN),
+    cri: gather(criN),
+    ele: gather(eleN),
+    pdef: gather(pdefN),
+    mdef: gather(mdefN)
+  };
+}
 
 // Helper function to format numbers with commas
 const formatNumberWithComma = (num: number): string => {
@@ -250,36 +190,35 @@ function sortCharacters(characters: RankedCharacter[], stat: SortType, direction
   });
 }
 
-const calculateScore = (character: Character): number => {
-  const stats = character.stats;
-  const roleWeights = ROLE_BALANCE[character.class]?.statWeights || {};
-  // ไม่ต้อง cap FD
-  const fdPercent = ((stats.fd || 0) * (roleWeights.fd ?? 1.0)) / 100;
+// Balanced score using normalized stats and role weight profile
+function calculateScore(character: Character, maxes: GlobalMaxStats, difficulty: DifficultyFactors): number {
+  const stats = character.stats as CharacterStats;
+  const role = CLASS_TO_ROLE[character.class];
+  const w: StatWeights = (ROLE_WEIGHT_PROFILE[role] as StatWeights) || (ROLE_WEIGHT_PROFILE.Warrior as StatWeights);
 
-  // ไม่ต้อง cap CRI
-  const critChance = ((stats.cri || 0) * (roleWeights.cri ?? 1.0)) / 100;
-  const critDmg = critChance;
-  const critMultiplier = critDmg * critChance + (1 - critChance);
+  // Normalize stats to 0..1 range against dataset maxima
+  const atkN = (stats.atk || 0) / (maxes.atk || 1);
+  const hpN = (stats.hp || 0) / (maxes.hp || 1);
+  const fdN = Math.min((stats.fd || 0) / 100, 1);
+  const criN = Math.min((stats.cri || 0) / 100, 1);
+  const eleN = Math.min((stats.ele || 0) / 100, 1);
+  const defAvg = ((stats.pdef || 0) + (stats.mdef || 0)) / 2;
+  const defN = Math.min(defAvg / 100, 1);
 
-  // Damage output formula (ใช้ statWeights แทน skillMultiplier)
-  const effectiveAtk =
-    (stats.atk || 0) * (roleWeights.atk ?? 1.0) *
-    (1 + fdPercent) *
-    (1 + ((stats.ele || 0) * (roleWeights.ele ?? 1.0)) / 100) *
-    critMultiplier;
+  // Weighted sum
+  const total = 
+    w.atk * difficulty.atk * atkN +
+    w.hp * difficulty.hp * hpN +
+    w.fd * difficulty.fd * fdN +
+    w.cri * difficulty.cri * criN +
+    w.ele * difficulty.ele * eleN +
+    // split def between pdef/mdef to keep the two knobs meaningful
+    (w.pdef || 0) * difficulty.pdef * Math.min((stats.pdef || 0) / 100, 1) +
+    (w.mdef || 0) * difficulty.mdef * Math.min((stats.mdef || 0) / 100, 1);
 
-  // Survival bonus (บาลานซ์มากขึ้น, ใช้ statWeights)
-  const hpWeight = roleWeights.hp ?? 1.0;
-  const defWeight = ((roleWeights.pdef ?? 1.0) + (roleWeights.mdef ?? 1.0)) / 2;
-  const survivalScore =
-    ((stats.hp || 0) / 1000) * hpWeight +
-    (((stats.pdef || 0) + (stats.mdef || 0)) / 2) * defWeight;
-
-  // คะแนนรวม (บาลานซ์ damage/survival)
-  const damagePart = effectiveAtk / 10;
-  const survivalPart = survivalScore * 10;
-  return Math.round((damagePart * 0.6 + survivalPart * 0.4) * 30);
-};
+  // Scale to familiar score band (approx 20k-130k)
+  return Math.round(total * 120000);
+}
 
 // --- Add getClassIcon function (reuse from PartyCard) ---
 const getClassIcon = (className: string) => {
@@ -352,6 +291,10 @@ export default function RankingPage() {
     setForceUpdate(prev => prev + 1);
   }, [users, characters]);
 
+  // Compute dataset maxima for normalization
+  const globalMaxes = useMemo(() => computeGlobalMaxStats(characters), [characters]);
+  const difficultyFactors = useMemo(() => computeDifficultyFactors(characters, globalMaxes), [characters, globalMaxes]);
+
   const handleSort = (stat: SortType) => {
     if (selectedStat === stat) {
       // ถ้าคลิกที่คอลัมน์เดิม สลับทิศทางการเรียง
@@ -367,9 +310,10 @@ export default function RankingPage() {
   const allRankedByScore = useMemo(() => {
     let processed = characters.map(char => {
       const discordName = users[char.userId]?.meta?.discord || 'ไม่มีชื่อ Discord';
+      const bonus = CLASS_SCORE_BONUS[(char.class as CharacterClass)] ?? 1;
       return {
         ...char,
-        score: calculateScore(char),
+        score: Math.round(calculateScore(char, globalMaxes, difficultyFactors) * bonus),
         discordName,
         stats: char.stats as CharacterStats
       };
@@ -383,7 +327,7 @@ export default function RankingPage() {
       return { ...char, rank: byJob[char.class] };
     });
     return processed;
-  }, [characters, users]);
+  }, [characters, users, globalMaxes, difficultyFactors]);
 
   // หาอันดับ 1 ของแต่ละอาชีพ (จาก allRankedByScore)
   const top1PerJob = useMemo(() => {
@@ -399,9 +343,10 @@ export default function RankingPage() {
     // First, calculate score and add Discord name for all characters
     let processed = characters.map(char => {
       const discordName = users[char.userId]?.meta?.discord || 'ไม่มีชื่อ Discord';
+      const bonus = CLASS_SCORE_BONUS[(char.class as CharacterClass)] ?? 1;
       return {
         ...char,
-        score: calculateScore(char),
+        score: Math.round(calculateScore(char, globalMaxes, difficultyFactors) * bonus),
         discordName,
         stats: char.stats as CharacterStats
       };
@@ -443,7 +388,7 @@ export default function RankingPage() {
     }
 
     return filtered;
-  }, [characters, selectedJob, selectedStat, searchQuery, users, sortDirection]);
+  }, [characters, selectedJob, selectedStat, searchQuery, users, sortDirection, globalMaxes, difficultyFactors]);
 
   const openCharacter = rankedCharacters.find(c => c.id === openCharacterId) || null;
 
